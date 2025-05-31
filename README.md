@@ -1,108 +1,117 @@
-# STACKED! The Card Game 🎴
-
+STACKED! The Card Game 🎴
 A fast-paced, strategic card game where pairing and arithmetic collide. Capture cards, stack your combos, and race to victory in this modern take on a classic family favorite.
-
----
-
-## 🧠 What Is STACKED!?
-
-**STACKED!** is a 2–4 player card game using a standard 52-card deck. The objective? Build the highest score by capturing cards from a shared board using strategic pairs and sum combinations. The game combines the feel of classic matching games with tactical math-based gameplay.
-
----
-
-## 🎯 Objective
-
+🧠 What Is STACKED!?
+STACKED! is a card game for 2–4 players (currently single-player with AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or adding sums, aiming to score the most points. It blends classic matching with tactical math-based strategy.
+🎯 Objective
 Score the most points by capturing cards using:
-- **Pairs** (match values)
-- **Arithmetic combos** (add cards together to match another)
 
-The first player to reach the agreed score threshold (e.g., **500**, **1000**, or **1500** points) wins!
+Pairs: Match a card from your hand to a board card.
+Sums: Add your hand card with board cards to match another board card.
 
----
+First to reach 500 (short), 1000 (medium), or 1500 (long) points wins!
+🃏 Setup
 
-## 🃏 Setup
+Use a standard 52-card deck (no Jokers).
+The dealer shuffles and deals:
+4 cards to each player.
+4 face-up cards to the center board.
 
-1. Use a standard 52-card deck (no Jokers).
-2. Choose a dealer. The dealer shuffles and deals:
-   - 4 cards to each player (clockwise)
-   - 4 face-up cards to the center board
-3. Play begins with the player to the dealer’s left (or who received the first card).
 
----
+Play begins with the player (you) against AI bots.
 
-## 🔁 Gameplay
-
+🔁 Gameplay
 On your turn:
 
-1. Attempt to **capture** cards using at least one card from the board:
-   - Match a **pair**
-   - Add card values together (e.g., 5 from hand + 5 from board = 10 on board)
-2. You may make **multiple combos** in a turn if valid.
-3. After making moves, if cards remain in your hand, place **1 card onto the board**.
-4. If no valid move exists, place **1 card onto the board** and pass.
+Capture Cards:
+Use one hand card and at least one board card to:
+Pair: Match a board card’s value (e.g., play 5 to capture 5).
+Sum: Add your card with board cards to match another (e.g., play 5 + board 5 = 10 to capture 10).
 
----
 
-## 🛑 End of a Hand
+You can make multiple captures in one turn with the same hand card.
 
-- A hand ends when **only one player** has cards left.
-- If the **board is ever cleared**, players continue by placing a card onto it on their turns.
-- After each hand, if cards remain in the deck, deal 4 more to each player.
-  - Only **refill the board with 4 new cards** if it’s completely empty.
 
----
+Place a Card:
+After capturing (or if no capture is possible), place 1 hand card on the board.
 
-## 🪙 Scoring
 
-At the **end of the final hand** (when the deck is empty):
+Empty Board:
+If the board is cleared, place 1 hand card on the board until captures are possible or hands are empty.
 
-- Captured cards are scored:
-  - **2–9** → 5 points each
-  - **10, J, Q, K** → 10 points each
-  - **Ace** → 15 points
 
-Players add their round score to their **total cumulative score**.
 
----
+🛑 End of a Hand
 
-## 🏆 Winning the Game
+A hand ends when only one player has cards left.
+If the deck isn’t empty, deal 4 new cards per player (no new board cards unless empty).
+If the board is empty, deal 4 board cards.
 
-Choose your target score:
-- Short Game → 500 points
-- Medium Game → 1000 points
-- Long Game → 1500 points
+🪙 Scoring
+At the end of the final hand (deck empty):
 
-If a tie occurs at the winning threshold, play additional hands until the tie is broken.
+Score captured cards:
+2–9: 5 points each
+10, J, Q, K: 10 points each
+Ace: 15 points
 
----
 
-## 💡 Strategy Tips
+Add to your cumulative score.
+If no moves are possible, the last player to capture takes all board cards.
 
-- Save high-value cards for combos
-- Don’t leave easy matches on the board for others
-- Watch the board state closely — timing is key
+🏆 Winning
 
----
+Short: 500 points
+Medium: 1000 points
+Long: 1500 points
+Break ties with additional hands.
 
-## 👑 Credits
+💡 Strategy Tips
 
-Created by [Your Name]  
-Inspired by a timeless family card game  
-Logo design & rulebook supported by AI (ChatGPT)
+Save high-value cards (Aces, Kings) for big captures.
+Place cards strategically to block opponents.
+Time your combos to clear the board.
 
----
+🛠️ Getting Started
+Prerequisites
 
-## 📄 License
+Node.js (v18+)
+npm
+Git
 
-This game is shared under the [Creative Commons Attribution-NonCommercial 4.0 License](https://creativecommons.org/licenses/by-nc/4.0/).  
-Feel free to play, modify, and share — just don’t sell it without permission.
+Installation
 
----
+Clone the repo:git clone https://github.com/toocheesy/stacked.git
+cd stacked
 
-### 🔗 Learn more
 
-- [Official Rulebook PDF](#)
-- [Play Online (Coming Soon!)](#)
-- [Submit Feedback or Report Bugs](#)
+Install dependencies:npm install
 
+
+Run the dev server:npm run dev
+
+Open http://localhost:5173.
+
+Build
+npm run build
+
+📂 Project Structure
+stacked/
+├── src/
+│   ├── components/     # Card, Board, Hand components
+│   ├── styles/         # Tailwind CSS
+│   ├── App.jsx         # Main app
+│   ├── main.jsx        # React entry
+├── public/             # Static assets
+├── .gitignore          # Ignore node_modules, dist
+├── package.json        # Dependencies
+├── vite.config.js      # Vite config
+├── tailwind.config.js  # Tailwind config
+└── README.md           # This file
+
+👑 Credits
+Created by toocheesyInspired by a timeless family card gameDeveloped with AI assistance (Grok by xAI)
+📄 License
+Creative Commons Attribution-NonCommercial 4.0Play, modify, share—just don’t sell without permission.
+📬 Feedback
+Submit bugs or ideas via GitHub Issues.
 Let’s get STACKED!
