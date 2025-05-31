@@ -1,4 +1,3 @@
-// js/main.js
 let state = {
   deck: [],
   board: [],
@@ -16,12 +15,19 @@ function initGame() {
   const deck = shuffleDeck(createDeck());
   const { players, board, remainingDeck } = dealCards(deck);
   state.deck = remainingDeck;
-  state.board = board;
-  state.hands = players;
+  state.board = board.filter(card => card && card.value && card.suit); // Ensure no invalid cards
+  state.hands = players.map(hand => hand.filter(card => card && card.value && card.suit));
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  new Audio('assets/sounds/shuffle.mp3').play();
+  console.log('Initial state:', state); // Debug log
+  new Audio('assets/sounds/shuffle.mp3').play().catch(() => {}); // Catch audio errors
   render();
+  
+  // Add tutorial pop-up
+  if (!localStorage.getItem('stackedTutorialSeen')) {
+    alert('Welcome to STACKED! Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!');
+    localStorage.setItem('stackedTutorialSeen', 'true');
+  }
 }
 
 // Render the game state to the DOM
@@ -29,7 +35,12 @@ function render() {
   // Render board
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
+  console.log('Rendering board cards:', state.board); // Debug log
   state.board.forEach((card, index) => {
+    if (!card || !card.value || !card.suit) {
+      console.warn('Invalid card on board:', card, 'at index:', index);
+      return; // Skip invalid cards
+    }
     const cardEl = document.createElement('div');
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedBoardCards.includes(index) ? 'selected' : ''
@@ -42,7 +53,12 @@ function render() {
   // Render player's hand
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
+  console.log('Rendering player hand:', state.hands[0]); // Debug log
   state.hands[0].forEach((card, index) => {
+    if (!card || !card.value || !card.suit) {
+      console.warn('Invalid card in hand:', card, 'at index:', index);
+      return; // Skip invalid cards
+    }
     const cardEl = document.createElement('div');
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedHandCard === index ? 'selected' : ''
@@ -103,11 +119,14 @@ function handleCapture() {
   state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
   state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedHandCard);
   state.scores.player += scoreCards(capturedCards);
-  new Audio('assets/sounds/capture.mp3').play();
+  new Audio('assets/sounds/capture.mp3').play().catch(() => {}); // Catch audio errors
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
-    state.board.push(state.hands[0][0]);
-    state.hands[0] = state.hands[0].slice(1);
+    const nextCard = state.hands[0][0];
+    if (nextCard && nextCard.value && nextCard.suit) {
+      state.board.push(nextCard);
+      state.hands[0] = state.hands[0].slice(1);
+    }
   }
 
   state.selectedHandCard = null;
@@ -140,15 +159,18 @@ function aiTurn() {
     state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
-    new Audio('assets/sounds/capture.mp3').play();
+    new Audio('assets/sounds/capture.mp3').play().catch(() => {}); // Catch audio errors
   } else {
     state.board.push(aiAction.handCard);
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
   }
 
   if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
-    state.board.push(state.hands[playerIndex][0]);
-    state.hands[playerIndex] = state.hands[playerIndex].slice(1);
+    const nextCard = state.hands[playerIndex][0];
+    if (nextCard && nextCard.value && nextCard.suit) {
+      state.board.push(nextCard);
+      state.hands[playerIndex] = state.hands[playerIndex].slice(1);
+    }
   }
 
   state.currentPlayer = (playerIndex + 1) % 3;
@@ -176,7 +198,7 @@ function checkGameEnd() {
     state.deck = [];
     state.board = board.length > 0 ? board : state.board;
     state.hands = players;
-    new Audio('assets/sounds/shuffle.mp3').play();
+    new Audio('assets/sounds/shuffle.mp3').play().catch(() => {}); // Catch audio errors
     state.currentPlayer = 0;
   }
 }
@@ -184,6 +206,7 @@ function checkGameEnd() {
 // Event listeners
 document.getElementById('capture-btn').addEventListener('click', handleCapture);
 document.getElementById('place-btn').addEventListener('click', handlePlaceCard);
+document.getElementById('restart-btn').addEventListener('click', initGame);
 
 // Start the game
 initGame();
