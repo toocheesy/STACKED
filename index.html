@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STACKED! The Card Game 🎴</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>STACKED! 🎴</h1>
+    <div id="scoreboard" class="scoreboard">
+      <h2>Scores</h2>
+      <p>Player: <span id="player-score">0</span> pts</p>
+      <p>Bot 1: <span id="bot1-score">0</span> pts</p>
+      <p>Bot 2: <span id="bot2-score">0</span> pts</p>
+    </div>
+    <div id="board" class="board"></div>
+    <div id="player-hand" class="hand"></div>
+    <div class="actions">
+      <button id="capture-btn" disabled>Capture</button>
+      <button id="place-btn" disabled>Place Card</button>
+    </div>
+    <div id="message" class="message"></div>
+  </div>
+  <script src="js/deck.js"></script>
+  <script src="js/gameLogic.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
