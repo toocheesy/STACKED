@@ -50,7 +50,7 @@ h1 {
 
 .combo-slot {
   width: 70px;
-  height: 310px; /* Height for 3 cards stacked vertically (100px each + gaps) */
+  height: 310px; /* Height for multiple cards stacked vertically */
   background-color: rgba(241, 196, 15, 0.1);
   border: 2px dashed #ccc;
   border-radius: 8px;
@@ -126,7 +126,7 @@ h1 {
 .table {
   position: relative;
   width: 800px;
-  height: 750px; /* Increased height to fit playing area */
+  height: 750px; /* Adjusted for playing area */
   margin: 0 auto;
   background-color: #229954; /* Lighter green felt */
   border: 4px solid #7B3F00; /* Wooden border */
@@ -168,11 +168,10 @@ h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: 1fr;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); /* Dynamic columns */
   gap: 10px;
-  width: 340px;
-  height: 110px;
+  width: 90%; /* Max width relative to table */
+  max-width: 700px; /* Prevent overflow */
   padding: 15px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
@@ -306,6 +305,10 @@ button:disabled {
     width: 60px;
     height: 260px;
   }
+
+  .board {
+    max-width: 570px;
+  }
 }
 
 @media (max-width: 700px) {
@@ -319,8 +322,7 @@ button:disabled {
   }
 
   .board {
-    width: 280px;
-    height: 95px;
+    max-width: 430px;
     padding: 10px;
   }
 
@@ -368,8 +370,7 @@ button:disabled {
   }
 
   .board {
-    width: 240px;
-    height: 80px;
+    max-width: 330px;
     gap: 8px;
   }
 
