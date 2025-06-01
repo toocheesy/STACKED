@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STACKED! 🎴</title>
-  <link rel="stylesheet" href="/css/styles.css"> <!-- Fixed path -->
+  <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
   <div class="game-container">
@@ -39,13 +39,14 @@
 
     <!-- Game Table -->
     <h1>STACKED! 🎴</h1>
+    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
     <div class="table">
       <!-- Scores positioned in corners -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
       <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
 
-      <!-- Center board (2x2 grid) -->
+      <!-- Center board (4 slots) -->
       <div class="board" id="board"></div>
 
       <!-- Player hands -->
@@ -56,16 +57,14 @@
 
     <!-- Actions and message -->
     <div class="actions">
-      <button id="capture-btn">Capture</button>
-      <button id="place-btn">Place Card</button>
       <button id="restart-btn">Restart Game</button>
     </div>
-    <div class="message" id="message">Select board cards to capture, or place your card.</div>
+    <div class="message" id="message">Drag a card from your hand to the board to capture or place.</div>
   </div>
 
   <script src="/js/deck.js"></script>
   <script src="/js/gameLogic.js"></script>
   <script src="/js/ai.js"></script>
-  <script src="/js/main.js"></script> <!-- Fixed path -->
+  <script src="/js/main.js"></script>
 </body>
 </html>
