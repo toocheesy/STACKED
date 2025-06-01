@@ -6,6 +6,10 @@ let state = {
   selectedHandCard: null,
   selectedBoardCards: [],
   currentPlayer: 0, // 0 = player, 1 = bot1, 2 = bot2
+  settings: {
+    cardSpeed: 'fast',
+    soundEffects: 'off'
+  }
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
@@ -20,12 +24,30 @@ function initGame() {
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
   console.log('Initial state:', state);
-  new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
+  // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
   render();
-  if (!localStorage.getItem('stackedTutorialSeen')) {
-    alert('Welcome to STACKED! Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!');
-    localStorage.setItem('stackedTutorialSeen', 'true');
+  showSettingsModal();
+}
+
+// Show settings modal on first load
+function showSettingsModal() {
+  if (localStorage.getItem('stackedTutorialSeen')) {
+    return;
   }
+  const modal = document.getElementById('settings-modal');
+  modal.style.display = 'flex';
+
+  document.getElementById('start-game-btn').addEventListener('click', () => {
+    state.settings.cardSpeed = document.getElementById('card-speed').value;
+    state.settings.soundEffects = document.getElementById('sound-effects').value;
+    localStorage.setItem('stackedTutorialSeen', 'true');
+    modal.style.display = 'none';
+  });
+
+  document.getElementById('skip-settings-btn').addEventListener('click', () => {
+    localStorage.setItem('stackedTutorialSeen', 'true');
+    modal.style.display = 'none';
+  });
 }
 
 // Render the game state to the DOM
@@ -43,9 +65,10 @@ function render() {
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedBoardCards.includes(index) ? 'selected' : ''
     }`;
-    cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
-    cardEl.style.backgroundSize = 'cover';
-    cardEl.style.backgroundPosition = 'center';
+    cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`; // Fallback to text
+    // cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
+    // cardEl.style.backgroundSize = 'cover';
+    // cardEl.style.backgroundPosition = 'center';
     cardEl.addEventListener('click', () => handleBoardCardClick(index));
     boardEl.appendChild(cardEl);
   });
@@ -63,17 +86,36 @@ function render() {
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedHandCard === index ? 'selected' : ''
     }`;
-    cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
-    cardEl.style.backgroundSize = 'cover';
-    cardEl.style.backgroundPosition = 'center';
+    cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`; // Fallback to text
+    // cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
+    // cardEl.style.backgroundSize = 'cover';
+    // cardEl.style.backgroundPosition = 'center';
     cardEl.addEventListener('click', () => handleHandCardClick(index));
     handEl.appendChild(cardEl);
   });
 
+  // Render Bot 1's hand (card backs)
+  const bot1HandEl = document.getElementById('bot1-hand');
+  bot1HandEl.innerHTML = '';
+  state.hands[1].forEach(() => {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card back';
+    bot1HandEl.appendChild(cardEl);
+  });
+
+  // Render Bot 2's hand (card backs)
+  const bot2HandEl = document.getElementById('bot2-hand');
+  bot2HandEl.innerHTML = '';
+  state.hands[2].forEach(() => {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card back';
+    bot2HandEl.appendChild(cardEl);
+  });
+
   // Update scores
-  document.getElementById('player-score').textContent = state.scores.player;
-  document.getElementById('bot1-score').textContent = state.scores.bot1;
-  document.getElementById('bot2-score').textContent = state.scores.bot2;
+  document.getElementById('player-score').textContent = `Player: ${state.scores.player} pts`;
+  document.getElementById('bot1-score').textContent = `Bot 1: ${state.scores.bot1} pts`;
+  document.getElementById('bot2-score').textContent = `Bot 2: ${state.scores.bot2} pts`;
 
   // Update buttons
   const captureBtn = document.getElementById('capture-btn');
@@ -132,7 +174,7 @@ function handleCapture() {
   state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
   state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedHandCard);
   state.scores.player += scoreCards(capturedCards);
-  new Audio('assets/sounds/capture.mp3').play().catch(() => {});
+  // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -172,7 +214,7 @@ function aiTurn() {
     state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
-    new Audio('assets/sounds/capture.mp3').play().catch(() => {});
+    // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
   } else {
     state.board.push(aiAction.handCard);
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
@@ -185,6 +227,8 @@ function aiTurn() {
       state.hands[playerIndex] = state.hands[playerIndex].slice(1);
     }
   }
+
+ 用心
 
   state.currentPlayer = (playerIndex + 1) % 3;
   checkGameEnd();
@@ -209,7 +253,7 @@ function checkGameEnd() {
     state.deck = [];
     state.board = board.length > 0 ? board : state.board;
     state.hands = players;
-    new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
+    // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
     state.currentPlayer = 0;
   }
 }

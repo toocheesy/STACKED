@@ -3,30 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STACKED! The Card Game 🎴</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>STACKED! 🎴</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="game-container">
-    <h1>STACKED! 🎴</h1>
-    <div id="scoreboard" class="scoreboard">
-      <h2>Scores</h2>
-      <p>Player: <span id="player-score">0</span> pts</p>
-      <p>Bot 1: <span id="bot1-score">0</span> pts</p>
-      <p>Bot 2: <span id="bot2-score">0</span> pts</p>
+    <!-- Modal for Tutorial/Settings -->
+    <div id="settings-modal" class="modal">
+      <div class="modal-content">
+        <h2>Welcome to STACKED!</h2>
+        <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
+        <div class="settings">
+          <h3>Settings</h3>
+          <label>
+            Card Reveal Speed:
+            <select id="card-speed">
+              <option value="slow">Slow</option>
+              <option value="fast" selected>Fast</option>
+            </select>
+          </label>
+          <label>
+            Sound Effects:
+            <select id="sound-effects">
+              <option value="on">On</option>
+              <option value="off" selected>Off</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-actions">
+          <button id="start-game-btn">Start Game</button>
+          <button id="skip-settings-btn">Skip</button>
+        </div>
+      </div>
     </div>
-    <div id="board" class="board"></div>
-    <div id="player-hand" class="hand"></div>
+
+    <!-- Game Table -->
+    <h1>STACKED! 🎴</h1>
+    <div class="table">
+      <!-- Scores positioned in corners -->
+      <div class="score player-score" id="player-score">Player: 0 pts</div>
+      <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
+      <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
+
+      <!-- Center board (2x2 grid) -->
+      <div class="board" id="board"></div>
+
+      <!-- Player hands -->
+      <div class="hand player-hand" id="player-hand"></div>
+      <div class="hand bot1-hand" id="bot1-hand"></div>
+      <div class="hand bot2-hand" id="bot2-hand"></div>
+    </div>
+
+    <!-- Actions and message -->
     <div class="actions">
-      <button id="capture-btn" disabled>Capture</button>
-      <button id="place-btn" disabled>Place Card</button>
+      <button id="capture-btn">Capture</button>
+      <button id="place-btn">Place Card</button>
       <button id="restart-btn">Restart Game</button>
     </div>
-    <div id="message" class="message"></div>
+    <div class="message" id="message">Select board cards to capture, or place your card.</div>
   </div>
+
   <script src="js/deck.js"></script>
   <script src="js/gameLogic.js"></script>
   <script src="js/ai.js"></script>
-  <script src="js/main.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>
