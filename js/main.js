@@ -50,6 +50,19 @@ function render() {
   const deckCountEl = document.getElementById('deck-count');
   deckCountEl.textContent = `Deck: ${state.deck.length} cards`;
 
+  // Dynamically adjust table width and bot card positions
+  const tableEl = document.querySelector('.table');
+  const bot1HandEl = document.querySelector('.bot1-hand');
+  const bot2HandEl = document.querySelector('.bot2-hand');
+  const cardCount = state.board.length;
+  const baseWidth = 800; // Minimum table width
+  const cardWidth = 80; // 70px card + 10px gap
+  const tableWidth = Math.max(baseWidth, cardCount <= 4 ? baseWidth : (cardCount * cardWidth) + 100); // Add padding
+  tableEl.style.width = `${tableWidth}px`;
+  const botOffset = -20 - (cardCount > 4 ? (cardCount - 4) * 10 : 0); // Move bots outward
+  bot1HandEl.style.left = `${botOffset}px`;
+  bot2HandEl.style.right = `${botOffset}px`;
+
   // Render playing area - 3 slots
   const comboAreaEl = document.getElementById('combination-area');
   for (let slot = 0; slot < 3; slot++) {
@@ -66,6 +79,8 @@ function render() {
         const cardEl = document.createElement('div');
         cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
         cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.style.position = 'absolute';
+        cardEl.style.top = `${comboIndex * 20}px`; // Stack cards vertically
         cardEl.setAttribute('draggable', 'true');
         cardEl.setAttribute('data-slot', slot);
         cardEl.setAttribute('data-combo-index', comboIndex);
@@ -73,6 +88,8 @@ function render() {
         cardEl.addEventListener('dragend', handleDragEnd);
         slotEl.appendChild(cardEl);
       });
+      // Dynamically adjust slot height
+      slotEl.style.height = `${110 + (slotCards.length - 1) * 20}px`;
     }
     slotEl.addEventListener('dragover', (e) => e.preventDefault());
     slotEl.addEventListener('drop', (e) => handleDrop(e, slot));
