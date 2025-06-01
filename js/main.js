@@ -4,6 +4,7 @@ let state = {
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
   draggedCardIndex: null, // Track the dragged hand card
+  selectedBoardCards: [], // Track selected board cards for capture
   currentPlayer: 0, // 0 = player, 1 = bot1, 2 = bot2
   settings: {
     cardSpeed: 'fast',
@@ -23,7 +24,7 @@ function initGame() {
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
   state.draggedCardIndex = null;
-  // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
+  state.selectedBoardCards = [];
   render();
   showSettingsModal();
 }
@@ -68,7 +69,9 @@ function render() {
       cardEl.addEventListener('dragover', (e) => e.preventDefault());
       cardEl.addEventListener('drop', handleDrop);
     } else {
-      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
+        state.selectedBoardCards.includes(index) ? 'selected' : ''
+      }`;
       cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
       cardEl.setAttribute('data-index', index);
       cardEl.setAttribute('data-type', 'board');
@@ -92,7 +95,9 @@ function render() {
       cardEl.style.border = '2px dashed #ccc';
       cardEl.textContent = '';
     } else {
-      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
+        state.draggedCardIndex === index ? 'selected' : ''
+      }`;
       cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
       cardEl.setAttribute('draggable', 'true');
       cardEl.setAttribute('data-index', index);
@@ -126,10 +131,24 @@ function render() {
   document.getElementById('bot1-score').textContent = `Bot 1: ${state.scores.bot1} pts`;
   document.getElementById('bot2-score').textContent = `Bot 2: ${state.scores.bot2} pts`;
 
+  // Update submit button
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = state.currentPlayer !== 0 || state.draggedCardIndex === null || state.selectedBoardCards.length === 0;
+
   // Update message
   const messageEl = document.getElementById('message');
   if (state.currentPlayer === 0) {
-    messageEl.textContent = "Drag a card from your hand to the board to capture or place.";
+    if (state.hands[0].length === 0) {
+      messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
+      state.currentPlayer = 1;
+      setTimeout(aiTurn, 1000);
+    } else if (state.draggedCardIndex === null) {
+      messageEl.textContent = "Drag a card from your hand to the board to capture or place.";
+    } else if (state.selectedBoardCards.length === 0) {
+      messageEl.textContent = "Drag your card to board cards to capture, or an empty slot to place.";
+    } else {
+      messageEl.textContent = "Click 'Submit Move' to confirm your action.";
+    }
   } else {
     messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
   }
@@ -144,8 +163,8 @@ function handleDragStart(e) {
 
 // Handle drag end
 function handleDragEnd(e) {
+  // Don't reset draggedCardIndex to allow multiple drops
   e.target.classList.remove('selected');
-  state.draggedCardIndex = null;
 }
 
 // Handle drop
@@ -158,29 +177,47 @@ function handleDrop(e) {
 
   if (targetType !== 'board') return;
 
-  const handCard = state.hands[0][state.draggedCardIndex];
   const boardCard = state.board[targetIndex];
 
-  // If the target slot is empty, treat it as a place action (end turn)
+  // If the target slot is empty, mark it as a place action (will be confirmed on submit)
   if (!boardCard || !boardCard.value || !boardCard.suit) {
-    handlePlaceCard(targetIndex);
+    state.selectedBoardCards = [targetIndex];
+    render();
+    return;
+  }
+
+  // Otherwise, add the board card to the selection for capture
+  if (!state.selectedBoardCards.includes(targetIndex)) {
+    state.selectedBoardCards.push(targetIndex);
+  }
+  render();
+}
+
+// Handle submit action (validate and execute moves)
+function handleSubmit() {
+  if (state.currentPlayer !== 0 || state.draggedCardIndex === null || state.selectedBoardCards.length === 0) return;
+
+  const handCard = state.hands[0][state.draggedCardIndex];
+  const firstBoardIndex = state.selectedBoardCards[0];
+  const firstBoardCard = state.board[firstBoardIndex];
+
+  // If the first selected slot is empty, treat it as a place action (end turn)
+  if (!firstBoardCard || !firstBoardCard.value || !firstBoardCard.suit) {
+    handlePlaceCard(firstBoardIndex);
     return;
   }
 
   // Otherwise, attempt a capture
-  handleCapture(targetIndex);
-}
-
-// Handle capture action
-function handleCapture(boardIndex) {
-  const handCard = state.hands[0][state.draggedCardIndex];
   const captures = canCapture(handCard, state.board);
   const selectedCapture = captures.find(cap =>
-    cap.cards.includes(boardIndex)
+    cap.cards.every(i => state.selectedBoardCards.includes(i))
   );
 
   if (!selectedCapture) {
-    document.getElementById('message').textContent = 'Invalid capture! Try another card.';
+    document.getElementById('message').textContent = 'Invalid capture! Try a different combination.';
+    state.selectedBoardCards = [];
+    state.draggedCardIndex = null;
+    render();
     return;
   }
 
@@ -188,7 +225,6 @@ function handleCapture(boardIndex) {
   state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
   state.hands[0] = state.hands[0].filter((_, i) => i !== state.draggedCardIndex);
   state.scores.player += scoreCards(capturedCards);
-  // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -199,6 +235,7 @@ function handleCapture(boardIndex) {
   }
 
   state.draggedCardIndex = null;
+  state.selectedBoardCards = [];
   checkGameEnd();
   render();
   // Do not advance to the next player; allow multiple captures
@@ -217,15 +254,25 @@ function handlePlaceCard(boardIndex) {
   
   state.hands[0] = state.hands[0].filter((_, i) => i !== state.draggedCardIndex);
   state.draggedCardIndex = null;
+  state.selectedBoardCards = [];
   state.currentPlayer = 1; // End player's turn
   checkGameEnd();
   render();
   if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
 }
 
-// AI turn (same as before, but adjusted for new board structure)
+// AI turn
 function aiTurn() {
   const playerIndex = state.currentPlayer;
+  if (state.hands[playerIndex].length === 0) {
+    // If bot is out of cards, move to the next player
+    state.currentPlayer = (playerIndex + 1) % 3;
+    checkGameEnd();
+    render();
+    if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+    return;
+  }
+
   const aiAction = aiMove(state.hands[playerIndex], state.board);
 
   if (aiAction.action === 'capture') {
@@ -233,7 +280,6 @@ function aiTurn() {
     state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
-    // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
   } else {
     // Place the card in the first empty slot or append
     let placed = false;
@@ -264,27 +310,34 @@ function aiTurn() {
   if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
 }
 
-// Check if the game has ended
+// Check if the game has ended or a round has ended
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-  if (playersWithCards <= 1 && state.deck.length === 0) {
-    const winner = state.scores.player >= 500 ? 'Player' :
-                   state.scores.bot1 >= 500 ? 'Bot 1' :
-                   state.scores.bot2 >= 500 ? 'Bot 2' :
-                   state.scores.player > state.scores.bot1 && state.scores.player > state.scores.bot2 ? 'Player' :
-                   state.scores.bot1 > state.scores.player && state.scores.bot1 > state.scores.bot2 ? 'Bot 1' : 'Bot 2';
-    document.getElementById('message').textContent = `${winner} wins! Restart the game to play again.`;
-  } else if (playersWithCards <= 1) {
-    const { players, board } = dealCards(shuffleDeck(state.deck));
-    state.deck = [];
-    state.board = board.length > 0 ? board : state.board;
-    state.hands = players;
-    // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
-    state.currentPlayer = 0;
+
+  // Check if the round has ended (all players out of cards)
+  if (playersWithCards === 0) {
+    if (state.deck.length === 0) {
+      // Game ends if deck is empty
+      const winner = state.scores.player >= 500 ? 'Player' :
+                     state.scores.bot1 >= 500 ? 'Bot 1' :
+                     state.scores.bot2 >= 500 ? 'Bot 2' :
+                     state.scores.player > state.scores.bot1 && state.scores.player > state.scores.bot2 ? 'Player' :
+                     state.scores.bot1 > state.scores.player && state.scores.bot1 > state.scores.bot2 ? 'Bot 1' : 'Bot 2';
+      document.getElementById('message').textContent = `${winner} wins! Restart the game to play again.`;
+    } else {
+      // Start a new round: deal 4 cards to each player
+      const { players, board, remainingDeck } = dealCards(state.deck, 3, 4, 4);
+      state.deck = remainingDeck;
+      state.board = board.length > 0 ? board : state.board;
+      state.hands = players;
+      state.currentPlayer = 0;
+      document.getElementById('message').textContent = "New round! Drag a card from your hand to the board.";
+    }
   }
 }
 
 // Event listeners
+document.getElementById('submit-btn').addEventListener('click', handleSubmit);
 document.getElementById('restart-btn').addEventListener('click', initGame);
 
 // Start the game
