@@ -3,13 +3,14 @@ let state = {
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: [], // Array of { source: 'hand'/'board', index: number, card: {...} }
+  combination: [[], [], []], // Array of arrays: each slot can hold multiple cards
   currentPlayer: 0, // 0 = player, 1 = bot1, 2 = bot2
   settings: {
     cardSpeed: 'fast',
     soundEffects: 'off',
     targetScore: 500
-  }
+  },
+  draggedCard: null // Track the dragged card
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
@@ -23,7 +24,8 @@ function initGame() {
   state.hands = players.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  state.combination = [];
+  state.combination = [[], [], []];
+  state.draggedCard = null;
   render();
   showSettingsModal();
 }
@@ -48,29 +50,32 @@ function render() {
   const deckCountEl = document.getElementById('deck-count');
   deckCountEl.textContent = `Deck: ${state.deck.length} cards`;
 
-  // Render combination area - always 3 slots
+  // Render combination area - 3 slots
   const comboAreaEl = document.getElementById('combination-area');
   for (let slot = 0; slot < 3; slot++) {
     const slotEl = comboAreaEl.querySelector(`[data-slot="${slot}"]`);
     slotEl.innerHTML = '';
-    const comboEntry = state.combination[slot];
     
-    if (!comboEntry) {
+    const slotCards = state.combination[slot];
+    if (slotCards.length === 0) {
       slotEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
       slotEl.style.border = '2px dashed #ccc';
-      slotEl.addEventListener('dragover', (e) => e.preventDefault());
-      slotEl.addEventListener('drop', (e) => handleDrop(e, slot));
     } else {
-      const card = comboEntry.card;
-      const cardEl = document.createElement('div');
-      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
-      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
-      cardEl.setAttribute('draggable', 'true');
-      cardEl.setAttribute('data-slot', slot);
-      cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, slot));
-      cardEl.addEventListener('dragend', handleDragEnd);
-      slotEl.appendChild(cardEl);
+      slotCards.forEach((comboEntry, comboIndex) => {
+        const card = comboEntry.card;
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-slot', slot);
+        cardEl.setAttribute('data-combo-index', comboIndex);
+        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, slot, comboIndex));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        slotEl.appendChild(cardEl);
+      });
     }
+    slotEl.addEventListener('dragover', (e) => e.preventDefault());
+    slotEl.addEventListener('drop', (e) => handleDrop(e, slot));
   }
 
   // Render board - always render 4 slots
@@ -81,7 +86,7 @@ function render() {
     const card = state.board[index];
     const cardEl = document.createElement('div');
     
-    if (!card || !card.value || !card.suit || state.combination.some(entry => entry.source === 'board' && entry.index === index)) {
+    if (!card || !card.value || !card.suit || state.combination.some(slot => slot.some(entry => entry.source === 'board' && entry.index === index))) {
       cardEl.className = 'card';
       cardEl.style.backgroundColor = '#f0f0f0';
       cardEl.style.border = '2px dashed #ccc';
@@ -112,7 +117,7 @@ function render() {
     const card = state.hands[0][index];
     const cardEl = document.createElement('div');
     
-    if (!card || !card.value || !card.suit || state.combination.some(entry => entry.source === 'hand' && entry.index === index)) {
+    if (!card || !card.value || !card.suit || state.combination.some(slot => slot.some(entry => entry.source === 'hand' && entry.index === index))) {
       cardEl.className = 'card';
       cardEl.style.backgroundColor = '#f0f0f0';
       cardEl.style.border = '2px dashed #ccc';
@@ -160,7 +165,7 @@ function render() {
 
   // Update submit button
   const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = state.currentPlayer !== 0 || state.combination.length === 0;
+  submitBtn.disabled = state.currentPlayer !== 0 || state.combination.every(slot => slot.length === 0);
 
   // Update message
   const messageEl = document.getElementById('message');
@@ -169,8 +174,8 @@ function render() {
       messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
       state.currentPlayer = 1;
       setTimeout(aiTurn, 1000);
-    } else if (state.combination.length === 0) {
-      messageEl.textContent = "Drag cards to the combination area to build a capture, or place a card to end your turn.";
+    } else if (state.combination.every(slot => slot.length === 0)) {
+      messageEl.textContent = "Drag cards to the playing area to build a capture, or place a card to end your turn.";
     } else {
       messageEl.textContent = "Click 'Submit Move' to confirm your action.";
     }
@@ -187,10 +192,11 @@ function handleDragStart(e, source, index) {
 }
 
 // Handle drag start from combination area
-function handleDragStartCombo(e, slot) {
+function handleDragStartCombo(e, slot, comboIndex) {
   if (state.currentPlayer !== 0) return;
-  state.draggedCard = state.combination[slot];
+  state.draggedCard = state.combination[slot][comboIndex];
   state.draggedCard.slot = slot;
+  state.draggedCard.comboIndex = comboIndex;
   e.target.classList.add('selected');
 }
 
@@ -205,25 +211,17 @@ function handleDrop(e, slot) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
-  // Check if slot is already occupied
-  if (state.combination[slot]) {
-    document.getElementById('message').textContent = 'Slot occupied! Choose an empty slot or remove a card.';
-    return;
-  }
-
-  // Check if combination area is full
-  if (state.combination.length >= 3 && !state.draggedCard.slot) {
-    document.getElementById('message').textContent = 'Combination area full! Submit your move or remove a card.';
-    return;
-  }
-
-  // Add the card to the combination area
+  // If the card is from the combination area, remove it from its original slot
   if (state.draggedCard.slot !== undefined) {
-    // Card is being moved within the combination area (not implemented since slots hold one card)
-    return;
-  } else {
-    state.combination[slot] = state.draggedCard;
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
   }
+
+  // Add the card to the new slot
+  state.combination[slot].push({
+    source: state.draggedCard.source,
+    index: state.draggedCard.index,
+    card: state.draggedCard.card
+  });
 
   state.draggedCard = null;
   render();
@@ -240,7 +238,7 @@ function handleDropOriginal(e, source, index) {
   // Check if the drop target matches the card's original source and index
   if (state.draggedCard.source === source && state.draggedCard.index === index) {
     // Remove the card from the combination area
-    state.combination = state.combination.filter((_, i) => i !== state.draggedCard.slot);
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
     state.draggedCard = null;
     render();
   }
@@ -248,11 +246,12 @@ function handleDropOriginal(e, source, index) {
 
 // Handle submit action (validate and execute moves)
 function handleSubmit() {
-  if (state.currentPlayer !== 0 || state.combination.length === 0) return;
+  if (state.currentPlayer !== 0 || state.combination.every(slot => slot.length === 0)) return;
 
-  // Check for at least one hand card and one board card for captures
-  const handCards = state.combination.filter(entry => entry.source === 'hand');
-  const boardCards = state.combination.filter(entry => entry.source === 'board');
+  // Flatten the combination for validation
+  const allCards = state.combination.flat();
+  const handCards = allCards.filter(entry => entry.source === 'hand');
+  const boardCards = allCards.filter(entry => entry.source === 'board');
 
   // If exactly one hand card and no board cards, treat as a place action
   if (handCards.length === 1 && boardCards.length === 0) {
@@ -276,7 +275,7 @@ function handleSubmit() {
 
   if (!selectedCapture) {
     document.getElementById('message').textContent = 'Invalid capture! Try a different combination.';
-    state.combination = [];
+    state.combination = [[], [], []];
     render();
     return;
   }
@@ -294,7 +293,7 @@ function handleSubmit() {
     }
   }
 
-  state.combination = [];
+  state.combination = [[], [], []];
   checkGameEnd();
   render();
   // Do not advance to the next player; allow multiple captures
@@ -319,7 +318,7 @@ function handlePlaceCard(handEntry) {
   }
   
   state.hands[0] = state.hands[0].filter((_, i) => i !== handIndex);
-  state.combination = [];
+  state.combination = [[], [], []];
   state.currentPlayer = 1; // End player's turn
   checkGameEnd();
   render();
@@ -396,7 +395,7 @@ function checkGameEnd() {
       state.board = board.length > 0 ? board : state.board;
       state.hands = players;
       state.currentPlayer = 0;
-      document.getElementById('message').textContent = "New round! Drag cards to the combination area to build a capture.";
+      document.getElementById('message').textContent = "New round! Drag cards to the playing area to build a capture.";
     }
   }
 }

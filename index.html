@@ -59,16 +59,18 @@
     <!-- Game Table -->
     <h1>STACKED! 🎴</h1>
     <div class="deck-count" id="deck-count">Deck: 0 cards</div>
-    <div class="combination-area" id="combination-area">
-      <div class="combo-slot" data-slot="0"></div>
-      <div class="combo-slot" data-slot="1"></div>
-      <div class="combo-slot" data-slot="2"></div>
-    </div>
     <div class="table">
       <!-- Scores positioned in corners -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
       <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
+
+      <!-- Playing area (inside table) -->
+      <div class="combination-area" id="combination-area">
+        <div class="combo-slot" data-slot="0"></div>
+        <div class="combo-slot" data-slot="1"></div>
+        <div class="combo-slot" data-slot="2"></div>
+      </div>
 
       <!-- Center board (4 slots) -->
       <div class="board" id="board"></div>
@@ -84,7 +86,7 @@
       <button id="submit-btn" disabled>Submit Move</button>
       <button id="restart-btn">Restart Game</button>
     </div>
-    <div class="message" id="message">Drag cards to the combination area to build a capture, or place a card to end your turn.</div>
+    <div class="message" id="message">Drag cards to the playing area to build a capture, or place a card to end your turn.</div>
   </div>
 
   <script src="/js/deck.js"></script>
