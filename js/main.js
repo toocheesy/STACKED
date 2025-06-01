@@ -54,67 +54,114 @@ function showSettingsModal() {
   });
 }
 
-// Render the game state to the DOM
+// Debug function to identify card issues
+function debugCardState() {
+  console.log('=== DEBUGGING CARD STATE ===');
+  console.log('Board cards:', state.board);
+  console.log('Player hand:', state.hands[0]);
+  console.log('Bot 1 hand:', state.hands[1]);
+  console.log('Bot 2 hand:', state.hands[2]);
+  
+  // Check for invalid cards
+  state.board.forEach((card, i) => {
+    if (!card || !card.value || !card.suit) {
+      console.error(`Invalid board card at index ${i}:`, card);
+    }
+  });
+  
+  state.hands[0].forEach((card, i) => {
+    if (!card || !card.value || !card.suit) {
+      console.error(`Invalid player card at index ${i}:`, card);
+    }
+  });
+}
+
+// Render the game state to the DOM - UPDATED WITH QUICK FIX
 function render() {
-  // Render board
+  // Debug first
+  debugCardState();
+  
+  // Render board - ALWAYS render 4 slots
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
   console.log('Rendering board cards:', state.board);
-  state.board.forEach((card, index) => {
-    if (!card || !card.value || !card.suit) {
-      console.warn('Invalid card on board:', card, 'at index:', index);
-      return;
-    }
+  
+  for (let index = 0; index < 4; index++) {
+    const card = state.board[index];
     const cardEl = document.createElement('div');
-    cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
-      state.selectedBoardCards.includes(index) ? 'selected' : ''
-    }`;
-    cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`; // Fallback to text
-    // cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
-    // cardEl.style.backgroundSize = 'cover';
-    // cardEl.style.backgroundPosition = 'center';
-    cardEl.addEventListener('click', () => handleBoardCardClick(index));
+    
+    if (!card || !card.value || !card.suit) {
+      cardEl.className = 'card';
+      cardEl.style.backgroundColor = '#f0f0f0';
+      cardEl.style.border = '2px dashed #ccc';
+      cardEl.textContent = '';
+      console.warn('Empty/invalid card slot on board at index:', index, 'card:', card);
+    } else {
+      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
+        state.selectedBoardCards.includes(index) ? 'selected' : ''
+      }`;
+      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+      cardEl.addEventListener('click', () => handleBoardCardClick(index));
+    }
     boardEl.appendChild(cardEl);
-  });
+  }
 
-  // Render player's hand
+  // Render player's hand - ALWAYS render 4 slots
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
   console.log('Rendering player hand:', state.hands[0]);
-  state.hands[0].forEach((card, index) => {
-    if (!card || !card.value || !card.suit) {
-      console.warn('Invalid card in hand:', card, 'at index:', index);
-      return;
-    }
+  
+  for (let index = 0; index < 4; index++) {
+    const card = state.hands[0][index];
     const cardEl = document.createElement('div');
-    cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
-      state.selectedHandCard === index ? 'selected' : ''
-    }`;
-    cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`; // Fallback to text
-    // cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
-    // cardEl.style.backgroundSize = 'cover';
-    // cardEl.style.backgroundPosition = 'center';
-    cardEl.addEventListener('click', () => handleHandCardClick(index));
+    
+    if (!card || !card.value || !card.suit) {
+      cardEl.className = 'card';
+      cardEl.style.backgroundColor = '#f0f0f0';
+      cardEl.style.border = '2px dashed #ccc';
+      cardEl.textContent = '';
+      console.warn('Empty/invalid card slot in hand at index:', index, 'card:', card);
+    } else {
+      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
+        state.selectedHandCard === index ? 'selected' : ''
+      }`;
+      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+      cardEl.addEventListener('click', () => handleHandCardClick(index));
+    }
     handEl.appendChild(cardEl);
-  });
+  }
 
-  // Render Bot 1's hand (card backs)
+  // Render Bot 1's hand (card backs) - show actual count
   const bot1HandEl = document.getElementById('bot1-hand');
   bot1HandEl.innerHTML = '';
   console.log('Rendering Bot 1 hand:', state.hands[1]);
-  state.hands[1].forEach(() => {
+  state.hands[1].forEach((card, index) => {
     const cardEl = document.createElement('div');
-    cardEl.className = 'card back';
+    if (!card || !card.value || !card.suit) {
+      console.warn('Invalid bot1 card at index:', index, 'card:', card);
+      cardEl.className = 'card';
+      cardEl.style.backgroundColor = '#f0f0f0';
+      cardEl.style.border = '2px dashed #ccc';
+    } else {
+      cardEl.className = 'card back';
+    }
     bot1HandEl.appendChild(cardEl);
   });
 
-  // Render Bot 2's hand (card backs)
+  // Render Bot 2's hand (card backs) - show actual count
   const bot2HandEl = document.getElementById('bot2-hand');
   bot2HandEl.innerHTML = '';
   console.log('Rendering Bot 2 hand:', state.hands[2]);
-  state.hands[2].forEach(() => {
+  state.hands[2].forEach((card, index) => {
     const cardEl = document.createElement('div');
-    cardEl.className = 'card back';
+    if (!card || !card.value || !card.suit) {
+      console.warn('Invalid bot2 card at index:', index, 'card:', card);
+      cardEl.className = 'card';
+      cardEl.style.backgroundColor = '#f0f0f0';
+      cardEl.style.border = '2px dashed #ccc';
+    } else {
+      cardEl.className = 'card back';
+    }
     bot2HandEl.appendChild(cardEl);
   });
 
