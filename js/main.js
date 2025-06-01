@@ -23,6 +23,8 @@ function initGame() {
   state.hands = players.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
+  state.selectedHandCard = null; // Ensure reset
+  state.selectedBoardCards = []; // Ensure reset
   console.log('Initial state:', state);
   // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
   render();
@@ -99,6 +101,7 @@ function render() {
   // Render Bot 1's hand (card backs)
   const bot1HandEl = document.getElementById('bot1-hand');
   bot1HandEl.innerHTML = '';
+  console.log('Rendering Bot 1 hand:', state.hands[1]);
   state.hands[1].forEach(() => {
     const cardEl = document.createElement('div');
     cardEl.className = 'card back';
@@ -108,6 +111,7 @@ function render() {
   // Render Bot 2's hand (card backs)
   const bot2HandEl = document.getElementById('bot2-hand');
   bot2HandEl.innerHTML = '';
+  console.log('Rendering Bot 2 hand:', state.hands[2]);
   state.hands[2].forEach(() => {
     const cardEl = document.createElement('div');
     cardEl.className = 'card back';
@@ -122,6 +126,11 @@ function render() {
   // Update buttons
   const captureBtn = document.getElementById('capture-btn');
   const placeBtn = document.getElementById('place-btn');
+  console.log('Button state check:', {
+    currentPlayer: state.currentPlayer,
+    selectedHandCard: state.selectedHandCard,
+    selectedBoardCards: state.selectedBoardCards
+  });
   captureBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null || state.selectedBoardCards.length === 0;
   placeBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null;
 
@@ -213,9 +222,7 @@ function aiTurn() {
 
   if (aiAction.action === 'capture') {
     const capturedCards = [aiAction.capture.target];
-    state.board = state.board.filter((_, i) => !aiAction
-
-.capture.cards.includes(i));
+    state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
     // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
