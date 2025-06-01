@@ -29,11 +29,13 @@ function initGame() {
   showSettingsModal();
 }
 
-// Show settings modal on first load
+// Show settings modal (temporarily always show for testing)
 function showSettingsModal() {
-  if (localStorage.getItem('stackedTutorialSeen')) {
-    return;
-  }
+  console.log('Checking localStorage for stackedTutorialSeen:', localStorage.getItem('stackedTutorialSeen'));
+  // Temporarily bypass localStorage check to force modal display
+  // if (localStorage.getItem('stackedTutorialSeen')) {
+  //   return;
+  // }
   const modal = document.getElementById('settings-modal');
   modal.style.display = 'flex';
 
@@ -211,7 +213,9 @@ function aiTurn() {
 
   if (aiAction.action === 'capture') {
     const capturedCards = [aiAction.capture.target];
-    state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
+    state.board = state.board.filter((_, i) => !aiAction
+
+.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
     // new Audio('assets/sounds/capture.mp3').play().catch(() => {});
@@ -227,8 +231,6 @@ function aiTurn() {
       state.hands[playerIndex] = state.hands[playerIndex].slice(1);
     }
   }
-
- 用心
 
   state.currentPlayer = (playerIndex + 1) % 3;
   checkGameEnd();
