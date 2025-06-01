@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STACKED! 🎴</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/css/styles.css"> <!-- Fixed path -->
 </head>
 <body>
   <div class="game-container">
     <!-- Modal for Tutorial/Settings -->
-    <div id="settings-modal" class="modal">
+    <div id="settings-modal" class="modal" style="display: none;">
       <div class="modal-content">
         <h2>Welcome to STACKED!</h2>
         <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
@@ -63,9 +63,9 @@
     <div class="message" id="message">Select board cards to capture, or place your card.</div>
   </div>
 
-  <script src="deck.js"></script>
-  <script src="gameLogic.js"></script>
-  <script src="ai.js"></script>
-  <script src="main.js"></script>
+  <script src="/js/deck.js"></script>
+  <script src="/js/gameLogic.js"></script>
+  <script src="/js/ai.js"></script>
+  <script src="/js/main.js"></script> <!-- Fixed path -->
 </body>
 </html>
