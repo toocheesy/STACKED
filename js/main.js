@@ -15,15 +15,13 @@ function initGame() {
   const deck = shuffleDeck(createDeck());
   const { players, board, remainingDeck } = dealCards(deck);
   state.deck = remainingDeck;
-  state.board = board.filter(card => card && card.value && card.suit); // Ensure no invalid cards
-  state.hands = players.map(hand => hand.filter(card => card && card.value && card.suit));
+  state.board = board.length > 0 ? board : [{ suit: 'Hearts', value: '2', id: '2-Hearts' }];
+  state.hands = players.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  console.log('Initial state:', state); // Debug log
-  new Audio('assets/sounds/shuffle.mp3').play().catch(() => {}); // Catch audio errors
+  console.log('Initial state:', state);
+  new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
   render();
-  
-  // Add tutorial pop-up
   if (!localStorage.getItem('stackedTutorialSeen')) {
     alert('Welcome to STACKED! Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!');
     localStorage.setItem('stackedTutorialSeen', 'true');
@@ -35,17 +33,19 @@ function render() {
   // Render board
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
-  console.log('Rendering board cards:', state.board); // Debug log
+  console.log('Rendering board cards:', state.board);
   state.board.forEach((card, index) => {
     if (!card || !card.value || !card.suit) {
       console.warn('Invalid card on board:', card, 'at index:', index);
-      return; // Skip invalid cards
+      return;
     }
     const cardEl = document.createElement('div');
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedBoardCards.includes(index) ? 'selected' : ''
     }`;
-    cardEl.textContent = `${card.value} ${suitSymbols[card.suit]}`;
+    cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
+    cardEl.style.backgroundSize = 'cover';
+    cardEl.style.backgroundPosition = 'center';
     cardEl.addEventListener('click', () => handleBoardCardClick(index));
     boardEl.appendChild(cardEl);
   });
@@ -53,17 +53,19 @@ function render() {
   // Render player's hand
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
-  console.log('Rendering player hand:', state.hands[0]); // Debug log
+  console.log('Rendering player hand:', state.hands[0]);
   state.hands[0].forEach((card, index) => {
     if (!card || !card.value || !card.suit) {
       console.warn('Invalid card in hand:', card, 'at index:', index);
-      return; // Skip invalid cards
+      return;
     }
     const cardEl = document.createElement('div');
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
       state.selectedHandCard === index ? 'selected' : ''
     }`;
-    cardEl.textContent = `${card.value} ${suitSymbols[card.suit]}`;
+    cardEl.style.backgroundImage = `url('assets/cards/${card.value}${card.suit[0]}.png')`;
+    cardEl.style.backgroundSize = 'cover';
+    cardEl.style.backgroundPosition = 'center';
     cardEl.addEventListener('click', () => handleHandCardClick(index));
     handEl.appendChild(cardEl);
   });
@@ -79,15 +81,26 @@ function render() {
   captureBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null || state.selectedBoardCards.length === 0;
   placeBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null;
 
-  // Update message
+  // Update message with better feedback
   const messageEl = document.getElementById('message');
-  messageEl.textContent = state.currentPlayer === 0 ? "Your turn!" : `Bot ${state.currentPlayer}'s turn...`;
+  if (state.currentPlayer === 0) {
+    if (state.selectedHandCard === null) {
+      messageEl.textContent = "Your turn! Select a card from your hand.";
+    } else if (state.selectedBoardCards.length === 0) {
+      messageEl.textContent = "Select board cards to capture, or place your card.";
+    } else {
+      messageEl.textContent = "Click 'Capture' to capture, or 'Place Card' to place.";
+    }
+  } else {
+    messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
+  }
 }
 
 // Handle hand card clicks
 function handleHandCardClick(index) {
   if (state.currentPlayer !== 0) return;
   state.selectedHandCard = state.selectedHandCard === index ? null : index;
+  console.log('Selected hand card:', state.selectedHandCard);
   render();
 }
 
@@ -119,7 +132,7 @@ function handleCapture() {
   state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
   state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedHandCard);
   state.scores.player += scoreCards(capturedCards);
-  new Audio('assets/sounds/capture.mp3').play().catch(() => {}); // Catch audio errors
+  new Audio('assets/sounds/capture.mp3').play().catch(() => {});
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -159,7 +172,7 @@ function aiTurn() {
     state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
     state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
-    new Audio('assets/sounds/capture.mp3').play().catch(() => {}); // Catch audio errors
+    new Audio('assets/sounds/capture.mp3').play().catch(() => {});
   } else {
     state.board.push(aiAction.handCard);
     state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
@@ -183,7 +196,6 @@ function aiTurn() {
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   if (playersWithCards <= 1 && state.deck.length === 0) {
-    // Game over
     const winner = state.scores.player >= 500 ? 'Player' :
                    state.scores.bot1 >= 500 ? 'Bot 1' :
                    state.scores.bot2 >= 500 ? 'Bot 2' :
@@ -193,12 +205,11 @@ function checkGameEnd() {
     document.getElementById('capture-btn').disabled = true;
     document.getElementById('place-btn').disabled = true;
   } else if (playersWithCards <= 1) {
-    // End of hand, deal new cards
     const { players, board } = dealCards(shuffleDeck(state.deck));
     state.deck = [];
     state.board = board.length > 0 ? board : state.board;
     state.hands = players;
-    new Audio('assets/sounds/shuffle.mp3').play().catch(() => {}); // Catch audio errors
+    new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
     state.currentPlayer = 0;
   }
 }
