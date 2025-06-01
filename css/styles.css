@@ -190,10 +190,12 @@ h1 {
   font-size: 1rem;
   text-align: center;
   line-height: 1;
+  color: #000 !important; /* Force text color */
+  overflow: visible !important; /* Ensure text isn't clipped */
 }
 
 .card.red {
-  color: #e74c3c;
+  color: #e74c3c !important; /* Force red color with !important */
 }
 
 .card.selected {
@@ -224,7 +226,7 @@ h1 {
 
 .card.back {
   background-color: #2C3E50;
-  color: transparent;
+  color: transparent !important; /* Use !important for card backs */
   border-color: #34495E;
 }
 .actions {
