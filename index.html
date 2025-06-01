@@ -29,10 +29,29 @@
               <option value="off" selected>Off</option>
             </select>
           </label>
+          <label>
+            Target Score:
+            <select id="target-score">
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
+              <option value="500" selected>500</option>
+              <option value="600">600</option>
+              <option value="700">700</option>
+              <option value="800">800</option>
+              <option value="900">900</option>
+              <option value="1000">1000</option>
+              <option value="1100">1100</option>
+              <option value="1200">1200</option>
+              <option value="1300">1300</option>
+              <option value="1400">1400</option>
+              <option value="1500">1500</option>
+            </select>
+          </label>
         </div>
         <div class="modal-actions">
           <button id="start-game-btn">Start Game</button>
-          <button id="skip-settings-btn">Skip</button>
         </div>
       </div>
     </div>
@@ -40,6 +59,11 @@
     <!-- Game Table -->
     <h1>STACKED! 🎴</h1>
     <div class="deck-count" id="deck-count">Deck: 0 cards</div>
+    <div class="combination-area" id="combination-area">
+      <div class="combo-slot" data-slot="0"></div>
+      <div class="combo-slot" data-slot="1"></div>
+      <div class="combo-slot" data-slot="2"></div>
+    </div>
     <div class="table">
       <!-- Scores positioned in corners -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
@@ -60,7 +84,7 @@
       <button id="submit-btn" disabled>Submit Move</button>
       <button id="restart-btn">Restart Game</button>
     </div>
-    <div class="message" id="message">Drag a card from your hand to the board to capture or place.</div>
+    <div class="message" id="message">Drag cards to the combination area to build a capture, or place a card to end your turn.</div>
   </div>
 
   <script src="/js/deck.js"></script>

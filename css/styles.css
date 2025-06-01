@@ -34,6 +34,32 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* Combination Area */
+.combination-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100px; /* Width to fit one card */
+  margin: 0 auto 10px auto;
+  padding: 10px;
+  background-color: #2BAE66; /* Slightly lighter green felt */
+  border: 3px solid #7B3F00; /* Wooden border */
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(241, 196, 15, 0.3); /* Subtle yellow glow */
+}
+
+.combo-slot {
+  width: 70px;
+  height: 100px;
+  background-color: rgba(241, 196, 15, 0.1);
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Modal Styles */
 .modal {
   display: none;
@@ -269,6 +295,15 @@ button:disabled {
   .game-container {
     max-width: 700px;
   }
+
+  .combination-area {
+    width: 80px;
+  }
+
+  .combo-slot {
+    width: 60px;
+    height: 85px;
+  }
 }
 
 @media (max-width: 700px) {
@@ -313,6 +348,15 @@ button:disabled {
   .game-container {
     max-width: 550px;
   }
+
+  .combination-area {
+    width: 70px;
+  }
+
+  .combo-slot {
+    width: 60px;
+    height: 85px;
+  }
 }
 
 @media (max-width: 550px) {
@@ -331,5 +375,14 @@ button:disabled {
     width: 50px;
     height: 70px;
     font-size: 0.8rem;
+  }
+
+  .combination-area {
+    width: 60px;
+  }
+
+  .combo-slot {
+    width: 50px;
+    height: 70px;
   }
 }
