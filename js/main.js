@@ -23,21 +23,18 @@ function initGame() {
   state.hands = players.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  state.selectedHandCard = null; // Ensure reset
-  state.selectedBoardCards = []; // Ensure reset
-  console.log('Initial state:', state);
+  state.selectedHandCard = null;
+  state.selectedBoardCards = [];
   // new Audio('assets/sounds/shuffle.mp3').play().catch(() => {});
   render();
   showSettingsModal();
 }
 
-// Show settings modal (temporarily always show for testing)
+// Show settings modal
 function showSettingsModal() {
-  console.log('Checking localStorage for stackedTutorialSeen:', localStorage.getItem('stackedTutorialSeen'));
-  // Temporarily bypass localStorage check to force modal display
-  // if (localStorage.getItem('stackedTutorialSeen')) {
-  //   return;
-  // }
+  if (localStorage.getItem('stackedTutorialSeen')) {
+    return;
+  }
   const modal = document.getElementById('settings-modal');
   modal.style.display = 'flex';
 
@@ -54,42 +51,11 @@ function showSettingsModal() {
   });
 }
 
-// Debug function to identify card issues
-function debugCardState() {
-  console.log('=== DEBUGGING CARD STATE ===');
-  console.log('Board cards:', state.board);
-  console.log('Player hand:', state.hands[0]);
-  console.log('Bot 1 hand:', state.hands[1]);
-  console.log('Bot 2 hand:', state.hands[2]);
-  console.log('Suit symbols object:', suitSymbols);
-  
-  // Check for invalid cards
-  state.board.forEach((card, i) => {
-    if (!card || !card.value || !card.suit) {
-      console.error(`Invalid board card at index ${i}:`, card);
-    } else {
-      console.log(`Board card ${i}: ${card.value}${suitSymbols[card.suit]} (${card.suit})`);
-    }
-  });
-  
-  state.hands[0].forEach((card, i) => {
-    if (!card || !card.value || !card.suit) {
-      console.error(`Invalid player card at index ${i}:`, card);
-    } else {
-      console.log(`Player card ${i}: ${card.value}${suitSymbols[card.suit]} (${card.suit})`);
-    }
-  });
-}
-
-// Render the game state to the DOM - UPDATED WITH QUICK FIX
+// Render the game state to the DOM
 function render() {
-  // Debug first
-  debugCardState();
-  
-  // Render board - ALWAYS render 4 slots
+  // Render board - always render 4 slots
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
-  console.log('Rendering board cards:', state.board);
   
   for (let index = 0; index < 4; index++) {
     const card = state.board[index];
@@ -100,24 +66,19 @@ function render() {
       cardEl.style.backgroundColor = '#f0f0f0';
       cardEl.style.border = '2px dashed #ccc';
       cardEl.textContent = '';
-      console.warn('Empty/invalid card slot on board at index:', index, 'card:', card);
     } else {
       cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
         state.selectedBoardCards.includes(index) ? 'selected' : ''
       }`;
-      // Enhanced debugging for card content
-      const cardText = `${card.value}${suitSymbols[card.suit]}`;
-      console.log(`Setting board card ${index} text to: "${cardText}" for card:`, card);
-      cardEl.textContent = cardText;
+      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
       cardEl.addEventListener('click', () => handleBoardCardClick(index));
     }
     boardEl.appendChild(cardEl);
   }
 
-  // Render player's hand - ALWAYS render 4 slots
+  // Render player's hand - always render 4 slots
   const handEl = document.getElementById('player-hand');
   handEl.innerHTML = '';
-  console.log('Rendering player hand:', state.hands[0]);
   
   for (let index = 0; index < 4; index++) {
     const card = state.hands[0][index];
@@ -128,51 +89,31 @@ function render() {
       cardEl.style.backgroundColor = '#f0f0f0';
       cardEl.style.border = '2px dashed #ccc';
       cardEl.textContent = '';
-      console.warn('Empty/invalid card slot in hand at index:', index, 'card:', card);
     } else {
       cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
         state.selectedHandCard === index ? 'selected' : ''
       }`;
-      // Enhanced debugging for card content
-      const cardText = `${card.value}${suitSymbols[card.suit]}`;
-      console.log(`Setting player card ${index} text to: "${cardText}" for card:`, card);
-      cardEl.textContent = cardText;
+      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
       cardEl.addEventListener('click', () => handleHandCardClick(index));
     }
     handEl.appendChild(cardEl);
   }
 
-  // Render Bot 1's hand (card backs) - show actual count
+  // Render Bot 1's hand (card backs)
   const bot1HandEl = document.getElementById('bot1-hand');
   bot1HandEl.innerHTML = '';
-  console.log('Rendering Bot 1 hand:', state.hands[1]);
-  state.hands[1].forEach((card, index) => {
+  state.hands[1].forEach(() => {
     const cardEl = document.createElement('div');
-    if (!card || !card.value || !card.suit) {
-      console.warn('Invalid bot1 card at index:', index, 'card:', card);
-      cardEl.className = 'card';
-      cardEl.style.backgroundColor = '#f0f0f0';
-      cardEl.style.border = '2px dashed #ccc';
-    } else {
-      cardEl.className = 'card back';
-    }
+    cardEl.className = 'card back';
     bot1HandEl.appendChild(cardEl);
   });
 
-  // Render Bot 2's hand (card backs) - show actual count
+  // Render Bot 2's hand (card backs)
   const bot2HandEl = document.getElementById('bot2-hand');
   bot2HandEl.innerHTML = '';
-  console.log('Rendering Bot 2 hand:', state.hands[2]);
-  state.hands[2].forEach((card, index) => {
+  state.hands[2].forEach(() => {
     const cardEl = document.createElement('div');
-    if (!card || !card.value || !card.suit) {
-      console.warn('Invalid bot2 card at index:', index, 'card:', card);
-      cardEl.className = 'card';
-      cardEl.style.backgroundColor = '#f0f0f0';
-      cardEl.style.border = '2px dashed #ccc';
-    } else {
-      cardEl.className = 'card back';
-    }
+    cardEl.className = 'card back';
     bot2HandEl.appendChild(cardEl);
   });
 
@@ -184,15 +125,10 @@ function render() {
   // Update buttons
   const captureBtn = document.getElementById('capture-btn');
   const placeBtn = document.getElementById('place-btn');
-  console.log('Button state check:', {
-    currentPlayer: state.currentPlayer,
-    selectedHandCard: state.selectedHandCard,
-    selectedBoardCards: state.selectedBoardCards
-  });
   captureBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null || state.selectedBoardCards.length === 0;
   placeBtn.disabled = state.currentPlayer !== 0 || state.selectedHandCard === null;
 
-  // Update message with better feedback
+  // Update message
   const messageEl = document.getElementById('message');
   if (state.currentPlayer === 0) {
     if (state.selectedHandCard === null) {
@@ -211,7 +147,6 @@ function render() {
 function handleHandCardClick(index) {
   if (state.currentPlayer !== 0) return;
   state.selectedHandCard = state.selectedHandCard === index ? null : index;
-  console.log('Selected hand card:', state.selectedHandCard);
   render();
 }
 
