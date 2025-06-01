@@ -15,7 +15,7 @@ body {
 
 .game-container {
   text-align: center;
-  max-width: 1000px;
+  max-width: 1200px; /* Increased to accommodate wider layout */
   width: 100%;
   position: relative;
 }
@@ -86,11 +86,11 @@ h1 {
   gap: 10px;
 }
 
-/* Table Layout */
+/* Table Layout - Expanded for better spacing */
 .table {
   position: relative;
-  width: 650px; /* Increased for more space */
-  height: 650px;
+  width: 800px; /* Increased width for better spacing */
+  height: 700px; /* Increased height */
   margin: 0 auto;
   background-color: #229954; /* Lighter green felt */
   border: 4px solid #7B3F00;
@@ -110,24 +110,23 @@ h1 {
 }
 
 .player-score {
-  bottom: 90px; /* Moved higher to be above player hand */
+  bottom: 20px; /* Moved below player hand */
   left: 50%;
   transform: translateX(-50%);
 }
 
 .bot1-score {
-  top: 10px;
-  left: 10px;
+  top: 15px;
+  left: 15px;
 }
 
 .bot2-score {
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
 }
 
-/* Center Board (Horizontal Row of 4 Cards) */
+/* Center Board (Horizontal Row of 4 Cards) with Yellow Border */
 .board {
-  overflow: visible;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -138,9 +137,14 @@ h1 {
   gap: 10px;
   width: 340px; /* 4 cards * (70px width + 10px gap) + padding */
   height: 110px; /* Height for 1 row of cards */
+  padding: 15px;
+  border: 3px solid #F1C40F; /* Yellow border around board */
+  border-radius: 12px;
+  background-color: rgba(241, 196, 15, 0.1); /* Subtle yellow background */
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); /* Yellow glow effect */
 }
 
-/* Player Hands */
+/* Player Hands - Repositioned for better visibility */
 .hand {
   position: absolute;
   display: flex;
@@ -149,22 +153,24 @@ h1 {
 }
 
 .player-hand {
-  bottom: 10px;
+  bottom: 60px; /* Moved up to make room for score */
   left: 50%;
   transform: translateX(-50%);
   z-index: 5; /* Ensure hand is visible */
 }
 
 .bot1-hand {
-  left: -40px; /* Moved further out */
+  left: 20px; /* Moved further in from edge */
   top: 50%;
   transform: translateY(-50%) rotate(90deg);
+  transform-origin: center;
 }
 
 .bot2-hand {
-  right: -40px; /* Moved further out */
+  right: 20px; /* Moved further in from edge */
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
 }
 
 /* Card Styles */
@@ -180,6 +186,8 @@ h1 {
   cursor: pointer;
   transition: transform 0.3s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  font-size: 1rem;
 }
 
 .card.red {
@@ -196,13 +204,14 @@ h1 {
 }
 
 .card.back {
-  background-color: #ccc;
+  background-color: #2C3E50;
   color: transparent;
+  border-color: #34495E;
 }
 
 /* Actions and Message */
 .actions {
-  margin-top: 20px;
+  margin-top: 30px; /* Increased margin for better spacing */
 }
 
 button {
@@ -215,6 +224,7 @@ button {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-weight: bold;
 }
 
 button:hover {
@@ -234,23 +244,35 @@ button:disabled {
   margin-top: 20px;
   font-size: 1.2rem;
   color: #F1C40F;
+  font-weight: bold;
 }
 
 /* Responsive Adjustments */
-@media (max-width: 600px) {
+@media (max-width: 900px) {
+  .table {
+    width: 650px;
+    height: 600px;
+  }
+  
+  .game-container {
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 700px) {
   h1 {
     font-size: 1.8rem;
   }
 
   .table {
-    width: 450px; /* Adjusted for smaller screens */
-    height: 450px;
+    width: 500px;
+    height: 500px;
   }
 
   .board {
-    overflow: visible;
-    width: 260px; /* Adjusted for 4 cards on smaller screens */
-    height: 85px;
+    width: 280px;
+    height: 95px;
+    padding: 10px;
   }
 
   .card {
@@ -259,20 +281,43 @@ button:disabled {
     font-size: 0.9rem;
   }
 
-  .player-score {
-    bottom: 70px; /* Adjusted for smaller screens */
+  .player-hand {
+    bottom: 50px;
   }
 
   .bot1-hand {
-    left: -30px; /* Adjusted for smaller screens */
+    left: 15px;
   }
 
   .bot2-hand {
-    right: -30px; /* Adjusted for smaller screens */
+    right: 15px;
   }
 
   button {
     padding: 8px 15px;
     font-size: 0.9rem;
+  }
+  
+  .game-container {
+    max-width: 550px;
+  }
+}
+
+@media (max-width: 550px) {
+  .table {
+    width: 400px;
+    height: 450px;
+  }
+
+  .board {
+    width: 240px;
+    height: 80px;
+    gap: 8px;
+  }
+
+  .card {
+    width: 50px;
+    height: 70px;
+    font-size: 0.8rem;
   }
 }
