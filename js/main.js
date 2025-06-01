@@ -61,17 +61,22 @@ function debugCardState() {
   console.log('Player hand:', state.hands[0]);
   console.log('Bot 1 hand:', state.hands[1]);
   console.log('Bot 2 hand:', state.hands[2]);
+  console.log('Suit symbols object:', suitSymbols);
   
   // Check for invalid cards
   state.board.forEach((card, i) => {
     if (!card || !card.value || !card.suit) {
       console.error(`Invalid board card at index ${i}:`, card);
+    } else {
+      console.log(`Board card ${i}: ${card.value}${suitSymbols[card.suit]} (${card.suit})`);
     }
   });
   
   state.hands[0].forEach((card, i) => {
     if (!card || !card.value || !card.suit) {
       console.error(`Invalid player card at index ${i}:`, card);
+    } else {
+      console.log(`Player card ${i}: ${card.value}${suitSymbols[card.suit]} (${card.suit})`);
     }
   });
 }
@@ -100,7 +105,10 @@ function render() {
       cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
         state.selectedBoardCards.includes(index) ? 'selected' : ''
       }`;
-      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+      // Enhanced debugging for card content
+      const cardText = `${card.value}${suitSymbols[card.suit]}`;
+      console.log(`Setting board card ${index} text to: "${cardText}" for card:`, card);
+      cardEl.textContent = cardText;
       cardEl.addEventListener('click', () => handleBoardCardClick(index));
     }
     boardEl.appendChild(cardEl);
@@ -125,7 +133,10 @@ function render() {
       cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''} ${
         state.selectedHandCard === index ? 'selected' : ''
       }`;
-      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+      // Enhanced debugging for card content
+      const cardText = `${card.value}${suitSymbols[card.suit]}`;
+      console.log(`Setting player card ${index} text to: "${cardText}" for card:`, card);
+      cardEl.textContent = cardText;
       cardEl.addEventListener('click', () => handleHandCardClick(index));
     }
     handEl.appendChild(cardEl);
