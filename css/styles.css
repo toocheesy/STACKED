@@ -126,15 +126,13 @@ h1 {
 
 /* Center Board (2x2 Grid) */
 .board {
-  z-index: 4;
-  background-color: rgba(0,0,0,0.1);  /* subtle background to separate */
-  border: 2px dashed #F1C40F;
+  overflow: visible;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
   width: 160px;
   height: 220px;
@@ -247,9 +245,7 @@ button:disabled {
   }
 
   .board {
-  z-index: 4;
-  background-color: rgba(0,0,0,0.1);  /* subtle background to separate */
-  border: 2px dashed #F1C40F;
+  overflow: visible;
     width: 120px;
     height: 165px;
   }
