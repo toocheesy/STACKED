@@ -15,13 +15,103 @@ let state = {
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
 
+// Fallback functions if external scripts fail to load
+function createDeck() {
+  const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+  const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  const deck = [];
+  for (const suit of suits) {
+    for (const value of values) {
+      deck.push({ suit, value, id: `${value}-${suit}` });
+    }
+  }
+  return deck;
+}
+
+function shuffleDeck(deck) {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
+  const players = Array(numPlayers).fill().map(() => []);
+  let remainingDeck = [...deck];
+  
+  // Deal cards to players
+  for (let i = 0; i < numPlayers; i++) {
+    for (let j = 0; j < cardsPerPlayer; j++) {
+      if (remainingDeck.length > 0) {
+        players[i].push(remainingDeck.shift());
+      }
+    }
+  }
+
+  // Deal cards to the board
+  const board = [];
+  for (let i = 0; i < boardCards; i++) {
+    if (remainingDeck.length > 0) {
+      board.push(remainingDeck.shift());
+    }
+  }
+
+  return { players, board, remainingDeck };
+}
+
+function canCapture(handCard, board) {
+  // Fallback: simple pair matching
+  const captures = [];
+  if (!handCard || !board || !Array.isArray(board)) return captures;
+  
+  board.forEach((card, index) => {
+    if (card && card.value === handCard.value) {
+      captures.push({ cards: [index], target: card });
+    }
+  });
+  return captures;
+}
+
+function scoreCards(cards) {
+  // Fallback: 1 point per card
+  return cards && Array.isArray(cards) ? cards.length : 0;
+}
+
+function aiMove(hand, board) {
+  // Fallback: place the first card if no capture possible
+  if (!hand || !board || !Array.isArray(hand) || !Array.isArray(board) || hand.length === 0) {
+    return { action: 'place', handCard: { suit: 'Hearts', value: '3', id: '3-Hearts' } };
+  }
+  const captures = canCapture(hand[0], board);
+  if (captures.length > 0) {
+    return { action: 'capture', handCard: hand[0], capture: captures[0] };
+  }
+  return { action: 'place', handCard: hand[0] };
+}
+
 // Initialize the game
 function initGame() {
-  const deck = shuffleDeck(createDeck());
-  const { players, board, remainingDeck } = dealCards(deck);
-  state.deck = remainingDeck;
-  state.board = board;
-  state.hands = players.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
+  let deck;
+  try {
+    deck = shuffleDeck(createDeck());
+  } catch (e) {
+    console.error('Failed to create/shuffle deck:', e);
+    deck = createDeck(); // Fallback to unshuffled deck
+  }
+
+  let dealResult;
+  try {
+    dealResult = dealCards(deck);
+  } catch (e) {
+    console.error('Failed to deal cards:', e);
+    dealResult = { players: [[], [], []], board: [], remainingDeck: deck };
+  }
+
+  state.deck = dealResult.remainingDeck || deck;
+  state.board = dealResult.board || [];
+  state.hands = dealResult.players && dealResult.players.length === 3 ? dealResult.players : [[], [], []];
+  state.hands = state.hands.map(hand => hand.length > 0 ? hand : [{ suit: 'Hearts', value: '3', id: '3-Hearts' }]);
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
   state.combination = [[], [], []];
@@ -48,147 +138,178 @@ function showSettingsModal() {
 function render() {
   // Update deck count
   const deckCountEl = document.getElementById('deck-count');
-  deckCountEl.textContent = `Deck: ${state.deck.length} cards`;
+  if (deckCountEl) {
+    deckCountEl.textContent = `Deck: ${state.deck.length || 0} cards`;
+  }
 
   // Dynamically adjust table width and bot card positions
   const tableEl = document.querySelector('.table');
-  const bot1HandEl = document.querySelector('.bot1-hand');
-  const bot2HandEl = document.querySelector('.bot2-hand');
-  const cardCount = state.board.length;
-  const baseWidth = 800; // Minimum table width
-  const cardWidth = 80; // 70px card + 10px gap
-  const tableWidth = Math.max(baseWidth, cardCount <= 4 ? baseWidth : (cardCount * cardWidth) + 100); // Add padding
-  tableEl.style.width = `${tableWidth}px`;
-  const botOffset = -20 - (cardCount > 4 ? (cardCount - 4) * 10 : 0); // Move bots outward
-  bot1HandEl.style.left = `${botOffset}px`;
-  bot2HandEl.style.right = `${botOffset}px`;
+  if (tableEl) {
+    const cardCount = state.board ? state.board.length : 0;
+    const baseWidth = 800; // Minimum table width
+    const cardWidth = 80; // 70px card + 10px gap
+    const tableWidth = Math.max(baseWidth, cardCount <= 4 ? baseWidth : (cardCount * cardWidth) + 100); // Add padding
+    tableEl.style.width = `${tableWidth}px`;
+    
+    const botOffset = -20 - (cardCount > 4 ? (cardCount - 4) * 10 : 0); // Move bots outward
+    const bot1HandEl = document.querySelector('.bot1-hand');
+    const bot2HandEl = document.querySelector('.bot2-hand');
+    if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
+    if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
+  }
 
   // Render playing area - 3 slots
   const comboAreaEl = document.getElementById('combination-area');
-  for (let slot = 0; slot < 3; slot++) {
-    const slotEl = comboAreaEl.querySelector(`[data-slot="${slot}"]`);
-    slotEl.innerHTML = '';
-    
-    const slotCards = state.combination[slot];
-    if (slotCards.length === 0) {
-      slotEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
-      slotEl.style.border = '2px dashed #ccc';
-    } else {
-      slotCards.forEach((comboEntry, comboIndex) => {
-        const card = comboEntry.card;
-        const cardEl = document.createElement('div');
-        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
-        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
-        cardEl.style.position = 'absolute';
-        cardEl.style.top = `${comboIndex * 20}px`; // Stack cards vertically
-        cardEl.setAttribute('draggable', 'true');
-        cardEl.setAttribute('data-slot', slot);
-        cardEl.setAttribute('data-combo-index', comboIndex);
-        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, slot, comboIndex));
-        cardEl.addEventListener('dragend', handleDragEnd);
-        slotEl.appendChild(cardEl);
-      });
-      // Dynamically adjust slot height
-      slotEl.style.height = `${110 + (slotCards.length - 1) * 20}px`;
+  if (comboAreaEl) {
+    for (let slot = 0; slot < 3; slot++) {
+      const slotEl = comboAreaEl.querySelector(`[data-slot="${slot}"]`);
+      if (slotEl) {
+        slotEl.innerHTML = '';
+        
+        const slotCards = state.combination[slot];
+        if (slotCards.length === 0) {
+          slotEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+          slotEl.style.border = '2px dashed #ccc';
+        } else {
+          slotCards.forEach((comboEntry, comboIndex) => {
+            const card = comboEntry.card;
+            const cardEl = document.createElement('div');
+            cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+            cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+            cardEl.style.position = 'absolute';
+            cardEl.style.top = `${comboIndex * 20}px`; // Stack cards vertically
+            cardEl.setAttribute('draggable', 'true');
+            cardEl.setAttribute('data-slot', slot);
+            cardEl.setAttribute('data-combo-index', comboIndex);
+            cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, slot, comboIndex));
+            cardEl.addEventListener('dragend', handleDragEnd);
+            slotEl.appendChild(cardEl);
+          });
+          // Dynamically adjust slot height
+          slotEl.style.height = `${110 + (slotCards.length - 1) * 20}px`;
+        }
+        slotEl.addEventListener('dragover', (e) => e.preventDefault());
+        slotEl.addEventListener('drop', (e) => handleDrop(e, slot));
+      }
     }
-    slotEl.addEventListener('dragover', (e) => e.preventDefault());
-    slotEl.addEventListener('drop', (e) => handleDrop(e, slot));
   }
 
   // Render board - dynamic, no placeholders
   const boardEl = document.getElementById('board');
-  boardEl.innerHTML = '';
-  
-  state.board.forEach((card, index) => {
-    const cardEl = document.createElement('div');
-    cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
-    cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
-    cardEl.setAttribute('draggable', 'true');
-    cardEl.setAttribute('data-index', index);
-    cardEl.setAttribute('data-type', 'board');
-    cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'board', index));
-    cardEl.addEventListener('dragend', handleDragEnd);
-    cardEl.addEventListener('dragover', (e) => e.preventDefault());
-    cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'board', index));
-    boardEl.appendChild(cardEl);
-  });
+  if (boardEl) {
+    boardEl.innerHTML = '';
+    
+    if (state.board && Array.isArray(state.board)) {
+      state.board.forEach((card, index) => {
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'board');
+        cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'board', index));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'board', index));
+        boardEl.appendChild(cardEl);
+      });
+    }
 
-  // Make the board itself a drop target for placing
-  boardEl.addEventListener('dragover', (e) => e.preventDefault());
-  boardEl.addEventListener('drop', handlePlaceDrop);
+    // Make the board itself a drop target for placing
+    boardEl.addEventListener('dragover', (e) => e.preventDefault());
+    boardEl.addEventListener('drop', handlePlaceDrop);
+  }
 
   // Render player's hand - always render 4 slots
   const handEl = document.getElementById('player-hand');
-  handEl.innerHTML = '';
-  
-  for (let index = 0; index < 4; index++) {
-    const card = state.hands[0][index];
-    const cardEl = document.createElement('div');
+  if (handEl) {
+    handEl.innerHTML = '';
     
-    if (!card || !card.value || !card.suit || state.combination.some(slot => slot.some(entry => entry.source === 'hand' && entry.index === index))) {
-      cardEl.className = 'card';
-      cardEl.style.backgroundColor = '#f0f0f0';
-      cardEl.style.border = '2px dashed #ccc';
-      cardEl.textContent = '';
-      cardEl.setAttribute('data-index', index);
-      cardEl.setAttribute('data-type', 'hand');
-      cardEl.addEventListener('dragover', (e) => e.preventDefault());
-      cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
-    } else {
-      cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
-      cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
-      cardEl.setAttribute('draggable', 'true');
-      cardEl.setAttribute('data-index', index);
-      cardEl.setAttribute('data-type', 'hand');
-      cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'hand', index));
-      cardEl.addEventListener('dragend', handleDragEnd);
-      cardEl.addEventListener('dragover', (e) => e.preventDefault());
-      cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
+    for (let index = 0; index < 4; index++) {
+      const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
+      const cardEl = document.createElement('div');
+      
+      if (!card || !card.value || !card.suit || state.combination.some(slot => slot.some(entry => entry.source === 'hand' && entry.index === index))) {
+        cardEl.className = 'card';
+        cardEl.style.backgroundColor = '#f0f0f0';
+        cardEl.style.border = '2px dashed #ccc';
+        cardEl.textContent = '';
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'hand');
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
+      } else {
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'hand');
+        cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'hand', index));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
+      }
+      handEl.appendChild(cardEl);
     }
-    handEl.appendChild(cardEl);
   }
 
   // Render Bot 1's hand (card backs)
-  const bot1HandEl = document.getElementById('bot1-hand');
-  bot1HandEl.innerHTML = '';
-  state.hands[1].forEach(() => {
-    const cardEl = document.createElement('div');
-    cardEl.className = 'card back';
-    bot1HandEl.appendChild(cardEl);
-  });
+  const bot1HandElementEl = document.getElementById('bot1-hand');
+  if (bot1HandElementEl) {
+    bot1HandElementEl.innerHTML = '';
+    if (state.hands[1] && Array.isArray(state.hands[1])) {
+      state.hands[1].forEach(() => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card back';
+        bot1HandElementEl.appendChild(cardEl);
+      });
+    }
+  }
 
   // Render Bot 2's hand (card backs)
-  const bot2HandEl = document.getElementById('bot2-hand');
-  bot2HandEl.innerHTML = '';
-  state.hands[2].forEach(() => {
-    const cardEl = document.createElement('div');
-    cardEl.className = 'card back';
-    bot2HandEl.appendChild(cardEl);
-  });
+  const bot2HandElementEl = document.getElementById('bot2-hand');
+  if (bot2HandElementEl) {
+    bot2HandElementEl.innerHTML = '';
+    if (state.hands[2] && Array.isArray(state.hands[2])) {
+      state.hands[2].forEach(() => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card back';
+        bot2HandElementEl.appendChild(cardEl);
+      });
+    }
+  }
 
   // Update scores
-  document.getElementById('player-score').textContent = `Player: ${state.scores.player} pts`;
-  document.getElementById('bot1-score').textContent = `Bot 1: ${state.scores.bot1} pts`;
-  document.getElementById('bot2-score').textContent = `Bot 2: ${state.scores.bot2} pts`;
+  const playerScoreEl = document.getElementById('player-score');
+  const bot1ScoreEl = document.getElementById('bot1-score');
+  const bot2ScoreEl = document.getElementById('bot2-score');
+  
+  if (playerScoreEl) playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
+  if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
+  if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
 
   // Update submit button
   const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = state.currentPlayer !== 0 || state.combination.every(slot => slot.length === 0);
+  if (submitBtn) {
+    submitBtn.disabled = state.currentPlayer !== 0 || state.combination.every(slot => slot.length === 0);
+  }
 
   // Update message
   const messageEl = document.getElementById('message');
-  if (state.currentPlayer === 0) {
-    if (state.hands[0].length === 0) {
-      messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
-      state.currentPlayer = 1;
-      setTimeout(aiTurn, 1000);
-    } else if (state.combination.every(slot => slot.length === 0)) {
-      messageEl.textContent = "Drag cards to the playing area to capture, or drag a card to the board to place and end your turn.";
+  if (messageEl) {
+    if (state.currentPlayer === 0) {
+      if (state.hands[0] && state.hands[0].length === 0) {
+        messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
+        state.currentPlayer = 1;
+        setTimeout(aiTurn, 1000);
+      } else if (state.combination.every(slot => slot.length === 0)) {
+        messageEl.textContent = "Drag cards to the playing area to capture, or drag a card to the board to place and end your turn.";
+      } else {
+        messageEl.textContent = "Click 'Submit Move' to capture, or drag a card to the board to place and end your turn.";
+      }
     } else {
-      messageEl.textContent = "Click 'Submit Move' to capture, or drag a card to the board to place and end your turn.";
+      messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
     }
-  } else {
-    messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
   }
 }
 
@@ -291,7 +412,10 @@ function handleSubmit() {
     const boardCards = slotCards.filter(entry => entry.source === 'board');
 
     if (handCards.length === 0 || boardCards.length === 0) {
-      document.getElementById('message').textContent = `Invalid combination in slot ${slot + 1}! Include at least one hand card and one board card.`;
+      const messageEl = document.getElementById('message');
+      if (messageEl) {
+        messageEl.textContent = `Invalid combination in slot ${slot + 1}! Include at least one hand card and one board card.`;
+      }
       allValid = false;
       break;
     }
@@ -305,7 +429,10 @@ function handleSubmit() {
     );
 
     if (!selectedCapture) {
-      document.getElementById('message').textContent = `Invalid capture in slot ${slot + 1}! Try a different combination.`;
+      const messageEl = document.getElementById('message');
+      if (messageEl) {
+        messageEl.textContent = `Invalid capture in slot ${slot + 1}! Try a different combination.`;
+      }
       allValid = false;
       break;
     }
@@ -389,22 +516,44 @@ function checkGameEnd() {
                      state.scores.bot2 >= state.settings.targetScore ? 'Bot 2' :
                      state.scores.player > state.scores.bot1 && state.scores.player > state.scores.bot2 ? 'Player' :
                      state.scores.bot1 > state.scores.player && state.scores.bot1 > state.scores.bot2 ? 'Bot 1' : 'Bot 2';
-      document.getElementById('message').textContent = `${winner} wins! Restart the game to play again.`;
+      const messageEl = document.getElementById('message');
+      if (messageEl) {
+        messageEl.textContent = `${winner} wins! Restart the game to play again.`;
+      }
     } else {
       // Start a new round: deal 4 cards to each player
-      const { players, board, remainingDeck } = dealCards(state.deck, 3, 4, 4);
-      state.deck = remainingDeck;
-      state.board = board;
-      state.hands = players;
+      let dealResult;
+      try {
+        dealResult = dealCards(state.deck, 3, 4, 4);
+      } catch (e) {
+        console.error('Failed to deal cards in new round:', e);
+        dealResult = { players: [[], [], []], board: [], remainingDeck: state.deck };
+      }
+      state.deck = dealResult.remainingDeck || state.deck;
+      state.board = dealResult.board || [];
+      state.hands = dealResult.players && dealResult.players.length === 3 ? dealResult.players : [[], [], []];
       state.currentPlayer = 0;
-      document.getElementById('message').textContent = "New round! Drag cards to the playing area to capture.";
+      const messageEl = document.getElementById('message');
+      if (messageEl) {
+        messageEl.textContent = "New round! Drag cards to the playing area to capture.";
+      }
     }
   }
 }
 
 // Event listeners
-document.getElementById('submit-btn').addEventListener('click', handleSubmit);
-document.getElementById('restart-btn').addEventListener('click', initGame);
+document.addEventListener('DOMContentLoaded', () => {
+  const submitBtn = document.getElementById('submit-btn');
+  const restartBtn = document.getElementById('restart-btn');
+  
+  if (submitBtn) {
+    submitBtn.addEventListener('click', handleSubmit);
+  }
+  
+  if (restartBtn) {
+    restartBtn.addEventListener('click', initGame);
+  }
+});
 
 // Start the game
 initGame();
