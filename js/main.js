@@ -8,7 +8,8 @@ let state = {
   settings: {
     cardSpeed: 'fast',
     soundEffects: 'off',
-    targetScore: 500
+    targetScore: 500,
+    botDifficulty: 'intermediate' // Default difficulty
   },
   draggedCard: null // Track the dragged card
 };
@@ -52,13 +53,23 @@ function showSettingsModal() {
     modal.showModal(); // Use native dialog method to show modal with backdrop
 
     const startGameBtn = document.getElementById('start-game-btn');
+    const tutorialBtn = document.getElementById('tutorial-btn');
+    const tutorialModal = document.getElementById('tutorial-modal');
+
     if (startGameBtn) {
       startGameBtn.addEventListener('click', () => {
         state.settings.cardSpeed = document.getElementById('card-speed').value;
         state.settings.soundEffects = document.getElementById('sound-effects').value;
         state.settings.targetScore = parseInt(document.getElementById('target-score').value);
+        state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
         modal.close(); // Close the modal using native method
         render();
+      });
+    }
+
+    if (tutorialBtn) {
+      tutorialBtn.addEventListener('click', () => {
+        tutorialModal.showModal();
       });
     }
   }
@@ -480,7 +491,7 @@ function aiTurn() {
 
   // Simulate bot thinking
   setTimeout(() => {
-    const aiAction = aiMove(state.hands[playerIndex], state.board);
+    const aiAction = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
     if (aiAction.action === 'capture') {
       // Simulate bot dragging cards to the play area

@@ -48,7 +48,50 @@
             <option value="1500">1500</option>
           </select>
         </div>
-        <button id="start-game-btn" type="submit">Start Game</button>
+        <div>
+          <label for="bot-difficulty">Bot Difficulty:</label>
+          <select id="bot-difficulty">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate" selected>Intermediate</option>
+            <option value="legendary">Legendary</option>
+          </select>
+        </div>
+        <div class="modal-buttons">
+          <button id="start-game-btn" type="submit">Start Game</button>
+          <button id="tutorial-btn" type="button">Tutorial</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="tutorial-modal">
+      <form method="dialog" class="modal-content">
+        <h2>How to Play STACKED!</h2>
+        <div class="tutorial-content">
+          <p>Welcome to STACKED!, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
+          <h3>Objective:</h3>
+          <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
+          <h3>How to Play:</h3>
+          <ul>
+            <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
+            <li><strong>Your Turn:</strong> Drag cards to the play area to build a combo:
+              <ul>
+                <li><strong>Pair Capture:</strong> Use a hand card to capture a board card of the same value (e.g., a 5 captures a 5).</li>
+                <li><strong>Sum Capture:</strong> Use a hand card and two board cards that sum to the hand card’s value to capture a third board card (e.g., a 9 with a 3 and 6 captures another 9).</li>
+              </ul>
+            </li>
+            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. The play area will glow green if your combo is valid. You can make multiple combos per turn!</li>
+            <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
+            <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
+            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
+            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
+          </ul>
+          <h3>Tips:</h3>
+          <ul>
+            <li>Plan your combos carefully to maximize points.</li>
+            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
+          </ul>
+        </div>
+        <button type="submit">Close</button>
       </form>
     </dialog>
 

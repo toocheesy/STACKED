@@ -284,6 +284,40 @@ dialog button:hover {
   background-color: #D4AC0D;
 }
 
+/* Modal Buttons Layout */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  flex: 1;
+}
+
+/* Tutorial Modal Content */
+.tutorial-content {
+  text-align: left;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.tutorial-content h3 {
+  margin-top: 10px;
+  color: #F1C40F;
+}
+
+.tutorial-content ul {
+  margin-left: 20px;
+  list-style-type: disc;
+}
+
+.tutorial-content ul ul {
+  margin-left: 20px;
+  list-style-type: circle;
+}
+
 /* Ensure modal content is centered */
 dialog .modal-content {
   text-align: center;
@@ -413,5 +447,10 @@ dialog h2 {
   dialog select,
   dialog button {
     font-size: 0.9rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 5px;
   }
 }
