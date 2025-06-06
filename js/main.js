@@ -1,3 +1,4 @@
+// js/main.js
 let state = {
   deck: [],
   board: [],
@@ -14,81 +15,6 @@ let state = {
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-
-// Fallback functions if external scripts fail to load
-function createDeck() {
-  const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
-  const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-  const deck = [];
-  for (const suit of suits) {
-    for (const value of values) {
-      deck.push({ suit, value, id: `${value}-${suit}` });
-    }
-  }
-  return deck;
-}
-
-function shuffleDeck(deck) {
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  return deck;
-}
-
-function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
-  const players = Array(numPlayers).fill().map(() => []);
-  let remainingDeck = [...deck];
-  
-  // Deal cards to players
-  for (let i = 0; i < numPlayers; i++) {
-    for (let j = 0; j < cardsPerPlayer; j++) {
-      if (remainingDeck.length > 0) {
-        players[i].push(remainingDeck.shift());
-      }
-    }
-  }
-
-  // Deal cards to the board
-  const board = [];
-  for (let i = 0; i < boardCards; i++) {
-    if (remainingDeck.length > 0) {
-      board.push(remainingDeck.shift());
-    }
-  }
-
-  return { players, board, remainingDeck };
-}
-
-function canCapture(handCard, board) {
-  // Fallback: simple pair matching
-  const captures = [];
-  if (!handCard || !board || !Array.isArray(board)) return captures;
-  
-  board.forEach((card, index) => {
-    if (card && card.value === handCard.value) {
-      captures.push({ cards: [index], target: card });
-    }
-  });
-  return captures;
-}
-
-function scoreCards(cards) {
-  // Fallback: 1 point per card
-  return cards && Array.isArray(cards) ? cards.length : 0;
-}
-
-function aiMove(hand, board) {
-  // Fallback: place the first card if no capture possible
-  if (!hand || !board || !Array.isArray(hand) || !Array.isArray(board) || hand.length === 0) {
-    return { action: 'place', handCard: { suit: 'Hearts', value: '3', id: '3-Hearts' } };
-  }
-  const captures = canCapture(hand[0], board);
-  if (captures.length > 0) {
-    return { action: 'capture', handCard: hand[0], capture: captures[0] };
-  }
-  return { action: 'place', handCard: hand[0] };
-}
 
 // Initialize the game
 function initGame() {
@@ -120,18 +46,23 @@ function initGame() {
   showSettingsModal();
 }
 
-// Show settings modal (always show as requested)
+// Show settings modal
 function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
-  modal.style.display = 'flex';
+  if (modal) {
+    modal.showModal(); // Use native dialog method to show modal with backdrop
 
-  document.getElementById('start-game-btn').addEventListener('click', () => {
-    state.settings.cardSpeed = document.getElementById('card-speed').value;
-    state.settings.soundEffects = document.getElementById('sound-effects').value;
-    state.settings.targetScore = parseInt(document.getElementById('target-score').value);
-    modal.style.display = 'none';
-    render();
-  });
+    const startGameBtn = document.getElementById('start-game-btn');
+    if (startGameBtn) {
+      startGameBtn.addEventListener('click', () => {
+        state.settings.cardSpeed = document.getElementById('card-speed').value;
+        state.settings.soundEffects = document.getElementById('sound-effects').value;
+        state.settings.targetScore = parseInt(document.getElementById('target-score').value);
+        modal.close(); // Close the modal using native method
+        render();
+      });
+    }
+  }
 }
 
 // Render the game state to the DOM
