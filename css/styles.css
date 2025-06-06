@@ -41,7 +41,7 @@ h1 {
   align-items: flex-start;
   justify-content: center;
   gap: 10px;
-  width: 240px; /* Width for 3 slots (70px each + 10px gaps) */
+  width: 80px; /* Width for 1 slot (70px + padding) */
   position: absolute;
   top: 20px; /* Position above the board */
   left: 50%;
@@ -306,7 +306,7 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 200px;
+    width: 70px;
   }
 
   .combo-slot {
@@ -370,7 +370,7 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 200px;
+    width: 70px;
   }
 
   .combo-slot {
@@ -397,7 +397,7 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 170px;
+    width: 60px;
   }
 
   .combo-slot {
