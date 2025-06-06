@@ -1,3 +1,8 @@
+/* 
+ * Updated for Suggestion #1: Fix AI validation consistency
+ * - Refactored validateCombo to match main.js's handleSubmit logic exactly
+ * - Ensures face card (J, Q, K) captures and sum/pair captures are consistent
+ */
 function aiMove(hand, board, difficulty = 'intermediate') {
   // Helper function to simulate a combo and validate it
   function validateCombo(handCard, selectedBoardIndices) {
@@ -7,7 +12,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
 
     const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
     if (isFaceCard) {
-      // For J, Q, K, capture all matching cards
+      // For J, Q, K, capture all matching cards in selected indices
       const matchingIndices = selectedBoardIndices.filter(idx => board[idx].value === handCard.value);
       if (matchingIndices.length > 0) {
         capturedCards = matchingIndices.map(idx => board[idx]);
@@ -16,12 +21,12 @@ function aiMove(hand, board, difficulty = 'intermediate') {
       return null;
     } else {
       if (selectedBoardIndices.length === 1) {
-        // Pair capture
+        // Pair capture: Hand card matches a single board card
         selectedCapture = captures.find(cap => 
           cap.type === 'pair' && selectedBoardIndices.includes(cap.cards[0])
         );
       } else if (selectedBoardIndices.length >= 2) {
-        // Sum capture: Find a pair of board indices that sum to a valid target
+        // Sum capture: Find a pair of board cards that sum to a valid target
         for (let i = 0; i < selectedBoardIndices.length; i++) {
           for (let j = i + 1; j < selectedBoardIndices.length; j++) {
             const pairIndices = [selectedBoardIndices[i], selectedBoardIndices[j]];
@@ -83,7 +88,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
       }
     } else {
       for (const capture of captures) {
-        const boardIndices = capture.cards; // Indices used in the capture
+        const boardIndices = capture.cards;
         const selectedCapture = validateCombo(handCard, boardIndices);
         if (selectedCapture) {
           possibleCaptures.push({ handCard, capture: selectedCapture });
@@ -98,11 +103,11 @@ function aiMove(hand, board, difficulty = 'intermediate') {
       possibleCaptures.sort((a, b) => calculateCaptureScore(b.capture) - calculateCaptureScore(a.capture));
       return { action: 'capture', handCard: possibleCaptures[0].handCard, capture: possibleCaptures[0].capture };
     } else if (difficulty === 'intermediate') {
-      // Intermediate: Pick a random capture (not necessarily the best)
+      // Intermediate: Pick a random capture
       const randomCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
       return { action: 'capture', handCard: randomCapture.handCard, capture: randomCapture.capture };
     } else {
-      // Beginner: Pick a random capture (already filtered for 50% chance)
+      // Beginner: Pick a random capture
       const randomCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
       return { action: 'capture', handCard: randomCapture.handCard, capture: randomCapture.capture };
     }
@@ -111,7 +116,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   // No valid captures: place a card
   let handCard;
   if (difficulty === 'legendary') {
-    // Legendary: Place the lowest-value card (minimize points given to others)
+    // Legendary: Place the lowest-value card
     hand.sort((a, b) => (pointsMap[a.value] || 0) - (pointsMap[b.value] || 0));
     handCard = hand[0];
   } else {

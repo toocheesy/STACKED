@@ -1,3 +1,8 @@
+/* 
+ * Updated for Suggestions #8, #11:
+ * - Suggestion #8: Added .hint class for highlighting cards in the hint system
+ * - Suggestion #11: Increased card sizes and touch targets for mobile, added touch feedback
+ */
 * {
   margin: 0;
   padding: 0;
@@ -6,7 +11,7 @@
 }
 
 body {
-  background-color: #145A32; /* Dark green felt background */
+  background-color: #145A32;
   color: #fff;
   display: flex;
   justify-content: center;
@@ -21,12 +26,11 @@ body {
 }
 
 h1 {
-  color: #F1C40F; /* Goldish yellow */
+  color: #F1C40F;
   font-size: 2.5rem;
   margin-bottom: 20px;
 }
 
-/* Deck Count */
 .deck-count {
   color: #F1C40F;
   font-size: 1.2rem;
@@ -34,50 +38,46 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Playing Area (Combination Area) */
 .combination-area {
   display: flex;
-  flex-direction: row; /* Slots arranged horizontally */
+  flex-direction: row;
   align-items: flex-start;
   justify-content: center;
   gap: 10px;
-  width: 80px; /* Width for 1 slot (70px + padding) */
+  width: 80px;
   position: absolute;
-  top: 20px; /* Position above the board */
+  top: 20px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .combo-slot {
   width: 70px;
-  min-height: 110px; /* Minimum height for empty slots */
+  min-height: 110px;
   background-color: rgba(241, 196, 15, 0.1);
   border: 2px dashed #ccc;
   border-radius: 8px;
-  position: relative; /* For absolute positioning of cards */
+  position: relative;
   padding: 5px;
 }
 
-/* Enhanced green glow for valid combinations */
 .combo-slot.valid-combo {
-  border-color: #2ecc71; /* Green border */
-  box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7); /* Brighter, wider glow */
-  background-color: rgba(46, 204, 113, 0.2); /* Slight green tint */
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
+  background-color: rgba(46, 204, 113, 0.2);
 }
 
-/* Table Layout */
 .table {
   position: relative;
-  min-width: 800px; /* Minimum width */
+  min-width: 800px;
   height: 750px;
   margin: 0 auto;
-  background-color: black; /* Changed to black */
-  border: 4px solid #7B3F00; /* Wooden border */
+  background-color: black;
+  border: 4px solid #7B3F00;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Scores */
 .score {
   position: absolute;
   background-color: #7B3F00;
@@ -104,17 +104,16 @@ h1 {
   right: 15px;
 }
 
-/* Center Board with Yellow Border */
 .board {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 70px); /* 4 cards per row */
-  grid-auto-rows: 110px; /* Height of each row */
+  grid-template-columns: repeat(4, 70px);
+  grid-auto-rows: 110px;
   gap: 10px;
-  max-width: 320px; /* 4 cards * (70px + 10px gap) + padding */
+  max-width: 320px;
   padding: 15px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
@@ -122,7 +121,6 @@ h1 {
   box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
 }
 
-/* Player Hands */
 .hand {
   position: absolute;
   display: flex;
@@ -149,7 +147,6 @@ h1 {
   transform-origin: center;
 }
 
-/* Card Styles */
 .card {
   width: 70px;
   height: 100px;
@@ -157,8 +154,8 @@ h1 {
   border: 2px solid #ccc;
   border-radius: 8px;
   display: flex;
-  align-items: flex-start; /* Align value to top */
-  justify-content: flex-start; /* Align value to left */
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: 5px;
   cursor: pointer;
   transition: transform 0.3s ease;
@@ -168,8 +165,8 @@ h1 {
   text-align: left;
   line-height: 1;
   color: #000 !important;
-  overflow: visible !important;
-  position: relative; /* For stacking in combo slots */
+  position: relative;
+  touch-action: none; /* Prevent default touch scrolling */
 }
 
 .card.red {
@@ -191,7 +188,12 @@ h1 {
   border-color: #34495E;
 }
 
-/* Actions and Message */
+.card.hint {
+  border-color: #e67e22;
+  box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
+  background-color: rgba(230, 126, 34, 0.2);
+}
+
 .actions {
   margin-top: 30px;
 }
@@ -219,7 +221,8 @@ button:disabled {
 }
 
 #restart-btn,
-#reset-play-area-btn {
+#reset-play-area-btn,
+#hint-btn {
   margin-top: 10px;
 }
 
@@ -230,25 +233,24 @@ button:disabled {
   font-weight: bold;
 }
 
-/* Modal Styles */
 dialog {
-  background-color: #229954; /* Match the table background */
+  background-color: #229954;
   color: #fff;
-  border: 3px solid #F1C40F; /* Gold border */
+  border: 3px solid #F1C40F;
   border-radius: 8px;
   padding: 20px;
   width: 400px;
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  z-index: 1000; /* Ensure it’s above other elements */
+  z-index: 1000;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%); /* Center the modal */
+  transform: translate(-50%, -50%);
 }
 
 dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent backdrop */
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 dialog form {
@@ -275,7 +277,7 @@ dialog select {
 dialog button {
   margin-top: 10px;
   padding: 10px;
-  background-color: #F1C40F; /* Gold button */
+  background-color: #F1C40F;
   color: #000;
   border: none;
   border-radius: 5px;
@@ -288,7 +290,6 @@ dialog button:hover {
   background-color: #D4AC0D;
 }
 
-/* Modal Buttons Layout */
 .modal-buttons {
   display: flex;
   justify-content: space-between;
@@ -299,7 +300,6 @@ dialog button:hover {
   flex: 1;
 }
 
-/* Tutorial Modal Content */
 .tutorial-content {
   text-align: left;
   max-height: 400px;
@@ -322,7 +322,6 @@ dialog button:hover {
   list-style-type: circle;
 }
 
-/* Ensure modal content is centered */
 dialog .modal-content {
   text-align: center;
 }
@@ -332,7 +331,6 @@ dialog h2 {
   margin-bottom: 15px;
 }
 
-/* Responsive Design */
 @media (max-width: 900px) {
   .table {
     min-width: 650px;
@@ -344,24 +342,24 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 70px;
+    width: 80px;
   }
 
   .combo-slot {
-    width: 60px;
-    min-height: 95px;
+    width: 70px;
+    min-height: 110px;
   }
 
   .board {
-    max-width: 260px;
-    grid-template-columns: repeat(4, 60px);
-    grid-auto-rows: 95px;
+    max-width: 320px;
+    grid-template-columns: repeat(4, 70px);
+    grid-auto-rows: 110px;
   }
 
   .card {
-    width: 60px;
-    height: 85px;
-    font-size: 0.9rem;
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
   }
 }
 
@@ -376,14 +374,14 @@ dialog h2 {
   }
 
   .board {
-    max-width: 260px;
+    max-width: 320px;
     padding: 10px;
   }
 
   .card {
-    width: 60px;
-    height: 85px;
-    font-size: 0.9rem;
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
   }
 
   .player-hand {
@@ -408,12 +406,12 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 70px;
+    width: 80px;
   }
 
   .combo-slot {
-    width: 60px;
-    min-height: 95px;
+    width: 70px;
+    min-height: 110px;
   }
 }
 
@@ -424,23 +422,23 @@ dialog h2 {
   }
 
   .board {
-    max-width: 220px;
-    gap: 8px;
+    max-width: 280px;
+    gap: 10px;
   }
 
   .card {
-    width: 50px;
-    height: 70px;
-    font-size: 0.8rem;
+    width: 60px;
+    height: 90px;
+    font-size: 0.9rem;
   }
 
   .combination-area {
-    width: 60px;
+    width: 70px;
   }
 
   .combo-slot {
-    width: 50px;
-    min-height: 80px;
+    width: 60px;
+    min-height: 100px;
   }
 
   dialog {
