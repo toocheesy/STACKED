@@ -97,7 +97,7 @@ function render() {
         slotEl.innerHTML = '';
         
         const slotCards = state.combination[slot];
-        // Enhancement: Add green glow if the combination is valid
+        // Add green glow if the combination is valid
         if (slotCards.length > 0) {
           const handCards = slotCards.filter(entry => entry.source === 'hand');
           const boardCards = slotCards.filter(entry => entry.source === 'board');
@@ -105,18 +105,37 @@ function render() {
             const handCard = handCards[0].card;
             const boardIndices = boardCards.map(entry => entry.index);
             const captures = canCapture(handCard, state.board);
-            const selectedCapture = captures.find(cap => {
-              // Check for pair capture (direct match)
-              if (cap.type === 'pair') {
-                return boardIndices.includes(cap.cards[0]);
+
+            let isValid = false;
+            if (boardCards.length === 1) {
+              // Pair capture
+              isValid = captures.some(cap => 
+                cap.type === 'pair' && boardIndices.includes(cap.cards[0])
+              );
+            } else {
+              // Sum capture: Check all pairs of board cards in the slot
+              for (let i = 0; i < boardCards.length; i++) {
+                for (let j = i + 1; j < boardCards.length; j++) {
+                  const pairIndices = [boardCards[i].index, boardCards[j].index];
+                  const selectedCapture = captures.find(cap => {
+                    if (cap.type === 'sum') {
+                      const capIndices = cap.cards;
+                      return capIndices.length === 2 && 
+                             capIndices.every(idx => pairIndices.includes(idx)) && 
+                             capIndices.sort().join(',') === pairIndices.sort().join(',');
+                    }
+                    return false;
+                  });
+                  if (selectedCapture) {
+                    isValid = true;
+                    break;
+                  }
+                }
+                if (isValid) break;
               }
-              // Check for sum capture (e.g., 6 + 3 = 9)
-              if (cap.type === 'sum') {
-                return cap.cards.every(i => boardIndices.includes(i));
-              }
-              return false;
-            });
-            if (selectedCapture) {
+            }
+
+            if (isValid) {
               slotEl.classList.add('valid-combo');
             } else {
               slotEl.classList.remove('valid-combo');
@@ -162,7 +181,7 @@ function render() {
     
     if (state.board && Array.isArray(state.board)) {
       state.board.forEach((card, index) => {
-        // Fix: Skip rendering board cards that are in the play area
+        // Skip rendering board cards that are in the play area
         const isInPlayArea = state.combination.some(slot => 
           slot.some(entry => entry.source === 'board' && entry.index === index)
         );
@@ -362,6 +381,13 @@ function handlePlaceDrop(e) {
   if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
 }
 
+// Handle reset play area
+function handleResetPlayArea() {
+  if (state.currentPlayer !== 0) return; // Only allow during player's turn
+  state.combination = [[], [], []]; // Clear all slots
+  render();
+}
+
 // Handle submit action (validate and execute captures for each slot)
 function handleSubmit() {
   if (state.currentPlayer !== 0 || state.combination.every(slot => slot.length === 0)) return;
@@ -392,25 +418,30 @@ function handleSubmit() {
     const boardIndices = boardCards.map(entry => entry.index);
     const captures = canCapture(handCard, state.board);
 
-    // Fix: Improved matching logic for captures
     let selectedCapture = null;
     if (boardCards.length === 1) {
       // Pair capture: hand card matches a single board card
       selectedCapture = captures.find(cap => 
         cap.type === 'pair' && boardIndices.includes(cap.cards[0])
       );
-    } else if (boardCards.length === 2) {
-      // Sum capture: two board cards sum to match a target (e.g., 6 + 3 = 9)
-      selectedCapture = captures.find(cap => {
-        if (cap.type === 'sum') {
-          // Ensure the capture uses exactly the two board cards in the slot
-          const capIndices = cap.cards;
-          return capIndices.length === 2 && 
-                 capIndices.every(i => boardIndices.includes(i)) && 
-                 capIndices.sort().join(',') === boardIndices.sort().join(',');
+    } else {
+      // Sum capture: Find a pair of board cards in the slot that sum to a valid target
+      for (let i = 0; i < boardCards.length; i++) {
+        for (let j = i + 1; j < boardCards.length; j++) {
+          const pairIndices = [boardCards[i].index, boardCards[j].index];
+          selectedCapture = captures.find(cap => {
+            if (cap.type === 'sum') {
+              const capIndices = cap.cards;
+              return capIndices.length === 2 && 
+                     capIndices.every(idx => pairIndices.includes(idx)) && 
+                     capIndices.sort().join(',') === pairIndices.sort().join(',');
+            }
+            return false;
+          });
+          if (selectedCapture) break;
         }
-        return false;
-      });
+        if (selectedCapture) break;
+      }
     }
 
     if (!selectedCapture) {
@@ -539,6 +570,7 @@ function checkGameEnd() {
 document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit-btn');
   const restartBtn = document.getElementById('restart-btn');
+  const resetBtn = document.getElementById('reset-play-area-btn');
   
   if (submitBtn) {
     submitBtn.addEventListener('click', handleSubmit);
@@ -546,6 +578,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (restartBtn) {
     restartBtn.addEventListener('click', initGame);
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetPlayArea);
   }
 });
 
