@@ -241,6 +241,10 @@ dialog {
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   z-index: 1000; /* Ensure it’s above other elements */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the modal */
 }
 
 dialog::backdrop {

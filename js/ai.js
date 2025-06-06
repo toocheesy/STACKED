@@ -3,39 +3,55 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   function validateCombo(handCard, selectedBoardIndices) {
     const captures = canCapture(handCard, board);
     let selectedCapture = null;
+    let capturedCards = [];
 
-    if (selectedBoardIndices.length === 1) {
-      // Pair capture
-      selectedCapture = captures.find(cap => 
-        cap.type === 'pair' && selectedBoardIndices.includes(cap.cards[0])
-      );
-    } else if (selectedBoardIndices.length >= 2) {
-      // Sum capture: Find a pair of board indices that sum to a valid target
-      for (let i = 0; i < selectedBoardIndices.length; i++) {
-        for (let j = i + 1; j < selectedBoardIndices.length; j++) {
-          const pairIndices = [selectedBoardIndices[i], selectedBoardIndices[j]];
-          selectedCapture = captures.find(cap => {
-            if (cap.type === 'sum') {
-              const capIndices = cap.cards;
-              return capIndices.length === 2 && 
-                     capIndices.every(idx => pairIndices.includes(idx)) && 
-                     capIndices.sort().join(',') === pairIndices.sort().join(',');
-            }
-            return false;
-          });
+    const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
+    if (isFaceCard) {
+      // For J, Q, K, capture all matching cards
+      const matchingIndices = selectedBoardIndices.filter(idx => board[idx].value === handCard.value);
+      if (matchingIndices.length > 0) {
+        capturedCards = matchingIndices.map(idx => board[idx]);
+        return { type: 'pair', cards: matchingIndices, targets: capturedCards };
+      }
+      return null;
+    } else {
+      if (selectedBoardIndices.length === 1) {
+        // Pair capture
+        selectedCapture = captures.find(cap => 
+          cap.type === 'pair' && selectedBoardIndices.includes(cap.cards[0])
+        );
+      } else if (selectedBoardIndices.length >= 2) {
+        // Sum capture: Find a pair of board indices that sum to a valid target
+        for (let i = 0; i < selectedBoardIndices.length; i++) {
+          for (let j = i + 1; j < selectedBoardIndices.length; j++) {
+            const pairIndices = [selectedBoardIndices[i], selectedBoardIndices[j]];
+            selectedCapture = captures.find(cap => {
+              if (cap.type === 'sum') {
+                const capIndices = cap.cards;
+                return capIndices.length === 2 && 
+                       capIndices.every(idx => pairIndices.includes(idx)) && 
+                       capIndices.sort().join(',') === pairIndices.sort().join(',');
+              }
+              return false;
+            });
+            if (selectedCapture) break;
+          }
           if (selectedCapture) break;
         }
-        if (selectedCapture) break;
       }
-    }
 
-    return selectedCapture;
+      if (selectedCapture) {
+        capturedCards = [selectedCapture.target];
+        return { type: selectedCapture.type, cards: selectedCapture.cards, targets: capturedCards };
+      }
+      return null;
+    }
   }
 
   // Helper function to calculate the score of a capture
   function calculateCaptureScore(capture) {
-    if (!capture || !capture.target) return 0;
-    return pointsMap[capture.target.value] || 0;
+    if (!capture || !capture.targets) return 0;
+    return capture.targets.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
   // Bot behavior based on difficulty
@@ -51,11 +67,27 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   const possibleCaptures = [];
   for (const handCard of hand) {
     const captures = canCapture(handCard, board);
-    for (const capture of captures) {
-      const boardIndices = capture.cards; // Indices used in the capture
-      const selectedCapture = validateCombo(handCard, boardIndices);
-      if (selectedCapture) {
-        possibleCaptures.push({ handCard, capture: selectedCapture });
+    const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
+
+    if (isFaceCard) {
+      // For J, Q, K, find all matching cards on the board
+      const matchingIndices = board
+        .map((card, idx) => ({ card, idx }))
+        .filter(({ card }) => card.value === handCard.value)
+        .map(({ idx }) => idx);
+      if (matchingIndices.length > 0) {
+        const capture = validateCombo(handCard, matchingIndices);
+        if (capture) {
+          possibleCaptures.push({ handCard, capture });
+        }
+      }
+    } else {
+      for (const capture of captures) {
+        const boardIndices = capture.cards; // Indices used in the capture
+        const selectedCapture = validateCombo(handCard, boardIndices);
+        if (selectedCapture) {
+          possibleCaptures.push({ handCard, capture: selectedCapture });
+        }
       }
     }
   }

@@ -117,31 +117,39 @@ function render() {
           const captures = canCapture(handCard, state.board);
 
           let isValid = false;
-          if (boardCards.length === 1) {
-            // Pair capture
-            isValid = captures.some(cap => 
-              cap.type === 'pair' && boardIndices.includes(cap.cards[0])
-            );
+          const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
+          
+          if (isFaceCard) {
+            // For J, Q, K, only pair captures are allowed
+            // Check if all board cards in the play area match the hand card
+            isValid = boardCards.every(bc => state.board[bc.index].value === handCard.value);
           } else {
-            // Sum capture: Check all pairs of board cards in the slot
-            for (let i = 0; i < boardCards.length; i++) {
-              for (let j = i + 1; j < boardCards.length; j++) {
-                const pairIndices = [boardCards[i].index, boardCards[j].index];
-                const selectedCapture = captures.find(cap => {
-                  if (cap.type === 'sum') {
-                    const capIndices = cap.cards;
-                    return capIndices.length === 2 && 
-                           capIndices.every(idx => pairIndices.includes(idx)) && 
-                           capIndices.sort().join(',') === pairIndices.sort().join(',');
+            if (boardCards.length === 1) {
+              // Pair capture
+              isValid = captures.some(cap => 
+                cap.type === 'pair' && boardIndices.includes(cap.cards[0])
+              );
+            } else {
+              // Sum capture: Check all pairs of board cards in the slot
+              for (let i = 0; i < boardCards.length; i++) {
+                for (let j = i + 1; j < boardCards.length; j++) {
+                  const pairIndices = [boardCards[i].index, boardCards[j].index];
+                  const selectedCapture = captures.find(cap => {
+                    if (cap.type === 'sum') {
+                      const capIndices = cap.cards;
+                      return capIndices.length === 2 && 
+                             capIndices.every(idx => pairIndices.includes(idx)) && 
+                             capIndices.sort().join(',') === pairIndices.sort().join(',');
+                    }
+                    return false;
+                  });
+                  if (selectedCapture) {
+                    isValid = true;
+                    break;
                   }
-                  return false;
-                });
-                if (selectedCapture) {
-                  isValid = true;
-                  break;
                 }
+                if (isValid) break;
               }
-              if (isValid) break;
             }
           }
 
@@ -417,46 +425,70 @@ function handleSubmit() {
   const captures = canCapture(handCard, state.board);
 
   let selectedCapture = null;
-  if (boardCards.length === 1) {
-    // Pair capture: hand card matches a single board card
-    selectedCapture = captures.find(cap => 
-      cap.type === 'pair' && boardIndices.includes(cap.cards[0])
-    );
+  let capturedCards = [];
+  const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
+
+  if (isFaceCard) {
+    // For J, Q, K, capture all matching cards in the play area
+    const matchingBoardCards = boardCards.filter(bc => state.board[bc.index].value === handCard.value);
+    if (matchingBoardCards.length > 0) {
+      const matchingIndices = matchingBoardCards.map(bc => bc.index);
+      capturedCards = matchingIndices.map(idx => state.board[idx]);
+      // Remove the captured board cards
+      state.board = state.board.filter((_, i) => !matchingIndices.includes(i));
+      // Remove the hand card used for the capture
+      state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
+      // Update score
+      state.scores.player += scoreCards(capturedCards);
+    } else {
+      if (messageEl) {
+        messageEl.textContent = "Invalid capture! J, Q, K can only pair with matching cards.";
+      }
+      return;
+    }
   } else {
-    // Sum capture: Find a pair of board cards that sum to a valid target
-    for (let i = 0; i < boardCards.length; i++) {
-      for (let j = i + 1; j < boardCards.length; j++) {
-        const pairIndices = [boardCards[i].index, boardCards[j].index];
-        selectedCapture = captures.find(cap => {
-          if (cap.type === 'sum') {
-            const capIndices = cap.cards;
-            return capIndices.length === 2 && 
-                   capIndices.every(idx => pairIndices.includes(idx)) && 
-                   capIndices.sort().join(',') === pairIndices.sort().join(',');
-          }
-          return false;
-        });
+    if (boardCards.length === 1) {
+      // Pair capture: hand card matches a single board card
+      selectedCapture = captures.find(cap => 
+        cap.type === 'pair' && boardIndices.includes(cap.cards[0])
+      );
+    } else {
+      // Sum capture: Find a pair of board cards that sum to a valid target
+      for (let i = 0; i < boardCards.length; i++) {
+        for (let j = i + 1; j < boardCards.length; j++) {
+          const pairIndices = [boardCards[i].index, boardCards[j].index];
+          selectedCapture = captures.find(cap => {
+            if (cap.type === 'sum') {
+              const capIndices = cap.cards;
+              return capIndices.length === 2 && 
+                     capIndices.every(idx => pairIndices.includes(idx)) && 
+                     capIndices.sort().join(',') === pairIndices.sort().join(',');
+            }
+            return false;
+          });
+          if (selectedCapture) break;
+        }
         if (selectedCapture) break;
       }
-      if (selectedCapture) break;
     }
+
+    if (!selectedCapture) {
+      if (messageEl) {
+        messageEl.textContent = "Invalid capture! Try a different combination.";
+      }
+      return;
+    }
+
+    // Execute the capture for non-face cards
+    capturedCards = [selectedCapture.target];
+    // Remove the captured board cards
+    state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
+    // Remove the hand card used for the capture
+    state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
+    // Update score
+    state.scores.player += scoreCards(capturedCards);
   }
 
-  if (!selectedCapture) {
-    if (messageEl) {
-      messageEl.textContent = "Invalid capture! Try a different combination.";
-    }
-    return;
-  }
-
-  // Execute the capture
-  const capturedCards = [selectedCapture.target];
-  // Remove the captured board cards
-  state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
-  // Remove the hand card used for the capture
-  state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
-  // Update score
-  state.scores.player += scoreCards(capturedCards);
   // Clear the play area
   state.combination = [];
 
