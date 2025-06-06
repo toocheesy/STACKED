@@ -97,6 +97,37 @@ function render() {
         slotEl.innerHTML = '';
         
         const slotCards = state.combination[slot];
+        // Enhancement: Add green glow if the combination is valid
+        if (slotCards.length > 0) {
+          const handCards = slotCards.filter(entry => entry.source === 'hand');
+          const boardCards = slotCards.filter(entry => entry.source === 'board');
+          if (handCards.length > 0 && boardCards.length > 0) {
+            const handCard = handCards[0].card;
+            const boardIndices = boardCards.map(entry => entry.index);
+            const captures = canCapture(handCard, state.board);
+            const selectedCapture = captures.find(cap => {
+              // Check for pair capture (direct match)
+              if (cap.type === 'pair') {
+                return boardIndices.includes(cap.cards[0]);
+              }
+              // Check for sum capture (e.g., 6 + 3 = 9)
+              if (cap.type === 'sum') {
+                return cap.cards.every(i => boardIndices.includes(i));
+              }
+              return false;
+            });
+            if (selectedCapture) {
+              slotEl.classList.add('valid-combo');
+            } else {
+              slotEl.classList.remove('valid-combo');
+            }
+          } else {
+            slotEl.classList.remove('valid-combo');
+          }
+        } else {
+          slotEl.classList.remove('valid-combo');
+        }
+
         if (slotCards.length === 0) {
           slotEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
           slotEl.style.border = '2px dashed #ccc';
@@ -131,6 +162,12 @@ function render() {
     
     if (state.board && Array.isArray(state.board)) {
       state.board.forEach((card, index) => {
+        // Fix: Skip rendering board cards that are in the play area
+        const isInPlayArea = state.combination.some(slot => 
+          slot.some(entry => entry.source === 'board' && entry.index === index)
+        );
+        if (isInPlayArea) return; // Skip this card
+
         const cardEl = document.createElement('div');
         cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
         cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
@@ -354,9 +391,27 @@ function handleSubmit() {
     const handCard = handCards[0].card;
     const boardIndices = boardCards.map(entry => entry.index);
     const captures = canCapture(handCard, state.board);
-    const selectedCapture = captures.find(cap =>
-      cap.cards.every(i => boardIndices.includes(i))
-    );
+
+    // Fix: Improved matching logic for captures
+    let selectedCapture = null;
+    if (boardCards.length === 1) {
+      // Pair capture: hand card matches a single board card
+      selectedCapture = captures.find(cap => 
+        cap.type === 'pair' && boardIndices.includes(cap.cards[0])
+      );
+    } else if (boardCards.length === 2) {
+      // Sum capture: two board cards sum to match a target (e.g., 6 + 3 = 9)
+      selectedCapture = captures.find(cap => {
+        if (cap.type === 'sum') {
+          // Ensure the capture uses exactly the two board cards in the slot
+          const capIndices = cap.cards;
+          return capIndices.length === 2 && 
+                 capIndices.every(i => boardIndices.includes(i)) && 
+                 capIndices.sort().join(',') === boardIndices.sort().join(',');
+        }
+        return false;
+      });
+    }
 
     if (!selectedCapture) {
       const messageEl = document.getElementById('message');
@@ -369,8 +424,11 @@ function handleSubmit() {
 
     // If valid, execute the capture
     const capturedCards = [selectedCapture.target];
+    // Remove the captured board cards
     state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
+    // Remove the hand card used for the capture
     state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
+    // Update score
     state.scores.player += scoreCards(capturedCards);
     slotsToClear.push(slot);
   }
@@ -387,6 +445,12 @@ function handleSubmit() {
         state.board.push(nextCard);
         state.hands[0] = state.hands[0].slice(1);
       }
+    }
+
+    // Transition to the next player's turn if the player's hand is empty
+    if (state.hands[0].length === 0) {
+      state.currentPlayer = 1;
+      setTimeout(aiTurn, 1000);
     }
 
     checkGameEnd();
