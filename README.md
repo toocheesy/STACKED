@@ -1,14 +1,9 @@
 STACKED! The Card Game 🎴
 A fast-paced, strategic card game where pairing and arithmetic collide. Capture cards, stack your combos, and race to victory in this modern take on a classic family favorite.
 🧠 What Is STACKED!?
-STACKED! is a card game for 2–4 players (currently single-player with 2 AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or adding sums, aiming to score the most points. It blends classic matching with tactical math-based strategy, brought to life as a web app.
+STACKED! is a card game for 2–4 players (currently single-player with 2 AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or using sums, aiming to score the most points. It blends classic matching with tactical math-based strategy, brought to life as a web app.
 🎯 Objective
-Score the most points by capturing cards using:
-
-Pairs: Match a card from your hand to a board card.
-Sums: Add your hand card with board cards to match another board card.
-
-First to reach 500 points (short game) wins!
+Be the first to reach the target score (default 500 points, adjustable in settings) by capturing cards from the board. If the deck runs out, the player with the highest score wins.
 🃏 Setup
 
 Use a standard 52-card deck (no Jokers).
@@ -21,62 +16,64 @@ Play begins with you, followed by the bots in turn order.
 
 🔁 Gameplay
 On your turn:
-
-Capture Cards:
+Capture Cards
 Use one hand card and at least one board card to:
-Pair: Match a board card’s value (e.g., play 5 to capture 5).
-Sum: Add your card with board cards to match another (e.g., play 5 + board 5 = 10 to capture 10).
+
+Pair Capture:
+For 2–10: Match a board card’s value to capture it (e.g., play a 5 to capture a 5).
+For J, Q, K: Capture all matching cards on the board (e.g., play a K to capture all K’s). J, Q, K cannot be used in sums.
 
 
-You can make multiple captures in one turn with the same hand card.
-
-
-Place a Card:
-After capturing (or if no capture is possible), place 1 hand card on the board.
-
-
-Empty Board:
-If the board is cleared, place 1 hand card on the board until captures are possible or hands are empty.
+Sum Capture (2–10 only):
+Use two board cards whose sum is 5 times your hand card’s value to capture a third board card that matches your hand card (e.g., with a hand 2, use board cards 6 + 4 = 10 to capture another 2).
+J, Q, K cannot be used in sums.
 
 
 
-Bots take their turns automatically, making random captures or placing cards.
+You can make multiple captures in one turn with the same hand card. Drag cards to the play area to build your combo, then click “Submit Move” to capture. The play area glows green if your combo is valid.
+Place a Card
+
+After capturing (or if no capture is possible), drag 1 hand card to the board to place it and end your turn.
+
+Empty Board
+
+If the board is cleared during your turn and you have cards left, place 1 hand card on the board to continue the game.
+
+Bots take their turns automatically, making captures or placing cards based on their difficulty level (set in settings).
 🛑 End of a Hand
 
-A hand ends when only one player has cards left.
-If the deck isn’t empty, deal 4 new cards per player (no new board cards unless empty).
-If the board is empty, deal 4 board cards.
-The last player to capture takes any remaining board cards.
+A hand ends when all players are out of cards.
+If the deck isn’t empty:
+Deal 4 new cards to each player.
+If the board is empty, deal 4 new cards to the board.
+
+
+A new round begins with the player’s turn.
 
 🪙 Scoring
-At the end of each hand:
+At the end of each hand, score your captured cards:
 
-Score captured cards:
 2–9: 5 points each
 10, J, Q, K: 10 points each
 Ace: 15 points
 
-
 Add to your cumulative score.
-
 🏆 Winning
 
-First to 500 points (short game) wins!
-If the deck runs out, the highest score wins.
+The game ends when the deck runs out.
+The player who reaches the target score first (default 500, set in settings) wins, or the highest score wins if no one reaches the target.
 Break ties with additional hands.
 Click “Restart Game” to play again.
 
 💡 Strategy Tips
 
 Save high-value cards (Aces, Kings) for big captures.
-Place cards strategically to block bots.
-Time your combos to clear the board and gain an edge.
+Use J, Q, K to quickly grab all matching cards, but plan carefully since they can’t be used in sums.
+Time your combos to clear the board and gain an edge over the bots.
 
 🛠️ Getting Started
 Play Online
-
 Play the game live at stacked-orcin.vercel.app.
-
 Run Locally
 Prerequisites
 
@@ -96,13 +93,16 @@ Or drag index.html into your browser.
 
 
 Deploy to Vercel
+You already have GitHub and Vercel set up, so here are the deployment commands:
 
-Connect your GitHub repo to Vercel:
-Go to vercel.com, create a new project, and import toocheesy/STACKED.
+Ensure all changes are committed:git add .
+git commit -m "Update README with correct rules and deployment instructions"
 
 
-Vercel will auto-detect the static site setup (HTML, CSS, JS).
-Deploy and access your live game at the provided URL.
+Push to GitHub to trigger a Vercel deployment:git push origin main
+
+
+Vercel will auto-deploy your site. Check the deployment status in your Vercel dashboard, and visit stacked-orcin.vercel.app to confirm the update.
 
 📂 Project Structure
 STACKED/
@@ -118,6 +118,7 @@ STACKED/
 │   ├── main.js         # Main game loop
 ├── index.html          # Main HTML file
 ├── README.md           # This file
+├── vercel.json         # Vercel deployment configuration
 
 🛠️ Tech Stack
 
@@ -127,9 +128,12 @@ Hosting: Vercel, with GitHub for version control.
 Client-Side Only: Lightweight, no backend required.
 
 👑 Credits
-Created by toocheesyInspired by a timeless family card gameDeveloped with AI assistance (Grok by xAI)
+
+Created by toocheesy.
+Inspired by a timeless family card game.
+Developed with AI assistance (Grok by xAI).
+
 📄 License
 Creative Commons Attribution-NonCommercial 4.0Play, modify, share—just don’t sell without permission.
 📬 Feedback
-Submit bugs or ideas via GitHub Issues.
-Let’s get STACKED!
+Submit bugs or ideas via GitHub Issues.Let’s get STACKED!
