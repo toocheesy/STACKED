@@ -1,4 +1,3 @@
-// js/main.js
 let state = {
   deck: [],
   board: [],
