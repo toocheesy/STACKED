@@ -1,8 +1,7 @@
 /* 
- * Updated to support dual play areas:
- * - Slot 0: Play Area for summing cards (at least one hand and one board card).
- * - Slot 1: Principal Match area for the target card (from hand or board).
- * - Validates sum or pair capture across both areas, capturing all involved cards.
+ * Updated to:
+ * - Fix submission validation to accept any combo with a hand card and board card, summing to principal match.
+ * - Restore cards to original positions on reset.
  */
 let state = {
   deck: [],
@@ -222,8 +221,8 @@ function render() {
       let captureType = "";
       let captureDetails = "";
       if (slot0Cards.length > 0 && slot1Cards.length === 1) {
-        const hasHandCard = slot0Cards.some(entry => entry.source === 'hand');
-        const hasBoardCard = slot0Cards.some(entry => entry.source === 'board');
+        const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+        const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
         if (hasHandCard && hasBoardCard) {
           const principalValue = parseInt(slot1Cards[0].card.value) || valueMap[slot1Cards[0].card.value];
           const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || valueMap[entry.card.value]);
@@ -231,16 +230,16 @@ function render() {
           if (totalSum === principalValue) {
             isValid = true;
             captureType = "Sum Capture";
-            captureDetails = `${sumValues.join(' + ')} = ${principalValue}, targeting ${principalValue}.`;
+            captureDetails = `${sumValues.join(' + ')} = ${principalValue}.`;
           } else if (slot0Cards.length === 1 && slot0Cards[0].card.value === slot1Cards[0].card.value) {
             isValid = true;
             captureType = "Pair Capture";
             captureDetails = `Matching ${slot0Cards[0].card.value}'s.`;
           }
         }
-        captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Requires one hand and one board card.'}`;
+        captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Sum must match Principal Match value.'}`;
       } else {
-        captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card in Play Area.";
+        captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card involved.";
       }
 
       if (isValid) {
@@ -500,7 +499,15 @@ function handleDropOriginal(e, source, index) {
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
   if (state.draggedCard.slot !== undefined) {
-    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+    const originalSlot = state.draggedCard.slot;
+    state.combination[originalSlot] = state.combination[originalSlot].filter((_, i) => i !== state.draggedCard.comboIndex);
+    const originalSource = state.draggedCard.source;
+    const originalIndex = state.draggedCard.index;
+    if (originalSource === 'hand' && state.hands[0][originalIndex]) {
+      state.hands[0][originalIndex] = state.draggedCard.card;
+    } else if (originalSource === 'board' && state.board[originalIndex]) {
+      state.board[originalIndex] = state.draggedCard.card;
+    }
     state.draggedCard = null;
     render();
   }
@@ -530,6 +537,23 @@ function handlePlaceDrop(e) {
 // Handle reset play area
 function handleResetPlayArea() {
   if (state.currentPlayer !== 0) return;
+
+  // Restore cards to original positions
+  state.combination[0].forEach(entry => {
+    if (entry.source === 'hand' && state.hands[0][entry.index]) {
+      state.hands[0][entry.index] = entry.card;
+    } else if (entry.source === 'board' && state.board[entry.index]) {
+      state.board[entry.index] = entry.card;
+    }
+  });
+  state.combination[1].forEach(entry => {
+    if (entry.source === 'hand' && state.hands[0][entry.index]) {
+      state.hands[0][entry.index] = entry.card;
+    } else if (entry.source === 'board' && state.board[entry.index]) {
+      state.board[entry.index] = entry.card;
+    }
+  });
+
   state.combination = { 0: [], 1: [] };
   render();
 }
