@@ -73,13 +73,13 @@
           <h3>How to Play:</h3>
           <ul>
             <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
-            <li><strong>Your Turn:</strong> Drag cards to the play area to build a combo:
+            <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
               <ul>
-                <li><strong>Pair Capture:</strong> Use a hand card to capture board cards of the same value. For 2-10, capture one matching card (e.g., a 5 captures a 5). For J, Q, K, capture all matching cards (e.g., a K captures all K’s on the board).</li>
-                <li><strong>Sum Capture (2-10 only):</strong> Use a hand card and two board cards that sum to the hand card’s value to capture a third board card (e.g., a 9 with a 3 and 6 captures another 9). J, Q, K cannot be used in sums.</li>
+                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
+                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value. All cards are captured.</li>
               </ul>
             </li>
-            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. The play area will glow green if your combo is valid. You can make multiple combos per turn!</li>
+            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
             <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
             <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
             <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
@@ -101,12 +101,13 @@
     <div class="table">
       <!-- Scores -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
-      <div class="score bot1-score" id="player-score">Bot 1: 0 pts</div>
-      <div class="score bot2-score" id="player-score">Bot 2: 0 pts</div>
+      <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
+      <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
 
-      <!-- Playing Area -->
+      <!-- Play Areas -->
       <div class="combination-area" id="combination-area">
-        <div class="combo-slot" data-slot="0"></div>
+        <div class="combo-slot" data-slot="0">Play Area</div>
+        <div class="combo-slot" data-slot="1">Principal Match</div>
       </div>
 
       <!-- Board -->
@@ -126,8 +127,12 @@
       <button id="restart-btn">Restart Game</button>
     </div>
 
+    <div class="capture-type" id="capture-type">
+      No cards in play areas.
+    </div>
+
     <div class="message" id="message">
-      Drag cards to the playing area to capture, or drag a card to the board to place and end your turn.
+      Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
     </div>
   </div>
 

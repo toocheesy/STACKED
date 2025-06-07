@@ -1,16 +1,15 @@
 /* 
- * Updated for Suggestions #2, #3, #8, #11:
- * - Suggestion #2: Removed empty hand fallback (line ~49 in original). Added error handling in initGame.
- * - Suggestion #3: Added sound effects for capture, place, turn change, and game end using base64 audio.
- * - Suggestion #8: Added hint system with a new hint button and logic to highlight valid captures.
- * - Suggestion #11: Added touch event handlers (touchstart, touchend) for mobile tap-to-select and visual feedback.
+ * Updated to support dual play areas:
+ * - Slot 0: Play Area for summing cards (at least one hand and one board card).
+ * - Slot 1: Principal Match area for the target card (from hand or board).
+ * - Validates sum or pair capture across both areas, capturing all involved cards.
  */
 let state = {
   deck: [],
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: [],
+  combination: { 0: [], 1: [] }, // Slot 0: Play Area, Slot 1: Principal Match
   currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
@@ -19,7 +18,7 @@ let state = {
     botDifficulty: 'intermediate'
   },
   draggedCard: null,
-  selectedCard: null // For touch interactions
+  selectedCard: null
 };
 
 // Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
@@ -31,6 +30,7 @@ const sounds = {
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
+const valueMap = { 'A': 1, 'K': 13, 'Q': 12, 'J': 11 };
 
 // Initialize the game
 function initGame() {
@@ -53,7 +53,6 @@ function initGame() {
   state.deck = dealResult.remainingDeck || deck;
   state.board = dealResult.board || [];
   state.hands = dealResult.players && dealResult.players.length === 3 ? dealResult.players : [[], [], []];
-  // Ensure hands are not empty; deal additional cards if needed
   state.hands = state.hands.map(hand => {
     if (hand.length === 0 && state.deck.length >= 4) {
       return state.deck.splice(0, 4);
@@ -62,7 +61,7 @@ function initGame() {
   });
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  state.combination = [];
+  state.combination = { 0: [], 1: [] };
   state.draggedCard = null;
   state.selectedCard = null;
   render();
@@ -123,18 +122,15 @@ function provideHint() {
     return;
   }
 
-  // Pick a random capture
   const hint = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
   const handCardEl = document.querySelector(`#player-hand .card[data-index="${hint.handIndex}"]`);
   const boardCardEls = hint.capture.cards.map(idx => 
     document.querySelector(`#board .card[data-index="${idx}"]`)
   );
 
-  // Highlight cards
   if (handCardEl) handCardEl.classList.add('hint');
   boardCardEls.forEach(el => el && el.classList.add('hint'));
 
-  // Remove highlights after 3 seconds
   setTimeout(() => {
     if (handCardEl) handCardEl.classList.remove('hint');
     boardCardEls.forEach(el => el && el.classList.remove('hint'));
@@ -167,70 +163,16 @@ function render() {
   }
 
   const comboAreaEl = document.getElementById('combination-area');
+  let captureTypeMessage = "No cards in play areas.";
   if (comboAreaEl) {
-    const slotEl = comboAreaEl.querySelector(`[data-slot="0"]`);
-    if (slotEl) {
-      slotEl.innerHTML = '';
-      
-      const slotCards = state.combination;
-      if (slotCards.length > 0) {
-        const handCards = slotCards.filter(entry => entry.source === 'hand');
-        const boardCards = slotCards.filter(entry => entry.source === 'board');
-        if (handCards.length > 0 && boardCards.length > 0) {
-          const handCard = handCards[0].card;
-          const boardIndices = boardCards.map(entry => entry.index);
-          const captures = canCapture(handCard, state.board);
-
-          let isValid = false;
-          const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
-          
-          if (isFaceCard) {
-            isValid = boardCards.every(bc => state.board[bc.index].value === handCard.value);
-          } else {
-            if (boardCards.length === 1) {
-              isValid = captures.some(cap => 
-                cap.type === 'pair' && boardIndices.includes(cap.cards[0])
-              );
-            } else {
-              for (let i = 0; i < boardCards.length; i++) {
-                for (let j = i + 1; j < boardCards.length; j++) {
-                  const pairIndices = [boardCards[i].index, boardCards[j].index];
-                  const selectedCapture = captures.find(cap => {
-                    if (cap.type === 'sum') {
-                      const capIndices = cap.cards;
-                      return capIndices.length === 2 && 
-                             capIndices.every(idx => pairIndices.includes(idx)) && 
-                             capIndices.sort().join(',') === pairIndices.sort().join(',');
-                    }
-                    return false;
-                  });
-                  if (selectedCapture) {
-                    isValid = true;
-                    break;
-                  }
-                }
-                if (isValid) break;
-              }
-            }
-          }
-
-          if (isValid) {
-            slotEl.classList.add('valid-combo');
-          } else {
-            slotEl.classList.remove('valid-combo');
-          }
-        } else {
-          slotEl.classList.remove('valid-combo');
-        }
-      } else {
-        slotEl.classList.remove('valid-combo');
-      }
-
-      if (slotCards.length === 0) {
-        slotEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
-        slotEl.style.border = '2px dashed #ccc';
-      } else {
-        slotCards.forEach((comboEntry, comboIndex) => {
+    const slot0El = comboAreaEl.querySelector('[data-slot="0"]');
+    const slot1El = comboAreaEl.querySelector('[data-slot="1"]');
+    if (slot0El && slot1El) {
+      // Render Play Area (Slot 0)
+      slot0El.innerHTML = '';
+      const slot0Cards = state.combination[0];
+      if (slot0Cards.length > 0) {
+        slot0Cards.forEach((comboEntry, comboIndex) => {
           const card = comboEntry.card;
           const cardEl = document.createElement('div');
           cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
@@ -244,14 +186,84 @@ function render() {
           cardEl.addEventListener('dragend', handleDragEnd);
           cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 0, comboIndex }));
           cardEl.addEventListener('touchend', handleTouchEnd);
-          slotEl.appendChild(cardEl);
+          slot0El.appendChild(cardEl);
         });
-        slotEl.style.height = `${110 + (slotCards.length - 1) * 20}px`;
+        slot0El.style.height = `${110 + (slot0Cards.length - 1) * 20}px`;
+      } else {
+        slot0El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+        slot0El.style.border = '2px dashed #ccc';
       }
-      slotEl.addEventListener('dragover', (e) => e.preventDefault());
-      slotEl.addEventListener('drop', (e) => handleDrop(e, 0));
-      slotEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', 0));
+
+      // Render Principal Match Area (Slot 1)
+      slot1El.innerHTML = '';
+      const slot1Cards = state.combination[1];
+      if (slot1Cards.length > 0) {
+        const principalCard = slot1Cards[0].card; // Only one card allowed in principal match
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${principalCard.suit === 'Hearts' || principalCard.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${principalCard.value}${suitSymbols[principalCard.suit]}`;
+        cardEl.style.position = 'absolute';
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-slot', 1);
+        cardEl.setAttribute('data-combo-index', 0);
+        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 1, 0));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 1, comboIndex: 0 }));
+        cardEl.addEventListener('touchend', handleTouchEnd);
+        slot1El.appendChild(cardEl);
+        slot1El.style.height = '110px';
+      } else {
+        slot1El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+        slot1El.style.border = '2px dashed #ccc';
+      }
+
+      // Validation
+      let isValid = false;
+      let captureType = "";
+      let captureDetails = "";
+      if (slot0Cards.length > 0 && slot1Cards.length === 1) {
+        const hasHandCard = slot0Cards.some(entry => entry.source === 'hand');
+        const hasBoardCard = slot0Cards.some(entry => entry.source === 'board');
+        if (hasHandCard && hasBoardCard) {
+          const principalValue = parseInt(slot1Cards[0].card.value) || valueMap[slot1Cards[0].card.value];
+          const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || valueMap[entry.card.value]);
+          const totalSum = sumValues.reduce((a, b) => a + b, 0);
+          if (totalSum === principalValue) {
+            isValid = true;
+            captureType = "Sum Capture";
+            captureDetails = `${sumValues.join(' + ')} = ${principalValue}, targeting ${principalValue}.`;
+          } else if (slot0Cards.length === 1 && slot0Cards[0].card.value === slot1Cards[0].card.value) {
+            isValid = true;
+            captureType = "Pair Capture";
+            captureDetails = `Matching ${slot0Cards[0].card.value}'s.`;
+          }
+        }
+        captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Requires one hand and one board card.'}`;
+      } else {
+        captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card in Play Area.";
+      }
+
+      if (isValid) {
+        slot0El.classList.add('valid-combo');
+        slot1El.classList.add('valid-combo');
+      } else {
+        slot0El.classList.remove('valid-combo');
+        slot1El.classList.remove('valid-combo');
+      }
+
+      slot0El.addEventListener('dragover', (e) => e.preventDefault());
+      slot0El.addEventListener('drop', (e) => handleDrop(e, 0));
+      slot0El.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', 0));
+      slot1El.addEventListener('dragover', (e) => e.preventDefault());
+      slot1El.addEventListener('drop', (e) => handleDrop(e, 1));
+      slot1El.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', 1));
     }
+  }
+
+  // Update capture type display
+  const captureTypeEl = document.getElementById('capture-type');
+  if (captureTypeEl) {
+    captureTypeEl.textContent = captureTypeMessage;
   }
 
   const boardEl = document.getElementById('board');
@@ -260,7 +272,8 @@ function render() {
     
     if (state.board && Array.isArray(state.board)) {
       state.board.forEach((card, index) => {
-        const isInPlayArea = state.combination.some(entry => entry.source === 'board' && entry.index === index);
+        const isInPlayArea = state.combination[0].some(entry => entry.source === 'board' && entry.index === index) ||
+                            state.combination[1].some(entry => entry.source === 'board' && entry.index === index);
         if (isInPlayArea) return;
 
         const cardEl = document.createElement('div');
@@ -292,7 +305,7 @@ function render() {
       const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      if (!card || !card.value || !card.suit || state.combination.some(entry => entry.source === 'hand' && entry.index === index)) {
+      if (!card || !card.value || !card.suit || state.combination[0].some(entry => entry.source === 'hand' && entry.index === index) || state.combination[1].some(entry => entry.source === 'hand' && entry.index === index)) {
         cardEl.className = 'card';
         cardEl.style.backgroundColor = '#f0f0f0';
         cardEl.style.border = '2px dashed #ccc';
@@ -353,7 +366,7 @@ function render() {
 
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
-    submitBtn.disabled = state.currentPlayer !== 0 || state.combination.length === 0;
+    submitBtn.disabled = state.currentPlayer !== 0 || (state.combination[0].length === 0 && state.combination[1].length === 0);
   }
 
   const messageEl = document.getElementById('message');
@@ -363,8 +376,8 @@ function render() {
         messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
         state.currentPlayer = 1;
         setTimeout(aiTurn, 1000);
-      } else if (state.combination.length === 0) {
-        messageEl.textContent = "Drag or tap cards to the playing area to capture, or place a card on the board to end your turn.";
+      } else if (state.combination[0].length === 0 && state.combination[1].length === 0) {
+        messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
       } else {
         messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
       }
@@ -384,7 +397,7 @@ function handleDragStart(e, source, index) {
 // Handle drag start from combo area
 function handleDragStartCombo(e, slot, comboIndex) {
   if (state.currentPlayer !== 0) return;
-  state.draggedCard = state.combination[comboIndex];
+  state.draggedCard = state.combination[slot][comboIndex];
   state.draggedCard.slot = slot;
   state.draggedCard.comboIndex = comboIndex;
   e.target.classList.add('selected');
@@ -404,7 +417,6 @@ function handleTouchStart(e, source, data) {
   target.classList.add('selected');
   state.selectedCard = { source, data, element: target };
 
-  // Visual feedback
   target.style.transform = 'scale(1.1)';
   setTimeout(() => {
     if (target.classList.contains('selected')) {
@@ -428,10 +440,14 @@ function handleDrop(e, slot) {
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
   if (state.draggedCard.slot !== undefined) {
-    state.combination = state.combination.filter((_, i) => i !== state.draggedCard.comboIndex);
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
   }
 
-  state.combination.push({
+  // Limit Principal Match (slot 1) to one card
+  if (slot === 1 && state.combination[1].length > 0) {
+    state.combination[1] = [];
+  }
+  state.combination[slot].push({
     source: state.draggedCard.source,
     index: state.draggedCard.index,
     card: state.draggedCard.card
@@ -447,8 +463,12 @@ function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.selectedCard) return;
 
-  if (targetType === 'combo' && state.selectedCard.source !== 'combo') {
-    state.combination.push({
+  if (targetType === 'combo') {
+    const slot = data;
+    if (slot === 1 && state.combination[1].length > 0) {
+      state.combination[1] = [];
+    }
+    state.combination[slot].push({
       source: state.selectedCard.source,
       index: state.selectedCard.data,
       card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.data] : state.board[state.selectedCard.data]
@@ -457,7 +477,7 @@ function handleTouchDrop(e, targetType, data) {
     const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
-    state.combination = [];
+    state.combination = { 0: [], 1: [] };
     state.currentPlayer = 1;
     checkGameEnd();
     playSound('place');
@@ -479,10 +499,8 @@ function handleDropOriginal(e, source, index) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
-  if (state.draggedCard.slot === undefined) return;
-
-  if (state.draggedCard.source === source && state.draggedCard.index === index) {
-    state.combination = state.combination.filter((_, i) => i !== state.draggedCard.comboIndex);
+  if (state.draggedCard.slot !== undefined) {
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
     state.draggedCard = null;
     render();
   }
@@ -500,7 +518,7 @@ function handlePlaceDrop(e) {
 
   state.board.push(handCard);
   state.hands[0] = state.hands[0].filter((_, i) => i !== handIndex);
-  state.combination = [];
+  state.combination = { 0: [], 1: [] };
   state.currentPlayer = 1;
   state.draggedCard = null;
   checkGameEnd();
@@ -512,85 +530,56 @@ function handlePlaceDrop(e) {
 // Handle reset play area
 function handleResetPlayArea() {
   if (state.currentPlayer !== 0) return;
-  state.combination = [];
+  state.combination = { 0: [], 1: [] };
   render();
 }
 
 // Handle submit action
 function handleSubmit() {
-  if (state.currentPlayer !== 0 || state.combination.length === 0) return;
+  if (state.currentPlayer !== 0 || (state.combination[0].length === 0 && state.combination[1].length === 0)) return;
 
-  const handCards = state.combination.filter(entry => entry.source === 'hand');
-  const boardCards = state.combination.filter(entry => entry.source === 'board');
-
+  const slot0Cards = state.combination[0];
+  const slot1Cards = state.combination[1];
   const messageEl = document.getElementById('message');
-  if (handCards.length === 0 || boardCards.length === 0) {
-    if (messageEl) {
-      messageEl.textContent = "Invalid combination! Include at least one hand card and one board card.";
-    }
+
+  if (slot0Cards.length === 0 || slot1Cards.length === 0) {
+    if (messageEl) messageEl.textContent = "Invalid combination! Both play areas must have cards.";
     return;
   }
 
-  const handCard = handCards[0].card;
-  const boardIndices = boardCards.map(entry => entry.index);
-  const captures = canCapture(handCard, state.board);
-
-  let selectedCapture = null;
-  let capturedCards = [];
-  const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
-
-  if (isFaceCard) {
-    const matchingBoardCards = boardCards.filter(bc => state.board[bc.index].value === handCard.value);
-    if (matchingBoardCards.length > 0) {
-      const matchingIndices = matchingBoardCards.map(bc => bc.index);
-      capturedCards = matchingIndices.map(idx => state.board[idx]);
-      state.board = state.board.filter((_, i) => !matchingIndices.includes(i));
-      state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
-      state.scores.player += scoreCards(capturedCards);
-    } else {
-      if (messageEl) {
-        messageEl.textContent = "Invalid capture! J, Q, K can only pair with matching cards.";
-      }
-      return;
-    }
-  } else {
-    if (boardCards.length === 1) {
-      selectedCapture = captures.find(cap => 
-        cap.type === 'pair' && boardIndices.includes(cap.cards[0])
-      );
-    } else {
-      for (let i = 0; i < boardCards.length; i++) {
-        for (let j = i + 1; j < boardCards.length; j++) {
-          const pairIndices = [boardCards[i].index, boardCards[j].index];
-          selectedCapture = captures.find(cap => {
-            if (cap.type === 'sum') {
-              const capIndices = cap.cards;
-              return capIndices.length === 2 && 
-                     capIndices.every(idx => pairIndices.includes(idx)) && 
-                     capIndices.sort().join(',') === pairIndices.sort().join(',');
-            }
-            return false;
-          });
-          if (selectedCapture) break;
-        }
-        if (selectedCapture) break;
-      }
-    }
-
-    if (!selectedCapture) {
-      if (messageEl) {
-        messageEl.textContent = "Invalid capture! Try a different combination.";
-      }
-      return;
-    }
-
-    capturedCards = [selectedCapture.target];
-    state.board = state.board.filter((_, i) => !selectedCapture.cards.includes(i));
-    state.hands[0] = state.hands[0].filter((_, i) => !handCards.some(entry => entry.index === i));
-    state.scores.player += scoreCards(capturedCards);
+  const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards.some(entry => entry.source === 'hand');
+  const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards.some(entry => entry.source === 'board');
+  if (!hasHandCard || !hasBoardCard) {
+    if (messageEl) messageEl.textContent = "Invalid combination! Requires at least one hand card and one board card.";
+    return;
   }
 
-  state.combination = [];
+  const principalValue = parseInt(slot1Cards[0].card.value) || valueMap[slot1Cards[0].card.value];
+  const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || valueMap[entry.card.value]);
+  const totalSum = sumValues.reduce((a, b) => a + b, 0);
+
+  let isValid = false;
+  let capturedCards = [...slot0Cards.map(entry => entry.card), ...slot1Cards.map(entry => entry.card)];
+
+  if (totalSum === principalValue) {
+    isValid = true;
+  } else if (slot0Cards.length === 1 && slot1Cards.length === 1 && slot0Cards[0].card.value === slot1Cards[0].card.value) {
+    isValid = true;
+  }
+
+  if (!isValid) {
+    if (messageEl) messageEl.textContent = `Invalid capture! Sum ${totalSum} does not match Principal Match ${principalValue}.`;
+    return;
+  }
+
+  state.board = state.board.filter((_, i) => 
+    !capturedCards.some(card => card.id === state.board[i].id)
+  );
+  state.hands[0] = state.hands[0].filter((_, i) => 
+    !capturedCards.some(card => card.id === state.hands[0][i]?.id)
+  );
+  state.scores.player += scoreCards(capturedCards);
+  state.combination = { 0: [], 1: [] };
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -624,22 +613,27 @@ function aiTurn() {
     const aiAction = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
     if (aiAction.action === 'capture') {
-      state.combination = [
-        { source: 'hand', index: state.hands[playerIndex].findIndex(c => c.id === aiAction.handCard.id), card: aiAction.handCard },
-        { source: 'board', index: aiAction.capture.cards[0], card: state.board[aiAction.capture.cards[0]] }
-      ];
-      if (aiAction.capture.type === 'sum') {
-        state.combination.push({ source: 'board', index: aiAction.capture.cards[1], card: state.board[aiAction.capture.cards[1]] });
+      const targetCard = state.board.find(card => card.value === aiAction.handCard.value && ['J', 'Q', 'K'].includes(card.value)) ||
+                        state.board.find(card => {
+                          const handValue = parseInt(aiAction.handCard.value) || valueMap[aiAction.handCard.value];
+                          const boardValues = state.board.map(c => parseInt(c.value) || valueMap[c.value]);
+                          return boardValues.some(b => handValue + b === parseInt(card.value) || valueMap[card.value]);
+                        });
+      if (targetCard) {
+        const targetIndex = state.board.indexOf(targetCard);
+        state.combination[1] = [{ source: 'board', index: targetIndex, card: targetCard }];
+        const sumCards = state.board.filter((_, i) => i !== targetIndex).slice(0, 1);
+        state.combination[0] = sumCards.map((card, i) => ({ source: 'board', index: state.board.indexOf(card), card }));
       }
       render();
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
 
       setTimeout(() => {
-        const capturedCards = [aiAction.capture.target];
-        state.board = state.board.filter((_, i) => !aiAction.capture.cards.includes(i));
+        const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
+        state.board = state.board.filter((_, i) => !capturedCards.some(card => card.id === state.board[i].id));
         state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
         state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreCards(capturedCards);
-        state.combination = [];
+        state.combination = { 0: [], 1: [] };
         render();
 
         if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
@@ -662,7 +656,7 @@ function aiTurn() {
       setTimeout(() => {
         state.board.push(aiAction.handCard);
         state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== aiAction.handCard.id);
-        state.combination = [];
+        state.combination = { 0: [], 1: [] };
 
         if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
           const nextCard = state.hands[playerIndex][0];
@@ -713,7 +707,7 @@ function checkGameEnd() {
       state.currentPlayer = 0;
       const messageEl = document.getElementById('message');
       if (messageEl) {
-        messageEl.textContent = "New round! Drag or tap cards to the playing area to capture.";
+        messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
       }
       playSound('turnChange');
     }

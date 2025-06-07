@@ -1,3 +1,7 @@
+/* 
+ * Adjusted for dual play area system:
+ * - Simplified canCapture to support basic pair captures, as sum logic is handled in main.js.
+ */
 const pointsMap = {
   'A': 15,
   'K': 10,
@@ -11,7 +15,7 @@ const pointsMap = {
   '5': 5,
   '4': 5,
   '3': 5,
-  '2': 5
+  '2': 5'
 };
 
 const valueMap = {
@@ -33,26 +37,7 @@ function canCapture(handCard, board) {
     }
   });
 
-  // Sum capture (exclude J, Q, K)
-  if (!isFaceCard) {
-    for (let i = 0; i < board.length; i++) {
-      for (let j = i + 1; j < board.length; j++) {
-        // Skip if either board card is J, Q, K
-        if (['J', 'Q', 'K'].includes(board[i].value) || ['J', 'Q', 'K'].includes(board[j].value)) continue;
-
-        const sum = (valueMap[board[i].value] || parseInt(board[i].value)) + 
-                    (valueMap[board[j].value] || parseInt(board[j].value));
-        const targetIndex = board.findIndex((card, idx) => 
-          idx !== i && idx !== j && (valueMap[card.value] || parseInt(card.value)) === sum
-        );
-        if (targetIndex !== -1 && sum === handValue) {
-          captures.push({ type: 'sum', cards: [i, j], target: board[targetIndex] });
-        }
-      }
-    }
-  }
-
-  return captures;
+  return captures; // Sum capture handled in main.js
 }
 
 function scoreCards(cards) {
