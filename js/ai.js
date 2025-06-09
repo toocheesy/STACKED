@@ -1,19 +1,12 @@
-/* 
- * Fixed AI to match what main.js expects:
- * - Returns simple { action: 'capture'/'place', handCard } format
- * - Uses global functions safely with fallbacks
- */
 function aiMove(hand, board, difficulty = 'intermediate') {
-  // Safe access to global functions with fallbacks
   const safeCanCapture = window.canCapture || function(handCard, board) { return []; };
   const safeValueMap = window.valueMap || { 'A': 1, 'K': 13, 'Q': 12, 'J': 11 };
   const safePointsMap = window.pointsMap || { 'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10 };
-  
+
   if (!hand || hand.length === 0) {
     return { action: 'place', handCard: null };
   }
 
-  // Beginner AI: 50% chance to just place a card randomly
   if (difficulty === 'beginner' && Math.random() < 0.5) {
     const handCard = hand[Math.floor(Math.random() * hand.length)];
     return { action: 'place', handCard };
@@ -21,7 +14,6 @@ function aiMove(hand, board, difficulty = 'intermediate') {
 
   const possibleCaptures = [];
 
-  // Check each hand card for captures
   for (const handCard of hand) {
     if (!handCard || !handCard.value) continue;
 
@@ -29,7 +21,6 @@ function aiMove(hand, board, difficulty = 'intermediate') {
     const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
 
     if (isFaceCard) {
-      // Face card pair captures - capture all matching cards
       const matchingCards = board.filter(card => card && card.value === handCard.value);
       if (matchingCards.length > 0) {
         const score = matchingCards.length * (safePointsMap[handCard.value] || 10);
@@ -41,9 +32,6 @@ function aiMove(hand, board, difficulty = 'intermediate') {
         });
       }
     } else {
-      // Number card captures
-      
-      // 1. Pair captures
       const pairMatches = board.filter(card => card && card.value === handCard.value);
       if (pairMatches.length > 0) {
         const score = pairMatches.length * (safePointsMap[handCard.value] || 5);
@@ -55,23 +43,16 @@ function aiMove(hand, board, difficulty = 'intermediate') {
         });
       }
 
-      // 2. Sum captures - look for combinations that add up to board cards
       const handValue = parseInt(handCard.value) || safeValueMap[handCard.value] || 1;
-      
       for (let i = 0; i < board.length; i++) {
         const targetCard = board[i];
         if (!targetCard || ['J', 'Q', 'K'].includes(targetCard.value)) continue;
-        
         const targetValue = parseInt(targetCard.value) || safeValueMap[targetCard.value] || 1;
-        
-        // Look for other board cards that sum with handCard to equal targetCard
         for (let j = 0; j < board.length; j++) {
           if (i === j) continue;
           const sumCard = board[j];
           if (!sumCard || ['J', 'Q', 'K'].includes(sumCard.value)) continue;
-          
           const sumValue = parseInt(sumCard.value) || safeValueMap[sumCard.value] || 1;
-          
           if (handValue + sumValue === targetValue) {
             const score = (safePointsMap[handCard.value] || 5) + 
                          (safePointsMap[sumCard.value] || 5) + 
@@ -89,19 +70,14 @@ function aiMove(hand, board, difficulty = 'intermediate') {
     }
   }
 
-  // If we found captures, choose based on difficulty
   if (possibleCaptures.length > 0) {
     let chosenCapture;
-    
     if (difficulty === 'legendary') {
-      // Choose highest scoring capture
       possibleCaptures.sort((a, b) => b.score - a.score);
       chosenCapture = possibleCaptures[0];
     } else {
-      // Intermediate or beginner: choose randomly from available captures
       chosenCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
     }
-    
     return { 
       action: 'capture', 
       handCard: chosenCapture.handCard,
@@ -110,19 +86,15 @@ function aiMove(hand, board, difficulty = 'intermediate') {
     };
   }
 
-  // No captures available, place a card
+  // No captures possible, place a card
   let handCard;
   if (difficulty === 'legendary') {
-    // Place lowest value card
     hand.sort((a, b) => (safePointsMap[a.value] || 0) - (safePointsMap[b.value] || 0));
     handCard = hand[0];
   } else {
-    // Random card
     handCard = hand[Math.floor(Math.random() * hand.length)];
   }
-  
   return { action: 'place', handCard };
 }
 
-// Make function globally available
 window.aiMove = aiMove;

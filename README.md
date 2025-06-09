@@ -151,7 +151,7 @@ Creative Commons Attribution-NonCommercial 4.0Play, modify, share—just don’t
 Submit bugs or ideas via GitHub Issues. We’re currently troubleshooting submit button and deployment issues—your input helps!
 🚧 Known Issues
 
-Submit Button Not Working: The “Submit Move” button fails to capture valid moves due to a SyntaxError in gameLogic.js and a ReferenceError for scoreCards. Working on a fix!
+✅ Submit Button Fixed: Submit functionality is now working properly with the latest gameLogic.js and main.js updates.
 Reset Disappearing Cards: Cards may disappear on reset if deployment issues persist.
 Stay tuned for updates as we resolve these bugs.
 
