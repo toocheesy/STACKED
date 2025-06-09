@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Start the game
-initGame();if (handCardEl) handCardEl.classList.remove('hint');
+initGame();
     boardCardEls.forEach(el => el && el.classList.remove('hint'));
     
 
