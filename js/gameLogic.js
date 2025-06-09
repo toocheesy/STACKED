@@ -15,7 +15,7 @@ const pointsMap = {
   '5': 5,
   '4': 5,
   '3': 5,
-  '2': 5'
+  '2': 5
 };
 
 const valueMap = {
