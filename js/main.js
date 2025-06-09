@@ -300,11 +300,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Start the game
 initGame();if (handCardEl) handCardEl.classList.remove('hint');
     boardCardEls.forEach(el => el && el.classList.remove('hint'));
-   3000);
+    
 
   const messageEl = document.getElementById('message');
   if (messageEl) messageEl.textContent = "Hint: Try combining the highlighted cards!";
-}
+
 
 // Render the game state
 function render() {
