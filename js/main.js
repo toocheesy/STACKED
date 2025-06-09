@@ -125,9 +125,6 @@ function provideHint() {
     document.querySelector(`#board .card[data-index="${idx}"]`)
   );
 
-  if (handCardEl) handCardEl.classList.add('hint');
-  boardCardEls.forEach(el => el && el.classList.add('hint'));
-
   setTimeout(() => {
     const aiAction = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
@@ -298,14 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Start the game
-initGame();
-    boardCardEls.forEach(el => el && el.classList.remove('hint'));
-    
-
-  const messageEl = document.getElementById('message');
-  if (messageEl) messageEl.textContent = "Hint: Try combining the highlighted cards!";
-
-
 // Render the game state
 function render() {
   const deckCountEl = document.getElementById('deck-count');
