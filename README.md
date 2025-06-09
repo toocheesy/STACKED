@@ -1,7 +1,7 @@
 STACKED! The Card Game 🎴
 A fast-paced, strategic card game where pairing and arithmetic collide. Capture cards, stack your combos, and race to victory in this modern take on a classic family favorite.
 🧠 What Is STACKED!?
-STACKED! is a card game for 2–4 players (currently single-player with 2 AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or using sums, aiming to score the most points. It blends classic matching with tactical math-based strategy, brought to life as a web app.
+STACKED! is a card game for 2–4 players (currently single-player with 2 AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or building sums across dual play areas, aiming to score the most points. It blends classic matching with tactical math-based strategy, brought to life as a web app.
 🎯 Objective
 Be the first to reach the target score (default 500 points, adjustable in settings) by capturing cards from the board. If the deck runs out, the player with the highest score wins.
 🃏 Setup
@@ -17,29 +17,37 @@ Play begins with you, followed by the bots in turn order.
 🔁 Gameplay
 On your turn:
 Capture Cards
-Use one hand card and at least one board card to:
+Use the dual play areas to build your combo:
+
+Play Area: Place cards (from hand or board) that sum to a target value or match a pair.
+Principal Match Area: Place a single card (from hand or board) as the target value or match.
+
+Capture Types:
 
 Pair Capture:
-For 2–10: Match a board card’s value to capture it (e.g., play a 5 to capture a 5).
-For J, Q, K: Capture all matching cards on the board (e.g., play a K to capture all K’s). J, Q, K cannot be used in sums.
+Place a matching card in the Principal Match area and a matching card in the Play Area.
+For J, Q, K: Capture all matching cards by placing one in the Principal Match and matching ones in the Play Area.
+Requires at least one hand card and one board card across both areas.
 
 
-Sum Capture (2–10 only):
-Use two board cards whose sum is 5 times your hand card’s value to capture a third board card that matches your hand card (e.g., with a hand 2, use board cards 6 + 4 = 10 to capture another 2).
+Sum Capture (2-10 only):
+Place the target card in the Principal Match area.
+In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value.
+All cards in both areas are captured.
 J, Q, K cannot be used in sums.
 
 
 
-You can make multiple captures in one turn with the same hand card. Drag cards to the play area to build your combo, then click “Submit Move” to capture. The play area glows green if your combo is valid.
+Drag cards to the respective areas to build your combo. Both areas will glow green if valid. Click “Submit Move” to capture.
 Place a Card
 
-After capturing (or if no capture is possible), drag 1 hand card to the board to place it and end your turn.
+After capturing (or if no capture is possible), drag a hand card to the board to place it and end your turn.
 
 Empty Board
 
-If the board is cleared during your turn and you have cards left, place 1 hand card on the board to continue the game.
+If the board is cleared during your turn and you have cards left, place a hand card on the board to continue.
 
-Bots take their turns automatically, making captures or placing cards based on their difficulty level (set in settings).
+Bots take their turns automatically based on their difficulty level (set in settings).
 🛑 End of a Hand
 
 A hand ends when all players are out of cards.
@@ -51,13 +59,15 @@ If the board is empty, deal 4 new cards to the board.
 A new round begins with the player’s turn.
 
 🪙 Scoring
-At the end of each hand, score your captured cards:
 
+All cards involved in a capture (from both play areas) are scored:
 2–9: 5 points each
 10, J, Q, K: 10 points each
 Ace: 15 points
 
+
 Add to your cumulative score.
+
 🏆 Winning
 
 The game ends when the deck runs out.
@@ -68,12 +78,12 @@ Click “Restart Game” to play again.
 💡 Strategy Tips
 
 Save high-value cards (Aces, Kings) for big captures.
-Use J, Q, K to quickly grab all matching cards, but plan carefully since they can’t be used in sums.
-Time your combos to clear the board and gain an edge over the bots.
+Use J, Q, K to grab all matching cards, but plan carefully since they can’t be used in sums.
+Build sums strategically to maximize captured cards.
 
 🛠️ Getting Started
 Play Online
-Play the game live at stacked-orcin.vercel.app.
+Play the game live at stacked-oh5y6e8b-thaddus-cars-projects.vercel.app (note: currently facing submit button issues due to deployment bugs—stay tuned for fixes!).
 Run Locally
 Prerequisites
 
@@ -93,28 +103,30 @@ Or drag index.html into your browser.
 
 
 Deploy to Vercel
-You already have GitHub and Vercel set up, so here are the deployment commands:
+You have GitHub and Vercel set up. Use these commands to deploy:
 
-Ensure all changes are committed:git add .
-git commit -m "Update README with correct rules and deployment instructions"
-
-
-Push to GitHub to trigger a Vercel deployment:git push origin main
+Stage changes:git add .
 
 
-Vercel will auto-deploy your site. Check the deployment status in your Vercel dashboard, and visit stacked-orcin.vercel.app to confirm the update.
+Commit changes:git commit -m "Update game logic or fix deployment issues"
+
+
+Push to trigger deployment:git push origin main
+
+
+Check deployment status in your Vercel dashboard and test the live URL.
 
 📂 Project Structure
 STACKED/
 ├── assets/
-│   ├── sounds/         # Audio files (shuffle.mp3, capture.mp3)
+│   ├── sounds/         # Audio files (e.g., shuffle.mp3, capture.mp3)
 │   ├── cards/          # Card images (optional)
 ├── css/
 │   ├── styles.css      # All CSS
 ├── js/
+│   ├── ai.js           # AI bot moves
 │   ├── deck.js         # Deck creation and dealing
 │   ├── gameLogic.js    # Capture and scoring logic
-│   ├── ai.js           # AI bot moves
 │   ├── main.js         # Main game loop
 ├── index.html          # Main HTML file
 ├── README.md           # This file
@@ -123,7 +135,7 @@ STACKED/
 🛠️ Tech Stack
 
 Frontend: HTML, CSS, vanilla JavaScript.
-Assets: Audio files for sound effects.
+Assets: Audio files for sound effects (pending implementation).
 Hosting: Vercel, with GitHub for version control.
 Client-Side Only: Lightweight, no backend required.
 
@@ -136,4 +148,11 @@ Developed with AI assistance (Grok by xAI).
 📄 License
 Creative Commons Attribution-NonCommercial 4.0Play, modify, share—just don’t sell without permission.
 📬 Feedback
-Submit bugs or ideas via GitHub Issues.Let’s get STACKED!
+Submit bugs or ideas via GitHub Issues. We’re currently troubleshooting submit button and deployment issues—your input helps!
+🚧 Known Issues
+
+Submit Button Not Working: The “Submit Move” button fails to capture valid moves due to a SyntaxError in gameLogic.js and a ReferenceError for scoreCards. Working on a fix!
+Reset Disappearing Cards: Cards may disappear on reset if deployment issues persist.
+Stay tuned for updates as we resolve these bugs.
+
+Let’s get STACKED!

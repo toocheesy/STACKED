@@ -1,5 +1,5 @@
 /* 
- * Adjusted for dual play area system:
+ * Fixed gameLogic.js - Added to window object for global access
  * - Simplified canCapture to support basic pair captures, as sum logic is handled in main.js.
  */
 const pointsMap = {
@@ -42,4 +42,18 @@ function canCapture(handCard, board) {
 
 function scoreCards(cards) {
   return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
+}
+
+// Make functions globally available - CRITICAL for ai.js and main.js
+window.canCapture = canCapture;
+window.scoreCards = scoreCards;
+window.pointsMap = pointsMap;
+window.valueMap = valueMap;
+
+// Also make them available without window prefix for older code
+if (typeof global !== 'undefined') {
+  global.canCapture = canCapture;
+  global.scoreCards = scoreCards;
+  global.pointsMap = pointsMap;
+  global.valueMap = valueMap;
 }
