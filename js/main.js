@@ -365,7 +365,7 @@ function render() {
 
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
-    submitBtn.disabled = state.currentPlayer !== 0 || state.combination[0].length === 0 || state.combination[1].length !== 1;
+    submitBtn.disabled = !(state.currentPlayer === 0 && state.combination[0].length > 0 && state.combination[1].length === 1);
   }
 
   const messageEl = document.getElementById('message');
