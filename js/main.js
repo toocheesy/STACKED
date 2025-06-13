@@ -513,9 +513,7 @@ function handleDropOriginal(e, source, index) {
 // Handle place drop on board
 function handlePlaceDrop(e) {
   e.preventDefault();
-  if (state.currentPlayer !== 0 || !state.draggedCard) return;
-
-  if (state.draggedCard.source !== 'hand') return;
+  if (state.currentPlayer !== 0 || !state.draggedCard || state.draggedCard.source !== 'hand') return;
 
   const handCard = state.draggedCard.card;
   const handIndex = state.draggedCard.index;
@@ -628,9 +626,15 @@ function handleSubmit() {
     }
   }
 
-  // Allow player to place a card to end turn
-  state.currentPlayer = 0;
-  if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
+  // Enforce combo flow: place card if hands remain, else advance to next player
+  if (state.hands[0].length > 0) {
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
+  } else {
+    state.currentPlayer = 1;
+    if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
+    setTimeout(aiTurn, 1000);
+  }
   render();
   playSound('capture');
 }
@@ -659,6 +663,11 @@ function aiTurn() {
     if (move.action === 'capture') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
       const handCard = move.handCard;
+      if (!handCard || !handCard.value || !handCard.suit) {
+        // Fallback to place if invalid card
+        move.action = 'place';
+        move.handCard = state.hands[playerIndex][0] || null;
+      }
       const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
       // Set up combination areas for capture
@@ -706,53 +715,57 @@ function aiTurn() {
       }, 1500);
     } else if (move.action === 'place') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
-      setTimeout(() => {
-        const handCard = move.handCard || state.hands[playerIndex][0];
-        state.board.push(handCard);
-        state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
-        state.combination = { 0: [], 1: [] };
+      const handCard = move.handCard || state.hands[playerIndex][0];
+      if (!handCard || !handCard.value || !handCard.suit) return; // Skip invalid moves
+      state.board.push(handCard);
+      state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
+      state.combination = { 0: [], 1: [] };
 
-        state.currentPlayer = (playerIndex + 1) % 3;
-        checkGameEnd();
-        render();
-        playSound('place');
-        if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
-          setTimeout(aiTurn, 1000);
-        }
-      }, 1500);
+      state.currentPlayer = (playerIndex + 1) % 3;
+      checkGameEnd();
+      render();
+      playSound('place');
+      if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+        setTimeout(aiTurn, 1000);
+      }
     }
   }, 1000);
 }
 
-// Check game end - Updated to use dealAfterBots and handle game end
+// Check game end - Updated to handle dealAfterBots errors
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
-    if (state.deck.length > 0 && !window.dealAfterBots(state.hands, state.deck)) {
-      // Deal 4 cards to each player's hand using dealAfterBots
-      window.dealAfterBots(state.hands, state.deck);
-      state.currentPlayer = 0;
-      if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-      render();
-      playSound('turnChange');
-    } else {
-      // Game ends: deck is empty or dealAfterBots returns true
-      const scores = [
-        { name: 'Player', score: state.scores.player },
-        { name: 'Bot 1', score: state.scores.bot1 },
-        { name: 'Bot 2', score: state.scores.bot2 }
-      ];
-      const winner = scores.reduce((max, player) => 
-        player.score > max.score ? player : max, 
-        { score: -1, name: '' }
-      );
+    try {
+      if (state.deck.length > 0 && !window.dealAfterBots(state.hands, state.deck)) {
+        // Deal 4 cards to each player's hand using dealAfterBots
+        window.dealAfterBots(state.hands, state.deck);
+        state.currentPlayer = 0;
+        if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+        render();
+        playSound('turnChange');
+      } else {
+        // Game ends: deck is empty or dealAfterBots returns true
+        const scores = [
+          { name: 'Player', score: state.scores.player },
+          { name: 'Bot 1', score: state.scores.bot1 },
+          { name: 'Bot 2', score: state.scores.bot2 }
+        ];
+        const winner = scores.reduce((max, player) => 
+          player.score > max.score ? player : max, 
+          { score: -1, name: '' }
+        );
 
-      if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(state.hands, state.deck)) {
-        if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
-        playSound('gameEnd');
+        if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(state.hands, state.deck)) {
+          if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
+          playSound('gameEnd');
+        }
       }
+    } catch (e) {
+      console.error('Error in checkGameEnd:', e);
+      if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
   }
 }
