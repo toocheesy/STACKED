@@ -1,4 +1,4 @@
-// js/deck.js
+// deck.js - With global exports for modular access
 const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
 const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
@@ -36,3 +36,8 @@ function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
 
   return { players, board, remainingDeck: deckCopy };
 }
+
+// Global expose
+window.createDeck = createDeck;
+window.shuffleDeck = shuffleDeck;
+window.dealCards = dealCards;
