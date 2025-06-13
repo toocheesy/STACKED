@@ -129,182 +129,12 @@ function provideHint() {
   boardCardEls.forEach(el => el && el.classList.add('hint'));
 
   setTimeout(() => {
-    const aiAction = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-
-    if (aiAction.action === 'capture') {
-      // Simple AI capture logic
-      const handCard = aiAction.handCard;
-      const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
-      
-      // Find a simple capture (pair or sum)
-      let captureFound = false;
-      
-      // Try pair capture first
-      for (let i = 0; i < state.board.length; i++) {
-        if (state.board[i].value === handCard.value) {
-          // Set up pair capture
-          state.combination[0] = [{ source: 'board', index: i, card: state.board[i] }];
-          state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
-          captureFound = true;
-          break;
-        }
-      }
-      
-      // If no pair found, try simple sum
-      if (!captureFound) {
-        const handValue = parseInt(handCard.value) || (window.valueMap && window.valueMap[handCard.value]) || 1;
-        for (let i = 0; i < state.board.length; i++) {
-          const boardCard = state.board[i];
-          const boardValue = parseInt(boardCard.value) || (window.valueMap && window.valueMap[boardCard.value]) || 1;
-          
-          // Look for another board card that equals handCard + boardCard
-          for (let j = 0; j < state.board.length; j++) {
-            if (i === j) continue;
-            const targetCard = state.board[j];
-            const targetValue = parseInt(targetCard.value) || (window.valueMap && window.valueMap[targetCard.value]) || 1;
-            
-            if (handValue + boardValue === targetValue) {
-              state.combination[0] = [
-                { source: 'hand', index: handIndex, card: handCard },
-                { source: 'board', index: i, card: boardCard }
-              ];
-              state.combination[1] = [{ source: 'board', index: j, card: targetCard }];
-              captureFound = true;
-              break;
-            }
-          }
-          if (captureFound) break;
-        }
-      }
-
-      if (captureFound) {
-        render();
-        if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
-
-        setTimeout(() => {
-          const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
-          
-          // Remove from board
-          state.board = state.board.filter((_, i) => 
-            !state.combination[0].some(entry => entry.source === 'board' && entry.index === i) &&
-            !state.combination[1].some(entry => entry.source === 'board' && entry.index === i)
-          );
-          
-          // Remove from hand
-          state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-          
-          // Score
-          const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-          state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreFunction(capturedCards);
-          state.combination = { 0: [], 1: [] };
-          
-          if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
-            const nextCard = state.hands[playerIndex][0];
-            if (nextCard && nextCard.value && nextCard.suit) {
-              state.board.push(nextCard);
-              state.hands[playerIndex] = state.hands[playerIndex].slice(1);
-            }
-          }
-
-          state.currentPlayer = (playerIndex + 1) % 3;
-          checkGameEnd();
-          render();
-          playSound('capture');
-          if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
-        }, 1500);
-      } else {
-        // No capture found, place card instead
-        aiAction.action = 'place';
-      }
-    }
-    
-    if (aiAction.action === 'place') {
-      if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
-      setTimeout(() => {
-        const handCard = aiAction.handCard || state.hands[playerIndex][0];
-        state.board.push(handCard);
-        state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
-        state.combination = { 0: [], 1: [] };
-
-        state.currentPlayer = (playerIndex + 1) % 3;
-        checkGameEnd();
-        render();
-        playSound('place');
-        if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
-      }, 1500);
-    }
-  }, 1000);
-}
-
-// Check game end
-function checkGameEnd() {
-  const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-
-  if (playersWithCards === 0) {
-    if (state.deck.length === 0 || (typeof window.dealAfterBots === 'function' && window.dealAfterBots(state.hands, state.deck))) {
-      const winner = state.scores.player >= state.settings.targetScore ? 'Player' :
-                     state.scores.bot1 >= state.settings.targetScore ? 'Bot 1' :
-                     state.scores.bot2 >= state.settings.targetScore ? 'Bot 2' :
-                     state.scores.player > state.scores.bot1 && state.scores.player > state.scores.bot2 ? 'Player' :
-                     state.scores.bot1 > state.scores.player && state.scores.bot1 > state.scores.bot2 ? 'Bot 1' : 'Bot 2';
-      const messageEl = document.getElementById('message');
-      if (messageEl) {
-        messageEl.textContent = `${winner} wins! Restart the game to play again.`;
-      }
-      playSound('gameEnd');
-    } else {
-      let dealResult;
-      try {
-        dealResult = dealCards(state.deck, 3, 4, 4);
-      } catch (e) {
-        console.error('Failed to deal cards in new round:', e);
-        dealResult = { players: [[], [], []], board: [], remainingDeck: state.deck };
-      }
-      state.deck = dealResult.remainingDeck || state.deck;
-      state.board = dealResult.board || [];
-      state.hands = dealResult.players && dealResult.players.length === 3 ? dealResult.players : [[], [], []];
-      state.currentPlayer = 0;
-      const messageEl = document.getElementById('message');
-      if (messageEl) {
-        messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-      }
-      playSound('turnChange');
-    }
-  }
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  const submitBtn = document.getElementById('submit-btn');
-  const restartBtn = document.getElementById('restart-btn');
-  const resetBtn = document.getElementById('reset-play-area-btn');
-  const hintBtn = document.getElementById('hint-btn');
-  
-  if (submitBtn) {
-    submitBtn.addEventListener('click', handleSubmit);
-  }
-  
-  if (restartBtn) {
-    restartBtn.addEventListener('click', initGame);
-  }
-
-  if (resetBtn) {
-    resetBtn.addEventListener('click', handleResetPlayArea);
-  }
-
-  if (hintBtn) {
-    hintBtn.addEventListener('click', provideHint);
-  }
-});
-
-// Start the game
-initGame();if (handCardEl) handCardEl.classList.remove('hint');
+    if (handCardEl) handCardEl.classList.remove('hint');
     boardCardEls.forEach(el => el && el.classList.remove('hint'));
-    
-
-  const messageEl = document.getElementById('message');
-  if (messageEl) messageEl.textContent = "Hint: Try combining the highlighted cards!";
-
+    const messageEl = document.getElementById('message');
+    if (messageEl) messageEl.textContent = "Hint: Try combining the highlighted cards!";
+  }, 3000);
+}
 
 // Render the game state
 function render() {
@@ -538,8 +368,8 @@ function render() {
   const messageEl = document.getElementById('message');
   if (messageEl) {
     if (state.currentPlayer === 0) {
-      if (state.hands[0] && state.hands[0].length === 0) {
-        messageEl.textContent = "You're out of cards! Waiting for bots to finish the round.";
+      if (state.hands[0].length === 0) {
+        messageEl.textContent = "You're out of cards! Bots will finish the round.";
         state.currentPlayer = 1;
         setTimeout(aiTurn, 1000);
       } else if (state.combination[0].length === 0 && state.combination[1].length === 0) {
@@ -798,93 +628,86 @@ function handleSubmit() {
     }
   }
 
-  state.currentPlayer = 0;
+  state.currentPlayer = 1;
   checkGameEnd();
   render();
   playSound('capture');
+  if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
 }
 
-// AI turn - CORRECTED VERSION
+// AI turn - Updated to use processBotTurn and handle bot continuation
 function aiTurn() {
   const playerIndex = state.currentPlayer;
   const messageEl = document.getElementById('message');
 
+  // If current bot has no cards, move to next player
   if (state.hands[playerIndex].length === 0) {
     state.currentPlayer = (playerIndex + 1) % 3;
     checkGameEnd();
     render();
     playSound('turnChange');
-    if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+    // If next player is a bot, continue with aiTurn; if player, stop
+    if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+      setTimeout(aiTurn, 1000);
+    }
     return;
   }
 
   setTimeout(() => {
-    const aiAction = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
+    const move = processBotTurn(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
-    if (aiAction.action === 'capture') {
-      // Simple AI capture logic
-      const handCard = aiAction.handCard;
+    if (move.type === 'capture') {
+      if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
+      const handCard = move.handCard;
       const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
-      
-      // Find a simple capture (pair or sum)
-      let captureFound = false;
-      
-      // Try pair capture first
-      for (let i = 0; i < state.board.length; i++) {
-        if (state.board[i].value === handCard.value) {
-          // Set up pair capture
-          state.combination[0] = [{ source: 'board', index: i, card: state.board[i] }];
-          state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
-          captureFound = true;
-          break;
-        }
-      }
-      
-      if (captureFound) {
-        render();
-        if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
 
-        setTimeout(() => {
-          const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
-          
-          // Remove from board
-          state.board = state.board.filter((_, i) => 
-            !state.combination[0].some(entry => entry.source === 'board' && entry.index === i) &&
-            !state.combination[1].some(entry => entry.source === 'board' && entry.index === i)
-          );
-          
-          // Remove from hand
-          state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-          
-          // Score
-          const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-          state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreFunction(capturedCards);
-          state.combination = { 0: [], 1: [] };
-          
-          if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
-            const nextCard = state.hands[playerIndex][0];
-            if (nextCard && nextCard.value && nextCard.suit) {
-              state.board.push(nextCard);
-              state.hands[playerIndex] = state.hands[playerIndex].slice(1);
-            }
+      // Set up combination areas for capture
+      state.combination[0] = move.cards.map((card, idx) => ({
+        source: 'board',
+        index: state.board.findIndex(bc => bc.id === card.id),
+        card
+      }));
+      state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
+
+      render();
+
+      setTimeout(() => {
+        const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
+        
+        // Remove from board
+        state.board = state.board.filter((_, i) => 
+          !state.combination[0].some(entry => entry.source === 'board' && entry.index === i) &&
+          !state.combination[1].some(entry => entry.source === 'board' && entry.index === i)
+        );
+        
+        // Remove from hand
+        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
+        
+        // Score
+        const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+        state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreFunction(capturedCards);
+        state.combination = { 0: [], 1: [] };
+        
+        if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
+          const nextCard = state.hands[playerIndex][0];
+          if (nextCard && nextCard.value && nextCard.suit) {
+            state.board.push(nextCard);
+            state.hands[playerIndex] = state.hands[playerIndex].slice(1);
           }
+        }
 
-          state.currentPlayer = (playerIndex + 1) % 3;
-          checkGameEnd();
-          render();
-          playSound('capture');
-          if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
-        }, 1500);
-      } else {
-        // No capture found, place card instead
-        aiAction.action = 'place';
-      }
-    }
-    
-    if (aiAction.action === 'place') {
+        state.currentPlayer = (playerIndex + 1) % 3;
+        checkGameEnd();
+        render();
+        playSound('capture');
+        if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+          setTimeout(aiTurn, 1000);
+        }
+      }, 1500);
+    } else if (move.type === 'place') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
       setTimeout(() => {
-        const handCard = aiAction.handCard || state.hands[playerIndex][0];
+        const handCard = move.handCard || state.hands[playerIndex][0];
         state.board.push(handCard);
         state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
         state.combination = { 0: [], 1: [] };
@@ -893,8 +716,70 @@ function aiTurn() {
         checkGameEnd();
         render();
         playSound('place');
-        if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+        if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+          setTimeout(aiTurn, 1000);
+        }
       }, 1500);
     }
   }, 1000);
 }
+
+// Check game end - Updated to use dealAfterBots and handle game end
+function checkGameEnd() {
+  const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
+  const messageEl = document.getElementById('message');
+
+  if (playersWithCards === 0) {
+    if (state.deck.length > 0 && !window.dealAfterBots(state.hands, state.deck)) {
+      // Deal 4 cards to each player's hand using dealAfterBots
+      window.dealAfterBots(state.hands, state.deck);
+      state.currentPlayer = 0;
+      if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+      render();
+      playSound('turnChange');
+    } else {
+      // Game ends: deck is empty or dealAfterBots returns true
+      const scores = [
+        { name: 'Player', score: state.scores.player },
+        { name: 'Bot 1', score: state.scores.bot1 },
+        { name: 'Bot 2', score: state.scores.bot2 }
+      ];
+      const winner = scores.reduce((max, player) => 
+        player.score > max.score ? player : max, 
+        { score: -1, name: '' }
+      );
+
+      if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(state.hands, state.deck)) {
+        if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
+        playSound('gameEnd');
+      }
+    }
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  const submitBtn = document.getElementById('submit-btn');
+  const restartBtn = document.getElementById('restart-btn');
+  const resetBtn = document.getElementById('reset-play-area-btn');
+  const hintBtn = document.getElementById('hint-btn');
+  
+  if (submitBtn) {
+    submitBtn.addEventListener('click', handleSubmit);
+  }
+  
+  if (restartBtn) {
+    restartBtn.addEventListener('click', initGame);
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetPlayArea);
+  }
+
+  if (hintBtn) {
+    hintBtn.addEventListener('click', provideHint);
+  }
+});
+
+// Start the game
+initGame();
