@@ -628,11 +628,11 @@ function handleSubmit() {
     }
   }
 
-  state.currentPlayer = 1;
-  checkGameEnd();
+  // Allow player to place a card to end turn
+  state.currentPlayer = 0;
+  if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
   render();
   playSound('capture');
-  if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
 }
 
 // AI turn - Updated to use processBotTurn and handle bot continuation
@@ -646,7 +646,7 @@ function aiTurn() {
     checkGameEnd();
     render();
     playSound('turnChange');
-    // If next player is a bot, continue with aiTurn; if player, stop
+    // If next player is a bot and game continues, trigger aiTurn
     if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
       setTimeout(aiTurn, 1000);
     }
@@ -656,13 +656,13 @@ function aiTurn() {
   setTimeout(() => {
     const move = processBotTurn(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
-    if (move.type === 'capture') {
+    if (move.action === 'capture') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
       const handCard = move.handCard;
       const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
       // Set up combination areas for capture
-      state.combination[0] = move.cards.map((card, idx) => ({
+      state.combination[0] = move.targetCards.map((card, idx) => ({
         source: 'board',
         index: state.board.findIndex(bc => bc.id === card.id),
         card
@@ -704,7 +704,7 @@ function aiTurn() {
           setTimeout(aiTurn, 1000);
         }
       }, 1500);
-    } else if (move.type === 'place') {
+    } else if (move.action === 'place') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
       setTimeout(() => {
         const handCard = move.handCard || state.hands[playerIndex][0];
