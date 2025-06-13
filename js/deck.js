@@ -1,8 +1,8 @@
-// deck.js - With global exports for modular access
+// deck.js - Fully modular with exports
 const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
 const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
-function createDeck() {
+export function createDeck() {
   return suits.flatMap(suit => values.map(value => ({
     suit,
     value,
@@ -10,7 +10,7 @@ function createDeck() {
   })));
 }
 
-function shuffleDeck(deck) {
+export function shuffleDeck(deck) {
   const shuffled = [...deck];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -19,7 +19,7 @@ function shuffleDeck(deck) {
   return shuffled;
 }
 
-function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
+export function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
   const players = Array(numPlayers).fill().map(() => []);
   const board = [];
   let deckCopy = [...deck];
@@ -36,8 +36,3 @@ function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
 
   return { players, board, remainingDeck: deckCopy };
 }
-
-// Global expose
-window.createDeck = createDeck;
-window.shuffleDeck = shuffleDeck;
-window.dealCards = dealCards;
