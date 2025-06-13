@@ -1,26 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>STACKED!</title>
-  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
   <div class="game-container">
     <h1>Welcome to STACKED! 🎴</h1>
     <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
 
-    <!-- Your full UI remains unchanged below -->
-    <!-- Modals, Board, Hands, Actions, Score Display, etc. -->
-    <!-- ... truncated for brevity ... -->
+    <!-- Settings Modal -->
+    <!-- (unchanged content above) -->
 
+    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
+
+    <div class="table">
+      <!-- Scores -->
+      <div class="score player-score" id="player-score">Player: 0 pts</div>
+      <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
+      <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
+
+      <!-- Play Areas -->
+      <div class="combination-area" id="combination-area">
+        <div class="combo-slot" data-slot="0">Play Area</div>
+        <div class="combo-slot" data-slot="1">Principal Match</div>
+      </div>
+
+      <!-- Board -->
+      <div class="board" id="board"></div>
+
+      <!-- Hands -->
+      <div class="hand player-hand" id="player-hand"></div>
+      <div class="hand bot1-hand" id="bot1-hand"></div>
+      <div class="hand bot2-hand" id="bot2-hand"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button id="submit-btn">Submit Move</button>
+      <button id="reset-play-area-btn">Reset Play Area</button>
+      <button id="hint-btn">Hint</button>
+      <button id="restart-btn">Restart Game</button>
+    </div>
+
+    <div class="capture-type" id="capture-type">No cards in play areas.</div>
     <div class="message" id="message">
       Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
     </div>
   </div>
 
-  <!-- ✅ Only load the entry point as a module -->
+  <!-- ✅ Use module system to load the full game via index.js -->
   <script type="module" src="js/index.js"></script>
 </body>
 </html>
