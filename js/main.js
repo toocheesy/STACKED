@@ -659,6 +659,13 @@ function aiTurn() {
 
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
+console.log('Bot move result:', move); // Debug line
+if (!move || !move.action) {
+  console.error('Invalid bot move, skipping turn');
+  state.currentPlayer = (playerIndex + 1) % 3;
+  render();
+  return;
+}
 
     if (move.action === 'capture') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
