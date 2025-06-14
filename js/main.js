@@ -677,7 +677,7 @@ if (!move || !move.action) {
       const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
       // Set up combination areas for capture
-      state.combination[0] = move.capture && move.capture.targets ? move.capture.targets.map(...) : []
+      state.combination[0] = move.capture && move.capture.targets ? move.capture.targets.map((card, idx) => ({
         source: 'board',
         index: state.board.findIndex(bc => bc.id === card.id),
         card
