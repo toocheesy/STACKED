@@ -663,39 +663,34 @@ function aiTurn() {
     if (move.action === 'capture') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
       const handCard = move.handCard;
-      if (!handCard || !handCard.value || !handCard.suit || !handCard.id) {
+      if (!handCard || !handCard.value || !handCard.suit) {
         // Fallback to place if invalid card
-        move.action = 'place';
-        move.handCard = state.hands[playerIndex].find(card => card && card.value && card.suit && card.id) || null;
-      }
-      const handIndex = state.hands[playerIndex].findIndex(card => card && card.id === handCard.id);
-
-      if (handIndex === -1 || !handCard) {
         move.action = 'place';
         move.handCard = state.hands[playerIndex][0] || null;
       }
+      const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
       // Set up combination areas for capture
-      state.combination[0] = move.targetCards ? move.targetCards.map((card, idx) => ({
+      state.combination[0] = move.targetCards.map((card, idx) => ({
         source: 'board',
-        index: state.board.findIndex(bc => bc && bc.id === card.id),
-        card: state.board.find(bc => bc && bc.id === card.id) || null
-      })).filter(c => c.card) : [];
-      state.combination[1] = handIndex >= 0 ? [{ source: 'hand', index: handIndex, card: handCard }] : [];
+        index: state.board.findIndex(bc => bc.id === card.id),
+        card
+      }));
+      state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
 
       render();
 
       setTimeout(() => {
-        const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)].filter(c => c);
+        const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
         
         // Remove from board
         state.board = state.board.filter((_, i) => 
-          !state.combination[0].some(entry => entry && entry.source === 'board' && entry.index === i) &&
-          !state.combination[1].some(entry => entry && entry.source === 'board' && entry.index === i)
+          !state.combination[0].some(entry => entry.source === 'board' && entry.index === i) &&
+          !state.combination[1].some(entry => entry.source === 'board' && entry.index === i)
         );
         
         // Remove from hand
-        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card && card.id !== handCard.id);
+        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
         
         // Score
         const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
@@ -720,10 +715,10 @@ function aiTurn() {
       }, 1500);
     } else if (move.action === 'place') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
-      const handCard = move.handCard || state.hands[playerIndex].find(card => card && card.value && card.suit && card.id);
-      if (!handCard || !handCard.value || !handCard.suit || !handCard.id) return; // Skip invalid moves
+      const handCard = move.handCard || state.hands[playerIndex][0];
+      if (!handCard || !handCard.value || !handCard.suit) return; // Skip invalid moves
       state.board.push(handCard);
-      state.hands[playerIndex] = state.hands[playerIndex].filter(c => c && c.id !== handCard.id);
+      state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
       state.combination = { 0: [], 1: [] };
 
       state.currentPlayer = (playerIndex + 1) % 3;
@@ -737,20 +732,16 @@ function aiTurn() {
   }, 1000);
 }
 
-// Check game end - Updated to handle dealAfterBots errors and adapt data
+// Check game end - Updated to handle dealAfterBots errors
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
     try {
-      // Adapt state.hands to match dealAfterBots expectation
-      const adaptedPlayers = state.hands.map(hand => ({ hand: hand }));
-      if (state.deck.length > 0 && !window.dealAfterBots(adaptedPlayers, state.deck)) {
-        // Update state.hands from adaptedPlayers
-        for (let i = 0; i < state.hands.length; i++) {
-          state.hands[i] = adaptedPlayers[i].hand;
-        }
+      if (state.deck.length > 0 && !window.dealAfterBots(state.hands, state.deck)) {
+        // Deal 4 cards to each player's hand using dealAfterBots
+        window.dealAfterBots(state.hands, state.deck);
         state.currentPlayer = 0;
         if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
         render();
@@ -767,7 +758,7 @@ function checkGameEnd() {
           { score: -1, name: '' }
         );
 
-        if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(adaptedPlayers, state.deck)) {
+        if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(state.hands, state.deck)) {
           if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
           playSound('gameEnd');
         }
@@ -775,8 +766,6 @@ function checkGameEnd() {
     } catch (e) {
       console.error('Error in checkGameEnd:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-      state.currentPlayer = 0; // Reset to allow restart
-      render();
     }
   }
 }
