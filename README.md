@@ -1,159 +1,124 @@
-STACKED! The Card Game 🎴
-A fast-paced, strategic card game where pairing and arithmetic collide. Capture cards, stack your combos, and race to victory in this modern take on a classic family favorite. We’re rethinking and refining the experience as of June 13, 2025—join us on this epic journey!
-🧠 What Is STACKED!?
-STACKED! is a card game for 2–4 players (currently single-player with 2 AI bots) using a standard 52-card deck. Capture cards from a shared board by matching pairs or building sums across dual play areas, aiming to score the most points. It blends classic matching with tactical math-based strategy, brought to life as a web app. We’re currently troubleshooting gameplay flow and bot logic to make it unstoppable!
-🎯 Objective
-Be the first to reach the target score (default 500 points, adjustable in settings) by capturing cards from the board. If the deck runs out, the player with the highest score wins. We’re working to ensure smooth turns and a clean endgame!
-🃏 Setup
+# STACKED! The Card Game 🎴
 
-Use a standard 52-card deck (no Jokers).
-The app shuffles and deals:
-4 cards to each player (you and 2 AI bots).
-4 face-up cards to the center board.
+A fast-paced, strategic card game where pairing and arithmetic collide. Capture cards, stack your combos, and race to victory in this modern take on a classic family favorite. **Currently in active development - core gameplay working!**
 
+## 🧠 What Is STACKED!?
 
-Play begins with you, followed by the bots in turn order.
+STACKED! is a digital recreation of a lost family card game, brought back to life for the first time ever. Originally played by families for generations, this version captures the strategic depth of matching pairs and building sums in a fast-paced web experience.
 
-🔁 Gameplay
-On Your Turn:
+**Game Features:**
+- Single-player vs 2 AI bots
+- Dual play area system for strategic combo building
+- Adjustable difficulty and scoring targets
+- Responsive web design for desktop and mobile
 
-Capture Cards
-Use the dual play areas to build your combo:
-Play Area: Place cards (from hand or board) that sum to a target value or match a pair.
-Principal Match Area: Place a single card (from hand or board) as the target value or match.
+## 🎯 Objective
 
+Be the first to reach the target score (default 500 points, adjustable in settings) by capturing cards from the board using strategic combinations of pairs and sums.
 
-Capture Types:
-Pair Capture: Place a matching card in the Principal Match area and a matching card in the Play Area. For J, Q, K, capture all matching cards by placing one in the Principal Match and matching ones in the Play Area. Requires at least one hand card and one board card across both areas.
-Sum Capture (2-10 only): Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value. All cards in both areas are captured. J, Q, K cannot be used in sums.
+## 🃏 How to Play
 
+### Setup
+- Each player (you + 2 AI bots) gets 4 cards
+- 4 cards are placed face-up on the board
+- Player goes first, followed by bots
 
-Drag cards to the respective areas to build your combo. Both areas will glow green if valid. Click “Submit Move” to capture, then place a card to end your turn if you have cards left.
+### Your Turn
+1. **Build Combos** - Drag cards to the dual play areas:
+   - **Play Area**: Place cards that will sum together
+   - **Principal Match**: Place your target card
+   
+2. **Valid Captures**:
+   - **Pair Capture**: Match identical values (5♥ captures 5♠)
+   - **Sum Capture**: Use multiple cards that sum to your target (3+2 captures 5)
+   - Must use at least one hand card AND one board card
 
+3. **Submit**: Click "Submit Move" when areas glow green
 
-Place a Card
-After capturing (or if no capture is possible), drag a hand card to the board to place it and end your turn.
+4. **End Turn**: Place a card on the board to finish your turn
 
+### Scoring
+- **2-9**: 5 points each
+- **10, J, Q, K**: 10 points each  
+- **Ace**: 15 points each
 
-Empty Board
-If the board is cleared during your turn and you have cards left, place a hand card on the board to continue.
+### Winning
+Game ends when deck is empty. Highest score wins, or first to reach target score!
 
+## 🛠️ Current Status
 
-Bots take their turns automatically based on their difficulty level (set in settings).
+**✅ Working Features:**
+- Settings modal with customizable options
+- Card dealing and hand management
+- Drag & drop card interaction
+- Dual play area combo system
+- Pair and sum capture validation
+- Player turn mechanics
+- AI bot opponents (3 difficulty levels)
+- Score tracking and display
+- Game restart functionality
 
-🛑 End of a Hand
+**🚧 Known Issues:**
+- Drag & drop positioning could be smoother
+- End-game flow needs refinement
+- Bot AI strategy could be enhanced
 
-A hand ends when all players are out of cards.
-If the deck isn’t empty:
-Deal 4 new cards to each player’s hand (no cards to the board currently due to a bug fix in progress).
+**📋 Development Notes:**
+- Built with vanilla HTML/CSS/JavaScript
+- Simple 4-file architecture for reliability
+- No external dependencies or frameworks
+- Deployed via Vercel with GitHub integration
 
+## 🎮 Play Online
 
-A new round begins with the player’s turn, or the game ends if the deck is depleted.
+**Live Demo**: [https://stacked-orcin.vercel.app](https://stacked-orcin.vercel.app)
 
-🪙 Scoring
+*Settings modal appears on load - configure your game and click "Start Game" to begin!*
 
-All cards involved in a capture (from both play areas) are scored:
-2–9: 5 points each
-10, J, Q, K: 10 points each
-Ace: 15 points
+## 🏗️ For Developers
 
-
-Add to your cumulative score.
-
-🏆 Winning
-
-The game ends when the deck runs out or a player reaches the target score.
-The player with the highest score wins, or the first to hit the target score (default 500, set in settings) claims victory.
-Break ties with additional hands.
-Click “Restart Game” to play again.
-
-💡 Strategy Tips
-
-Save high-value cards (Aces, Kings) for big captures.
-Use J, Q, K to grab all matching cards, but plan carefully since they can’t be used in sums.
-Build sums strategically to maximize captured cards.
-
-🛠️ Getting Started
-Play Online
-
-Play the game live at https://stacked-orcin.vercel.app (note: currently facing gameplay bugs—stay tuned for fixes as we rethink the approach!).
-
-Run Locally
-
-Prerequisites: A web browser (e.g., Chrome, Firefox). Git (optional, for cloning the repo).
-Installation:
-Clone the repo: git clone https://github.com/toocheesy/STACKED.git
-cd STACKED
-Open index.html in your browser:
-On Windows: Right-click index.html and select "Open with" > your browser.
-Or drag index.html into your browser.
-
-
-
-
-
-Deploy to Vercel
-
-You have GitHub and Vercel set up. Use these commands to deploy:
-Stage changes: git add .
-Commit changes: git commit -m "Update game logic or fix deployment issues"
-Push to trigger deployment: git push origin main
-Check deployment status in your Vercel dashboard and test the live URL.
-
-
-
-📂 Project Structure
+### File Structure
+```
 STACKED/
-├── assets/
-│   ├── sounds/         # Audio files (e.g., shuffle.mp3, capture.mp3)
-│   ├── cards/          # Card images (optional)
 ├── css/
-│   ├── styles.css      # All CSS
+│   └── styles.css      # All game styling
 ├── js/
-│   ├── ai.js           # AI bot moves
-│   ├── deck.js         # Deck creation and dealing
-│   ├── gameLogic.js    # Capture and scoring logic
-│   ├── main.js         # Main game loop
-├── index.html          # Main HTML file
-├── README.md           # This file
-├── vercel.json         # Vercel deployment configuration
+│   ├── ai.js          # Bot logic and difficulty levels
+│   ├── deck.js        # Card creation and dealing
+│   ├── gameLogic.js   # Capture validation and scoring
+│   └── main.js        # Core game engine and rendering
+├── index.html         # Main game interface
+└── README.md         # This file
+```
 
-🛠️ Tech Stack
+### Local Development
+1. Clone the repository
+2. Open `index.html` in any modern browser
+3. No build process or dependencies required!
 
-Frontend: HTML, CSS, vanilla JavaScript.
-Assets: Audio files for sound effects (pending full implementation).
-Hosting: Vercel, with GitHub for version control.
-Client-Side Only: Lightweight, no backend required.
+### Deployment
+Uses GitHub → Vercel auto-deployment:
+```bash
+git add .
+git commit -m "Description of changes"
+git push origin main
+```
 
-👑 Credits
+## 🎯 The Story
 
-Created by toocheesy.
-Inspired by a timeless family card game.
-Developed with AI assistance (Grok by xAI).
+This game is a digital recreation of "Points" - a card game passed down through family generations that had no official rules or digital version. Through careful research and memory reconstruction, STACKED! brings this lost game back to life for new generations to discover and enjoy.
 
-📄 License
+## 🏆 Credits
 
-Creative Commons Attribution-NonCommercial 4.0: Play, modify, share—just don’t sell without permission.
+- **Created by**: toocheesy
+- **Inspired by**: A cherished family card game tradition
+- **Development**: Built with AI assistance for rapid prototyping
+- **Special Thanks**: To Grandma, who taught us this game originally
 
-📬 Feedback
+## 📄 License
 
-Submit bugs or ideas via GitHub Issues. We’re currently rethinking gameplay after encountering:
-Bots making “undefined” combos (e.g., Bot 2 with 9♠).
-Game freezing after all players are out of cards due to a dealAfterBots error.
+Creative Commons Attribution-NonCommercial 4.0 - Play, modify, share (just don't sell without permission)
 
+---
 
-Your input helps us refine STACKED! as we pivot our approach!
-
-🚧 Known Issues
-
-✅ Submit Button Fixed: Submit functionality works with recent updates.
-🛠️ Undefined Combos: Bots occasionally use invalid cards (e.g., “undefined” in combos), under investigation.
-🛠️ Game Freeze: Freezes after all players are out of cards, linked to dealAfterBots errors in checkGameEnd.
-🛠️ Turn Flow: Player can’t always place a card after a combo, and bot turns may stall.
-Stay tuned as we rethink and resolve these bugs!
-
-🎮 Current State (June 13, 2025)
-
-We’ve made solid progress through the first round, with combos and initial bot turns working. However, undefined combos and game freezes after all hands are empty are blocking a full round. We’re shifting from code tweaks to alternative troubleshooting (e.g., logging, mock data) and exploring screen recordings to pinpoint issues. The goal is to stabilize gameplay before adding new features!
-
-Let’s Get STACKED! 🚀
+*Join us in preserving gaming history - one card at a time!* 🎴✨
