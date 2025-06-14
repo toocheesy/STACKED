@@ -659,7 +659,6 @@ function aiTurn() {
 
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-console.log('Bot move result:', move); // Debug line
 if (!move || !move.action) {
   console.error('Invalid bot move, skipping turn');
   state.currentPlayer = (playerIndex + 1) % 3;
@@ -678,7 +677,7 @@ if (!move || !move.action) {
       const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
       // Set up combination areas for capture
-      state.combination[0] = move.targetCards.map((card, idx) => ({
+      state.combination[0] = move.capture && move.capture.targets ? move.capture.targets.map(...) : []
         source: 'board',
         index: state.board.findIndex(bc => bc.id === card.id),
         card
