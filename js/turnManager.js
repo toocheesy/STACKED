@@ -2,12 +2,12 @@
 import { isValidCombo, getCapturedCards, calculateScore } from './captureLogic.js';
 import { debugLog } from './debug.js';
 
-export function handleTurnEnd(state) {
-  debugLog('Checking for round end...', state.hands);
+export function manageTurn(state) {
+  debugLog('Checking for turn end...', state.hands);
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   if (playersWithCards === 0) {
     const adaptedPlayers = state.hands.map(hand => ({ hand: hand }));
-    if (state.deck.length > 0 && !window.dealAfterBots(adaptedPlayers, state.deck)) {
+    if (state.deck.length > 0 && !dealAfterBots(adaptedPlayers, state.deck)) {
       for (let i = 0; i < state.hands.length; i++) {
         state.hands[i] = adaptedPlayers[i].hand;
       }

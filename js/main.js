@@ -2,7 +2,7 @@
 import { logDebug } from './debug.js';
 import { handleCapture, canCapture } from './captureLogic.js';
 import { manageTurn, endGame } from './turnManager.js';
-import { processBotTurn, scoreCards, dealAfterBots, valueMap } from './gameLogic.js';
+import { processBotTurn, scoreCards, dealAfterBots, valueMap, pointsMap } from './gameLogic.js';
 import { setupAI } from './ai.js';
 import { createDeck, shuffleDeck, dealCards } from './deck.js';
 
@@ -33,6 +33,9 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     draggedCard: null,
     selectedCard: null
   };
+
+  // Expose state for debug (temporary until fully modular)
+  if (typeof window !== 'undefined') window.state = state;
 
   logDebug('Game initialized with state:', state);
 
@@ -556,7 +559,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
 
     if (state.hands[playerIndex].length === 0) {
       state.currentPlayer = (playerIndex + 1) % 3;
-      checkGameEnd();
+      manageTurn(state);
       render();
       playSound('turnChange');
       if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
@@ -604,7 +607,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
           }
 
           state.currentPlayer = (playerIndex + 1) % 3;
-          checkGameEnd();
+          manageTurn(state);
           render();
           playSound('capture');
           if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
@@ -619,7 +622,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
         state.combination = { 0: [], 1: [] };
 
         state.currentPlayer = (playerIndex + 1) % 3;
-        checkGameEnd();
+        manageTurn(state);
         render();
         playSound('place');
         if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
@@ -629,36 +632,9 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     }, 1000);
   }
 
-  // Check game end
+  // Check game end (handled by manageTurn now)
   function checkGameEnd() {
-    const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-    const messageEl = document.getElementById('message');
-
-    if (playersWithCards === 0) {
-      const adaptedPlayers = state.hands.map(hand => ({ hand: hand }));
-      if (state.deck.length > 0 && !dealAfterBots(adaptedPlayers, state.deck)) {
-        state.hands = adaptedPlayers.map(p => p.hand);
-        state.currentPlayer = 0;
-        if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-        render();
-        playSound('turnChange');
-      } else {
-        const scores = [
-          { name: 'Player', score: state.scores.player },
-          { name: 'Bot 1', score: state.scores.bot1 },
-          { name: 'Bot 2', score: state.scores.bot2 }
-        ];
-        const winner = scores.reduce((max, player) => 
-          player.score > max.score ? player : max, 
-          { score: -1, name: '' }
-        );
-
-        if (winner.score >= state.settings.targetScore || state.deck.length === 0 || dealAfterBots(adaptedPlayers, state.deck)) {
-          if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
-          playSound('gameEnd');
-        }
-      }
-    }
+    manageTurn(state);
   }
 
   // Event listeners

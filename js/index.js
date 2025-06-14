@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const [playerHand, bot1Hand, bot2Hand] = players;
 
   // Simplify to one AI version for now
-  const aiConfig = { difficulty: 'beginner' }; // Start with Beginner
-  setupAI(aiConfig); // Assume ai.js exports this
+  const aiConfig = { difficulty: 'beginner' };
+  setupAI(aiConfig);
 
   initializeGame({
     playerHand,
