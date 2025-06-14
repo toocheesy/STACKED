@@ -35,3 +35,10 @@ export function canCapture(handCard, board) {
   });
   return captures;
 }
+
+// Placeholder for handleCapture (align with main.js expectation)
+export function handleCapture(state, slot0Cards, slot1Cards) {
+  if (!isValidCombo(slot0Cards, slot1Cards)) return 0;
+  const capturedCards = getCapturedCards(slot0Cards, slot1Cards);
+  return calculateScore(capturedCards);
+}
