@@ -47,6 +47,7 @@
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            min-height: 500px;
         }
         
         .column-header {
@@ -70,6 +71,7 @@
             border-left: 4px solid;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
         }
         
         .bug-card:hover {
@@ -123,6 +125,32 @@
         .priority-medium-badge { background: #f39c12; color: white; }
         .priority-low-badge { background: #3498db; color: white; }
         
+        .move-buttons {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+        }
+        
+        .bug-card:hover .move-buttons {
+            display: block;
+        }
+        
+        .move-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        
+        .move-btn:hover {
+            background: #2980b9;
+        }
+        
         .add-card {
             background: #f8f9fa;
             border: 2px dashed #bdc3c7;
@@ -167,6 +195,21 @@
             font-size: 0.9rem;
             color: #495057;
         }
+        
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-left: 2px;
+        }
+        
+        .delete-btn:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
@@ -176,40 +219,14 @@
     </div>
     
     <div class="board">
-        <div class="column">
+        <div class="column" data-status="stuck">
             <div class="column-header stuck">🚫 Stuck On</div>
             
-            <div class="bug-card priority-high">
-                <div class="bug-title">Bot Makes "Undefined" Combos</div>
-                <div class="bug-description">Bot 2 plays combos with undefined cards (e.g., "9♠ undefined"). Happens during bot turns, breaks game flow.</div>
-                <div class="bug-files">
-                    <span class="file-tag">ai.js</span>
-                    <span class="file-tag">gameLogic.js</span>
+            <div class="bug-card priority-high" data-id="1">
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(1, 'testing')">→</button>
+                    <button class="delete-btn" onclick="deleteBug(1)">×</button>
                 </div>
-                <span class="priority-badge priority-high-badge">High</span>
-            </div>
-            
-            <div class="bug-card priority-high">
-                <div class="bug-title">Game Freezes After Round Ends</div>
-                <div class="bug-description">When all players run out of cards, game freezes with "dealAfterBots" error in checkGameEnd function.</div>
-                <div class="bug-files">
-                    <span class="file-tag">turnManager.js</span>
-                    <span class="file-tag">main.js</span>
-                </div>
-                <span class="priority-badge priority-high-badge">High</span>
-            </div>
-            
-            <div class="bug-card priority-medium">
-                <div class="bug-title">Turn Flow Issues</div>
-                <div class="bug-description">Player can't always place card after combo, bot turns sometimes stall or skip.</div>
-                <div class="bug-files">
-                    <span class="file-tag">turnManager.js</span>
-                    <span class="file-tag">main.js</span>
-                </div>
-                <span class="priority-badge priority-medium-badge">Medium</span>
-            </div>
-            
-            <div class="bug-card priority-high">
                 <div class="bug-title">Settings Modal Buttons Not Working</div>
                 <div class="bug-description">Modal opens but Start Game and Tutorial buttons don't respond to clicks. No console errors.</div>
                 <div class="bug-files">
@@ -219,22 +236,68 @@
                 <span class="priority-badge priority-high-badge">High</span>
             </div>
             
+            <div class="bug-card priority-high" data-id="2">
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(2, 'testing')">→</button>
+                    <button class="delete-btn" onclick="deleteBug(2)">×</button>
+                </div>
+                <div class="bug-title">Bot Makes "Undefined" Combos</div>
+                <div class="bug-description">Bot 2 plays combos with undefined cards (e.g., "9♠ undefined"). Happens during bot turns, breaks game flow.</div>
+                <div class="bug-files">
+                    <span class="file-tag">ai.js</span>
+                    <span class="file-tag">gameLogic.js</span>
+                </div>
+                <span class="priority-badge priority-high-badge">High</span>
+            </div>
+            
+            <div class="bug-card priority-high" data-id="3">
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(3, 'testing')">→</button>
+                    <button class="delete-btn" onclick="deleteBug(3)">×</button>
+                </div>
+                <div class="bug-title">Game Freezes After Round Ends</div>
+                <div class="bug-description">When all players run out of cards, game freezes with "dealAfterBots" error in checkGameEnd function.</div>
+                <div class="bug-files">
+                    <span class="file-tag">turnManager.js</span>
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge priority-high-badge">High</span>
+            </div>
+            
+            <div class="bug-card priority-medium" data-id="4">
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(4, 'testing')">→</button>
+                    <button class="delete-btn" onclick="deleteBug(4)">×</button>
+                </div>
+                <div class="bug-title">Turn Flow Issues</div>
+                <div class="bug-description">Player can't always place card after combo, bot turns sometimes stall or skip.</div>
+                <div class="bug-files">
+                    <span class="file-tag">turnManager.js</span>
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge priority-medium-badge">Medium</span>
+            </div>
+            
             <div class="add-card" onclick="addNewBug()">
                 + Add New Bug
             </div>
         </div>
         
-        <div class="column">
+        <div class="column" data-status="testing">
             <div class="column-header testing">🧪 Testing Fix</div>
-            <div class="add-card">
-                Move bugs here when trying solutions
+            <div class="add-card" onclick="addNewBug()">
+                + Add New Bug Here
             </div>
         </div>
         
-        <div class="column">
+        <div class="column" data-status="fixed">
             <div class="column-header fixed">✅ Fixed</div>
             
-            <div class="bug-card priority-low">
+            <div class="bug-card priority-low" data-id="5">
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(5, 'stuck')">←</button>
+                    <button class="delete-btn" onclick="deleteBug(5)">×</button>
+                </div>
                 <div class="bug-title">Submit Button Fixed</div>
                 <div class="bug-description">Submit functionality now works with recent updates - combo submission is working properly.</div>
                 <div class="bug-files">
@@ -242,13 +305,18 @@
                 </div>
                 <span class="priority-badge priority-low-badge">Completed</span>
             </div>
+            
+            <div class="add-card" onclick="addNewBug()">
+                + Add New Bug Here
+            </div>
         </div>
     </div>
     
     <div class="notes-section">
         <div class="notes-header">🔧 Testing Notes & Attempts</div>
         <div class="notes-content" contenteditable="true" placeholder="Track what you've tried here...">
-Example format:
+Bug: Settings Modal Buttons Not Working
+Attempt 1: [Your attempts here]
 
 Bug: Bot Undefined Combos
 Attempt 1: Asked ChatGPT to add validation checks in ai.js - RESULT: Still happening
@@ -261,58 +329,136 @@ Attempt 1: [Track your attempts here]
     </div>
     
     <script>
-        // Simple drag and drop simulation (visual feedback)
-        const bugCards = document.querySelectorAll('.bug-card:not(.add-card)');
+        let bugIdCounter = 6;
         
-        bugCards.forEach(card => {
-            card.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', '');
-                card.style.opacity = '0.5';
-            });
+        // Move bug between columns
+        function moveBug(bugId, targetStatus) {
+            const bugCard = document.querySelector(`[data-id="${bugId}"]`);
+            const targetColumn = document.querySelector(`[data-status="${targetStatus}"]`);
+            const addCard = targetColumn.querySelector('.add-card');
             
-            card.addEventListener('dragend', (e) => {
-                card.style.opacity = '1';
-            });
+            if (bugCard && targetColumn) {
+                // Update move buttons based on new status
+                const moveButtons = bugCard.querySelector('.move-buttons');
+                if (targetStatus === 'testing') {
+                    moveButtons.innerHTML = `
+                        <button class="move-btn" onclick="moveBug(${bugId}, 'stuck')">←</button>
+                        <button class="move-btn" onclick="moveBug(${bugId}, 'fixed')">→</button>
+                        <button class="delete-btn" onclick="deleteBug(${bugId})">×</button>
+                    `;
+                } else if (targetStatus === 'fixed') {
+                    moveButtons.innerHTML = `
+                        <button class="move-btn" onclick="moveBug(${bugId}, 'stuck')">←</button>
+                        <button class="delete-btn" onclick="deleteBug(${bugId})">×</button>
+                    `;
+                } else if (targetStatus === 'stuck') {
+                    moveButtons.innerHTML = `
+                        <button class="move-btn" onclick="moveBug(${bugId}, 'testing')">→</button>
+                        <button class="delete-btn" onclick="deleteBug(${bugId})">×</button>
+                    `;
+                }
+                
+                targetColumn.insertBefore(bugCard, addCard);
+                saveBugs();
+            }
+        }
+        
+        // Delete bug
+        function deleteBug(bugId) {
+            if (confirm('Delete this bug?')) {
+                const bugCard = document.querySelector(`[data-id="${bugId}"]`);
+                if (bugCard) {
+                    bugCard.remove();
+                    saveBugs();
+                }
+            }
+        }
+        
+        // Add new bug
+        function addNewBug() {
+            const bugTitle = prompt('Bug title:');
+            if (!bugTitle) return;
             
-            card.setAttribute('draggable', 'true');
-        });
+            const bugDescription = prompt('Bug description:');
+            if (!bugDescription) return;
+            
+            const priority = prompt('Priority (high/medium/low):', 'medium').toLowerCase();
+            const priorityClass = priority === 'high' ? 'priority-high' : 
+                                 priority === 'low' ? 'priority-low' : 'priority-medium';
+            const priorityBadge = priority === 'high' ? 'priority-high-badge' : 
+                                 priority === 'low' ? 'priority-low-badge' : 'priority-medium-badge';
+            
+            const stuckColumn = document.querySelector('[data-status="stuck"]');
+            const addCard = stuckColumn.querySelector('.add-card');
+            
+            const newBugCard = document.createElement('div');
+            newBugCard.className = `bug-card ${priorityClass}`;
+            newBugCard.setAttribute('data-id', bugIdCounter);
+            newBugCard.innerHTML = `
+                <div class="move-buttons">
+                    <button class="move-btn" onclick="moveBug(${bugIdCounter}, 'testing')">→</button>
+                    <button class="delete-btn" onclick="deleteBug(${bugIdCounter})">×</button>
+                </div>
+                <div class="bug-title">${bugTitle}</div>
+                <div class="bug-description">${bugDescription}</div>
+                <div class="bug-files">
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge ${priorityBadge}">${priority.charAt(0).toUpperCase() + priority.slice(1)}</span>
+            `;
+            
+            stuckColumn.insertBefore(newBugCard, addCard);
+            bugIdCounter++;
+            saveBugs();
+        }
+        
+        // Save/load bugs
+        function saveBugs() {
+            const bugs = [];
+            document.querySelectorAll('.bug-card[data-id]').forEach(card => {
+                const status = card.closest('.column').getAttribute('data-status');
+                bugs.push({
+                    id: card.getAttribute('data-id'),
+                    status: status,
+                    html: card.outerHTML
+                });
+            });
+            localStorage.setItem('stackedBugs', JSON.stringify(bugs));
+        }
+        
+        function loadBugs() {
+            const saved = localStorage.getItem('stackedBugs');
+            if (saved) {
+                const bugs = JSON.parse(saved);
+                // Clear existing bugs first
+                document.querySelectorAll('.bug-card[data-id]').forEach(card => card.remove());
+                
+                bugs.forEach(bug => {
+                    const column = document.querySelector(`[data-status="${bug.status}"]`);
+                    const addCard = column.querySelector('.add-card');
+                    const div = document.createElement('div');
+                    div.innerHTML = bug.html;
+                    column.insertBefore(div.firstChild, addCard);
+                });
+            }
+        }
         
         // Save notes to localStorage
         const notesContent = document.querySelector('.notes-content');
         
-        // Load saved notes
-        const savedNotes = localStorage.getItem('stackedBugNotes');
-        if (savedNotes) {
-            notesContent.textContent = savedNotes;
-        }
+        // Load saved data
+        window.addEventListener('load', () => {
+            loadBugs();
+            const savedNotes = localStorage.getItem('stackedBugNotes');
+            if (savedNotes) {
+                notesContent.textContent = savedNotes;
+            }
+        });
         
         // Save notes on change
         notesContent.addEventListener('input', () => {
             localStorage.setItem('stackedBugNotes', notesContent.textContent);
         });
-        
-        // Add new bug function
-        window.addNewBug = function() {
-            const bugTitle = prompt('Bug title:');
-            const bugDescription = prompt('Bug description:');
-            if (bugTitle && bugDescription) {
-                const stuckColumn = document.querySelector('.column:first-child');
-                const addCard = stuckColumn.querySelector('.add-card');
-                
-                const newBugCard = document.createElement('div');
-                newBugCard.className = 'bug-card priority-medium';
-                newBugCard.innerHTML = `
-                    <div class="bug-title">${bugTitle}</div>
-                    <div class="bug-description">${bugDescription}</div>
-                    <div class="bug-files">
-                        <span class="file-tag">main.js</span>
-                    </div>
-                    <span class="priority-badge priority-medium-badge">Medium</span>
-                `;
-                
-                stuckColumn.insertBefore(newBugCard, addCard);
-            }
-        };
     </script>
 </body>
 </html>
