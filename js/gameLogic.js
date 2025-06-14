@@ -1,7 +1,3 @@
-/* 
- * Adjusted for dual play area system:
- * - Simplified canCapture to support basic pair captures, as sum logic is handled in main.js.
- */
 const pointsMap = {
   'A': 15,
   'K': 10,
@@ -15,7 +11,7 @@ const pointsMap = {
   '5': 5,
   '4': 5,
   '3': 5,
-  '2': 5'
+  '2': 5
 };
 
 const valueMap = {
@@ -30,14 +26,13 @@ function canCapture(handCard, board) {
   const handValue = valueMap[handCard.value] || parseInt(handCard.value);
   const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
 
-  // Pair capture
   board.forEach((card, index) => {
     if (card.value === handCard.value) {
       captures.push({ type: 'pair', cards: [index], target: card });
     }
   });
 
-  return captures; // Sum capture handled in main.js
+  return captures;
 }
 
 function scoreCards(cards) {

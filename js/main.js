@@ -658,7 +658,7 @@ function aiTurn() {
   }
 
   setTimeout(() => {
-    const move = processBotTurn(state.hands[playerIndex], state.board, state.settings.botDifficulty);
+    const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 
     if (move.action === 'capture') {
       if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
