@@ -1,8 +1,8 @@
-// deck.js - Fully modular with exports
+// js/deck.js
 const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
 const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
-export function createDeck() {
+function createDeck() {
   return suits.flatMap(suit => values.map(value => ({
     suit,
     value,
@@ -10,7 +10,7 @@ export function createDeck() {
   })));
 }
 
-export function shuffleDeck(deck) {
+function shuffleDeck(deck) {
   const shuffled = [...deck];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -19,7 +19,7 @@ export function shuffleDeck(deck) {
   return shuffled;
 }
 
-export function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
+function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
   const players = Array(numPlayers).fill().map(() => []);
   const board = [];
   let deckCopy = [...deck];
