@@ -48,40 +48,36 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
 
   // Show settings modal with enhanced debug
   function showSettingsModal() {
-    logDebug('Attempting to show settings modal');
-    const modal = document.getElementById('settings-modal');
-    if (modal) {
-      logDebug('Modal element found:', modal);
-      try {
-        modal.showModal();
-        logDebug('Modal opened successfully');
-      } catch (e) {
-        logDebug('Error opening modal:', e);
-      }
-      const startGameBtn = document.getElementById('start-game-btn');
-      const tutorialBtn = document.getElementById('tutorial-btn');
-      const tutorialModal = document.getElementById('tutorial-modal');
+  const modal = document.getElementById('settings-modal');
+  modal.showModal();
+  
+  const startGameBtn = document.getElementById('start-game-btn');
+  const tutorialBtn = document.getElementById('tutorial-btn');
 
-      if (startGameBtn) {
-        startGameBtn.addEventListener('click', () => {
-          state.settings.cardSpeed = document.getElementById('card-speed').value;
-          state.settings.soundEffects = document.getElementById('sound-effects').value;
-          state.settings.targetScore = parseInt(document.getElementById('target-score').value);
-          state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
-          modal.close();
-          render();
-        });
-      }
-
-      if (tutorialBtn) {
-        tutorialBtn.addEventListener('click', () => {
-          if (tutorialModal) tutorialModal.showModal();
-        });
-      }
-    } else {
-      logDebug('Modal element not found in DOM');
-    }
+  if (startGameBtn) {
+    startGameBtn.removeEventListener('click', handleStartGame);
+    startGameBtn.addEventListener('click', handleStartGame);
   }
+
+  if (tutorialBtn) {
+    tutorialBtn.removeEventListener('click', handleTutorial);
+    tutorialBtn.addEventListener('click', handleTutorial);
+  }
+
+  function handleStartGame() {
+    state.settings.cardSpeed = document.getElementById('card-speed').value;
+    state.settings.soundEffects = document.getElementById('sound-effects').value;
+    state.settings.targetScore = parseInt(document.getElementById('target-score').value);
+    state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
+    modal.close();
+    render();
+  }
+
+  function handleTutorial() {
+    modal.close();
+    document.getElementById('tutorial-modal').showModal();
+  }
+}
 
   // Provide hints by highlighting valid captures
   function provideHint() {
