@@ -36,9 +36,30 @@ export function canCapture(handCard, board) {
   return captures;
 }
 
-// Placeholder for handleCapture (align with main.js expectation)
+// Updated handleCapture to match main.js usage
 export function handleCapture(state, slot0Cards, slot1Cards) {
   if (!isValidCombo(slot0Cards, slot1Cards)) return 0;
   const capturedCards = getCapturedCards(slot0Cards, slot1Cards);
-  return calculateScore(capturedCards);
+  state.board = state.board.filter((_, i) => 
+    !slot0Cards.some(entry => entry.source === 'board' && entry.index === i) &&
+    !slot1Cards.some(entry => entry.source === 'board' && entry.index === i)
+  );
+  slot0Cards.forEach(entry => {
+    if (entry.source === 'hand') state.hands[0][entry.index] = null;
+  });
+  slot1Cards.forEach(entry => {
+    if (entry.source === 'hand') state.hands[0][entry.index] = null;
+  });
+  state.hands[0] = state.hands[0].filter(card => card !== null);
+  const score = calculateScore(capturedCards);
+  state.scores.player += score;
+  state.combination = { 0: [], 1: [] };
+  if (state.board.length === 0 && state.hands[0].length > 0) {
+    const nextCard = state.hands[0][0];
+    if (nextCard && nextCard.value && nextCard.suit) {
+      state.board.push(nextCard);
+      state.hands[0] = state.hands[0].slice(1);
+    }
+  }
+  return score;
 }
