@@ -46,12 +46,13 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     }
   }
 
-  // Show settings modal
+  // Show settings modal with debug
   function showSettingsModal() {
+    logDebug('Attempting to show settings modal');
     const modal = document.getElementById('settings-modal');
     if (modal) {
+      logDebug('Modal element found:', modal);
       modal.showModal();
-
       const startGameBtn = document.getElementById('start-game-btn');
       const tutorialBtn = document.getElementById('tutorial-btn');
       const tutorialModal = document.getElementById('tutorial-modal');
@@ -69,9 +70,11 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
 
       if (tutorialBtn) {
         tutorialBtn.addEventListener('click', () => {
-          tutorialModal.showModal();
+          if (tutorialModal) tutorialModal.showModal();
         });
       }
+    } else {
+      logDebug('Modal element not found');
     }
   }
 
@@ -398,7 +401,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
       state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
       state.combination = { 0: [], 1: [] };
       state.currentPlayer = 1;
-      checkGameEnd();
+      manageTurn(state);
       playSound('place');
       render();
       if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
@@ -444,7 +447,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     state.combination = { 0: [], 1: [] };
     state.currentPlayer = 1;
     state.draggedCard = null;
-    checkGameEnd();
+    manageTurn(state);
     render();
     playSound('place');
     if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
@@ -511,34 +514,8 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
       return;
     }
 
-    state.board = state.board.filter((_, i) => 
-      !slot0Cards.some(entry => entry.source === 'board' && entry.index === i) &&
-      !slot1Cards.some(entry => entry.source === 'board' && entry.index === i)
-    );
-    
-    slot0Cards.forEach(entry => {
-      if (entry.source === 'hand') {
-        state.hands[0][entry.index] = null;
-      }
-    });
-    slot1Cards.forEach(entry => {
-      if (entry.source === 'hand') {
-        state.hands[0][entry.index] = null;
-      }
-    });
-    
-    state.hands[0] = state.hands[0].filter(card => card !== null);
-
-    state.scores.player += scoreCards(capturedCards);
+    handleCapture(state, slot0Cards, slot1Cards); // Use the imported function
     state.combination = { 0: [], 1: [] };
-
-    if (state.board.length === 0 && state.hands[0].length > 0) {
-      const nextCard = state.hands[0][0];
-      if (nextCard && nextCard.value && nextCard.suit) {
-        state.board.push(nextCard);
-        state.hands[0] = state.hands[0].slice(1);
-      }
-    }
 
     if (state.hands[0].length > 0) {
       state.currentPlayer = 0;
@@ -639,6 +616,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
 
   // Event listeners
   document.addEventListener('DOMContentLoaded', () => {
+    logDebug('DOM fully loaded, setting up event listeners');
     const submitBtn = document.getElementById('submit-btn');
     const restartBtn = document.getElementById('restart-btn');
     const resetBtn = document.getElementById('reset-play-area-btn');
