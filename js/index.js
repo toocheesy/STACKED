@@ -9,7 +9,21 @@ import { setupAI } from './ai.js';
 
 console.log('%cSTACKED! Initialized', 'color: limegreen; font-weight: bold');
 
+// Show settings modal immediately when page loads
+function showSettingsModal() {
+  const modal = document.getElementById('settings-modal');
+  if (modal) {
+    modal.showModal();
+    console.log('Settings modal opened');
+  } else {
+    console.error('Settings modal not found');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // Show settings first
+  setTimeout(showSettingsModal, 100); // Small delay to ensure DOM is ready
+  
   const deck = createDeck();
   const shuffledDeck = shuffleDeck(deck);
   const { players, board, remainingDeck } = dealCards(shuffledDeck);

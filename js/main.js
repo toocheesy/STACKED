@@ -619,39 +619,6 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     manageTurn(state);
   }
 
-  // Event listeners
-  document.addEventListener('DOMContentLoaded', () => {
-    logDebug('DOM fully loaded, setting up event listeners');
-    const submitBtn = document.getElementById('submit-btn');
-    const restartBtn = document.getElementById('restart-btn');
-    const resetBtn = document.getElementById('reset-play-area-btn');
-    const hintBtn = document.getElementById('hint-btn');
-    
-    if (submitBtn) {
-      submitBtn.addEventListener('click', handleSubmit);
-    }
-    
-    if (restartBtn) {
-      restartBtn.addEventListener('click', () => initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainingDeck, aiConfig }));
-    }
-
-    if (resetBtn) {
-      resetBtn.addEventListener('click', handleResetPlayArea);
-    }
-
-    if (hintBtn) {
-      hintBtn.addEventListener('click', provideHint);
-    }
-
-    // Initial setup with forced modal check
-    showSettingsModal();
-    if (!document.getElementById('settings-modal').open) {
-      logDebug('Modal not open after showModal, forcing display');
-      document.getElementById('settings-modal').style.display = 'block'; // Temporary fallback
-    }
-    render();
-  });
-
   // Return for external access if needed
   return { render, handleSubmit, aiTurn, checkGameEnd };
 }

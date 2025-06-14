@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STACKED! Bug Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .column {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .column-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+        }
+        
+        .stuck { border-bottom-color: #e74c3c; }
+        .testing { border-bottom-color: #f39c12; }
+        .fixed { border-bottom-color: #27ae60; }
+        
+        .bug-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .bug-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .priority-high { border-left-color: #e74c3c; }
+        .priority-medium { border-left-color: #f39c12; }
+        .priority-low { border-left-color: #3498db; }
+        
+        .bug-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .bug-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        
+        .bug-files {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .file-tag {
+            background: #ecf0f1;
+            color: #2c3e50;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .priority-high-badge { background: #e74c3c; color: white; }
+        .priority-medium-badge { background: #f39c12; color: white; }
+        .priority-low-badge { background: #3498db; color: white; }
+        
+        .add-card {
+            background: #f8f9fa;
+            border: 2px dashed #bdc3c7;
+            color: #7f8c8d;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .add-card:hover {
+            border-color: #3498db;
+            color: #3498db;
+            background: #ebf3fd;
+        }
+        
+        .notes-section {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .notes-header {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .notes-content {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            border: 1px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎴 STACKED! Bug Tracker</h1>
+        <p>Visual workflow for debugging your card game</p>
+    </div>
+    
+    <div class="board">
+        <div class="column">
+            <div class="column-header stuck">🚫 Stuck On</div>
+            
+            <div class="bug-card priority-high">
+                <div class="bug-title">Bot Makes "Undefined" Combos</div>
+                <div class="bug-description">Bot 2 plays combos with undefined cards (e.g., "9♠ undefined"). Happens during bot turns, breaks game flow.</div>
+                <div class="bug-files">
+                    <span class="file-tag">ai.js</span>
+                    <span class="file-tag">gameLogic.js</span>
+                </div>
+                <span class="priority-badge priority-high-badge">High</span>
+            </div>
+            
+            <div class="bug-card priority-high">
+                <div class="bug-title">Game Freezes After Round Ends</div>
+                <div class="bug-description">When all players run out of cards, game freezes with "dealAfterBots" error in checkGameEnd function.</div>
+                <div class="bug-files">
+                    <span class="file-tag">turnManager.js</span>
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge priority-high-badge">High</span>
+            </div>
+            
+            <div class="bug-card priority-medium">
+                <div class="bug-title">Turn Flow Issues</div>
+                <div class="bug-description">Player can't always place card after combo, bot turns sometimes stall or skip.</div>
+                <div class="bug-files">
+                    <span class="file-tag">turnManager.js</span>
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge priority-medium-badge">Medium</span>
+            </div>
+            
+            <div class="add-card">
+                + Add New Bug
+            </div>
+        </div>
+        
+        <div class="column">
+            <div class="column-header testing">🧪 Testing Fix</div>
+            <div class="add-card">
+                Move bugs here when trying solutions
+            </div>
+        </div>
+        
+        <div class="column">
+            <div class="column-header fixed">✅ Fixed</div>
+            
+            <div class="bug-card priority-low">
+                <div class="bug-title">Submit Button Fixed</div>
+                <div class="bug-description">Submit functionality now works with recent updates - combo submission is working properly.</div>
+                <div class="bug-files">
+                    <span class="file-tag">main.js</span>
+                </div>
+                <span class="priority-badge priority-low-badge">Completed</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notes-section">
+        <div class="notes-header">🔧 Testing Notes & Attempts</div>
+        <div class="notes-content" contenteditable="true" placeholder="Track what you've tried here...">
+Example format:
+
+Bug: Bot Undefined Combos
+Attempt 1: Asked ChatGPT to add validation checks in ai.js - RESULT: Still happening
+Attempt 2: Grok suggested logging bot hand before moves - RESULT: Found undefined in bot hand
+Attempt 3: [Your next attempt here]
+
+Bug: Game Freeze
+Attempt 1: [Track your attempts here]
+        </div>
+    </div>
+    
+    <script>
+        // Simple drag and drop simulation (visual feedback)
+        const bugCards = document.querySelectorAll('.bug-card:not(.add-card)');
+        
+        bugCards.forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', '');
+                card.style.opacity = '0.5';
+            });
+            
+            card.addEventListener('dragend', (e) => {
+                card.style.opacity = '1';
+            });
+            
+            card.setAttribute('draggable', 'true');
+        });
+        
+        // Save notes to localStorage
+        const notesContent = document.querySelector('.notes-content');
+        
+        // Load saved notes
+        const savedNotes = localStorage.getItem('stackedBugNotes');
+        if (savedNotes) {
+            notesContent.textContent = savedNotes;
+        }
+        
+        // Save notes on change
+        notesContent.addEventListener('input', () => {
+            localStorage.setItem('stackedBugNotes', notesContent.textContent);
+        });
+    </script>
+</body>
+</html>
