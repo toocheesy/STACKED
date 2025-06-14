@@ -1,5 +1,5 @@
 // gameLogic.js - Modularized Logic
-import { debugLog } from './debug.js';
+import { logDebug } from './debug.js'; // Changed from debugLog to logDebug
 
 export const pointsMap = {
   'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
@@ -16,6 +16,7 @@ export function scoreCards(cards) {
 }
 
 export function processBotTurn(hand, board, difficulty) {
+  logDebug('Processing bot turn...', { hand, board, difficulty });
   // Simplified: Use a basic move since aiMove isn't defined
   const move = { handCard: hand[0] }; // Default to first card
   if (difficulty === 'beginner') {
@@ -28,7 +29,7 @@ export function processBotTurn(hand, board, difficulty) {
 }
 
 export function dealAfterBots(players, deck) {
-  debugLog('Dealing after bots...', deck.length);
+  logDebug('Dealing after bots...', deck.length);
   const numPlayers = players.length;
   const dealCount = 4;
   if (deck.length >= numPlayers * dealCount) {
@@ -36,6 +37,6 @@ export function dealAfterBots(players, deck) {
       players[i].hand = [...players[i].hand, ...deck.splice(0, dealCount)];
     }
   }
-  debugLog('Remaining deck:', deck.length);
+  logDebug('Remaining deck:', deck.length);
   return deck.length === 0;
 }
