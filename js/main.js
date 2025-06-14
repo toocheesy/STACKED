@@ -46,13 +46,18 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
     }
   }
 
-  // Show settings modal with debug
+  // Show settings modal with enhanced debug
   function showSettingsModal() {
     logDebug('Attempting to show settings modal');
     const modal = document.getElementById('settings-modal');
     if (modal) {
       logDebug('Modal element found:', modal);
-      modal.showModal();
+      try {
+        modal.showModal();
+        logDebug('Modal opened successfully');
+      } catch (e) {
+        logDebug('Error opening modal:', e);
+      }
       const startGameBtn = document.getElementById('start-game-btn');
       const tutorialBtn = document.getElementById('tutorial-btn');
       const tutorialModal = document.getElementById('tutorial-modal');
@@ -74,7 +79,7 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
         });
       }
     } else {
-      logDebug('Modal element not found');
+      logDebug('Modal element not found in DOM');
     }
   }
 
@@ -638,8 +643,12 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
       hintBtn.addEventListener('click', provideHint);
     }
 
-    // Initial setup
+    // Initial setup with forced modal check
     showSettingsModal();
+    if (!document.getElementById('settings-modal').open) {
+      logDebug('Modal not open after showModal, forcing display');
+      document.getElementById('settings-modal').style.display = 'block'; // Temporary fallback
+    }
     render();
   });
 
