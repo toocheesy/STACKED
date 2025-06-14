@@ -209,7 +209,17 @@
                 <span class="priority-badge priority-medium-badge">Medium</span>
             </div>
             
-            <div class="add-card">
+            <div class="bug-card priority-high">
+                <div class="bug-title">Settings Modal Buttons Not Working</div>
+                <div class="bug-description">Modal opens but Start Game and Tutorial buttons don't respond to clicks. No console errors.</div>
+                <div class="bug-files">
+                    <span class="file-tag">main.js</span>
+                    <span class="file-tag">index.js</span>
+                </div>
+                <span class="priority-badge priority-high-badge">High</span>
+            </div>
+            
+            <div class="add-card" onclick="addNewBug()">
                 + Add New Bug
             </div>
         </div>
@@ -280,6 +290,29 @@ Attempt 1: [Track your attempts here]
         notesContent.addEventListener('input', () => {
             localStorage.setItem('stackedBugNotes', notesContent.textContent);
         });
+        
+        // Add new bug function
+        window.addNewBug = function() {
+            const bugTitle = prompt('Bug title:');
+            const bugDescription = prompt('Bug description:');
+            if (bugTitle && bugDescription) {
+                const stuckColumn = document.querySelector('.column:first-child');
+                const addCard = stuckColumn.querySelector('.add-card');
+                
+                const newBugCard = document.createElement('div');
+                newBugCard.className = 'bug-card priority-medium';
+                newBugCard.innerHTML = `
+                    <div class="bug-title">${bugTitle}</div>
+                    <div class="bug-description">${bugDescription}</div>
+                    <div class="bug-files">
+                        <span class="file-tag">main.js</span>
+                    </div>
+                    <span class="priority-badge priority-medium-badge">Medium</span>
+                `;
+                
+                stuckColumn.insertBefore(newBugCard, addCard);
+            }
+        };
     </script>
 </body>
 </html>
