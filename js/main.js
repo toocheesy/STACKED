@@ -31,7 +31,8 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
       botDifficulty: aiConfig.difficulty || 'intermediate'
     },
     draggedCard: null,
-    selectedCard: null
+    selectedCard: null,
+    render: () => render() // Reference to render function
   };
 
   // Expose state for debug (temporary until fully modular)
@@ -45,32 +46,6 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
       sounds[type].play().catch(e => console.error('Sound play failed:', e));
     }
   }
-
-  // Show settings modal with enhanced debug
-function showSettingsModal() {
-  const modal = document.getElementById('settings-modal');
-  const startGameBtn = document.getElementById('start-game-btn');
-  const tutorialBtn = document.getElementById('tutorial-btn');
-  if (!modal.open) {
-    modal.showModal();
-  }
-  // Remove existing event listeners by cloning
-  const newStartBtn = startGameBtn.cloneNode(true);
-  startGameBtn.parentNode.replaceChild(newStartBtn, startGameBtn);
-  const newTutorialBtn = tutorialBtn.cloneNode(true);
-  tutorialBtn.parentNode.replaceChild(newTutorialBtn, tutorialBtn);
-  newStartBtn.addEventListener('click', () => {
-    state.settings.cardSpeed = document.getElementById('card-speed').value;
-    state.settings.soundEffects = document.getElementById('sound-effects').value;
-    state.settings.targetScore = parseInt(document.getElementById('target-score').value);
-    state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
-    modal.close();
-    render();
-  });
-  newTutorialBtn.addEventListener('click', () => {
-    alert('Match cards that sum to the same number! Take turns playing against bots. Highest score wins!');
-  });
-}
 
   // Provide hints by highlighting valid captures
   function provideHint() {
@@ -608,6 +583,6 @@ function showSettingsModal() {
     manageTurn(state);
   }
 
-  // Return for external access if needed
-  return { render, handleSubmit, aiTurn, checkGameEnd };
+  // Return state and methods for external access
+  return state;
 }

@@ -9,12 +9,37 @@ import { setupAI } from './ai.js';
 
 console.log('%cSTACKED! Initialized', 'color: limegreen; font-weight: bold');
 
+let gameState;
+
 // Show settings modal immediately when page loads
 function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
+  const startGameBtn = document.getElementById('start-game-btn');
+  const tutorialBtn = document.getElementById('tutorial-btn');
+  
   if (modal) {
     modal.showModal();
     console.log('Settings modal opened');
+    
+    // Remove existing listeners by cloning
+    const newStartBtn = startGameBtn.cloneNode(true);
+    startGameBtn.parentNode.replaceChild(newStartBtn, startGameBtn);
+    const newTutorialBtn = tutorialBtn.cloneNode(true);
+    tutorialBtn.parentNode.replaceChild(newTutorialBtn, tutorialBtn);
+    
+    newStartBtn.addEventListener('click', () => {
+      gameState.settings.cardSpeed = document.getElementById('card-speed').value;
+      gameState.settings.soundEffects = document.getElementById('sound-effects').value;
+      gameState.settings.targetScore = parseInt(document.getElementById('target-score').value);
+      gameState.settings.botDifficulty = document.getElementById('bot-difficulty').value;
+      modal.close();
+      gameState.render();
+    });
+    
+    newTutorialBtn.addEventListener('click', () => {
+      alert('Match cards that sum to the same number! Take turns playing against bots. Highest score wins!');
+      modal.close();
+    });
   } else {
     console.error('Settings modal not found');
   }
@@ -33,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const aiConfig = { difficulty: 'beginner' };
   setupAI(aiConfig);
 
-  initializeGame({
+  gameState = initializeGame({
     playerHand,
     bot1Hand,
     bot2Hand,
