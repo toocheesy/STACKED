@@ -47,36 +47,29 @@ export function initializeGame({ playerHand, bot1Hand, bot2Hand, board, remainin
   }
 
   // Show settings modal with enhanced debug
-  function showSettingsModal() {
+function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
-  modal.showModal();
-  
   const startGameBtn = document.getElementById('start-game-btn');
   const tutorialBtn = document.getElementById('tutorial-btn');
-
-  if (startGameBtn) {
-    startGameBtn.removeEventListener('click', handleStartGame);
-    startGameBtn.addEventListener('click', handleStartGame);
+  if (!modal.open) {
+    modal.showModal();
   }
-
-  if (tutorialBtn) {
-    tutorialBtn.removeEventListener('click', handleTutorial);
-    tutorialBtn.addEventListener('click', handleTutorial);
-  }
-
-  function handleStartGame() {
+  // Remove existing event listeners by cloning
+  const newStartBtn = startGameBtn.cloneNode(true);
+  startGameBtn.parentNode.replaceChild(newStartBtn, startGameBtn);
+  const newTutorialBtn = tutorialBtn.cloneNode(true);
+  tutorialBtn.parentNode.replaceChild(newTutorialBtn, tutorialBtn);
+  newStartBtn.addEventListener('click', () => {
     state.settings.cardSpeed = document.getElementById('card-speed').value;
     state.settings.soundEffects = document.getElementById('sound-effects').value;
     state.settings.targetScore = parseInt(document.getElementById('target-score').value);
     state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
     modal.close();
     render();
-  }
-
-  function handleTutorial() {
-    modal.close();
-    document.getElementById('tutorial-modal').showModal();
-  }
+  });
+  newTutorialBtn.addEventListener('click', () => {
+    alert('Match cards that sum to the same number! Take turns playing against bots. Highest score wins!');
+  });
 }
 
   // Provide hints by highlighting valid captures
