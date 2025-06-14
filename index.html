@@ -62,6 +62,43 @@
       </div>
     </dialog>
 
+    <!-- Tutorial Modal -->
+    <dialog id="tutorial-modal">
+      <div class="modal-content">
+        <h2>How to Play STACKED!</h2>
+        <div class="tutorial-content">
+          <p>Welcome to <strong>STACKED!</strong>, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
+          <h3>Objective:</h3>
+          <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
+          <h3>How to Play:</h3>
+          <ul>
+            <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
+            <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
+              <ul>
+                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
+                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value. All cards are captured.</li>
+              </ul>
+            </li>
+            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
+            <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
+            <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
+            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
+            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
+          </ul>
+          <h3>Tips:</h3>
+          <ul>
+            <li>Plan your combos carefully to maximize points.</li>
+            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
+            <li>Secure J, Q, K matches quickly—they’re valuable but can’t be used in sums!</li>
+          </ul>
+        </div>
+        <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
+      </div>
+    </dialog>
+
+    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
+
+    <div class="table">
       <!-- Scores -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
@@ -98,6 +135,7 @@
       Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
     </div>
   </div>
+
   <script type="module" src="js/index.js"></script>
 </body>
 </html>
