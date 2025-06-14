@@ -681,7 +681,7 @@ if (!move || !move.action) {
         source: 'board',
         index: state.board.findIndex(bc => bc.id === card.id),
         card
-      }};
+      })) : [];
       state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
 
       render();
