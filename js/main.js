@@ -661,8 +661,7 @@ function aiTurn() {
     render();
     playSound('turnChange');
     if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      setTimeout(aiTurn, 1000);
-    }
+      scheduleNextBotTurn()
     return;
   }
 
@@ -704,9 +703,7 @@ function aiTurn() {
         render();
         playSound('capture');
         console.log(`🤖 BOT ${playerIndex} TURN END - Action: capture`);
-        if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-          setTimeout(aiTurn, 1000);
-        }
+        scheduleNextBotTurn();
       }, 1000);
     }
 
@@ -728,8 +725,7 @@ function aiTurn() {
       playSound('place');
       console.log(`🤖 BOT ${playerIndex} TURN END - Action: place`);
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-        setTimeout(aiTurn, 1000);
-      }
+        scheduleNextBotTurn()
     }
   }, 1000);
 }
