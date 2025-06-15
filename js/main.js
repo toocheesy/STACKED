@@ -640,12 +640,15 @@ function handleDrop(e, slot) {
     state.combination[1] = [];
   }
   state.combination[slot].push({
-    source: state.draggedCard.source,
-    index: state.draggedCard.index,
-    card: state.draggedCard.card
-  });
+  source: state.draggedCard.source,
+  index: state.draggedCard.index,
+  card: state.draggedCard.card
+});
 
-  state.draggedCard = null;
+console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
+console.log(`🔧 COMBINATION STATE:`, state.combination);
+
+state.draggedCard = null;
   render();
   playSound('place');
 }
