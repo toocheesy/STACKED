@@ -477,15 +477,13 @@ function handleTouchDrop(e, targetType, data) {
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
     state.combination = { 0: [], 1: [] };
     state.currentPlayer = 1;
-    checkGameEnd();
+checkGameEnd();
     playSound('place');
     render();
-   if (state.currentPlayer !== 0) {
-  setTimeout(aiTurn, 1000);
-}
-  }
-
-} else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
+    if (state.currentPlayer !== 0) {
+      setTimeout(aiTurn, 1000);
+    }
+  } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
     // Return to original position
   }
 
