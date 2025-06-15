@@ -220,8 +220,9 @@ if (comboAreaEl) {
 
     // Render Pair Play Area (Slot 2)
     slot2El.innerHTML = '';
-    const slot2Cards = state.combination[2];
-    if (slot2Cards.length > 0) {
+    console.log('🔧 COMBINATION STATE CHECK:', state.combination);
+const slot2Cards = state.combination[2] || [];
+if (slot2Cards.length > 0) {
       slot2Cards.forEach((comboEntry, comboIndex) => {
         const card = comboEntry.card;
         const cardEl = document.createElement('div');
@@ -672,7 +673,7 @@ function handleTouchDrop(e, targetType, data) {
     const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
-    state.combination = { 0: [], 1: [] };
+    state.combination = { 0: [], 1: [], 2: [] };
     state.currentPlayer = 1;
 checkGameEnd();
     playSound('place');
@@ -721,7 +722,7 @@ function handlePlaceDrop(e) {
 
   state.board.push(handCard);
   state.hands[0] = state.hands[0].filter((_, i) => i !== handIndex);
-  state.combination = { 0: [], 1: [] };
+  state.combination = { 0: [], 1: [], 2: [] };
   state.currentPlayer = 1;
   state.draggedCard = null;
   checkGameEnd();
@@ -752,7 +753,7 @@ function handleResetPlayArea() {
     }
   });
 
-  state.combination = { 0: [], 1: [] };
+  state.combination = { 0: [], 1: [], 2: [] };
   render();
 }
 
@@ -819,7 +820,7 @@ function handleSubmit() {
     return cards.length * 5; // Fallback scoring
   };
   state.scores.player += scoreFunction(capturedCards);
-  state.combination = { 0: [], 1: [] };
+  state.combination = { 0: [], 1: [], 2: [] };
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -916,7 +917,7 @@ function aiTurn() {
         );
         state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
         state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
-        state.combination = { 0: [], 1: [] };
+        state.combination = { 0: [], 1: [], 2: [] };
 
         state.currentPlayer = (playerIndex + 1) % 3;
         checkGameEnd();
@@ -937,7 +938,7 @@ function aiTurn() {
 
       state.board.push(handCard);
       state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-      state.combination = { 0: [], 1: [] };
+      state.combination = { 0: [], 1: [], 2: [] };
 
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
