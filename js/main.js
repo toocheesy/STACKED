@@ -860,7 +860,7 @@ function scheduleNextBotTurn() {
   }
 }
 
-// function aiTurn() {
+ function aiTurn() {
   if (state.currentPlayer === 0) {
     console.error('🚨 CRITICAL: AI called for player turn!');
     return;
