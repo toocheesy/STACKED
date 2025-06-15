@@ -644,8 +644,7 @@ function handleSubmit() {
     if (state.currentPlayer !== 0) {
   setTimeout(aiTurn, 1000);
 }
-}
-  }
+
   render();
   playSound('capture');
 }
