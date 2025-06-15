@@ -652,7 +652,7 @@ function scheduleNextBotTurn() {
     botTurnInProgress = true;
     setTimeout(() => {
       botTurnInProgress = false;
-      aiTurn();
+      scheduleNextBotTurn();
     }, 1000);
   }
 }
