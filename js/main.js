@@ -7,7 +7,7 @@ let state = {
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: { 0: [], 1: [] }, // Slot 0: Play Area, Slot 1: Principal Match
+  combination: { 0: [], 1: [], 2: [] }, // Slot 0: Sum, Slot 1: Principal, Slot 2: Pair
   currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
@@ -60,7 +60,7 @@ function initGame() {
   });
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  state.combination = { 0: [], 1: [] };
+  state.combination = { 0: [], 1: [], 2: [] };
   state.draggedCard = null;
   state.selectedCard = null;
   render();
