@@ -797,4 +797,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Start the game
 initGame();
-}
