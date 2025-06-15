@@ -216,38 +216,44 @@ function render() {
       }
 
       // Validation using global valueMap from gameLogic.js
-      let isValid = false;
-      let captureType = "";
-      let captureDetails = "";
-      if (slot0Cards.length > 0 && slot1Cards.length === 1) {
-        const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
-        const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
-        if (hasHandCard && hasBoardCard) {
-          const principalValue = parseInt(slot1Cards[0].card.value) || (window.valueMap && window.valueMap[slot1Cards[0].card.value]) || 1;
-          const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1);
-          const totalSum = sumValues.reduce((a, b) => a + b, 0);
-          if (totalSum === principalValue) {
-            isValid = true;
-            captureType = "Sum Capture";
-            captureDetails = `${sumValues.join(' + ')} = ${principalValue}.`;
-          } else if (slot0Cards.length === 1 && slot0Cards[0].card.value === slot1Cards[0].card.value) {
-            isValid = true;
-            captureType = "Pair Capture";
-            captureDetails = `Matching ${slot0Cards[0].card.value}'s.`;
-          }
-        }
-        captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Sum must match Principal Match value.'}`;
-      } else {
-        captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card involved.";
-      }
+let isValid = false;
+let captureType = "";
+let captureDetails = "";
 
-      if (isValid) {
-        slot0El.classList.add('valid-combo');
-        slot1El.classList.add('valid-combo');
-      } else {
-        slot0El.classList.remove('valid-combo');
-        slot1El.classList.remove('valid-combo');
-      }
+if (slot0Cards.length > 0 && slot1Cards.length === 1) {
+  const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+  const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+
+  if (hasHandCard && hasBoardCard) {
+    const principalValue = parseInt(slot1Cards[0].card.value) || (window.valueMap && window.valueMap[slot1Cards[0].card.value]) || 1;
+    const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1);
+    const totalSum = sumValues.reduce((a, b) => a + b, 0);
+    const allMatch = [...slot0Cards, slot1Cards[0]].every(entry => entry.card.value === slot1Cards[0].card.value);
+
+    if (totalSum === principalValue) {
+      isValid = true;
+      captureType = "Sum Capture";
+      captureDetails = `${sumValues.join(' + ')} = ${principalValue}.`;
+    } else if (allMatch && slot0Cards.length + 1 >= 2) {
+      isValid = true;
+      captureType = "Pair Capture";
+      captureDetails = `Captured ${slot0Cards.length + 1} cards all matching value ${slot1Cards[0].card.value}.`;
+    }
+  }
+
+  captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Sum must match Principal Match value or all cards must match.'}`;
+} else {
+  captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card involved.";
+}
+
+if (isValid) {
+  slot0El.classList.add('valid-combo');
+  slot1El.classList.add('valid-combo');
+} else {
+  slot0El.classList.remove('valid-combo');
+  slot1El.classList.remove('valid-combo');
+}
+
 
       slot0El.addEventListener('dragover', (e) => e.preventDefault());
       slot0El.addEventListener('drop', (e) => handleDrop(e, 0));
