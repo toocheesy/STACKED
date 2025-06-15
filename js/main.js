@@ -639,12 +639,12 @@ function handleSubmit() {
   } else {
     state.currentPlayer = 1;
     if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-    if (state.currentPlayer !== 0) {
+if (state.currentPlayer !== 0) {
   setTimeout(aiTurn, 1000);
 }
-
-  render();
-  playSound('capture');
+}  // ADD THIS CLOSING BRACKET HERE
+render();
+playSound('capture');
 }
 
 // Add this helper function to prevent double bot turns
