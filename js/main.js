@@ -446,13 +446,11 @@ function handleSubmit() {
   render();
   playSound('capture');
 }
-    }
-  }
 
-  // Update capture type display
-  const captureTypeEl = document.getElementById('capture-type');
-  if (captureTypeEl) {
-    captureTypeEl.textContent = captureTypeMessage;
+// Update capture type display
+const captureTypeEl = document.getElementById('capture-type');
+if (captureTypeEl) {
+  captureTypeEl.textContent = captureTypeMessage;
   }
 
   const boardEl = document.getElementById('board');
