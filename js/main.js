@@ -328,9 +328,11 @@ function handleDrop(e, slot) {
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
   }
 
-  if (slot === 1 && state.combination[1].length > 0) {
-    state.combination[1] = [];
-  }
+  // Only limit Principal Match (slot 1) to one card
+if (slot === 1 && state.combination[1].length > 0) {
+  state.combination[1] = [];
+}
+// Allow multiple cards in Sum (slot 0) and Pair (slot 2) areas
 
   state.combination[slot].push({
     source: state.draggedCard.source,
@@ -350,9 +352,11 @@ function handleTouchDrop(e, targetType, data) {
 
   if (targetType === 'combo') {
     const slot = data;
-    if (slot === 1 && state.combination[1].length > 0) {
-      state.combination[1] = [];
-    }
+    // Only limit Principal Match (slot 1) to one card
+if (slot === 1 && state.combination[1].length > 0) {
+  state.combination[1] = [];
+}
+// Allow multiple cards in Sum (slot 0) and Pair (slot 2) areas
     state.combination[slot].push({
       source: state.selectedCard.source,
       index: state.selectedCard.data,
