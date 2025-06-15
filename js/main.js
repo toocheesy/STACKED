@@ -641,6 +641,8 @@ function handleSubmit() {
 
 // Corrected aiTurn function – one action per bot per turn
 function aiTurn() {
+  console.log(`🤖 BOT ${state.currentPlayer} TURN START - Hand: ${state.hands[state.currentPlayer].length} cards`);
+  
   const playerIndex = state.currentPlayer;
   const messageEl = document.getElementById('message');
 
@@ -692,6 +694,7 @@ function aiTurn() {
         checkGameEnd();
         render();
         playSound('capture');
+        console.log(`🤖 BOT ${playerIndex} TURN END - Action: capture`);
         if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
           setTimeout(aiTurn, 1000);
         }
@@ -714,6 +717,7 @@ function aiTurn() {
       checkGameEnd();
       render();
       playSound('place');
+      console.log(`🤖 BOT ${playerIndex} TURN END - Action: place`);
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
         setTimeout(aiTurn, 1000);
       }
