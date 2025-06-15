@@ -495,8 +495,10 @@ if (captureTypeEl) {
       const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      if (!card || !card.value || !card.suit || state.combination[0].some(entry => entry.source === 'hand' && entry.index === index) || state.combination[1].some(entry => entry.source === 'hand' && entry.index === index)) {
-        cardEl.className = 'card';
+if (!card || !card.value || !card.suit || 
+    state.combination[0].some(entry => entry.source === 'hand' && entry.index === index) || 
+    state.combination[1].some(entry => entry.source === 'hand' && entry.index === index) || 
+    state.combination[2].some(entry => entry.source === 'hand' && entry.index === index)) {        cardEl.className = 'card';
         cardEl.style.backgroundColor = '#f0f0f0';
         cardEl.style.border = '2px dashed #ccc';
         cardEl.textContent = '';
