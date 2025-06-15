@@ -894,7 +894,8 @@ function scheduleNextBotTurn() {
           card
         }));
         state.combination[1] = [{ source: 'hand', index: handIndex, card: move.handCard }];
-        
+        console.log(`🎯 BOT COMBO: Slot0=${state.combination[0].length} cards, Slot1=${state.combination[1].length} cards`);
+render();
         setTimeout(() => {
           const captured = [...state.combination[0].map(c => c.card), move.handCard];
           state.board = state.board.filter((_, i) =>
