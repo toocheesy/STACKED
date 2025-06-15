@@ -19,6 +19,8 @@ let state = {
   selectedCard: null
 };
 
+let botTurnInProgress = false;
+
 // Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
 const sounds = {
   capture: new Audio('data:audio/mp3;base64,...'), // Replace with actual base64
@@ -641,9 +643,17 @@ function handleSubmit() {
 
 // Add this helper function to prevent double bot turns
 function scheduleNextBotTurn() {
-  console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}`);
+  console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}, InProgress: ${botTurnInProgress}`);
+  if (botTurnInProgress) {
+    console.log('🚫 BOT TURN ALREADY SCHEDULED - SKIPPING');
+    return;
+  }
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
-    setTimeout(aiTurn, 1000);
+    botTurnInProgress = true;
+    setTimeout(() => {
+      botTurnInProgress = false;
+      aiTurn();
+    }, 1000);
   }
 }
 
@@ -654,7 +664,7 @@ function aiTurn() {
     console.error('🚨 CRITICAL: AI called for player turn!');
     return;
   }
-  
+
   console.log(`🔍 AITTURN CALLED - CurrentPlayer: ${state.currentPlayer}, Stack:`, new Error().stack.split('\n')[2]);
   console.log(`🤖 BOT ${state.currentPlayer} TURN START - Hand: ${state.hands[state.currentPlayer].length} cards`);
   
