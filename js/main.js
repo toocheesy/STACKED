@@ -860,90 +860,74 @@ function scheduleNextBotTurn() {
   }
 }
 
-// Corrected aiTurn function – one action per bot per turn
-function aiTurn() {
-   // SAFETY CHECK: Never let AI play as player
+// function aiTurn() {
   if (state.currentPlayer === 0) {
     console.error('🚨 CRITICAL: AI called for player turn!');
     return;
   }
 
-  console.log(`🔍 AITTURN CALLED - CurrentPlayer: ${state.currentPlayer}, Stack:`, new Error().stack.split('\n')[2]);
-  console.log(`🤖 BOT ${state.currentPlayer} TURN START - Hand: ${state.hands[state.currentPlayer].length} cards`);
-  
   const playerIndex = state.currentPlayer;
-  const messageEl = document.getElementById('message');
-
+  
   if (state.hands[playerIndex].length === 0) {
     state.currentPlayer = (playerIndex + 1) % 3;
     checkGameEnd();
     render();
     playSound('turnChange');
     if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      scheduleNextBotTurn()
+      scheduleNextBotTurn();
     }
     return;
   }
 
+  console.log(`🤖 BOT ${playerIndex} TURN - Hand: ${state.hands[playerIndex].length} cards`);
+  
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-    if (!move || !move.action) {
-      state.currentPlayer = (playerIndex + 1) % 3;
-      render();
-      return;
-    }
-
-    if (move.action === 'capture') {
+    
+    if (move && move.action === 'capture') {
+      // Handle capture
       const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
-      if (handIndex === -1) {
-        state.currentPlayer = (playerIndex + 1) % 3;
-        render();
+      if (handIndex !== -1) {
+        state.combination[0] = move.capture.targets.map(card => ({
+          source: 'board',
+          index: state.board.findIndex(bc => bc.id === card.id),
+          card
+        }));
+        state.combination[1] = [{ source: 'hand', index: handIndex, card: move.handCard }];
+        
+        setTimeout(() => {
+          const captured = [...state.combination[0].map(c => c.card), move.handCard];
+          state.board = state.board.filter((_, i) =>
+            !state.combination[0].some(entry => entry.index === i)
+          );
+          state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
+          state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
+          state.combination = { 0: [], 1: [], 2: [] };
+          
+          console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
+          render();
+          playSound('capture');
+          
+          // Continue playing - check for more captures or place to end turn
+          setTimeout(aiTurn, 800);
+        }, 1000);
         return;
       }
-
-      state.combination[0] = move.capture.targets.map(card => ({
-        source: 'board',
-        index: state.board.findIndex(bc => bc.id === card.id),
-        card
-      }));
-      state.combination[1] = [{ source: 'hand', index: handIndex, card: move.handCard }];
-      render();
-
-      setTimeout(() => {
-        const captured = [...state.combination[0].map(c => c.card), move.handCard];
-        state.board = state.board.filter((_, i) =>
-          !state.combination[0].some(entry => entry.index === i)
-        );
-        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
-        state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
-        state.combination = { 0: [], 1: [], 2: [] };
-
-        state.currentPlayer = (playerIndex + 1) % 3;
-        checkGameEnd();
-        render();
-        playSound('capture');
-        console.log(`🤖 BOT ${playerIndex} TURN END - Action: capture`);
-        scheduleNextBotTurn();
-      }, 1000);
     }
-
-    else if (move.action === 'place') {
-      const handCard = move.handCard;
-      if (!handCard) {
-        state.currentPlayer = (playerIndex + 1) % 3;
-        render();
-        return;
-      }
-
+    
+    // Either no capture available or chose to place - end turn
+    const handCard = move ? move.handCard : state.hands[playerIndex][0];
+    if (handCard) {
       state.board.push(handCard);
       state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
       state.combination = { 0: [], 1: [], 2: [] };
-
+      
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
       render();
       playSound('place');
-      console.log(`🤖 BOT ${playerIndex} TURN END - Action: place`);
+      console.log(`🤖 BOT ${playerIndex} TURN END - placed card`);
+      
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
         scheduleNextBotTurn();
       }
