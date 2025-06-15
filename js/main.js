@@ -649,6 +649,12 @@ function scheduleNextBotTurn() {
 
 // Corrected aiTurn function – one action per bot per turn
 function aiTurn() {
+   // SAFETY CHECK: Never let AI play as player
+  if (state.currentPlayer === 0) {
+    console.error('🚨 CRITICAL: AI called for player turn!');
+    return;
+  }
+  
   console.log(`🔍 AITTURN CALLED - CurrentPlayer: ${state.currentPlayer}, Stack:`, new Error().stack.split('\n')[2]);
   console.log(`🤖 BOT ${state.currentPlayer} TURN START - Hand: ${state.hands[state.currentPlayer].length} cards`);
   
