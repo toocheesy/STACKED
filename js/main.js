@@ -373,7 +373,7 @@ function render() {
       if (state.hands[0].length === 0) {
         messageEl.textContent = "You're out of cards! Bots will finish the round.";
         state.currentPlayer = 1;
-        setTimeout(aiTurn, 1000);
+        scheduleNextBotTurn();
       } else if (state.combination[0].length === 0 && state.combination[1].length === 0) {
         messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
       } else {
@@ -481,7 +481,7 @@ checkGameEnd();
     playSound('place');
     render();
     if (state.currentPlayer !== 0) {
-      setTimeout(aiTurn, 1000);
+      scheduleNextBotTurn();
     }
   } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
     // Return to original position
@@ -531,7 +531,7 @@ function handlePlaceDrop(e) {
   render();
   playSound('place');
   if (state.currentPlayer !== 0) {
-  setTimeout(aiTurn, 1000);
+  scheduleNextBotTurn();
 }
 }
 
@@ -640,7 +640,7 @@ function handleSubmit() {
     state.currentPlayer = 1;
     if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
 if (state.currentPlayer !== 0) {
-  setTimeout(aiTurn, 1000);
+  scheduleNextBotTurn();
 }
 }  // ADD THIS CLOSING BRACKET HERE
 render();
