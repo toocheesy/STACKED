@@ -909,7 +909,12 @@ function scheduleNextBotTurn() {
           playSound('capture');
           
           // Continue playing - check for more captures or place to end turn
-          setTimeout(aiTurn, 800);
+          setTimeout(() => {
+  // Check if bot still has cards and there are valid captures
+  if (state.hands[playerIndex].length > 0) {
+    aiTurn();
+  }
+}, 2000);
         }, 1000);
         return;
       }
