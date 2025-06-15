@@ -161,106 +161,291 @@ function render() {
   }
 
   const comboAreaEl = document.getElementById('combination-area');
-  let captureTypeMessage = "No cards in play areas.";
-  if (comboAreaEl) {
-    const slot0El = comboAreaEl.querySelector('[data-slot="0"]');
-    const slot1El = comboAreaEl.querySelector('[data-slot="1"]');
-    if (slot0El && slot1El) {
-      // Render Play Area (Slot 0)
-      slot0El.innerHTML = '';
-      const slot0Cards = state.combination[0];
-      if (slot0Cards.length > 0) {
-        slot0Cards.forEach((comboEntry, comboIndex) => {
-          const card = comboEntry.card;
-          const cardEl = document.createElement('div');
-          cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
-          cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
-          cardEl.style.position = 'absolute';
-          cardEl.style.top = `${comboIndex * 20}px`;
-          cardEl.setAttribute('draggable', 'true');
-          cardEl.setAttribute('data-slot', 0);
-          cardEl.setAttribute('data-combo-index', comboIndex);
-          cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 0, comboIndex));
-          cardEl.addEventListener('dragend', handleDragEnd);
-          cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 0, comboIndex }));
-          cardEl.addEventListener('touchend', handleTouchEnd);
-          slot0El.appendChild(cardEl);
-        });
-        slot0El.style.height = `${110 + (slot0Cards.length - 1) * 20}px`;
-      } else {
-        slot0El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
-        slot0El.style.border = '2px dashed #ccc';
-      }
-
-      // Render Principal Match Area (Slot 1)
-      slot1El.innerHTML = '';
-      const slot1Cards = state.combination[1];
-      if (slot1Cards.length > 0) {
-        const principalCard = slot1Cards[0].card; // Only one card allowed in principal match
+let captureTypeMessage = "No cards in play areas.";
+if (comboAreaEl) {
+  const slot0El = comboAreaEl.querySelector('[data-slot="0"]'); // Sum Play Area
+  const slot1El = comboAreaEl.querySelector('[data-slot="1"]'); // Principal Match
+  const slot2El = comboAreaEl.querySelector('[data-slot="2"]'); // Pair Play Area
+  if (slot0El && slot1El && slot2El) {
+    // Render Sum Play Area (Slot 0)
+    slot0El.innerHTML = '';
+    const slot0Cards = state.combination[0];
+    if (slot0Cards.length > 0) {
+      slot0Cards.forEach((comboEntry, comboIndex) => {
+        const card = comboEntry.card;
         const cardEl = document.createElement('div');
-        cardEl.className = `card ${principalCard.suit === 'Hearts' || principalCard.suit === 'Diamonds' ? 'red' : ''}`;
-        cardEl.textContent = `${principalCard.value}${suitSymbols[principalCard.suit]}`;
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
         cardEl.style.position = 'absolute';
+        cardEl.style.top = `${comboIndex * 20}px`;
         cardEl.setAttribute('draggable', 'true');
-        cardEl.setAttribute('data-slot', 1);
-        cardEl.setAttribute('data-combo-index', 0);
-        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 1, 0));
+        cardEl.setAttribute('data-slot', '0');
+        cardEl.setAttribute('data-combo-index', comboIndex);
+        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 0, comboIndex));
         cardEl.addEventListener('dragend', handleDragEnd);
-        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 1, comboIndex: 0 }));
+        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 0, comboIndex }));
         cardEl.addEventListener('touchend', handleTouchEnd);
-        slot1El.appendChild(cardEl);
-        slot1El.style.height = '110px';
-      } else {
-        slot1El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
-        slot1El.style.border = '2px dashed #ccc';
+        slot0El.appendChild(cardEl);
+      });
+      slot0El.style.height = `${110 + (slot0Cards.length - 1) * 20}px`;
+    } else {
+      slot0El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+      slot0El.style.border = '2px dashed #ccc';
+      slot0El.textContent = 'Sum Cards (e.g., 3 + 5)';
+    }
+
+    // Render Principal Match Area (Slot 1)
+    slot1El.innerHTML = '';
+    const slot1Cards = state.combination[1];
+    if (slot1Cards.length > 0) {
+      const principalCard = slot1Cards[0].card;
+      const cardEl = document.createElement('div');
+      cardEl.className = `card ${principalCard.suit === 'Hearts' || principalCard.suit === 'Diamonds' ? 'red' : ''}`;
+      cardEl.textContent = `${principalCard.value}${suitSymbols[principalCard.suit]}`;
+      cardEl.style.position = 'absolute';
+      cardEl.setAttribute('draggable', 'true');
+      cardEl.setAttribute('data-slot', '1');
+      cardEl.setAttribute('data-combo-index', '0');
+      cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 1, 0));
+      cardEl.addEventListener('dragend', handleDragEnd);
+      cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 1, comboIndex: 0 }));
+      cardEl.addEventListener('touchend', handleTouchEnd);
+      slot1El.appendChild(cardEl);
+      slot1El.style.height = '110px';
+    } else {
+      slot1El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+      slot1El.style.border = '2px dashed #ccc';
+      slot1El.textContent = 'Target Card';
+    }
+
+    // Render Pair Play Area (Slot 2)
+    slot2El.innerHTML = '';
+    const slot2Cards = state.combination[2];
+    if (slot2Cards.length > 0) {
+      slot2Cards.forEach((comboEntry, comboIndex) => {
+        const card = comboEntry.card;
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.style.position = 'absolute';
+        cardEl.style.top = `${comboIndex * 20}px`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-slot', '2');
+        cardEl.setAttribute('data-combo-index', comboIndex);
+        cardEl.addEventListener('dragstart', (e) => handleDragStartCombo(e, 2, comboIndex));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: 2, comboIndex }));
+        cardEl.addEventListener('touchend', handleTouchEnd);
+        slot2El.appendChild(cardEl);
+      });
+      slot2El.style.height = `${110 + (slot2Cards.length - 1) * 20}px`;
+    } else {
+      slot2El.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
+      slot2El.style.border = '2px dashed #ccc';
+      slot2El.textContent = 'Matching Cards (e.g., 8♠ 8♦)';
+    }
+
+    // Validation
+    let isValid = false;
+    let captureType = "";
+    let captureDetails = "";
+
+    if (slot1Cards.length === 1) {
+      const principalValue = parseInt(slot1Cards[0].card.value) || (window.valueMap && window.valueMap[slot1Cards[0].card.value]) || 1;
+      const hasHandCardSum = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+      const hasBoardCardSum = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+      const hasHandCardPair = slot2Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+      const hasBoardCardPair = slot2Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+
+      // Sum Capture Validation
+      if (slot0Cards.length > 0 && hasHandCardSum && hasBoardCardSum && slot2Cards.length === 0) {
+        const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1);
+        const totalSum = sumValues.reduce((a, b) => a + b, 0);
+        if (totalSum === principalValue) {
+          isValid = true;
+          captureType = "Sum Capture";
+          captureDetails = `${sumValues.join(' + ')} = ${principalValue}.`;
+        }
       }
 
-      // Validation using global valueMap from gameLogic.js
-let isValid = false;
-let captureType = "";
-let captureDetails = "";
+      // Pair Capture Validation
+      if (slot2Cards.length > 0 && hasHandCardPair && hasBoardCardPair && slot0Cards.length === 0) {
+        const allMatch = slot2Cards.every(entry => entry.card.value === slot1Cards[0].card.value);
+        if (allMatch) {
+          isValid = true;
+          captureType = "Pair Capture";
+          captureDetails = `Captured ${slot2Cards.length + 1} cards all matching value ${slot1Cards[0].card.value}.`;
+        }
+      }
 
-if (slot0Cards.length > 0 && slot1Cards.length === 1) {
-  const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
-  const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+      if (slot0Cards.length > 0 && slot2Cards.length > 0) {
+        captureTypeMessage = "Invalid: Use only Sum Play Area or Pair Play Area, not both.";
+      } else if (!isValid) {
+        captureTypeMessage = slot0Cards.length > 0 
+          ? "Invalid: Sum does not match Principal Match value."
+          : slot2Cards.length > 0 
+            ? "Invalid: Cards must match Principal Match value."
+            : "Invalid: Add cards to Sum or Pair Play Area.";
+      } else {
+        captureTypeMessage = `${captureType}: ${captureDetails}`;
+      }
+    } else {
+      captureTypeMessage = "Invalid: Principal Match must have exactly one card.";
+    }
 
-  if (hasHandCard && hasBoardCard) {
-    const principalValue = parseInt(slot1Cards[0].card.value) || (window.valueMap && window.valueMap[slot1Cards[0].card.value]) || 1;
-    const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1);
+    if (isValid) {
+      if (slot0Cards.length > 0) {
+        slot0El.classList.add('valid-combo');
+        slot1El.classList.add('valid-combo');
+      } else {
+        slot2El.classList.add('valid-combo');
+        slot1El.classList.add('valid-combo');
+      }
+    } else {
+      slot0El.classList.remove('valid-combo');
+      slot1El.classList.remove('valid-combo');
+      slot2El.classList.remove('valid-combo');
+    }
+
+    // Add event listeners
+    [slot0El, slot1El, slot2El].forEach((el, index) => {
+      el.addEventListener('dragover', (e) => e.preventDefault());
+      el.addEventListener('drop', (e) => handleDrop(e, index));
+      el.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', index));
+    });
+  }
+}
+
+// Update state initialization in initializeGame
+state.combination = { 0: [], 1: [], 2: [] }; // Slot 0: Sum, Slot 1: Principal, Slot 2: Pair
+
+// Update handleDrop function
+function handleDrop(e, slot) {
+  e.preventDefault();
+  if (state.currentPlayer !== 0 || !state.draggedCard) return;
+
+  if (state.draggedCard.slot !== undefined) {
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+  }
+
+  if (slot === 1 && state.combination[1].length > 0) {
+    state.combination[1] = [];
+  }
+
+  state.combination[slot].push({
+    source: state.draggedCard.source,
+    index: state.draggedCard.index,
+    card: state.draggedCard.card
+  });
+
+  state.draggedCard = null;
+  render();
+  playSound('place');
+}
+
+// Update handleTouchDrop function
+function handleTouchDrop(e, targetType, data) {
+  e.preventDefault();
+  if (state.currentPlayer !== 0 || !state.selectedCard) return;
+
+  if (targetType === 'combo') {
+    const slot = data;
+    if (slot === 1 && state.combination[1].length > 0) {
+      state.combination[1] = [];
+    }
+    state.combination[slot].push({
+      source: state.selectedCard.source,
+      index: state.selectedCard.data,
+      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.data] : state.board[state.selectedCard.data]
+    });
+  } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
+    const handCard = state.hands[0][state.selectedCard.data];
+    state.board.push(handCard);
+    state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
+    state.combination = { 0: [], 1: [], 2: [] };
+    state.currentPlayer = 1;
+    manageTurn(state);
+    playSound('place');
+    render();
+    if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+  }
+
+  state.selectedCard.element.classList.remove('selected');
+  state.selectedCard.element.style.transform = 'scale(1)';
+  state.selectedCard = null;
+  render();
+  playSound('place');
+}
+
+// Update handleSubmit function
+function handleSubmit() {
+  if (state.currentPlayer !== 0 || (state.combination[0].length === 0 && state.combination[2].length === 0)) return;
+
+  const slot0Cards = state.combination[0]; // Sum Play Area
+  const slot1Cards = state.combination[1]; // Principal Match
+  const slot2Cards = state.combination[2]; // Pair Play Area
+  const messageEl = document.getElementById('message');
+
+  if (slot1Cards.length !== 1) {
+    if (messageEl) messageEl.textContent = "Invalid: Principal Match must have exactly one card.";
+    return;
+  }
+
+  if (slot0Cards.length > 0 && slot2Cards.length > 0) {
+    if (messageEl) messageEl.textContent = "Invalid: Use only Sum Play Area or Pair Play Area, not both.";
+    return;
+  }
+
+  const hasHandCardSum = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+  const hasBoardCardSum = slot0Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+  const hasHandCardPair = slot2Cards.some(entry => entry.source === 'hand') || slot1Cards[0].source === 'hand';
+  const hasBoardCardPair = slot2Cards.some(entry => entry.source === 'board') || slot1Cards[0].source === 'board';
+
+  const principalValue = parseInt(slot1Cards[0].card.value) || (valueMap && valueMap[slot1Cards[0].card.value]) || 1;
+
+  let isValid = false;
+  let capturedCards = [];
+
+  // Sum Capture
+  if (slot0Cards.length > 0 && hasHandCardSum && hasBoardCardSum && slot2Cards.length === 0) {
+    const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (valueMap && valueMap[entry.card.value]) || 1);
     const totalSum = sumValues.reduce((a, b) => a + b, 0);
-    const allMatch = [...slot0Cards, slot1Cards[0]].every(entry => entry.card.value === slot1Cards[0].card.value);
-
     if (totalSum === principalValue) {
       isValid = true;
-      captureType = "Sum Capture";
-      captureDetails = `${sumValues.join(' + ')} = ${principalValue}.`;
-    } else if (allMatch && slot0Cards.length + 1 >= 2) {
-      isValid = true;
-      captureType = "Pair Capture";
-      captureDetails = `Captured ${slot0Cards.length + 1} cards all matching value ${slot1Cards[0].card.value}.`;
+      capturedCards = [...slot0Cards.map(entry => entry.card), ...slot1Cards.map(entry => entry.card)];
     }
   }
 
-  captureTypeMessage = `${captureType}${isValid ? '' : ' (Invalid)'}: ${captureDetails || 'Sum must match Principal Match value or all cards must match.'}`;
-} else {
-  captureTypeMessage = "Invalid: Both areas must have cards, with at least one hand and one board card involved.";
+  // Pair Capture
+  if (slot2Cards.length > 0 && hasHandCardPair && hasBoardCardPair && slot0Cards.length === 0) {
+    const allMatch = slot2Cards.every(entry => entry.card.value === slot1Cards[0].card.value);
+    if (allMatch) {
+      isValid = true;
+      capturedCards = [...slot2Cards.map(entry => entry.card), ...slot1Cards.map(entry => entry.card)];
+    }
+  }
+
+  if (!isValid) {
+    if (messageEl) messageEl.textContent = slot0Cards.length > 0 
+      ? `Invalid: Sum does not match Principal Match ${principalValue}.`
+      : `Invalid: Cards must match Principal Match value ${principalValue}.`;
+    return;
+  }
+
+  handleCapture(state, slot0Cards.length > 0 ? slot0Cards : slot2Cards, slot1Cards);
+  state.combination = { 0: [], 1: [], 2: [] };
+
+  if (state.hands[0].length > 0) {
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
+  } else {
+    state.currentPlayer = 1;
+    if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
+    setTimeout(aiTurn, 1000);
+  }
+  render();
+  playSound('capture');
 }
-
-if (isValid) {
-  slot0El.classList.add('valid-combo');
-  slot1El.classList.add('valid-combo');
-} else {
-  slot0El.classList.remove('valid-combo');
-  slot1El.classList.remove('valid-combo');
-}
-
-
-      slot0El.addEventListener('dragover', (e) => e.preventDefault());
-      slot0El.addEventListener('drop', (e) => handleDrop(e, 0));
-      slot0El.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', 0));
-      slot1El.addEventListener('dragover', (e) => e.preventDefault());
-      slot1El.addEventListener('drop', (e) => handleDrop(e, 1));
-      slot1El.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', 1));
     }
   }
 
