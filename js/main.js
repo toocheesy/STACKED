@@ -639,19 +639,17 @@ function handleSubmit() {
   playSound('capture');
 }
 
-// AI turn - Updated to use processBotTurn and handle bot continuation
+// Corrected aiTurn function – one action per bot per turn
 function aiTurn() {
   const playerIndex = state.currentPlayer;
   const messageEl = document.getElementById('message');
 
-  // If current bot has no cards, move to next player
   if (state.hands[playerIndex].length === 0) {
     state.currentPlayer = (playerIndex + 1) % 3;
     checkGameEnd();
     render();
     playSound('turnChange');
-    // If next player is a bot and game continues, trigger aiTurn
-    if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
       setTimeout(aiTurn, 1000);
     }
     return;
@@ -659,84 +657,70 @@ function aiTurn() {
 
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-if (!move || !move.action) {
-  console.error('Invalid bot move, skipping turn');
-  state.currentPlayer = (playerIndex + 1) % 3;
-  render();
-  return;
-}
+    if (!move || !move.action) {
+      state.currentPlayer = (playerIndex + 1) % 3;
+      render();
+      return;
+    }
 
     if (move.action === 'capture') {
-      if (messageEl) messageEl.textContent = `Bot ${playerIndex} is capturing...`;
-      const handCard = move.handCard;
-      if (!handCard || !handCard.value || !handCard.suit) {
-        // Fallback to place if invalid card
-        move.action = 'place';
-        move.handCard = state.hands[playerIndex][0] || null;
+      const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
+      if (handIndex === -1) {
+        state.currentPlayer = (playerIndex + 1) % 3;
+        render();
+        return;
       }
-      const handIndex = state.hands[playerIndex].findIndex(card => card.id === handCard.id);
 
-      // Set up combination areas for capture
-      state.combination[0] = move.capture && move.capture.targets ? move.capture.targets.map((card, idx) => ({
+      state.combination[0] = move.capture.targets.map(card => ({
         source: 'board',
         index: state.board.findIndex(bc => bc.id === card.id),
         card
-      })) : [];
-      state.combination[1] = [{ source: 'hand', index: handIndex, card: handCard }];
-
+      }));
+      state.combination[1] = [{ source: 'hand', index: handIndex, card: move.handCard }];
       render();
 
       setTimeout(() => {
-        const capturedCards = [...state.combination[0].map(c => c.card), ...state.combination[1].map(c => c.card)];
-        
-        // Remove from board
-        state.board = state.board.filter((_, i) => 
-          !state.combination[0].some(entry => entry.source === 'board' && entry.index === i) &&
-          !state.combination[1].some(entry => entry.source === 'board' && entry.index === i)
+        const captured = [...state.combination[0].map(c => c.card), move.handCard];
+        state.board = state.board.filter((_, i) =>
+          !state.combination[0].some(entry => entry.index === i)
         );
-        
-        // Remove from hand
-        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-        
-        // Score
-        const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-        state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += scoreFunction(capturedCards);
+        state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
+        state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
         state.combination = { 0: [], 1: [] };
-        
-        if (state.board.length === 0 && state.hands[playerIndex].length > 0) {
-          const nextCard = state.hands[playerIndex][0];
-          if (nextCard && nextCard.value && nextCard.suit) {
-            state.board.push(nextCard);
-            state.hands[playerIndex] = state.hands[playerIndex].slice(1);
-          }
-        }
 
         state.currentPlayer = (playerIndex + 1) % 3;
         checkGameEnd();
         render();
         playSound('capture');
-        if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+        if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
           setTimeout(aiTurn, 1000);
         }
-      }, 1500);
-    } else if (move.action === 'place') {
-      if (messageEl) messageEl.textContent = `Bot ${playerIndex} is placing a card...`;
-      const handCard = move.handCard || state.hands[playerIndex][0];
-      if (!handCard || !handCard.value || !handCard.suit) return; // Skip invalid moves
+      }, 1000);
+    }
+
+    else if (move.action === 'place') {
+      const handCard = move.handCard;
+      if (!handCard) {
+        state.currentPlayer = (playerIndex + 1) % 3;
+        render();
+        return;
+      }
+
       state.board.push(handCard);
-      state.hands[playerIndex] = state.hands[playerIndex].filter(c => c.id !== handCard.id);
+      state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
       state.combination = { 0: [], 1: [] };
 
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
       render();
       playSound('place');
-      if (state.currentPlayer !== 0 && state.hands.some(hand => hand.length > 0)) {
+      if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
         setTimeout(aiTurn, 1000);
       }
     }
   }, 1000);
 }
+
 
 // Check game end - Fixed to use dealCards instead of missing dealAfterBots
 function checkGameEnd() {
