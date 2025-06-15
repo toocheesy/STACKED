@@ -738,40 +738,41 @@ if (!move || !move.action) {
   }, 1000);
 }
 
-// Check game end - Updated to handle dealAfterBots errors
+// Check game end - Fixed to use dealCards instead of missing dealAfterBots
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
-    try {
-      if (state.deck.length > 0 && !window.dealAfterBots(state.hands, state.deck)) {
-        // Deal 4 cards to each player's hand using dealAfterBots
-        window.dealAfterBots(state.hands, state.deck);
+    // All players are out of cards
+    if (state.deck.length === 0) {
+      // Game over - no more cards to deal
+      const scores = [
+        { name: 'Player', score: state.scores.player },
+        { name: 'Bot 1', score: state.scores.bot1 },
+        { name: 'Bot 2', score: state.scores.bot2 }
+      ];
+      const winner = scores.reduce((max, player) => 
+        player.score > max.score ? player : max, 
+        { score: -1, name: '' }
+      );
+
+      if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
+      playSound('gameEnd');
+    } else {
+      // Deal new round using existing dealCards function
+      try {
+        const dealResult = dealCards(state.deck, 3, 4, 0); // 3 players, 4 cards each, 0 to board
+        state.hands = dealResult.players;
+        state.deck = dealResult.remainingDeck;
         state.currentPlayer = 0;
         if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
         render();
         playSound('turnChange');
-      } else {
-        // Game ends: deck is empty or dealAfterBots returns true
-        const scores = [
-          { name: 'Player', score: state.scores.player },
-          { name: 'Bot 1', score: state.scores.bot1 },
-          { name: 'Bot 2', score: state.scores.bot2 }
-        ];
-        const winner = scores.reduce((max, player) => 
-          player.score > max.score ? player : max, 
-          { score: -1, name: '' }
-        );
-
-        if (winner.score >= state.settings.targetScore || state.deck.length === 0 || window.dealAfterBots(state.hands, state.deck)) {
-          if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
-          playSound('gameEnd');
-        }
+      } catch (e) {
+        console.error('Error dealing new round:', e);
+        if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
       }
-    } catch (e) {
-      console.error('Error in checkGameEnd:', e);
-      if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
   }
 }
