@@ -317,9 +317,6 @@ if (slot2Cards.length > 0) {
   }
 }
 
-// Update state initialization in initializeGame
-state.combination = { 0: [], 1: [], 2: [] }; // Slot 0: Sum, Slot 1: Principal, Slot 2: Pair
-
 // Update handleDrop function
 function handleDrop(e, slot) {
   e.preventDefault();
