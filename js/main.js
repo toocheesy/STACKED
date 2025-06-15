@@ -464,7 +464,8 @@ if (captureTypeEl) {
     if (state.board && Array.isArray(state.board)) {
       state.board.forEach((card, index) => {
         const isInPlayArea = state.combination[0].some(entry => entry.source === 'board' && entry.index === index) ||
-                            state.combination[1].some(entry => entry.source === 'board' && entry.index === index);
+                    state.combination[1].some(entry => entry.source === 'board' && entry.index === index) ||
+                    state.combination[2].some(entry => entry.source === 'board' && entry.index === index);
         if (isInPlayArea) return;
 
         const cardEl = document.createElement('div');
