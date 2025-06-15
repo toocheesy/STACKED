@@ -662,6 +662,7 @@ function aiTurn() {
     playSound('turnChange');
     if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
       scheduleNextBotTurn()
+    }
     return;
   }
 
