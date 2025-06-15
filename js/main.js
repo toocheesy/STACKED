@@ -641,6 +641,7 @@ function handleSubmit() {
 
 // Add this helper function to prevent double bot turns
 function scheduleNextBotTurn() {
+  console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}`);
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
     setTimeout(aiTurn, 1000);
   }
@@ -648,6 +649,7 @@ function scheduleNextBotTurn() {
 
 // Corrected aiTurn function – one action per bot per turn
 function aiTurn() {
+  console.log(`🔍 AITTURN CALLED - CurrentPlayer: ${state.currentPlayer}, Stack:`, new Error().stack.split('\n')[2]);
   console.log(`🤖 BOT ${state.currentPlayer} TURN START - Hand: ${state.hands[state.currentPlayer].length} cards`);
   
   const playerIndex = state.currentPlayer;
