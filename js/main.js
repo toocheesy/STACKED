@@ -478,7 +478,7 @@ function handleTouchDrop(e, targetType, data) {
     checkGameEnd();
     playSound('place');
     render();
-    if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+    if (state.currentPlayer !== 0) scheduleNextBotTurn();
   } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
     // Return to original position
   }
@@ -526,7 +526,7 @@ function handlePlaceDrop(e) {
   checkGameEnd();
   render();
   playSound('place');
-  if (state.currentPlayer !== 0) setTimeout(aiTurn, 1000);
+  if (state.currentPlayer !== 0) scheduleNextBotTurn();
 }
 
 // Handle reset play area
@@ -633,10 +633,17 @@ function handleSubmit() {
   } else {
     state.currentPlayer = 1;
     if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-    setTimeout(aiTurn, 1000);
+    scheduleNextBotTurn();
   }
   render();
   playSound('capture');
+}
+
+// Add this helper function to prevent double bot turns
+function scheduleNextBotTurn() {
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+    setTimeout(aiTurn, 1000);
+  }
 }
 
 // Corrected aiTurn function – one action per bot per turn
