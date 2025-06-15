@@ -725,7 +725,8 @@ function aiTurn() {
       playSound('place');
       console.log(`🤖 BOT ${playerIndex} TURN END - Action: place`);
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-        scheduleNextBotTurn()
+        scheduleNextBotTurn();
+      }
     }
   }, 1000);
 }
