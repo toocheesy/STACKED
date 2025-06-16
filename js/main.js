@@ -874,18 +874,19 @@ function scheduleNextBotTurn() {
       // Handle capture
       const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
       if (handIndex !== -1) {
-        state.combination[0] = move.capture.targets.map(card => ({
-          source: 'board',
-          index: state.board.findIndex(bc => bc.id === card.id),
-          card
-        }));
-        state.combination[1] = [{ source: 'hand', index: handIndex, card: move.handCard }];
+        state.combination.sum1 = move.capture.targets.map(card => ({
+  source: 'board',
+  index: state.board.findIndex(bc => bc.id === card.id),
+  card
+}));
+state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard }];
         console.log(`🎯 BOT COMBO: Slot0=${state.combination[0].length} cards, Slot1=${state.combination[1].length} cards`);
 render();
         setTimeout(() => {
           const captured = [...state.combination[0].map(c => c.card), move.handCard];
           state.board = state.board.filter((_, i) =>
-            !state.combination[0].some(entry => entry.index === i)
+  !state.combination.sum1.some(entry => entry.index === i)
+);
           );
           state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
           state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
