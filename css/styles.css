@@ -478,3 +478,77 @@ dialog h2 {
     gap: 5px;
   }
 }
+
+/* 5-Area Layout Additions */
+.capture-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.base-area {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.sum-area, .match-area {
+  flex: 1;
+  min-height: 110px;
+  min-width: 60px;
+}
+
+/* Update combination-area for vertical layout */
+.combination-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  width: 280px; /* Wider to fit 4 areas */
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Responsive adjustments for 5 areas */
+@media (max-width: 900px) {
+  .combination-area {
+    width: 260px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 55px;
+  }
+}
+
+@media (max-width: 700px) {
+  .combination-area {
+    width: 240px;
+  }
+  
+  .capture-row {
+    gap: 8px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 50px;
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 550px) {
+  .combination-area {
+    width: 220px;
+  }
+  
+  .capture-row {
+    gap: 6px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 45px;
+    min-height: 90px;
+  }
+}

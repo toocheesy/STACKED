@@ -7,8 +7,7 @@ let state = {
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: { 0: [], 1: [], 2: [] }, // Slot 0: Sum, Slot 1: Principal, Slot 2: Pair
-  currentPlayer: 0,
+combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-area structure  currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
     soundEffects: 'off',
@@ -60,7 +59,7 @@ function initGame() {
   });
   state.scores = { player: 0, bot1: 0, bot2: 0 };
   state.currentPlayer = 0;
-  state.combination = { 0: [], 1: [], 2: [] };
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
   render();
@@ -364,7 +363,7 @@ if (slot === 1 && state.combination[1].length > 0) {
     const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
-    state.combination = { 0: [], 1: [], 2: [] };
+    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
     manageTurn(state);
     playSound('place');
@@ -435,7 +434,7 @@ function handleSubmit() {
   }
 
   handleCapture(state, slot0Cards.length > 0 ? slot0Cards : slot2Cards, slot1Cards);
-  state.combination = { 0: [], 1: [], 2: [] };
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
   if (state.hands[0].length > 0) {
     state.currentPlayer = 0;
@@ -672,7 +671,7 @@ function handleTouchDrop(e, targetType, data) {
     const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
-    state.combination = { 0: [], 1: [], 2: [] };
+    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
 checkGameEnd();
     playSound('place');
@@ -721,7 +720,7 @@ function handlePlaceDrop(e) {
 
   state.board.push(handCard);
   state.hands[0] = state.hands[0].filter((_, i) => i !== handIndex);
-  state.combination = { 0: [], 1: [], 2: [] };
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.currentPlayer = 1;
   state.draggedCard = null;
   checkGameEnd();
@@ -752,7 +751,7 @@ function handleResetPlayArea() {
     }
   });
 
-  state.combination = { 0: [], 1: [], 2: [] };
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   render();
 }
 
@@ -819,7 +818,7 @@ function handleSubmit() {
     return cards.length * 5; // Fallback scoring
   };
   state.scores.player += scoreFunction(capturedCards);
-  state.combination = { 0: [], 1: [], 2: [] };
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
   if (state.board.length === 0 && state.hands[0].length > 0) {
     const nextCard = state.hands[0][0];
@@ -903,7 +902,7 @@ render();
           );
           state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
           state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
-          state.combination = { 0: [], 1: [], 2: [] };
+          state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
           
           console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
           render();
@@ -926,7 +925,7 @@ render();
     if (handCard) {
       state.board.push(handCard);
       state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-      state.combination = { 0: [], 1: [], 2: [] };
+      state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
       
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
