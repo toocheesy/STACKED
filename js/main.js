@@ -692,15 +692,8 @@ function handlePlaceDrop(e) {
 function handleResetPlayArea() {
   if (state.currentPlayer !== 0) return;
 
-  // Restore cards to original positions
-  state.combination[0].forEach(entry => {
-    if (entry.source === 'hand' && state.hands[0][entry.index]) {
-      state.hands[0][entry.index] = entry.card;
-    } else if (entry.source === 'board' && state.board[entry.index]) {
-      state.board[entry.index] = entry.card;
-    }
-  });
-  state.combination[1].forEach(entry => {
+  // Restore cards to original positions from all 5 areas
+  Object.values(state.combination).flat().forEach(entry => {
     if (entry.source === 'hand' && state.hands[0][entry.index]) {
       state.hands[0][entry.index] = entry.card;
     } else if (entry.source === 'board' && state.board[entry.index]) {
@@ -939,16 +932,24 @@ console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}
           state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
           
           console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
-          render();
-          playSound('capture');
-          
-          // Continue playing - check for more captures or place to end turn
-          setTimeout(() => {
-            // Check if bot still has cards and there are valid captures
-            if (state.hands[playerIndex].length > 0) {
-              aiTurn();
-            }
-          }, 2000);
+render();
+playSound('capture');
+
+// Continue playing - check for more captures or place to end turn
+setTimeout(() => {
+  if (state.hands[playerIndex].length > 0) {
+    aiTurn();
+  } else {
+    // Bot has no cards left after capture - end turn
+    console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
+    state.currentPlayer = (playerIndex + 1) % 3;
+    checkGameEnd();
+    render();
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+      scheduleNextBotTurn();
+    }
+  }
+}, 2000);
         }, 1000);
         return;
       }
