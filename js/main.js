@@ -1045,9 +1045,11 @@ function checkGameEnd() {
     } catch (e) {
       console.error('Error dealing new round:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+     }
     }
   }
-}
+} // <- This closing brace for checkGameEnd function
+
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
