@@ -1045,9 +1045,23 @@ function checkGameEnd() {
     } catch (e) {
       console.error('Error dealing new round:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-     }
     }
   }
+} else {
+  // Deal new round using existing dealCards function
+  try {
+    const dealResult = dealCards(state.deck, 3, 4, 0); // 3 players, 4 cards each, 0 to board
+    state.hands = dealResult.players;
+    state.deck = dealResult.remainingDeck;
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+    render();
+    playSound('turnChange');
+  } catch (e) {
+    console.error('Error dealing new round:', e);
+    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+  }
+}
 } // <- This closing brace for checkGameEnd function
 
 
