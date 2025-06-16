@@ -855,15 +855,34 @@ function aiTurn() {
   const playerIndex = state.currentPlayer;
   
   if (state.hands[playerIndex].length === 0) {
-    state.currentPlayer = (playerIndex + 1) % 3;
-    checkGameEnd();
-    render();
-    playSound('turnChange');
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      scheduleNextBotTurn();
-    }
-    return;
+  state.currentPlayer = (playerIndex + 1) % 3;
+  checkGameEnd();
+  render();
+  playSound('turnChange');
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+    scheduleNextBotTurn();
   }
+  return;
+}
+
+// NEW: Check if this is the only player with cards
+const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
+if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
+  console.log(`🎯 LAST PLAYER: Bot ${playerIndex} must play all ${state.hands[playerIndex].length} cards`);
+  
+  // Play all remaining cards immediately
+  while (state.hands[playerIndex].length > 0) {
+    const handCard = state.hands[playerIndex][0];
+    state.board.push(handCard);
+    state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
+    console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
+    render();
+  }
+  
+  checkGameEnd();
+  playSound('place');
+  return;
+}
 
   console.log(`🤖 BOT ${playerIndex} TURN - Hand: ${state.hands[playerIndex].length} cards`);
   
