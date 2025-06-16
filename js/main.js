@@ -761,6 +761,9 @@ function handleSubmit() {
   // Execute the capture
   executeCapture(baseCard, validCaptures, allCapturedCards);
   
+  // Track last capturer
+  state.lastCapturer = 0; // Player is always index 0
+  
   // Reset state
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
@@ -932,6 +935,9 @@ console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}
           state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
           state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
           state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+          
+          // Track last capturer
+          state.lastCapturer = playerIndex;
           
           console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
 render();
