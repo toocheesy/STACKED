@@ -713,91 +713,121 @@ function handleResetPlayArea() {
 }
 
 // Handle submit action
+// Updated submit function for multiple captures
 function handleSubmit() {
-  if (state.currentPlayer !== 0 || (state.combination[0].length === 0 && state.combination[1].length === 0)) return;
+  if (state.currentPlayer !== 0) return;
 
-  const slot0Cards = state.combination[0];
-  const slot1Cards = state.combination[1];
+  const baseCards = state.combination.base;
   const messageEl = document.getElementById('message');
 
-  if (slot0Cards.length === 0 || slot1Cards.length === 0) {
-    if (messageEl) messageEl.textContent = "Invalid combination! Both play areas must have cards.";
+  if (baseCards.length !== 1) {
+    if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card.";
     return;
   }
 
-  const hasHandCard = slot0Cards.some(entry => entry.source === 'hand') || slot1Cards.some(entry => entry.source === 'hand');
-  const hasBoardCard = slot0Cards.some(entry => entry.source === 'board') || slot1Cards.some(entry => entry.source === 'board');
-  if (!hasHandCard || !hasBoardCard) {
-    if (messageEl) messageEl.textContent = "Invalid combination! Requires at least one hand card and one board card.";
-    return;
-  }
+  const baseCard = baseCards[0];
+  const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
 
-  const principalValue = parseInt(slot1Cards[0].card.value) || (window.valueMap && window.valueMap[slot1Cards[0].card.value]) || 1;
-  const sumValues = slot0Cards.map(entry => parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1);
-  const totalSum = sumValues.reduce((a, b) => a + b, 0);
+  let validCaptures = [];
+  let allCapturedCards = [baseCard.card];
 
-  let isValid = false;
-  let capturedCards = [...slot0Cards.map(entry => entry.card), ...slot1Cards.map(entry => entry.card)];
+  // Validate and collect all valid captures
+  const captureAreas = [
+    { name: 'sum1', cards: state.combination.sum1 },
+    { name: 'sum2', cards: state.combination.sum2 },
+    { name: 'sum3', cards: state.combination.sum3 },
+    { name: 'match', cards: state.combination.match }
+  ];
 
-  if (totalSum === principalValue) {
-    isValid = true;
-  } else if (slot0Cards.length === 1 && slot1Cards.length === 1 && slot0Cards[0].card.value === slot1Cards[0].card.value) {
-    isValid = true;
-  }
+  for (const area of captureAreas) {
+    if (area.cards.length > 0) {
+      const isSum = area.name.startsWith('sum');
+      const result = isSum 
+        ? validateSumCapture(area.cards, baseValue, baseCard)
+        : validateMatchCapture(area.cards, baseValue, baseCard);
 
-  if (!isValid) {
-    if (messageEl) messageEl.textContent = `Invalid capture! Sum ${totalSum} does not match Principal Match ${principalValue}.`;
-    return;
-  }
-
-  // Remove captured cards from board and hand
-  state.board = state.board.filter((_, i) => 
-    !slot0Cards.some(entry => entry.source === 'board' && entry.index === i) &&
-    !slot1Cards.some(entry => entry.source === 'board' && entry.index === i)
-  );
-  
-  slot0Cards.forEach(entry => {
-    if (entry.source === 'hand') {
-      state.hands[0][entry.index] = null;
+      if (result.isValid) {
+        validCaptures.push({ name: area.name, cards: area.cards });
+        allCapturedCards.push(...area.cards.map(entry => entry.card));
+      } else {
+        if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`;
+        return;
+      }
     }
-  });
-  slot1Cards.forEach(entry => {
-    if (entry.source === 'hand') {
-      state.hands[0][entry.index] = null;
-    }
-  });
-  
-  // Clean up null entries in hand
-  state.hands[0] = state.hands[0].filter(card => card !== null);
+  }
 
-  // Use global scoreCards function
-  const scoreFunction = window.scoreCards || function(cards) { 
-    return cards.length * 5; // Fallback scoring
-  };
-  state.scores.player += scoreFunction(capturedCards);
+  if (validCaptures.length === 0) {
+    if (messageEl) messageEl.textContent = "No valid captures found.";
+    return;
+  }
+
+  console.log(`🎯 MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+
+  // Execute the capture
+  executeCapture(baseCard, validCaptures, allCapturedCards);
+  
+  // Reset state
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-  if (state.board.length === 0 && state.hands[0].length > 0) {
-    const nextCard = state.hands[0][0];
-    if (nextCard && nextCard.value && nextCard.suit) {
-      state.board.push(nextCard);
-      state.hands[0] = state.hands[0].slice(1);
-    }
-  }
-
-  // Enforce combo flow: place card if hands remain, else advance to next player
   if (state.hands[0].length > 0) {
     state.currentPlayer = 0;
     if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
   } else {
     state.currentPlayer = 1;
     if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-if (state.currentPlayer !== 0) {
-  scheduleNextBotTurn();
+    setTimeout(aiTurn, 1000);
+  }
+  render();
+  playSound('capture');
 }
-}  // ADD THIS CLOSING BRACKET HERE
-render();
-playSound('capture');
+
+// Helper function to execute capture
+function executeCapture(baseCard, validCaptures, allCapturedCards) {
+  // Remove captured cards from board
+  const boardIndicesToRemove = new Set();
+  if (baseCard.source === 'board') {
+    boardIndicesToRemove.add(baseCard.index);
+  }
+  
+  validCaptures.forEach(capture => {
+    capture.cards.forEach(entry => {
+      if (entry.source === 'board') {
+        boardIndicesToRemove.add(entry.index);
+      }
+    });
+  });
+
+  state.board = state.board.filter((_, i) => !boardIndicesToRemove.has(i));
+
+  // Remove captured cards from hand
+  const handIndicesToRemove = new Set();
+  if (baseCard.source === 'hand') {
+    handIndicesToRemove.add(baseCard.index);
+  }
+  
+  validCaptures.forEach(capture => {
+    capture.cards.forEach(entry => {
+      if (entry.source === 'hand') {
+        handIndicesToRemove.add(entry.index);
+      }
+    });
+  });
+
+  // Mark hand slots as null, then filter
+  Array.from(handIndicesToRemove).forEach(index => {
+    if (state.hands[0][index]) {
+      state.hands[0][index] = null;
+    }
+  });
+  state.hands[0] = state.hands[0].filter(card => card !== null);
+
+  // Update score
+  const scoreFunction = window.scoreCards || function(cards) { 
+    return cards.length * 5; // Fallback scoring
+  };
+  state.scores.player += scoreFunction(allCapturedCards);
+
+  console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
 }
 
 // Add this helper function to prevent double bot turns
