@@ -993,17 +993,25 @@ function checkGameEnd() {
     // All players are out of cards
     if (state.deck.length === 0) {
       // Game over - no more cards to deal
-      const scores = [
-        { name: 'Player', score: state.scores.player },
-        { name: 'Bot 1', score: state.scores.bot1 },
-        { name: 'Bot 2', score: state.scores.bot2 }
-      ];
-      const winner = scores.reduce((max, player) => 
-        player.score > max.score ? player : max, 
-        { score: -1, name: '' }
-      );
-
-      if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
+      // Last Combo Takes All Rule: If deck is empty, last capturer wins
+      let winner;
+      if (state.lastCapturer !== null) {
+        const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+        winner = { name: playerNames[state.lastCapturer], score: 'LAST CAPTURE' };
+        if (messageEl) messageEl.textContent = `${winner.name} wins by Last Combo Takes All rule! Restart to play again.`;
+      } else {
+        // Fallback to score-based victory if no captures were made
+        const scores = [
+          { name: 'Player', score: state.scores.player },
+          { name: 'Bot 1', score: state.scores.bot1 },
+          { name: 'Bot 2', score: state.scores.bot2 }
+        ];
+        winner = scores.reduce((max, player) => 
+          player.score > max.score ? player : max, 
+          { score: -1, name: '' }
+        );
+        if (messageEl) messageEl.textContent = `${winner.name} wins with ${winner.score} points! Restart to play again.`;
+      }
       playSound('gameEnd');
     } else {
       // Deal new round using existing dealCards function
