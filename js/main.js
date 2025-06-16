@@ -508,6 +508,165 @@ function handleDropOriginal(e, source, index) {
   }
 }
 
+// Helper functions for the new render system
+
+// Render board with 5-area checking
+function renderBoard() {
+  const boardEl = document.getElementById('board');
+  if (boardEl) {
+    boardEl.innerHTML = '';
+    
+    if (state.board && Array.isArray(state.board)) {
+      state.board.forEach((card, index) => {
+        const isInPlayArea = 
+          state.combination.base.some(entry => entry.source === 'board' && entry.index === index) ||
+          state.combination.sum1.some(entry => entry.source === 'board' && entry.index === index) ||
+          state.combination.sum2.some(entry => entry.source === 'board' && entry.index === index) ||
+          state.combination.sum3.some(entry => entry.source === 'board' && entry.index === index) ||
+          state.combination.match.some(entry => entry.source === 'board' && entry.index === index);
+          
+        if (isInPlayArea) return;
+
+        const cardEl = document.createElement('div');
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'board');
+        cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'board', index));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'board', index));
+        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'board', index));
+        cardEl.addEventListener('touchend', handleTouchEnd);
+        boardEl.appendChild(cardEl);
+      });
+    }
+
+    boardEl.addEventListener('dragover', (e) => e.preventDefault());
+    boardEl.addEventListener('drop', handlePlaceDrop);
+    boardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'board'));
+  }
+}
+
+// Render hands with 5-area checking
+function renderHands() {
+  const handEl = document.getElementById('player-hand');
+  if (handEl) {
+    handEl.innerHTML = '';
+    
+    for (let index = 0; index < 4; index++) {
+      const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
+      const cardEl = document.createElement('div');
+      
+      // Check if card is in any play area
+      const isInPlayArea = !card || !card.value || !card.suit || 
+        state.combination.base.some(entry => entry.source === 'hand' && entry.index === index) ||
+        state.combination.sum1.some(entry => entry.source === 'hand' && entry.index === index) ||
+        state.combination.sum2.some(entry => entry.source === 'hand' && entry.index === index) ||
+        state.combination.sum3.some(entry => entry.source === 'hand' && entry.index === index) ||
+        state.combination.match.some(entry => entry.source === 'hand' && entry.index === index);
+
+      if (isInPlayArea) {
+        cardEl.className = 'card';
+        cardEl.style.backgroundColor = '#f0f0f0';
+        cardEl.style.border = '2px dashed #ccc';
+        cardEl.textContent = '';
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'hand');
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
+        cardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'hand', index));
+      } else {
+        cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+        cardEl.textContent = `${card.value}${suitSymbols[card.suit]}`;
+        cardEl.setAttribute('draggable', 'true');
+        cardEl.setAttribute('data-index', index);
+        cardEl.setAttribute('data-type', 'hand');
+        cardEl.addEventListener('dragstart', (e) => handleDragStart(e, 'hand', index));
+        cardEl.addEventListener('dragend', handleDragEnd);
+        cardEl.addEventListener('dragover', (e) => e.preventDefault());
+        cardEl.addEventListener('drop', (e) => handleDropOriginal(e, 'hand', index));
+        cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'hand', index));
+        cardEl.addEventListener('touchend', handleTouchEnd);
+      }
+      handEl.appendChild(cardEl);
+    }
+  }
+}
+
+// Render bot hands (unchanged from original)
+function renderBotHands() {
+  const bot1HandElementEl = document.getElementById('bot1-hand');
+  if (bot1HandElementEl) {
+    bot1HandElementEl.innerHTML = '';
+    if (state.hands[1] && Array.isArray(state.hands[1])) {
+      state.hands[1].forEach(() => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card back';
+        bot1HandElementEl.appendChild(cardEl);
+      });
+    }
+  }
+
+  const bot2HandElementEl = document.getElementById('bot2-hand');
+  if (bot2HandElementEl) {
+    bot2HandElementEl.innerHTML = '';
+    if (state.hands[2] && Array.isArray(state.hands[2])) {
+      state.hands[2].forEach(() => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card back';
+        bot2HandElementEl.appendChild(cardEl);
+      });
+    }
+  }
+}
+
+// Render scores (unchanged from original)
+function renderScores() {
+  const playerScoreEl = document.getElementById('player-score');
+  const bot1ScoreEl = document.getElementById('bot1-score');
+  const bot2ScoreEl = document.getElementById('bot2-score');
+  
+  if (playerScoreEl) playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
+  if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
+  if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
+}
+
+// Update submit button logic for 5 areas
+function updateSubmitButton() {
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) {
+    const hasBaseCard = state.combination.base.length === 1;
+    const hasAnyCaptureCards = state.combination.sum1.length > 0 || 
+                             state.combination.sum2.length > 0 || 
+                             state.combination.sum3.length > 0 || 
+                             state.combination.match.length > 0;
+    
+    submitBtn.disabled = !(state.currentPlayer === 0 && hasBaseCard && hasAnyCaptureCards);
+  }
+}
+
+// Update message (unchanged from original)
+function updateMessage() {
+  const messageEl = document.getElementById('message');
+  if (messageEl) {
+    if (state.currentPlayer === 0) {
+      if (state.hands[0].length === 0) {
+        messageEl.textContent = "You're out of cards! Bots will finish the round.";
+        state.currentPlayer = 1;
+        scheduleNextBotTurn();
+      } else if (state.combination.base.length === 0) {
+        messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
+      } else {
+        messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
+      }
+    } else {
+      messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
+    }
+  }
+}
+
 // Handle place drop on board
 function handlePlaceDrop(e) {
   e.preventDefault();
