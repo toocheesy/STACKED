@@ -846,7 +846,7 @@ function scheduleNextBotTurn() {
   }
 }
 
- function aiTurn() {
+function aiTurn() {
   if (state.currentPlayer === 0) {
     console.error('🚨 CRITICAL: AI called for player turn!');
     return;
@@ -875,18 +875,18 @@ function scheduleNextBotTurn() {
       const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
       if (handIndex !== -1) {
         state.combination.sum1 = move.capture.targets.map(card => ({
-  source: 'board',
-  index: state.board.findIndex(bc => bc.id === card.id),
-  card
-}));
-state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard }];
-        console.log(`🎯 BOT COMBO: Slot0=${state.combination[0].length} cards, Slot1=${state.combination[1].length} cards`);
-render();
+          source: 'board',
+          index: state.board.findIndex(bc => bc.id === card.id),
+          card
+        }));
+        state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard }];
+        console.log(`🎯 BOT COMBO: Base=${state.combination.base.length} cards, Sum1=${state.combination.sum1.length} cards`);
+        render();
+        
         setTimeout(() => {
-          const captured = [...state.combination[0].map(c => c.card), move.handCard];
+          const captured = [...state.combination.sum1.map(c => c.card), move.handCard];
           state.board = state.board.filter((_, i) =>
-  !state.combination.sum1.some(entry => entry.index === i)
-);
+            !state.combination.sum1.some(entry => entry.index === i)
           );
           state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
           state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
@@ -898,11 +898,11 @@ render();
           
           // Continue playing - check for more captures or place to end turn
           setTimeout(() => {
-  // Check if bot still has cards and there are valid captures
-  if (state.hands[playerIndex].length > 0) {
-    aiTurn();
-  }
-}, 2000);
+            // Check if bot still has cards and there are valid captures
+            if (state.hands[playerIndex].length > 0) {
+              aiTurn();
+            }
+          }, 2000);
         }, 1000);
         return;
       }
