@@ -837,12 +837,38 @@ function scheduleNextBotTurn() {
     console.log('🚫 BOT TURN ALREADY SCHEDULED - SKIPPING');
     return;
   }
+  
+  // Check if current player has cards
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
     botTurnInProgress = true;
     setTimeout(() => {
       botTurnInProgress = false;
       aiTurn();
     }, 1000);
+  } else if (state.currentPlayer !== 0) {
+    // Current bot has no cards, find next bot with cards or end game
+    console.log(`🚫 BOT ${state.currentPlayer} HAS NO CARDS - FINDING NEXT PLAYER`);
+    
+    let nextPlayer = (state.currentPlayer + 1) % 3;
+    let attempts = 0;
+    
+    while (attempts < 3) {
+      if (nextPlayer === 0 || (state.hands[nextPlayer] && state.hands[nextPlayer].length > 0)) {
+        state.currentPlayer = nextPlayer;
+        console.log(`🔄 SWITCHED TO PLAYER ${nextPlayer}`);
+        if (nextPlayer !== 0) {
+          scheduleNextBotTurn();
+        }
+        render();
+        return;
+      }
+      nextPlayer = (nextPlayer + 1) % 3;
+      attempts++;
+    }
+    
+    // No players with cards found - end game
+    console.log(`🏁 NO PLAYERS WITH CARDS - ENDING GAME`);
+    checkGameEnd();
   }
 }
 
