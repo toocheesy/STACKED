@@ -914,6 +914,7 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
   
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
+console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
     
     if (move && move.action === 'capture') {
       // Handle capture

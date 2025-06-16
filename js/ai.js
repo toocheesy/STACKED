@@ -1,106 +1,119 @@
-
 /* 
- * Updated AI to support dual play areas:
- * - AI now places target card in Principal Match and summing cards in Play Area.
+ * Updated AI for 5-area system with better difficulty scaling
  */
 function aiMove(hand, board, difficulty = 'intermediate') {
-  function validateCombo(handCard, boardIndices, principalValue) {
-    const captures = canCapture(handCard, board);
-    let selectedCapture = null;
-    let capturedCards = [];
-
-    const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
-    if (isFaceCard) {
-      const matchingIndices = boardIndices.filter(idx => board[idx].value === handCard.value);
-      if (matchingIndices.length > 0 && principalValue === handCard.value) {
-        capturedCards = matchingIndices.map(idx => board[idx]);
-        return { type: 'pair', cards: matchingIndices, targets: capturedCards };
-      }
-      return null;
-    } else {
-      if (boardIndices.length === 1) {
-        selectedCapture = captures.find(cap => 
-          cap.type === 'pair' && boardIndices.includes(cap.cards[0])
-        );
-      } else if (boardIndices.length >= 1) {
-        const handValue = parseInt(handCard.value) || valueMap[handCard.value];
-        const boardValues = boardIndices.map(idx => parseInt(board[idx].value) || valueMap[board[idx].value]);
-        const totalSum = boardValues.reduce((a, b) => a + b, 0) + handValue;
-        if (totalSum === principalValue) {
-          selectedCapture = { type: 'sum', cards: boardIndices, target: board.find(card => 
-            (parseInt(card.value) || valueMap[card.value]) === principalValue
-          )};
-        }
-      }
-
-      if (selectedCapture) {
-        capturedCards = [selectedCapture.target];
-        return { type: selectedCapture.type, cards: selectedCapture.cards, targets: capturedCards };
-      }
-      return null;
+  console.log(`🎯 AI MOVE CALLED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
+  
+  // BEGINNER: 80% chance to just place a random card
+  if (difficulty === 'beginner') {
+    if (Math.random() < 0.8 || hand.length === 0) {
+      const handCard = hand[Math.floor(Math.random() * hand.length)];
+      console.log(`🎯 BEGINNER: Placing random card ${handCard?.value}${handCard?.suit}`);
+      return { action: 'place', handCard };
     }
   }
-
-  function calculateCaptureScore(capture) {
-    if (!capture || !capture.targets) return 0;
-    return capture.targets.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
-  }
-
-  if (difficulty === 'beginner') {
+  
+  // INTERMEDIATE: 50% chance to try captures
+  if (difficulty === 'intermediate') {
     if (Math.random() < 0.5 || hand.length === 0) {
       const handCard = hand[Math.floor(Math.random() * hand.length)];
+      console.log(`🎯 INTERMEDIATE: 50/50 - Placing card ${handCard?.value}${handCard?.suit}`);
       return { action: 'place', handCard };
     }
   }
 
+  // Look for captures (INTERMEDIATE and LEGENDARY)
   const possibleCaptures = [];
+  
   for (const handCard of hand) {
     const captures = canCapture(handCard, board);
+    
+    // Simple pair captures (face cards)
     const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
-
     if (isFaceCard) {
       const matchingIndices = board
         .map((card, idx) => ({ card, idx }))
         .filter(({ card }) => card.value === handCard.value)
         .map(({ idx }) => idx);
+        
       if (matchingIndices.length > 0) {
-        possibleCaptures.push({ handCard, capture: { type: 'pair', cards: matchingIndices, targets: matchingIndices.map(idx => board[idx]) } });
+        possibleCaptures.push({ 
+          handCard, 
+          capture: { 
+            type: 'pair', 
+            cards: matchingIndices, 
+            targets: matchingIndices.map(idx => board[idx]) 
+          },
+          score: matchingIndices.length * 10 // Face cards worth more
+        });
       }
     } else {
+      // Sum captures (number cards)
       for (const capture of captures) {
-        const boardIndices = [capture.cards[0]]; // Use one board card for sum
-        const principalCandidates = board.filter((_, i) => !boardIndices.includes(i));
-        for (let principal of principalCandidates) {
-          const principalValue = parseInt(principal.value) || valueMap[principal.value];
-          const selectedCapture = validateCombo(handCard, boardIndices, principalValue);
-          if (selectedCapture) {
-            possibleCaptures.push({ handCard, capture: selectedCapture, principal });
-          }
+        if (capture.type === 'pair') {
+          // Simple pair for number cards
+          possibleCaptures.push({
+            handCard,
+            capture: {
+              type: 'pair',
+              cards: capture.cards,
+              targets: capture.cards.map(idx => board[idx])
+            },
+            score: capture.cards.length * 5
+          });
+        } else if (capture.type === 'sum') {
+          // Sum capture
+          possibleCaptures.push({
+            handCard,
+            capture: {
+              type: 'sum', 
+              cards: capture.cards,
+              targets: capture.cards.map(idx => board[idx])
+            },
+            score: capture.cards.length * 5
+          });
         }
       }
     }
   }
 
   if (possibleCaptures.length > 0) {
+    let selectedCapture;
+    
     if (difficulty === 'legendary') {
-      possibleCaptures.sort((a, b) => calculateCaptureScore(b.capture) - calculateCaptureScore(a.capture));
-      const best = possibleCaptures[0];
-      return { action: 'capture', handCard: best.handCard, capture: best.capture, principal: best.principal };
-    } else if (difficulty === 'intermediate') {
-      const randomCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
-      return { action: 'capture', handCard: randomCapture.handCard, capture: randomCapture.capture, principal: randomCapture.principal };
+      // LEGENDARY: Always pick the best scoring capture
+      possibleCaptures.sort((a, b) => b.score - a.score);
+      selectedCapture = possibleCaptures[0];
+      console.log(`🎯 LEGENDARY: Best capture ${selectedCapture.handCard.value}${selectedCapture.handCard.suit} (${selectedCapture.score} pts)`);
     } else {
-      const randomCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
-      return { action: 'capture', handCard: randomCapture.handCard, capture: randomCapture.capture, principal: randomCapture.principal };
+      // INTERMEDIATE: Random capture
+      selectedCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
+      console.log(`🎯 INTERMEDIATE: Random capture ${selectedCapture.handCard.value}${selectedCapture.handCard.suit}`);
     }
+    
+    return { 
+      action: 'capture', 
+      handCard: selectedCapture.handCard, 
+      capture: selectedCapture.capture 
+    };
   }
 
+  // No captures available - place a card
   let handCard;
   if (difficulty === 'legendary') {
-    hand.sort((a, b) => (pointsMap[a.value] || 0) - (pointsMap[b.value] || 0));
+    // LEGENDARY: Place lowest value card
+    hand.sort((a, b) => {
+      const aVal = parseInt(a.value) || (a.value === 'A' ? 1 : 10);
+      const bVal = parseInt(b.value) || (b.value === 'A' ? 1 : 10);
+      return aVal - bVal;
+    });
     handCard = hand[0];
+    console.log(`🎯 LEGENDARY: Placing lowest card ${handCard.value}${handCard.suit}`);
   } else {
+    // BEGINNER/INTERMEDIATE: Random card
     handCard = hand[Math.floor(Math.random() * hand.length)];
+    console.log(`🎯 ${difficulty.toUpperCase()}: Placing random card ${handCard.value}${handCard.suit}`);
   }
+  
   return { action: 'place', handCard };
 }
