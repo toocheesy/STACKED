@@ -7,7 +7,8 @@ let state = {
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-area structure  currentPlayer: 0,
+  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-area structure  
+  currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
     soundEffects: 'off',
@@ -15,7 +16,8 @@ combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-are
     botDifficulty: 'intermediate'
   },
   draggedCard: null,
-  selectedCard: null
+  selectedCard: null,
+  lastCapturer: null
 };
 
 let botTurnInProgress = false;
