@@ -406,7 +406,7 @@ function handleTouchStart(e, source, data) {
   e.preventDefault();
   const target = e.target;
   target.classList.add('selected');
-  state.selectedCard = { source, data, element: target };
+  state.selectedCard = { source, index: data, element: target };
 
   target.style.transform = 'scale(1.1)';
   setTimeout(() => {
@@ -463,8 +463,8 @@ function handleTouchDrop(e, targetType, data) {
     }
     state.combination[slot].push({
       source: state.selectedCard.source,
-      index: state.selectedCard.data,
-      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.data] : state.board[state.selectedCard.data]
+      index: state.selectedCard.index,
+card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
     });
   } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
     const handCard = state.hands[0][state.selectedCard.data];
