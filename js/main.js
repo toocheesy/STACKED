@@ -24,10 +24,13 @@ let botTurnInProgress = false;
 
 // Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
 const sounds = {
-  capture: new Audio('data:audio/mp3;base64,...'), // Replace with actual base64
-  place: new Audio('data:audio/mp3;base64,...'),
-  turnChange: new Audio('data:audio/mp3;base64,...'),
-  gameEnd: new Audio('data:audio/mp3;base64,...')
+  capture: new Audio('audio/capture.mp3'),
+  place: new Audio('audio/place.mp3'),
+  turnChange: new Audio('audio/turnChange.mp3'),
+  gameEnd: new Audio('audio/gameEnd.mp3'),
+  invalid: new Audio('audio/invalid.mp3'),
+  winner: new Audio('audio/winner.mp3'),
+  jackpot: new Audio('audio/jackpot.mp3')
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
@@ -1045,9 +1048,24 @@ function checkGameEnd() {
     } catch (e) {
       console.error('Error dealing new round:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-     }
     }
   }
+} else {
+  // Deal new round using existing dealCards function
+  try {
+    const dealResult = dealCards(state.deck, 3, 4, 0);
+    state.hands = dealResult.players;
+    state.deck = dealResult.remainingDeck;
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+    render();
+    playSound('turnChange');
+  } catch (e) {
+    console.error('Error dealing new round:', e);
+    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+  }
+}
+}
 } // <- This closing brace for checkGameEnd function
 
 
