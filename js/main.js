@@ -775,7 +775,8 @@ function handleSubmit() {
     setTimeout(aiTurn, 1000);
   }
   render();
-  }
+  playSound('capture');
+}
 
 // Helper function to execute capture
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
@@ -898,6 +899,9 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
     state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
     console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
     render();
+playSound('capture');
+
+// Continue playing - check for more captures or place to end turn
   }
   
   checkGameEnd();
