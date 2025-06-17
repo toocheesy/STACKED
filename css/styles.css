@@ -1,6 +1,6 @@
 /* 
- * Enhanced styles.css with premium animations for STACKED!
- * Includes smooth card movements, capture effects, UI polish, and game state feedback
+ * Fixed styles.css for STACKED! with corrected layout and premium animations
+ * Proper 5-area play system, visible buttons, responsive design, and casino-themed background
  */
 * {
   margin: 0;
@@ -10,26 +10,33 @@
 }
 
 body {
-  background-color: #145A32;
+  background: linear-gradient(135deg, #0B3D20 0%, #145A32 50%, #0B3D20 100%);
+  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Cg fill="%231C7A3D" fill-opacity="0.1"%3E%3Cpath d="M0 0h20v20H0zM20 20h20v20H20z"/%3E%3C/g%3E%3C/svg%3E');
   color: #fff;
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
   padding: 20px;
-  overflow: hidden; /* Prevent scrollbars during animations */
+  overflow: auto;
 }
 
 .game-container {
   text-align: center;
-  max-width: 1200px;
+  max-width: 1000px;
   width: 100%;
   position: relative;
-  perspective: 1000px; /* For 3D card effects */
+  perspective: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
 }
 
 h1 {
   color: #F1C40F;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 2rem;
+  margin: 10px 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   animation: titlePulse 2s infinite ease-in-out;
 }
@@ -41,9 +48,9 @@ h1 {
 
 .deck-count {
   color: #F1C40F;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin: 5px 0;
   transition: transform 0.3s ease;
 }
 
@@ -61,32 +68,44 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
   gap: 10px;
-  width: 280px;
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 320px;
+  margin: 10px 0;
+  position: relative;
 }
 
 .combo-slot {
   width: 70px;
-  min-height: 110px;
+  height: 110px;
   background-color: rgba(241, 196, 15, 0.1);
   border: 2px dashed #ccc;
   border-radius: 8px;
-  position: relative;
   padding: 5px;
   text-align: center;
   font-size: 0.8rem;
-  color: #333;
+  color: #ccc;
   transition: all 0.3s ease;
+}
+
+.combo-slot.base-area {
+  background-color: rgba(52, 152, 219, 0.2);
+  border: 2px solid #3498db;
+}
+
+.capture-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.combo-slot.sum-area,
+.combo-slot.match-area {
+  min-height: 110px;
 }
 
 .combo-slot.valid-target {
   border-color: #3498db;
-  background-color: rgba(52, 152, 219, 0.2);
+  background-color: rgba(52, 152, 219, 0.3);
   transform: scale(1.05);
 }
 
@@ -115,13 +134,13 @@ h1 {
 
 .table {
   position: relative;
-  min-width: 800px;
-  height: 750px;
-  margin: 0 auto;
-  background-color: black;
+  width: 800px;
+  height: 600px;
+  margin: 10px auto;
+  background-color: #0B3D20;
   border: 4px solid #7B3F00;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   transition: transform 0.5s ease;
 }
 
@@ -130,7 +149,7 @@ h1 {
 }
 
 @keyframes flashTable {
-  0%, 100% { background-color: black; }
+  0%, 100% { background-color: #0B3D20; }
   50% { background-color: rgba(241, 196, 15, 0.3); }
 }
 
@@ -140,7 +159,7 @@ h1 {
   padding: 5px 10px;
   border-radius: 5px;
   font-family: 'Georgia', serif;
-  font-size: 1rem;
+  font-size: 0.9rem;
   z-index: 10;
   transition: transform 0.5s ease;
 }
@@ -155,9 +174,9 @@ h1 {
   100% { transform: scale(1); }
 }
 
-.player-score { bottom: 20px; left: 50%; transform: translateX(-50%); }
-.bot1-score { top: 15px; left: 15px; }
-.bot2-score { top: 15px; right: 15px; }
+.player-score { bottom: 10px; left: 50%; transform: translateX(-50%); }
+.bot1-score { top: 10px; left: 10px; }
+.bot2-score { top: 10px; right: 10px; }
 
 .board {
   position: absolute;
@@ -168,7 +187,7 @@ h1 {
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
   gap: 10px;
-  max-width: 320px;
+  width: 320px;
   padding: 15px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
@@ -177,15 +196,32 @@ h1 {
 }
 
 .hand {
-  position: absolute;
   display: flex;
   gap: 5px;
   padding: 10px;
+  position: absolute;
 }
 
-.player-hand { bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.bot1-hand { top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
-.bot2-hand { top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
+.player-hand {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
+
+.bot1-hand {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: center;
+}
+
+.bot2-hand {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+}
 
 .card {
   width: 70px;
@@ -289,12 +325,14 @@ h1 {
 }
 
 .actions {
-  margin-top: 30px;
+  margin: 15px 0;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
 }
 
 button {
   padding: 10px 20px;
-  margin: 0 10px;
   background-color: #F1C40F;
   border: none;
   border-radius: 5px;
@@ -325,8 +363,8 @@ button:disabled {
 }
 
 .message {
-  margin-top: 20px;
-  font-size: 1.2rem;
+  margin: 10px 0;
+  font-size: 1.1rem;
   color: #F1C40F;
   font-weight: bold;
   transition: opacity 0.3s ease;
@@ -342,8 +380,8 @@ button:disabled {
 }
 
 .capture-type {
-  margin-top: 10px;
-  font-size: 1rem;
+  margin: 5px 0;
+  font-size: 0.9rem;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
@@ -355,7 +393,7 @@ dialog {
   border: 3px solid #F1C40F;
   border-radius: 8px;
   padding: 20px;
-  width: 400px;
+  width: 350px;
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   z-index: 1000;
@@ -435,32 +473,35 @@ dialog select:focus {
 
 /* Responsive adjustments */
 @media (max-width: 900px) {
-  .table { min-width: 650px; height: 650px; }
+  .table { width: 650px; height: 500px; }
   .game-container { max-width: 700px; }
-  .combination-area { width: 260px; }
-  .sum-area, .match-area { min-width: 55px; }
+  .combination-area { width: 300px; }
+  .card { width: 65px; height: 95px; font-size: 0.9rem; }
+  .combo-slot { width: 65px; height: 100px; }
+  .board { width: 300px; grid-template-columns: repeat(4, 65px); grid-auto-rows: 100px; }
 }
 
 @media (max-width: 700px) {
-  h1 { font-size: 1.8rem; }
-  .table { min-width: 500px; height: 550px; }
-  .board { max-width: 320px; padding: 10px; }
-  .card { width: 70px; height: 100px; font-size: 1rem; }
-  .player-hand { bottom: 50px; }
-  .bot1-hand { left: -25px; }
-  .bot2-hand { right: -25px; }
+  h1 { font-size: 1.6rem; }
+  .table { width: 500px; height: 400px; }
+  .board { width: 260px; grid-template-columns: repeat(4, 60px); grid-auto-rows: 90px; gap: 8px; }
+  .card { width: 60px; height: 90px; font-size: 0.8rem; }
+  .combo-slot { width: 60px; height: 90px; font-size: 0.7rem; }
+  .combination-area { width: 260px; }
   button { padding: 8px 15px; font-size: 0.9rem; }
-  .game-container { max-width: 550px; }
-  .combination-area { width: 240px; }
-  .sum-area, .match-area { min-width: 50px; min-height: 100px; }
+  .player-hand { bottom: 5px; }
+  .bot1-hand { left: -20px; }
+  .bot2-hand { right: -20px; }
 }
 
 @media (max-width: 550px) {
-  .table { min-width: 400px; height: 500px; }
-  .board { max-width: 280px; gap: 10px; }
-  .card { width: 60px; height: 90px; font-size: 0.9rem; }
+  .table { width: 400px; height: 350px; }
+  .board { width: 220px; grid-template-columns: repeat(4, 50px); grid-auto-rows: 80px; gap: 6px; }
+  .card { width: 50px; height: 80px; font-size: 0.7rem; }
+  .combo-slot { width: 50px; height: 80px; font-size: 0.6rem; }
   .combination-area { width: 220px; }
-  .sum-area, .match-area { min-width: 45px; min-height: 90px; }
-  dialog { width: 300px; padding: 15px; }
-  dialog select, dialog button { font-size: 0.9rem; }
+  .game-container { padding: 10px; }
+  button { padding: 6px 12px; font-size: 0.8rem; }
+  dialog { width: 280px; padding: 10px; }
+  dialog select, dialog button { font-size: 0.8rem; }
 }
