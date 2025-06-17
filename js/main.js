@@ -25,9 +25,6 @@ let botTurnInProgress = false;
 // Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
 const sounds = {
   capture: new Audio('audio/capture.mp3'),
-  place: new Audio('audio/place.mp3'),
-  turnChange: new Audio('audio/turnChange.mp3'),
-  gameEnd: new Audio('audio/gameEnd.mp3'),
   invalid: new Audio('audio/invalid.mp3'),
   winner: new Audio('audio/winner.mp3'),
   jackpot: new Audio('audio/jackpot.mp3')
@@ -69,7 +66,7 @@ function initGame() {
   state.selectedCard = null;
   render();
   showSettingsModal();
-  playSound('turnChange');
+  playSound('capture');
 }
 
 // Play sound based on settings
@@ -452,7 +449,7 @@ console.log(`🔧 COMBINATION STATE:`, state.combination);
 
 state.draggedCard = null;
   render();
-  playSound('place');
+  playSound('capture');
 }
 
 // Handle touch drop
@@ -477,7 +474,7 @@ function handleTouchDrop(e, targetType, data) {
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
 checkGameEnd();
-    playSound('place');
+    playSound('capture');
     render();
     if (state.currentPlayer !== 0) {
       scheduleNextBotTurn();
@@ -490,7 +487,7 @@ checkGameEnd();
   state.selectedCard.element.style.transform = 'scale(1)';
   state.selectedCard = null;
   render();
-  playSound('place');
+  playSound('capture');
 }
 
 // Handle drop back to original spot
@@ -687,7 +684,7 @@ function handlePlaceDrop(e) {
   state.draggedCard = null;
   checkGameEnd();
   render();
-  playSound('place');
+  playSound('capture');
   if (state.currentPlayer !== 0) {
   scheduleNextBotTurn();
 }
@@ -719,7 +716,8 @@ function handleSubmit() {
   const messageEl = document.getElementById('message');
 
   if (baseCards.length !== 1) {
-    if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card.";
+    if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card."
+    playSound('invalid');;
     return;
   }
 
@@ -748,14 +746,16 @@ function handleSubmit() {
         validCaptures.push({ name: area.name, cards: area.cards });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
-        if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`;
+        if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`
+        playSound('invalid');;
         return;
       }
     }
   }
 
   if (validCaptures.length === 0) {
-    if (messageEl) messageEl.textContent = "No valid captures found.";
+    if (messageEl) messageEl.textContent = "No valid captures found."
+    playSound('invalid');;
     return;
   }
 
@@ -885,7 +885,7 @@ function aiTurn() {
   state.currentPlayer = (playerIndex + 1) % 3;
   checkGameEnd();
   render();
-  playSound('turnChange');
+  playSound('capture');
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
     scheduleNextBotTurn();
   }
@@ -907,7 +907,7 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
   }
   
   checkGameEnd();
-  playSound('place');
+  playSound('capture');
   return;
 }
 
@@ -976,7 +976,7 @@ setTimeout(() => {
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
       render();
-      playSound('place');
+      playSound('capture');
       console.log(`🤖 BOT ${playerIndex} TURN END - placed card`);
       
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
@@ -1012,7 +1012,8 @@ function checkGameEnd() {
       state.scores.bot2 += bonusPoints;
     }
     
-    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
+    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`
+    playSound('jackpot'););
     state.board = []; // Clear the board
     
     if (messageEl) messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
@@ -1031,7 +1032,7 @@ function checkGameEnd() {
       { score: -1, name: '' }
     );
     if (messageEl) messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
-    playSound('gameEnd');
+    playSound('winner');
   } else {
     // Deal new round
     try {
@@ -1044,7 +1045,7 @@ function checkGameEnd() {
       state.lastCapturer = null; // Reset for new round
       if (messageEl) messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
       render();
-      playSound('turnChange');
+      playSound('capture');
     } catch (e) {
       console.error('Error dealing new round:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
@@ -1059,7 +1060,7 @@ function checkGameEnd() {
     state.currentPlayer = 0;
     if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
     render();
-    playSound('turnChange');
+    playSound('capture');
   } catch (e) {
     console.error('Error dealing new round:', e);
     if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
