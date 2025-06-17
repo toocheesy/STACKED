@@ -487,7 +487,6 @@ checkGameEnd();
   state.selectedCard.element.style.transform = 'scale(1)';
   state.selectedCard = null;
   render();
-  playSound('capture');
 }
 
 // Handle drop back to original spot
@@ -944,7 +943,6 @@ console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}
           
           console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
 render();
-playSound('capture');
 
 // Continue playing - check for more captures or place to end turn
 setTimeout(() => {
