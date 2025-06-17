@@ -899,9 +899,6 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
     state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
     console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
     render();
-playSound('capture');
-
-// Continue playing - check for more captures or place to end turn
   }
   
   checkGameEnd();
@@ -941,6 +938,7 @@ console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}
           
           console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
 render();
+playSound('capture');
 
 // Continue playing - check for more captures or place to end turn
 setTimeout(() => {
