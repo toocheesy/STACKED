@@ -448,8 +448,7 @@ console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCa
 console.log(`🔧 COMBINATION STATE:`, state.combination);
 
 state.draggedCard = null;
-  render();
-  playSound('capture');
+render();
 }
 
 // Handle touch drop
@@ -474,7 +473,6 @@ function handleTouchDrop(e, targetType, data) {
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
 checkGameEnd();
-    playSound('capture');
     render();
     if (state.currentPlayer !== 0) {
       scheduleNextBotTurn();
@@ -683,7 +681,6 @@ function handlePlaceDrop(e) {
   state.draggedCard = null;
   checkGameEnd();
   render();
-  playSound('capture');
   if (state.currentPlayer !== 0) {
   scheduleNextBotTurn();
 }
@@ -778,8 +775,7 @@ function handleSubmit() {
     setTimeout(aiTurn, 1000);
   }
   render();
-  playSound('capture');
-}
+  }
 
 // Helper function to execute capture
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
@@ -884,7 +880,6 @@ function aiTurn() {
   state.currentPlayer = (playerIndex + 1) % 3;
   checkGameEnd();
   render();
-  playSound('capture');
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
     scheduleNextBotTurn();
   }
@@ -906,7 +901,6 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
   }
   
   checkGameEnd();
-  playSound('capture');
   return;
 }
 
@@ -974,7 +968,6 @@ setTimeout(() => {
       state.currentPlayer = (playerIndex + 1) % 3;
       checkGameEnd();
       render();
-      playSound('capture');
       console.log(`🤖 BOT ${playerIndex} TURN END - placed card`);
       
       if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
@@ -1043,8 +1036,7 @@ playSound('jackpot');
       state.lastCapturer = null; // Reset for new round
       if (messageEl) messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
       render();
-      playSound('capture');
-    } catch (e) {
+      } catch (e) {
       console.error('Error dealing new round:', e);
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
@@ -1058,8 +1050,7 @@ playSound('jackpot');
     state.currentPlayer = 0;
     if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
     render();
-    playSound('capture');
-  } catch (e) {
+    } catch (e) {
     console.error('Error dealing new round:', e);
     if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
   }
