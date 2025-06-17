@@ -1,6 +1,5 @@
 /* 
- * Fixed styles.css for STACKED! with corrected layout and premium animations
- * Proper 5-area play system, visible buttons, responsive design, and casino-themed background
+ * Updated for dual play areas, capture-type display, and animated card reveal.
  */
 * {
   margin: 0;
@@ -10,147 +9,84 @@
 }
 
 body {
-  background: linear-gradient(135deg, #0B3D20 0%, #145A32 50%, #0B3D20 100%);
-  background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Cg fill="%231C7A3D" fill-opacity="0.1"%3E%3Cpath d="M0 0h20v20H0zM20 20h20v20H20z"/%3E%3C/g%3E%3C/svg%3E');
+  background-color: #145A32;
   color: #fff;
   display: flex;
   justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   padding: 20px;
-  overflow: auto;
 }
 
 .game-container {
   text-align: center;
-  max-width: 1000px;
+  max-width: 1200px;
   width: 100%;
   position: relative;
-  perspective: 1000px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
 }
 
 h1 {
   color: #F1C40F;
-  font-size: 2rem;
-  margin: 10px 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  animation: titlePulse 2s infinite ease-in-out;
-}
-
-@keyframes titlePulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  font-size: 2.5rem;
+  margin-bottom: 20px;
 }
 
 .deck-count {
   color: #F1C40F;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: bold;
-  margin: 5px 0;
-  transition: transform 0.3s ease;
-}
-
-.deck-count.dealing {
-  animation: deckDeal 0.5s ease-in-out;
-}
-
-@keyframes deckDeal {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  margin-bottom: 10px;
 }
 
 .combination-area {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 320px;
-  margin: 10px 0;
-  position: relative;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  width: 180px;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .combo-slot {
   width: 70px;
-  height: 110px;
+  min-height: 110px;
   background-color: rgba(241, 196, 15, 0.1);
   border: 2px dashed #ccc;
   border-radius: 8px;
+  position: relative;
   padding: 5px;
   text-align: center;
   font-size: 0.8rem;
-  color: #ccc;
-  transition: all 0.3s ease;
+  color: #333;
+  overflow: hidden; /* Ensure cards stay within bounds */
 }
 
-.combo-slot.base-area {
-  background-color: rgba(52, 152, 219, 0.2);
-  border: 2px solid #3498db;
+.combo-slot[data-slot="0"]:before {
+  content: "Play Area";
 }
 
-.capture-row {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.combo-slot.sum-area,
-.combo-slot.match-area {
-  min-height: 110px;
-}
-
-.combo-slot.valid-target {
-  border-color: #3498db;
-  background-color: rgba(52, 152, 219, 0.3);
-  transform: scale(1.05);
+.combo-slot[data-slot="1"]:before {
+  content: "Principal Match";
 }
 
 .combo-slot.valid-combo {
   border-color: #2ecc71;
   box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
   background-color: rgba(46, 204, 113, 0.2);
-  animation: validPulse 0.5s ease-in-out;
-}
-
-@keyframes validPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-.combo-slot.invalid {
-  animation: shake 0.3s ease-in-out;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  transition: all 0.3s ease; /* Smooth transition for valid state */
 }
 
 .table {
   position: relative;
-  width: 800px;
-  height: 600px;
-  margin: 10px auto;
-  background-color: #0B3D20;
+  min-width: 800px;
+  height: 750px;
+  margin: 0 auto;
+  background-color: black;
   border: 4px solid #7B3F00;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-  transition: transform 0.5s ease;
-}
-
-.table.last-combo {
-  animation: flashTable 1s ease;
-}
-
-@keyframes flashTable {
-  0%, 100% { background-color: #0B3D20; }
-  50% { background-color: rgba(241, 196, 15, 0.3); }
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .score {
@@ -159,24 +95,25 @@ h1 {
   padding: 5px 10px;
   border-radius: 5px;
   font-family: 'Georgia', serif;
-  font-size: 0.9rem;
+  font-size: 1rem;
   z-index: 10;
-  transition: transform 0.5s ease;
 }
 
-.score.updated {
-  animation: scoreCount 0.5s ease-in-out;
+.player-score {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-@keyframes scoreCount {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
+.bot1-score {
+  top: 15px;
+  left: 15px;
 }
 
-.player-score { bottom: 10px; left: 50%; transform: translateX(-50%); }
-.bot1-score { top: 10px; left: 10px; }
-.bot2-score { top: 10px; right: 10px; }
+.bot2-score {
+  top: 15px;
+  right: 15px;
+}
 
 .board {
   position: absolute;
@@ -187,7 +124,7 @@ h1 {
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
   gap: 10px;
-  width: 320px;
+  max-width: 320px;
   padding: 15px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
@@ -196,28 +133,26 @@ h1 {
 }
 
 .hand {
+  position: absolute;
   display: flex;
   gap: 5px;
   padding: 10px;
-  position: absolute;
 }
 
 .player-hand {
-  bottom: 10px;
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
 }
 
 .bot1-hand {
-  left: 10px;
   top: 50%;
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
-  right: 10px;
   top: 50%;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
@@ -234,6 +169,7 @@ h1 {
   justify-content: flex-start;
   padding: 5px;
   cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.5s ease; /* Added opacity transition */
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
   font-size: 1rem;
@@ -242,67 +178,19 @@ h1 {
   color: #000;
   position: relative;
   touch-action: none;
-  transform-style: preserve-3d;
-  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55),
-              opacity 0.3s ease,
-              box-shadow 0.3s ease;
 }
 
-.card.red { color: #e74c3c; }
-
-.card.dealing {
-  animation: dealCard 0.5s ease-out;
-}
-
-@keyframes dealCard {
-  0% { transform: translateY(-1000px) rotateY(360deg); opacity: 0; }
-  100% { transform: translateY(0) rotateY(0); opacity: 1; }
-}
-
-.card.dragging {
-  opacity: 0.8;
-  transform: scale(1.1) rotate(2deg);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.card.snapped {
-  animation: snapToPlace 0.3s ease-out;
-}
-
-@keyframes snapToPlace {
-  0% { transform: scale(1.2) rotate(5deg); }
-  100% { transform: scale(1) rotate(0); }
-}
-
-.card.invalid {
-  animation: bounceBack 0.4s ease-in-out;
-}
-
-@keyframes bounceBack {
-  0% { transform: translateX(0); }
-  50% { transform: translateX(-20px); }
-  100% { transform: translateX(0); }
-}
-
-.card.captured {
-  animation: captureCard 0.6s ease-in-out;
-}
-
-@keyframes captureCard {
-  0% { transform: scale(1) rotate(0); }
-  50% { transform: scale(1.3) rotate(10deg); }
-  100% { transform: scale(0) rotate(-10deg); opacity: 0; }
+.card.red {
+  color: #e74c3c;
 }
 
 .card.selected {
   border-color: #3498db;
   transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(52, 152, 219, 0.7);
 }
 
 .card:hover {
-  transform: scale(1.1) translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
 }
 
 .card.back {
@@ -315,73 +203,54 @@ h1 {
   border-color: #e67e22;
   box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
   background-color: rgba(230, 126, 34, 0.2);
-  animation: hintPulse 1s infinite ease-in-out;
 }
 
-@keyframes hintPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); }
-  100% { transform: scale(1); }
+.card.hint:hover {
+  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9); /* Enhanced hover effect */
 }
 
 .actions {
-  margin: 15px 0;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
+  margin-top: 30px;
 }
 
 button {
   padding: 10px 20px;
+  margin: 0 10px;
   background-color: #F1C40F;
   border: none;
   border-radius: 5px;
   color: #000;
   font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s;
   font-weight: bold;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 button:hover {
   background-color: #D4AC0D;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 button:disabled {
   background-color: #7f8c8d;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+}
+
+#restart-btn,
+#reset-play-area-btn,
+#hint-btn {
+  margin-top: 10px;
 }
 
 .message {
-  margin: 10px 0;
-  font-size: 1.1rem;
+  margin-top: 20px;
+  font-size: 1.2rem;
   color: #F1C40F;
   font-weight: bold;
-  transition: opacity 0.3s ease;
-}
-
-.message.turn-change {
-  animation: fadeMessage 0.5s ease-in-out;
-}
-
-@keyframes fadeMessage {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
 }
 
 .capture-type {
-  margin: 5px 0;
-  font-size: 0.9rem;
+  margin-top: 10px;
+  font-size: 1rem;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
@@ -393,21 +262,15 @@ dialog {
   border: 3px solid #F1C40F;
   border-radius: 8px;
   padding: 20px;
-  width: 350px;
+  width: 400px;
   max-width: 90%;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   z-index: 1000;
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.3s ease;
+  transform: translate(-50%, -50%);
 }
-
-dialog[open] {
-  transform: translate(-50%, -50%) scale(1);
-}
-
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -431,77 +294,261 @@ dialog select {
   background-color: #fff;
   color: #000;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
 }
 
-dialog select:focus {
-  border-color: #F1C40F;
-  outline: none;
-}
-
-.particle {
-  position: absolute;
-  background: #F1C40F;
-  border-radius: 50%;
-  pointer-events: none;
-  animation: particleBurst 0.5s ease-out forwards;
-}
-
-@keyframes particleBurst {
-  0% { transform: scale(0); opacity: 1; }
-  100% { transform: scale(2); opacity: 0; }
-}
-
-.turn-indicator {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 5px 15px;
-  background-color: rgba(52, 152, 219, 0.8);
+dialog button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #F1C40F;
+  color: #000;
+  border: none;
   border-radius: 5px;
-  color: #fff;
+  cursor: pointer;
   font-weight: bold;
-  z-index: 10;
-  animation: slideIn 0.5s ease-out;
+  transition: background-color 0.3s;
 }
 
-@keyframes slideIn {
-  0% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
-  100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+dialog button:hover {
+  background-color: #D4AC0D;
 }
 
-/* Responsive adjustments */
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-buttons button {
+  flex: 1;
+}
+
+.tutorial-content {
+  text-align: left;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.tutorial-content h3 {
+  margin-top: 10px;
+  color: #F1C40F;
+}
+
+.tutorial-content ul {
+  margin-left: 20px;
+  list-style-type: disc;
+}
+
+.tutorial-content ul ul {
+  margin-left: 20px;
+  list-style-type: circle;
+}
+
+dialog .modal-content {
+  text-align: center;
+}
+
+dialog h2 {
+  color: #F1C40F;
+  margin-bottom: 15px;
+}
+
 @media (max-width: 900px) {
-  .table { width: 650px; height: 500px; }
-  .game-container { max-width: 700px; }
-  .combination-area { width: 300px; }
-  .card { width: 65px; height: 95px; font-size: 0.9rem; }
-  .combo-slot { width: 65px; height: 100px; }
-  .board { width: 300px; grid-template-columns: repeat(4, 65px); grid-auto-rows: 100px; }
+  .table {
+    min-width: 650px;
+    height: 650px;
+  }
+  
+  .game-container {
+    max-width: 700px;
+  }
+
+  .combination-area {
+    width: 160px;
+  }
+
+  .combo-slot {
+    width: 70px;
+    min-height: 110px;
+  }
+
+  .board {
+    max-width: 320px;
+    grid-template-columns: repeat(4, 70px);
+    grid-auto-rows: 110px;
+  }
+
+  .card {
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
+  }
 }
 
 @media (max-width: 700px) {
-  h1 { font-size: 1.6rem; }
-  .table { width: 500px; height: 400px; }
-  .board { width: 260px; grid-template-columns: repeat(4, 60px); grid-auto-rows: 90px; gap: 8px; }
-  .card { width: 60px; height: 90px; font-size: 0.8rem; }
-  .combo-slot { width: 60px; height: 90px; font-size: 0.7rem; }
-  .combination-area { width: 260px; }
-  button { padding: 8px 15px; font-size: 0.9rem; }
-  .player-hand { bottom: 5px; }
-  .bot1-hand { left: -20px; }
-  .bot2-hand { right: -20px; }
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .table {
+    min-width: 500px;
+    height: 550px;
+  }
+
+  .board {
+    max-width: 320px;
+    padding: 10px;
+  }
+
+  .card {
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
+  }
+
+  .player-hand {
+    bottom: 50px;
+  }
+
+  .bot1-hand {
+    left: -25px;
+  }
+
+  .bot2-hand {
+    right: -25px;
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .game-container {
+    max-width: 550px;
+  }
+
+  .combination-area {
+    width: 140px;
+  }
+
+  .combo-slot {
+    width: 60px;
+    min-height: 110px;
+  }
 }
 
 @media (max-width: 550px) {
-  .table { width: 400px; height: 350px; }
-  .board { width: 220px; grid-template-columns: repeat(4, 50px); grid-auto-rows: 80px; gap: 6px; }
-  .card { width: 50px; height: 80px; font-size: 0.7rem; }
-  .combo-slot { width: 50px; height: 80px; font-size: 0.6rem; }
-  .combination-area { width: 220px; }
-  .game-container { padding: 10px; }
-  button { padding: 6px 12px; font-size: 0.8rem; }
-  dialog { width: 280px; padding: 10px; }
-  dialog select, dialog button { font-size: 0.8rem; }
+  .table {
+    min-width: 400px;
+    height: 500px;
+  }
+
+  .board {
+    max-width: 280px;
+    gap: 10px;
+  }
+
+  .card {
+    width: 60px;
+    height: 90px;
+    font-size: 0.9rem;
+  }
+
+  .combination-area {
+    width: 120px;
+  }
+
+  .combo-slot {
+    width: 50px;
+    min-height: 100px;
+  }
+
+  dialog {
+    width: 300px;
+    padding: 15px;
+  }
+
+  dialog select,
+  dialog button {
+    font-size: 0.9rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+
+/* 5-Area Layout Additions */
+.capture-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.base-area {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.sum-area, .match-area {
+  flex: 1;
+  min-height: 110px;
+  min-width: 60px;
+}
+
+/* Update combination-area for vertical layout */
+.combination-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  width: 280px; /* Wider to fit 4 areas */
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Responsive adjustments for 5 areas */
+@media (max-width: 900px) {
+  .combination-area {
+    width: 260px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 55px;
+  }
+}
+
+@media (max-width: 700px) {
+  .combination-area {
+    width: 240px;
+  }
+  
+  .capture-row {
+    gap: 8px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 50px;
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 550px) {
+  .combination-area {
+    width: 220px;
+  }
+  
+  .capture-row {
+    gap: 6px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 45px;
+    min-height: 90px;
+  }
 }

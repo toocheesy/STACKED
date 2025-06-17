@@ -8,9 +8,6 @@
 </head>
 <body>
   <div class="game-container">
-    <!-- Turn Indicator (Added for Grok's animations) -->
-    <div class="turn-indicator">Player's Turn</div>
-    
     <h1>Welcome to STACKED! 🎴</h1>
     <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
 
@@ -78,23 +75,21 @@
             <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
             <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
               <ul>
-                <li><strong>Match Capture:</strong> Place a card in Base area, then matching cards in Match area. Must use hand + board cards.</li>
-                <li><strong>Sum Capture:</strong> Place target card in Base area. Use Sum areas with cards that total the Base card value. Must use hand + board cards.</li>
-                <li><strong>Multi-Capture:</strong> Use multiple Sum areas and/or Match area simultaneously for massive point combos!</li>
+                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
+                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value. All cards are captured.</li>
               </ul>
             </li>
-            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Valid areas glow green. Invalid areas shake and turn red.</li>
+            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
             <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
             <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
-            <li><strong>Scoring:</strong> Cards worth points based on rarity. Bigger combos = bigger scores!</li>
-            <li><strong>Last Combo Takes All:</strong> When deck is empty, whoever made the last capture gets all remaining board cards!</li>
+            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
+            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
           </ul>
           <h3>Tips:</h3>
           <ul>
-            <li>Plan multi-captures for maximum points per turn!</li>
-            <li>Watch the turn indicator to track whose turn it is.</li>
-            <li>Use the hint button if you're stuck!</li>
-            <li>Save powerful cards for the endgame when "Last Combo Takes All" triggers!</li>
+            <li>Plan your combos carefully to maximize points.</li>
+            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
+            <li>Secure J, Q, K matches quickly—they’re valuable but can’t be used in sums!</li>
           </ul>
         </div>
         <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
@@ -109,19 +104,19 @@
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
       <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
 
-      <!-- Enhanced Play Areas with proper data attributes -->
+      <!-- Play Areas -->
       <div class="combination-area" id="combination-area">
-        <!-- Base Card Area (Top) -->
-        <div class="combo-slot base-area" data-slot="base">Base Card</div>
-        
-        <!-- Capture Areas (Bottom Row) -->
-        <div class="capture-row">
-          <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
-          <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
-        </div>
-      </div>
+  <!-- Base Card Area (Top) -->
+  <div class="combo-slot base-area" data-slot="base">Base Card</div>
+  
+  <!-- Capture Areas (Bottom Row) -->
+  <div class="capture-row">
+    <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
+    <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
+    <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
+    <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
+  </div>
+</div>
 
       <!-- Board -->
       <div class="board" id="board"></div>
@@ -147,14 +142,11 @@
     <div class="message" id="message">
       Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
     </div>
-    
-    <!-- Particle effects container (for Grok's animations) -->
-    <div class="particle-container"></div>
   </div>
 
   <script src="js/deck.js"></script>
-  <script src="js/gameLogic.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/main.js"></script>
+<script src="js/gameLogic.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
