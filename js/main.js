@@ -24,10 +24,10 @@ let botTurnInProgress = false;
 
 // Base64-encoded audio files (placeholder)
 const sounds = {
-  capture: new Audio('data:audio/mp3;base64,...'),
-  place: new Audio('data:audio/mp3;base64,...'),
-  turnChange: new Audio('data:audio/mp3;base64,...'),
-  gameEnd: new Audio('data:audio/mp3;base64,...')
+  capture: new Audio('audio/capture.mp3'),
+  invalid: new Audio('audio/invalid.mp3'),
+  winner: new Audio('audio/winner.mp3'),
+  jackpot: new Audio('audio/jackpot.mp3')
 };
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
@@ -120,6 +120,7 @@ function provideHint() {
     const messageEl = document.getElementById('message');
     if (messageEl) {
       messageEl.textContent = "No valid captures available. Place a card to end your turn.";
+      playSound('invalid');
       messageEl.classList.add('turn-change');
       setTimeout(() => messageEl.classList.remove('turn-change'), 500);
     }
@@ -467,6 +468,7 @@ function handleDrop(e, slot) {
       comboSlot.classList.add('invalid');
       setTimeout(() => comboSlot.classList.remove('invalid'), 300);
     }
+    playSound('invalid');
   }
 
   state.draggedCard = null;
@@ -802,6 +804,7 @@ function handleSubmit() {
       messageEl.classList.add('turn-change');
       setTimeout(() => messageEl.classList.remove('turn-change'), 500);
     }
+    playSound('invalid');
     const baseSlot = document.querySelector('.combo-slot[data-slot="base"]');
     if (baseSlot) {
       baseSlot.classList.add('invalid');
@@ -839,6 +842,7 @@ function handleSubmit() {
           messageEl.classList.add('turn-change');
           setTimeout(() => messageEl.classList.remove('turn-change'), 500);
         }
+        playSound('invalid');
         const slot = document.querySelector(`.combo-slot[data-slot="${area.name}"]`);
         if (slot) {
           slot.classList.add('invalid');
@@ -855,6 +859,7 @@ function handleSubmit() {
       messageEl.classList.add('turn-change');
       setTimeout(() => messageEl.classList.remove('turn-change'), 500);
     }
+    playSound('invalid');
     return;
   }
 
