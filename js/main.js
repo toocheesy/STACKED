@@ -1,13 +1,13 @@
 /* 
- * Clean main.js - Fixed version without duplicate declarations
- * Updated to work with gameLogic.js global functions
+ * Enhanced main.js for STACKED! with premium animations
+ * Adds smooth card movements, capture effects, UI polish, and game state feedback
  */
 let state = {
   deck: [],
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-area structure  
+  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
   currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
@@ -22,9 +22,9 @@ let state = {
 
 let botTurnInProgress = false;
 
-// Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
+// Base64-encoded audio files (placeholder)
 const sounds = {
-  capture: new Audio('data:audio/mp3;base64,...'), // Replace with actual base64
+  capture: new Audio('data:audio/mp3;base64,...'),
   place: new Audio('data:audio/mp3;base64,...'),
   turnChange: new Audio('data:audio/mp3;base64,...'),
   gameEnd: new Audio('data:audio/mp3;base64,...')
@@ -64,7 +64,7 @@ function initGame() {
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
-  render();
+  renderWithDealAnimation();
   showSettingsModal();
   playSound('turnChange');
 }
@@ -93,7 +93,7 @@ function showSettingsModal() {
         state.settings.targetScore = parseInt(document.getElementById('target-score').value);
         state.settings.botDifficulty = document.getElementById('bot-difficulty').value;
         modal.close();
-        render();
+        renderWithDealAnimation();
       });
     }
 
@@ -105,7 +105,7 @@ function showSettingsModal() {
   }
 }
 
-// Provide hints by highlighting valid captures
+// Provide hints with animated highlights
 function provideHint() {
   if (state.currentPlayer !== 0) return;
   const possibleCaptures = [];
@@ -118,7 +118,11 @@ function provideHint() {
 
   if (possibleCaptures.length === 0) {
     const messageEl = document.getElementById('message');
-    if (messageEl) messageEl.textContent = "No valid captures available. Place a card to end your turn.";
+    if (messageEl) {
+      messageEl.textContent = "No valid captures available. Place a card to end your turn.";
+      messageEl.classList.add('turn-change');
+      setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+    }
     return;
   }
 
@@ -135,12 +139,34 @@ function provideHint() {
     if (handCardEl) handCardEl.classList.remove('hint');
     boardCardEls.forEach(el => el && el.classList.remove('hint'));
     const messageEl = document.getElementById('message');
-    if (messageEl) messageEl.textContent = "Hint: Try combining the highlighted cards!";
+    if (messageEl) {
+      messageEl.textContent = "Hint: Try combining the highlighted cards!";
+      messageEl.classList.add('turn-change');
+      setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+    }
   }, 3000);
 }
 
+// Render with deal animation
+function renderWithDealAnimation() {
+  render();
+  // Add deal animation to newly dealt cards
+  const cards = document.querySelectorAll('#player-hand .card, #board .card');
+  cards.forEach((card, index) => {
+    setTimeout(() => {
+      card.classList.add('dealing');
+      setTimeout(() => card.classList.remove('dealing'), 500);
+    }, index * 100);
+  });
+
+  const deckCountEl = document.getElementById('deck-count');
+  if (deckCountEl) {
+    deckCountEl.classList.add('dealing');
+    setTimeout(() => deckCountEl.classList.remove('dealing'), 500);
+  }
+}
+
 // Render the game state
-// Updated render function for 5-area layout
 function render() {
   const deckCountEl = document.getElementById('deck-count');
   if (deckCountEl) {
@@ -162,7 +188,7 @@ function render() {
     if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
   }
 
-  // NEW 5-AREA COMBINATION RENDERING
+  // Render combination areas
   const comboAreaEl = document.getElementById('combination-area');
   let captureTypeMessage = "No cards in play areas.";
   
@@ -174,18 +200,12 @@ function render() {
     const matchEl = comboAreaEl.querySelector('[data-slot="match"]');
     
     if (baseEl && sum1El && sum2El && sum3El && matchEl) {
-      // Render Base Card Area
       renderArea(baseEl, state.combination.base, 'base', 'Base Card');
-      
-      // Render Sum Areas
       renderArea(sum1El, state.combination.sum1, 'sum1', 'Sum Cards');
       renderArea(sum2El, state.combination.sum2, 'sum2', 'Sum Cards');
       renderArea(sum3El, state.combination.sum3, 'sum3', 'Sum Cards');
-      
-      // Render Match Area
       renderArea(matchEl, state.combination.match, 'match', 'Matching Cards');
 
-      // VALIDATION LOGIC
       let validCaptures = [];
       let isAnyValid = false;
 
@@ -193,7 +213,6 @@ function render() {
         const baseCard = state.combination.base[0];
         const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
 
-        // Validate Sum1 Area
         if (state.combination.sum1.length > 0) {
           const result = validateSumCapture(state.combination.sum1, baseValue, baseCard);
           if (result.isValid) {
@@ -205,7 +224,6 @@ function render() {
           }
         }
 
-        // Validate Sum2 Area
         if (state.combination.sum2.length > 0) {
           const result = validateSumCapture(state.combination.sum2, baseValue, baseCard);
           if (result.isValid) {
@@ -217,7 +235,6 @@ function render() {
           }
         }
 
-        // Validate Sum3 Area
         if (state.combination.sum3.length > 0) {
           const result = validateSumCapture(state.combination.sum3, baseValue, baseCard);
           if (result.isValid) {
@@ -229,7 +246,6 @@ function render() {
           }
         }
 
-        // Validate Match Area
         if (state.combination.match.length > 0) {
           const result = validateMatchCapture(state.combination.match, baseValue, baseCard);
           if (result.isValid) {
@@ -249,14 +265,12 @@ function render() {
           captureTypeMessage = "Invalid: Capture areas must match Base Card value.";
         }
       } else {
-        // Clear all validation states
         [baseEl, sum1El, sum2El, sum3El, matchEl].forEach(el => el.classList.remove('valid-combo'));
         captureTypeMessage = state.combination.base.length === 0 
           ? "Add a Base Card to start building captures."
           : "Invalid: Base Card area must have exactly one card.";
       }
 
-      // Add event listeners to all areas
       const areas = [
         { el: baseEl, slot: 'base' },
         { el: sum1El, slot: 'sum1' },
@@ -266,36 +280,34 @@ function render() {
       ];
 
       areas.forEach(({ el, slot }) => {
-        el.addEventListener('dragover', (e) => e.preventDefault());
-        el.addEventListener('drop', (e) => handleDrop(e, slot));
+        el.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          if (state.currentPlayer === 0) {
+            el.classList.add('valid-target');
+          }
+        });
+        el.addEventListener('dragleave', () => el.classList.remove('valid-target'));
+        el.addEventListener('drop', (e) => {
+          el.classList.remove('valid-target');
+          handleDrop(e, slot);
+        });
         el.addEventListener('touchend', (e) => handleTouchDrop(e, 'combo', slot));
       });
     }
   }
 
-  // Update capture type display
   const captureTypeEl = document.getElementById('capture-type');
   if (captureTypeEl) {
     captureTypeEl.textContent = captureTypeMessage;
   }
 
-  // Render board
   renderBoard();
-  
-  // Render hands
   renderHands();
-  
-  // Render bot hands
   renderBotHands();
-  
-  // Render scores
   renderScores();
-  
-  // Update submit button
   updateSubmitButton();
-  
-  // Update message
   updateMessage();
+  updateTurnIndicator();
 }
 
 // Helper function to render individual areas
@@ -318,8 +330,19 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
       cardEl.addEventListener('touchstart', (e) => handleTouchStart(e, 'combo', { slot: slotName, comboIndex }));
       cardEl.addEventListener('touchend', handleTouchEnd);
       areaEl.appendChild(cardEl);
+      // Add snap animation for newly placed cards
+      if (comboEntry.justPlaced) {
+        cardEl.classList.add('snapped');
+        setTimeout(() => {
+          cardEl.classList.remove('snapped');
+          comboEntry.justPlaced = false;
+        }, 300);
+      }
     });
     areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
+    areaEl.style.backgroundColor = '';
+    areaEl.style.border = '';
+    areaEl.textContent = '';
   } else {
     areaEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
     areaEl.style.border = '2px dashed #ccc';
@@ -343,16 +366,10 @@ function validateSumCapture(sumCards, baseValue, baseCard) {
   const totalSum = sumValues.reduce((a, b) => a + b, 0);
 
   if (totalSum === baseValue) {
-    return { 
-      isValid: true, 
-      details: `${sumValues.join(' + ')} = ${baseValue}` 
-    };
+    return { isValid: true, details: `${sumValues.join(' + ')} = ${baseValue}` };
   }
 
-  return { 
-    isValid: false, 
-    details: `${sumValues.join(' + ')} = ${totalSum} ≠ ${baseValue}` 
-  };
+  return { isValid: false, details: `${sumValues.join(' + ')} = ${totalSum} ≠ ${baseValue}` };
 }
 
 function validateMatchCapture(matchCards, baseValue, baseCard) {
@@ -366,23 +383,17 @@ function validateMatchCapture(matchCards, baseValue, baseCard) {
   const allMatch = matchCards.every(entry => entry.card.value === baseCard.card.value);
   
   if (allMatch) {
-    return { 
-      isValid: true, 
-      details: `${matchCards.length + 1} cards matching ${baseCard.card.value}` 
-    };
+    return { isValid: true, details: `${matchCards.length + 1} cards matching ${baseCard.card.value}` };
   }
 
-  return { 
-    isValid: false, 
-    details: "Cards must match Base Card value" 
-  };
+  return { isValid: false, details: "Cards must match Base Card value" };
 }
 
 // Handle drag start
 function handleDragStart(e, source, index) {
   if (state.currentPlayer !== 0) return;
   state.draggedCard = { source, index, card: source === 'hand' ? state.hands[0][index] : state.board[index] };
-  e.target.classList.add('selected');
+  e.target.classList.add('dragging', 'selected');
 }
 
 // Handle drag start from combo area
@@ -391,13 +402,14 @@ function handleDragStartCombo(e, slot, comboIndex) {
   state.draggedCard = state.combination[slot][comboIndex];
   state.draggedCard.slot = slot;
   state.draggedCard.comboIndex = comboIndex;
-  e.target.classList.add('selected');
+  e.target.classList.add('dragging', 'selected');
 }
 
 // Handle drag end
 function handleDragEnd(e) {
-  e.target.classList.remove('selected');
+  e.target.classList.remove('dragging', 'selected');
   state.draggedCard = null;
+  document.querySelectorAll('.valid-target').forEach(el => el.classList.remove('valid-target'));
 }
 
 // Handle touch start
@@ -430,26 +442,35 @@ function handleDrop(e, slot) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
-  if (state.draggedCard.slot !== undefined) {
-    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+  let isValidDrop = true;
+  if (slot === 'base' && state.combination.base.length > 0) {
+    isValidDrop = false;
   }
 
-  // Limit Principal Match (slot 1) to one card
-  if (slot === 1 && state.combination[1].length > 0) {
-    state.combination[1] = [];
+  if (isValidDrop) {
+    if (state.draggedCard.slot !== undefined) {
+      state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+    }
+
+    state.combination[slot].push({
+      source: state.draggedCard.source,
+      index: state.draggedCard.index,
+      card: state.draggedCard.card,
+      justPlaced: true
+    });
+
+    console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
+    playSound('place');
+  } else {
+    const comboSlot = document.querySelector(`.combo-slot[data-slot="${slot}"]`);
+    if (comboSlot) {
+      comboSlot.classList.add('invalid');
+      setTimeout(() => comboSlot.classList.remove('invalid'), 300);
+    }
   }
-  state.combination[slot].push({
-  source: state.draggedCard.source,
-  index: state.draggedCard.index,
-  card: state.draggedCard.card
-});
 
-console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
-console.log(`🔧 COMBINATION STATE:`, state.combination);
-
-state.draggedCard = null;
+  state.draggedCard = null;
   render();
-  playSound('place');
 }
 
 // Handle touch drop
@@ -459,35 +480,42 @@ function handleTouchDrop(e, targetType, data) {
 
   if (targetType === 'combo') {
     const slot = data;
-    if (slot === 1 && state.combination[1].length > 0) {
-      state.combination[1] = [];
+    if (slot === 'base' && state.combination.base.length > 0) {
+      const baseSlot = document.querySelector('.combo-slot[data-slot="base"]');
+      if (baseSlot) {
+        baseSlot.classList.add('invalid');
+        setTimeout(() => baseSlot.classList.remove('invalid'), 300);
+      }
+    } else {
+      state.combination[slot].push({
+        source: state.selectedCard.source,
+        index: state.selectedCard.data,
+        card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.data] : state.board[state.selectedCard.data],
+        justPlaced: true
+      });
+      playSound('place');
     }
-    state.combination[slot].push({
-      source: state.selectedCard.source,
-      index: state.selectedCard.data,
-      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.data] : state.board[state.selectedCard.data]
-    });
   } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
     const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
-checkGameEnd();
-    playSound('place');
+    checkGameEnd();
     render();
+    playSound('place');
     if (state.currentPlayer !== 0) {
       scheduleNextBotTurn();
     }
   } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
-    // Return to original position
+    state.selectedCard.element.classList.add('invalid');
+    setTimeout(() => state.selectedCard.element.classList.remove('invalid'), 400);
   }
 
   state.selectedCard.element.classList.remove('selected');
   state.selectedCard.element.style.transform = 'scale(1)';
   state.selectedCard = null;
   render();
-  playSound('place');
 }
 
 // Handle drop back to original spot
@@ -510,9 +538,7 @@ function handleDropOriginal(e, source, index) {
   }
 }
 
-// Helper functions for the new render system
-
-// Render board with 5-area checking
+// Render board
 function renderBoard() {
   const boardEl = document.getElementById('board');
   if (boardEl) {
@@ -551,7 +577,7 @@ function renderBoard() {
   }
 }
 
-// Render hands with 5-area checking
+// Render hands
 function renderHands() {
   const handEl = document.getElementById('player-hand');
   if (handEl) {
@@ -561,7 +587,6 @@ function renderHands() {
       const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      // Check if card is in any play area
       const isInPlayArea = !card || !card.value || !card.suit || 
         state.combination.base.some(entry => entry.source === 'hand' && entry.index === index) ||
         state.combination.sum1.some(entry => entry.source === 'hand' && entry.index === index) ||
@@ -597,7 +622,7 @@ function renderHands() {
   }
 }
 
-// Render bot hands (unchanged from original)
+// Render bot hands
 function renderBotHands() {
   const bot1HandElementEl = document.getElementById('bot1-hand');
   if (bot1HandElementEl) {
@@ -624,18 +649,39 @@ function renderBotHands() {
   }
 }
 
-// Render scores (unchanged from original)
+// Render scores with animation
 function renderScores() {
   const playerScoreEl = document.getElementById('player-score');
   const bot1ScoreEl = document.getElementById('bot1-score');
   const bot2ScoreEl = document.getElementById('bot2-score');
   
-  if (playerScoreEl) playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
-  if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
-  if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
+  if (playerScoreEl) {
+    const oldScore = parseInt(playerScoreEl.textContent.match(/\d+/)?.[0]) || 0;
+    if (oldScore !== state.scores.player) {
+      playerScoreEl.classList.add('updated');
+      setTimeout(() => playerScoreEl.classList.remove('updated'), 500);
+    }
+    playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
+  }
+  if (bot1ScoreEl) {
+    const oldScore = parseInt(bot1ScoreEl.textContent.match(/\d+/)?.[0]) || 0;
+    if (oldScore !== state.scores.bot1) {
+      bot1ScoreEl.classList.add('updated');
+      setTimeout(() => bot1ScoreEl.classList.remove('updated'), 500);
+    }
+    bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
+  }
+  if (bot2ScoreEl) {
+    const oldScore = parseInt(bot2ScoreEl.textContent.match(/\d+/)?.[0]) || 0;
+    if (oldScore !== state.scores.bot2) {
+      bot2ScoreEl.classList.add('updated');
+      setTimeout(() => bot2ScoreEl.classList.remove('updated'), 500);
+    }
+    bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
+  }
 }
 
-// Update submit button logic for 5 areas
+// Update submit button
 function updateSubmitButton() {
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
@@ -649,23 +695,60 @@ function updateSubmitButton() {
   }
 }
 
-// Update message (unchanged from original)
+// Update message with animation
 function updateMessage() {
   const messageEl = document.getElementById('message');
   if (messageEl) {
+    const oldMessage = messageEl.textContent;
+    let newMessage;
     if (state.currentPlayer === 0) {
       if (state.hands[0].length === 0) {
-        messageEl.textContent = "You're out of cards! Bots will finish the round.";
+        newMessage = "You're out of cards! Bots will finish the round.";
         state.currentPlayer = 1;
         scheduleNextBotTurn();
       } else if (state.combination.base.length === 0) {
-        messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
+        newMessage = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
       } else {
-        messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
+        newMessage = "Click 'Submit Move' to capture, or place a card to end your turn.";
       }
     } else {
-      messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
+      newMessage = `Bot ${state.currentPlayer}'s turn...`;
     }
+    
+    if (oldMessage !== newMessage) {
+      messageEl.classList.add('turn-change');
+      messageEl.textContent = newMessage;
+      setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+    }
+  }
+}
+
+// Update turn indicator
+function updateTurnIndicator() {
+  let indicator = document.querySelector('.turn-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.className = 'turn-indicator';
+    document.querySelector('.game-container').appendChild(indicator);
+  }
+  
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+  indicator.textContent = `${playerNames[state.currentPlayer]}'s Turn`;
+}
+
+// Create particle effects for last combo
+function createParticleEffect(x, y) {
+  const numParticles = 20;
+  for (let i = 0; i < numParticles; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    const angle = Math.random() * 360;
+    const distance = Math.random() * 50 + 20;
+    particle.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+    document.querySelector('.game-container').appendChild(particle);
+    setTimeout(() => particle.remove(), 500);
   }
 }
 
@@ -686,15 +769,14 @@ function handlePlaceDrop(e) {
   render();
   playSound('place');
   if (state.currentPlayer !== 0) {
-  scheduleNextBotTurn();
-}
+    scheduleNextBotTurn();
+  }
 }
 
 // Handle reset play area
 function handleResetPlayArea() {
   if (state.currentPlayer !== 0) return;
 
-  // Restore cards to original positions from all 5 areas
   Object.values(state.combination).flat().forEach(entry => {
     if (entry.source === 'hand' && state.hands[0][entry.index]) {
       state.hands[0][entry.index] = entry.card;
@@ -707,8 +789,7 @@ function handleResetPlayArea() {
   render();
 }
 
-// Handle submit action
-// Updated submit function for multiple captures
+// Handle submit with multi-capture animation
 function handleSubmit() {
   if (state.currentPlayer !== 0) return;
 
@@ -716,7 +797,16 @@ function handleSubmit() {
   const messageEl = document.getElementById('message');
 
   if (baseCards.length !== 1) {
-    if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card.";
+    if (messageEl) {
+      messageEl.textContent = "Invalid: Base Card must have exactly one card.";
+      messageEl.classList.add('turn-change');
+      setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+    }
+    const baseSlot = document.querySelector('.combo-slot[data-slot="base"]');
+    if (baseSlot) {
+      baseSlot.classList.add('invalid');
+      setTimeout(() => baseSlot.classList.remove('invalid'), 300);
+    }
     return;
   }
 
@@ -726,7 +816,6 @@ function handleSubmit() {
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
 
-  // Validate and collect all valid captures
   const captureAreas = [
     { name: 'sum1', cards: state.combination.sum1 },
     { name: 'sum2', cards: state.combination.sum2 },
@@ -745,43 +834,85 @@ function handleSubmit() {
         validCaptures.push({ name: area.name, cards: area.cards });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
-        if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`;
+        if (messageEl) {
+          messageEl.textContent = `Invalid ${area.name}: ${result.details}`;
+          messageEl.classList.add('turn-change');
+          setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+        }
+        const slot = document.querySelector(`.combo-slot[data-slot="${area.name}"]`);
+        if (slot) {
+          slot.classList.add('invalid');
+          setTimeout(() => slot.classList.remove('invalid'), 300);
+        }
         return;
       }
     }
   }
 
   if (validCaptures.length === 0) {
-    if (messageEl) messageEl.textContent = "No valid captures found.";
+    if (messageEl) {
+      messageEl.textContent = "No valid captures found.";
+      messageEl.classList.add('turn-change');
+      setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+    }
     return;
   }
 
   console.log(`🎯 MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
-  // Execute the capture
-  executeCapture(baseCard, validCaptures, allCapturedCards);
-  
-  // Track last capturer
-  state.lastCapturer = 0; // Player is always index 0
-  
-  // Reset state
-  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  // Animate multi-capture
+  animateMultiCapture(baseCard, validCaptures, allCapturedCards, () => {
+    executeCapture(baseCard, validCaptures, allCapturedCards);
+    state.lastCapturer = 0;
+    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-  if (state.hands[0].length > 0) {
-    state.currentPlayer = 0;
-    if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
-  } else {
-    state.currentPlayer = 1;
-    if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-    setTimeout(aiTurn, 1000);
-  }
-  render();
-  playSound('capture');
+    if (state.hands[0].length > 0) {
+      state.currentPlayer = 0;
+      if (messageEl) {
+        messageEl.textContent = "Capture successful! Place a card to end your turn.";
+        messageEl.classList.add('turn-change');
+        setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+      }
+    } else {
+      state.currentPlayer = 1;
+      if (messageEl) {
+        messageEl.textContent = "You're out of cards! Bots will finish the round.";
+        messageEl.classList.add('turn-change');
+        setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+      }
+      setTimeout(aiTurn, 1000);
+    }
+    render();
+    playSound('capture');
+  });
 }
 
-// Helper function to execute capture
+// Animate multi-capture
+function animateMultiCapture(baseCard, validCaptures, allCapturedCards, callback) {
+  const slots = ['base', 'sum1', 'sum2', 'sum3', 'match'];
+  let delay = 0;
+
+  slots.forEach(slot => {
+    const slotEl = document.querySelector(`.combo-slot[data-slot="${slot}"]`);
+    const cardsInSlot = slot === 'base' ? [baseCard] : validCaptures.find(c => c.name === slot)?.cards || [];
+    
+    cardsInSlot.forEach((entry, index) => {
+      const cardEl = slotEl.querySelector(`.card[data-combo-index="${index}"]`);
+      if (cardEl) {
+        setTimeout(() => {
+          cardEl.classList.add('captured');
+          createParticleEffect(cardEl.getBoundingClientRect().left + 35, cardEl.getBoundingClientRect().top + 50);
+        }, delay);
+        delay += 200;
+      }
+    });
+  });
+
+  setTimeout(callback, delay + 600);
+}
+
+// Execute capture
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
-  // Remove captured cards from board
   const boardIndicesToRemove = new Set();
   if (baseCard.source === 'board') {
     boardIndicesToRemove.add(baseCard.index);
@@ -797,7 +928,6 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
 
   state.board = state.board.filter((_, i) => !boardIndicesToRemove.has(i));
 
-  // Remove captured cards from hand
   const handIndicesToRemove = new Set();
   if (baseCard.source === 'hand') {
     handIndicesToRemove.add(baseCard.index);
@@ -811,7 +941,6 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
     });
   });
 
-  // Mark hand slots as null, then filter
   Array.from(handIndicesToRemove).forEach(index => {
     if (state.hands[0][index]) {
       state.hands[0][index] = null;
@@ -819,16 +948,15 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
   });
   state.hands[0] = state.hands[0].filter(card => card !== null);
 
-  // Update score
   const scoreFunction = window.scoreCards || function(cards) { 
-    return cards.length * 5; // Fallback scoring
+    return cards.length * 5;
   };
   state.scores.player += scoreFunction(allCapturedCards);
 
   console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
 }
 
-// Add this helper function to prevent double bot turns
+// Schedule bot turn
 function scheduleNextBotTurn() {
   console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}, InProgress: ${botTurnInProgress}`);
   if (botTurnInProgress) {
@@ -836,7 +964,6 @@ function scheduleNextBotTurn() {
     return;
   }
   
-  // Check if current player has cards
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
     botTurnInProgress = true;
     setTimeout(() => {
@@ -844,7 +971,6 @@ function scheduleNextBotTurn() {
       aiTurn();
     }, 1000);
   } else if (state.currentPlayer !== 0) {
-    // Current bot has no cards, find next bot with cards or end game
     console.log(`🚫 BOT ${state.currentPlayer} HAS NO CARDS - FINDING NEXT PLAYER`);
     
     let nextPlayer = (state.currentPlayer + 1) % 3;
@@ -864,12 +990,12 @@ function scheduleNextBotTurn() {
       attempts++;
     }
     
-    // No players with cards found - end game
     console.log(`🏁 NO PLAYERS WITH CARDS - ENDING GAME`);
     checkGameEnd();
   }
 }
 
+// AI turn with animations
 function aiTurn() {
   if (state.currentPlayer === 0) {
     console.error('🚨 CRITICAL: AI called for player turn!');
@@ -879,91 +1005,92 @@ function aiTurn() {
   const playerIndex = state.currentPlayer;
   
   if (state.hands[playerIndex].length === 0) {
-  state.currentPlayer = (playerIndex + 1) % 3;
-  checkGameEnd();
-  render();
-  playSound('turnChange');
-  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-    scheduleNextBotTurn();
-  }
-  return;
-}
-
-// NEW: Check if this is the only player with cards
-const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
-  console.log(`🎯 LAST PLAYER: Bot ${playerIndex} must play all ${state.hands[playerIndex].length} cards`);
-  
-  // Play all remaining cards immediately
-  while (state.hands[playerIndex].length > 0) {
-    const handCard = state.hands[playerIndex][0];
-    state.board.push(handCard);
-    state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-    console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
+    state.currentPlayer = (playerIndex + 1) % 3;
+    checkGameEnd();
     render();
+    playSound('turnChange');
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+      scheduleNextBotTurn();
+    }
+    return;
   }
-  
-  checkGameEnd();
-  playSound('place');
-  return;
-}
+
+  const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
+  if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
+    console.log(`🎯 LAST PLAYER: Bot ${playerIndex} must play all ${state.hands[playerIndex].length} cards`);
+    
+    while (state.hands[playerIndex].length > 0) {
+      const handCard = state.hands[playerIndex][0];
+      state.board.push(handCard);
+      state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
+      console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
+      render();
+    }
+    
+    checkGameEnd();
+    playSound('place');
+    return;
+  }
 
   console.log(`🤖 BOT ${playerIndex} TURN - Hand: ${state.hands[playerIndex].length} cards`);
   
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
+    console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
     
     if (move && move.action === 'capture') {
-      // Handle capture
       const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
       if (handIndex !== -1) {
         state.combination.sum1 = move.capture.targets.map(card => ({
           source: 'board',
           index: state.board.findIndex(bc => bc.id === card.id),
-          card
+          card,
+          justPlaced: true
         }));
-        state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard }];
+        state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard, justPlaced: true }];
         console.log(`🎯 BOT COMBO: Base=${state.combination.base.length} cards, Sum1=${state.combination.sum1.length} cards`);
         render();
         
         setTimeout(() => {
           const captured = [...state.combination.sum1.map(c => c.card), move.handCard];
-          state.board = state.board.filter((_, i) =>
-            !state.combination.sum1.some(entry => entry.index === i)
-          );
-          state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
-          state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
-          state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-          
-          // Track last capturer
-          state.lastCapturer = playerIndex;
-          
-          console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
-render();
-playSound('capture');
+          animateMultiCapture(
+            state.combination.base[0],
+            [{ name: 'sum1', cards: state.combination.sum1 }],
+            captured,
+            () => {
+              state.board = state.board.filter((_, i) =>
+                !state.combination.sum1.some(entry => entry.index === i)
+              );
+              state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
+              state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
+              state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+              
+              state.lastCapturer = playerIndex;
+              
+              console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
+              render();
+              playSound('capture');
 
-// Continue playing - check for more captures or place to end turn
-setTimeout(() => {
-  if (state.hands[playerIndex].length > 0) {
-    aiTurn();
-  } else {
-    // Bot has no cards left after capture - end turn
-    console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
-    state.currentPlayer = (playerIndex + 1) % 3;
-    checkGameEnd();
-    render();
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      scheduleNextBotTurn();
-    }
-  }
-}, 2000);
+              setTimeout(() => {
+                if (state.hands[playerIndex].length > 0) {
+                  aiTurn();
+                } else {
+                  console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
+                  state.currentPlayer = (playerIndex + 1) % 3;
+                  checkGameEnd();
+                  render();
+                  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+                    scheduleNextBotTurn();
+                  }
+                }
+              }, 1000);
+            }
+          );
         }, 1000);
         return;
       }
     }
     
-    // Either no capture available or chose to place - end turn
     const handCard = move ? move.handCard : state.hands[playerIndex][0];
     if (handCard) {
       state.board.push(handCard);
@@ -983,88 +1110,166 @@ setTimeout(() => {
   }, 1000);
 }
 
-
-// Check game end - Fixed to use dealCards instead of missing dealAfterBots
+// Check game end with last combo animation
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
-    // All players are out of cards
     if (state.deck.length === 0) {
-  // Round over - apply Last Combo Takes All rule
-  if (state.lastCapturer !== null && state.board.length > 0) {
-    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-    const lastCapturerName = playerNames[state.lastCapturer];
-    
-    // Last capturer gets all remaining board cards
-    const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-    const bonusPoints = scoreFunction(state.board);
-    
-    if (state.lastCapturer === 0) {
-      state.scores.player += bonusPoints;
-    } else if (state.lastCapturer === 1) {
-      state.scores.bot1 += bonusPoints;
+      if (state.lastCapturer !== null && state.board.length > 0) {
+        const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+        const lastCapturerName = playerNames[state.lastCapturer];
+        
+        const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+        const bonusPoints = scoreFunction(state.board);
+        
+        if (state.lastCapturer === 0) {
+          state.scores.player += bonusPoints;
+        } else if (state.lastCapturer === 1) {
+          state.scores.bot1 += bonusPoints;
+        } else {
+          state.scores.bot2 += bonusPoints;
+        }
+        
+        console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
+        
+        // Animate last combo
+        const tableEl = document.querySelector('.table');
+        if (tableEl) {
+          tableEl.classList.add('last-combo');
+          setTimeout(() => tableEl.classList.remove('last-combo'), 1000);
+        }
+        
+        state.board.forEach((_, index) => {
+          const cardEl = document.querySelector(`#board .card[data-index="${index}"]`);
+          if (cardEl) {
+            setTimeout(() => {
+              cardEl.classList.add('captured');
+              createParticleEffect(cardEl.getBoundingClientRect().left + 35, cardEl.getBoundingClientRect().top + 50);
+            }, index * 100);
+          }
+        });
+        
+        setTimeout(() => {
+          state.board = [];
+          if (messageEl) {
+            messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
+            messageEl.classList.add('turn-change');
+            setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+          }
+          
+          const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
+          if (maxScore >= state.settings.targetScore) {
+            const scores = [
+              { name: 'Player', score: state.scores.player },
+              { name: 'Bot 1', score: state.scores.bot1 },
+              { name: 'Bot 2', score: state.scores.bot2 }
+            ];
+            const winner = scores.reduce((max, player) => 
+              player.score > max.score ? player : max, 
+              { score: -1, name: '' }
+            );
+            if (messageEl) {
+              messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
+              messageEl.classList.add('turn-change');
+              setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+            }
+            playSound('gameEnd');
+          } else {
+            try {
+              const newDeck = shuffleDeck(createDeck());
+              const dealResult = dealCards(newDeck, 3, 4, 4);
+              state.hands = dealResult.players;
+              state.board = dealResult.board;
+              state.deck = dealResult.remainingDeck;
+              state.currentPlayer = 0;
+              state.lastCapturer = null;
+              if (messageEl) {
+                messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
+                messageEl.classList.add('turn-change');
+                setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+              }
+              renderWithDealAnimation();
+              playSound('turnChange');
+            } catch (e) {
+              console.error('Error dealing new round:', e);
+              if (messageEl) {
+                messageEl.textContent = "Error dealing cards! Restart the game.";
+                messageEl.classList.add('turn-change');
+                setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+              }
+            }
+          }
+        }, state.board.length * 100 + 600);
+      } else {
+        const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
+        if (maxScore >= state.settings.targetScore) {
+          const scores = [
+            { name: 'Player', score: state.scores.player },
+            { name: 'Bot 1', score: state.scores.bot1 },
+            { name: 'Bot 2', score: state.scores.bot2 }
+          ];
+          const winner = scores.reduce((max, player) => 
+            player.score > max.score ? player : max, 
+            { score: -1, name: '' }
+          );
+          if (messageEl) {
+            messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
+            messageEl.classList.add('turn-change');
+            setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+          }
+          playSound('gameEnd');
+        } else {
+          try {
+            const newDeck = shuffleDeck(createDeck());
+            const dealResult = dealCards(newDeck, 3, 4, 4);
+            state.hands = dealResult.players;
+            state.board = dealResult.board;
+            state.deck = dealResult.remainingDeck;
+            state.currentPlayer = 0;
+            state.lastCapturer = null;
+            if (messageEl) {
+              messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
+              messageEl.classList.add('turn-change');
+              setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+            }
+            renderWithDealAnimation();
+            playSound('turnChange');
+          } catch (e) {
+            console.error('Error dealing new round:', e);
+            if (messageEl) {
+              messageEl.textContent = "Error dealing cards! Restart the game.";
+              messageEl.classList.add('turn-change');
+              setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+            }
+          }
+        }
+      }
     } else {
-      state.scores.bot2 += bonusPoints;
+      try {
+        const dealResult = dealCards(state.deck, 3, 4, 0);
+        state.hands = dealResult.players;
+        state.deck = dealResult.remainingDeck;
+        state.currentPlayer = 0;
+        if (messageEl) {
+          messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+          messageEl.classList.add('turn-change');
+          setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+        }
+        renderWithDealAnimation();
+        playSound('turnChange');
+      } catch (e) {
+        console.error('Error dealing new round:', e);
+        if (messageEl) {
+          messageEl.textContent = "Error dealing cards! Restart the game.";
+          messageEl.classList.add('turn-change');
+          setTimeout(() => messageEl.classList.remove('turn-change'), 500);
+        }
+      }
     }
-    
-    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
-    state.board = []; // Clear the board
-    
-    if (messageEl) messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
-  }
-  
-  // Check if anyone reached target score
-  const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
-  if (maxScore >= state.settings.targetScore) {
-    const scores = [
-      { name: 'Player', score: state.scores.player },
-      { name: 'Bot 1', score: state.scores.bot1 },
-      { name: 'Bot 2', score: state.scores.bot2 }
-    ];
-    const winner = scores.reduce((max, player) => 
-      player.score > max.score ? player : max, 
-      { score: -1, name: '' }
-    );
-    if (messageEl) messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
-    playSound('gameEnd');
-  } else {
-    // Deal new round
-    try {
-      const newDeck = shuffleDeck(createDeck());
-      const dealResult = dealCards(newDeck, 3, 4, 4);
-      state.hands = dealResult.players;
-      state.board = dealResult.board;
-      state.deck = dealResult.remainingDeck;
-      state.currentPlayer = 0;
-      state.lastCapturer = null; // Reset for new round
-      if (messageEl) messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
-      render();
-      playSound('turnChange');
-    } catch (e) {
-      console.error('Error dealing new round:', e);
-      if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-    }
-  }
-} else {
-  // Deal new round using existing dealCards function
-  try {
-    const dealResult = dealCards(state.deck, 3, 4, 0); // 3 players, 4 cards each, 0 to board
-    state.hands = dealResult.players;
-    state.deck = dealResult.remainingDeck;
-    state.currentPlayer = 0;
-    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-    render();
-    playSound('turnChange');
-  } catch (e) {
-    console.error('Error dealing new round:', e);
-    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-  }
   }
 }
-} // <- This closing brace for checkGameEnd function
-
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {

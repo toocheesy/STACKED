@@ -1,5 +1,6 @@
 /* 
- * Updated for dual play areas, capture-type display, and animated card reveal.
+ * Enhanced styles.css with premium animations for STACKED!
+ * Includes smooth card movements, capture effects, UI polish, and game state feedback
  */
 * {
   margin: 0;
@@ -14,6 +15,7 @@ body {
   display: flex;
   justify-content: center;
   padding: 20px;
+  overflow: hidden; /* Prevent scrollbars during animations */
 }
 
 .game-container {
@@ -21,12 +23,20 @@ body {
   max-width: 1200px;
   width: 100%;
   position: relative;
+  perspective: 1000px; /* For 3D card effects */
 }
 
 h1 {
   color: #F1C40F;
   font-size: 2.5rem;
   margin-bottom: 20px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: titlePulse 2s infinite ease-in-out;
+}
+
+@keyframes titlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 }
 
 .deck-count {
@@ -34,15 +44,26 @@ h1 {
   font-size: 1.2rem;
   font-weight: bold;
   margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.deck-count.dealing {
+  animation: deckDeal 0.5s ease-in-out;
+}
+
+@keyframes deckDeal {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .combination-area {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 20px;
-  width: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 280px;
   position: absolute;
   top: 20px;
   left: 50%;
@@ -60,22 +81,36 @@ h1 {
   text-align: center;
   font-size: 0.8rem;
   color: #333;
-  overflow: hidden; /* Ensure cards stay within bounds */
+  transition: all 0.3s ease;
 }
 
-.combo-slot[data-slot="0"]:before {
-  content: "Play Area";
-}
-
-.combo-slot[data-slot="1"]:before {
-  content: "Principal Match";
+.combo-slot.valid-target {
+  border-color: #3498db;
+  background-color: rgba(52, 152, 219, 0.2);
+  transform: scale(1.05);
 }
 
 .combo-slot.valid-combo {
   border-color: #2ecc71;
   box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
   background-color: rgba(46, 204, 113, 0.2);
-  transition: all 0.3s ease; /* Smooth transition for valid state */
+  animation: validPulse 0.5s ease-in-out;
+}
+
+@keyframes validPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.combo-slot.invalid {
+  animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .table {
@@ -87,6 +122,16 @@ h1 {
   border: 4px solid #7B3F00;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: transform 0.5s ease;
+}
+
+.table.last-combo {
+  animation: flashTable 1s ease;
+}
+
+@keyframes flashTable {
+  0%, 100% { background-color: black; }
+  50% { background-color: rgba(241, 196, 15, 0.3); }
 }
 
 .score {
@@ -97,23 +142,22 @@ h1 {
   font-family: 'Georgia', serif;
   font-size: 1rem;
   z-index: 10;
+  transition: transform 0.5s ease;
 }
 
-.player-score {
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+.score.updated {
+  animation: scoreCount 0.5s ease-in-out;
 }
 
-.bot1-score {
-  top: 15px;
-  left: 15px;
+@keyframes scoreCount {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
 }
 
-.bot2-score {
-  top: 15px;
-  right: 15px;
-}
+.player-score { bottom: 20px; left: 50%; transform: translateX(-50%); }
+.bot1-score { top: 15px; left: 15px; }
+.bot2-score { top: 15px; right: 15px; }
 
 .board {
   position: absolute;
@@ -139,24 +183,9 @@ h1 {
   padding: 10px;
 }
 
-.player-hand {
-  bottom: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-}
-
-.bot1-hand {
-  top: 50%;
-  transform: translateY(-50%) rotate(90deg);
-  transform-origin: center;
-}
-
-.bot2-hand {
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
-  transform-origin: center;
-}
+.player-hand { bottom: 60px; left: 50%; transform: translateX(-50%); z-index: 5; }
+.bot1-hand { top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+.bot2-hand { top: 50%; transform: translateY(-50%) rotate(-90deg); transform-origin: center; }
 
 .card {
   width: 70px;
@@ -169,7 +198,6 @@ h1 {
   justify-content: flex-start;
   padding: 5px;
   cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.5s ease; /* Added opacity transition */
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
   font-size: 1rem;
@@ -178,19 +206,67 @@ h1 {
   color: #000;
   position: relative;
   touch-action: none;
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              opacity 0.3s ease,
+              box-shadow 0.3s ease;
 }
 
-.card.red {
-  color: #e74c3c;
+.card.red { color: #e74c3c; }
+
+.card.dealing {
+  animation: dealCard 0.5s ease-out;
+}
+
+@keyframes dealCard {
+  0% { transform: translateY(-1000px) rotateY(360deg); opacity: 0; }
+  100% { transform: translateY(0) rotateY(0); opacity: 1; }
+}
+
+.card.dragging {
+  opacity: 0.8;
+  transform: scale(1.1) rotate(2deg);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.card.snapped {
+  animation: snapToPlace 0.3s ease-out;
+}
+
+@keyframes snapToPlace {
+  0% { transform: scale(1.2) rotate(5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.card.invalid {
+  animation: bounceBack 0.4s ease-in-out;
+}
+
+@keyframes bounceBack {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-20px); }
+  100% { transform: translateX(0); }
+}
+
+.card.captured {
+  animation: captureCard 0.6s ease-in-out;
+}
+
+@keyframes captureCard {
+  0% { transform: scale(1) rotate(0); }
+  50% { transform: scale(1.3) rotate(10deg); }
+  100% { transform: scale(0) rotate(-10deg); opacity: 0; }
 }
 
 .card.selected {
   border-color: #3498db;
   transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.7);
 }
 
 .card:hover {
-  transform: scale(1.1);
+  transform: scale(1.1) translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .card.back {
@@ -203,10 +279,13 @@ h1 {
   border-color: #e67e22;
   box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
   background-color: rgba(230, 126, 34, 0.2);
+  animation: hintPulse 1s infinite ease-in-out;
 }
 
-.card.hint:hover {
-  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9); /* Enhanced hover effect */
+@keyframes hintPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
 }
 
 .actions {
@@ -222,23 +301,27 @@ button {
   color: #000;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
   font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 button:hover {
   background-color: #D4AC0D;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 button:disabled {
   background-color: #7f8c8d;
   cursor: not-allowed;
-}
-
-#restart-btn,
-#reset-play-area-btn,
-#hint-btn {
-  margin-top: 10px;
+  transform: none;
+  box-shadow: none;
 }
 
 .message {
@@ -246,6 +329,16 @@ button:disabled {
   font-size: 1.2rem;
   color: #F1C40F;
   font-weight: bold;
+  transition: opacity 0.3s ease;
+}
+
+.message.turn-change {
+  animation: fadeMessage 0.5s ease-in-out;
+}
+
+@keyframes fadeMessage {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 .capture-type {
@@ -269,8 +362,14 @@ dialog {
   position: fixed;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease;
 }
+
+dialog[open] {
+  transform: translate(-50%, -50%) scale(1);
+}
+
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -294,261 +393,74 @@ dialog select {
   background-color: #fff;
   color: #000;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
 }
 
-dialog button {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #F1C40F;
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
+dialog select:focus {
+  border-color: #F1C40F;
+  outline: none;
 }
 
-dialog button:hover {
-  background-color: #D4AC0D;
-}
-
-.modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.modal-buttons button {
-  flex: 1;
-}
-
-.tutorial-content {
-  text-align: left;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-right: 10px;
-}
-
-.tutorial-content h3 {
-  margin-top: 10px;
-  color: #F1C40F;
-}
-
-.tutorial-content ul {
-  margin-left: 20px;
-  list-style-type: disc;
-}
-
-.tutorial-content ul ul {
-  margin-left: 20px;
-  list-style-type: circle;
-}
-
-dialog .modal-content {
-  text-align: center;
-}
-
-dialog h2 {
-  color: #F1C40F;
-  margin-bottom: 15px;
-}
-
-@media (max-width: 900px) {
-  .table {
-    min-width: 650px;
-    height: 650px;
-  }
-  
-  .game-container {
-    max-width: 700px;
-  }
-
-  .combination-area {
-    width: 160px;
-  }
-
-  .combo-slot {
-    width: 70px;
-    min-height: 110px;
-  }
-
-  .board {
-    max-width: 320px;
-    grid-template-columns: repeat(4, 70px);
-    grid-auto-rows: 110px;
-  }
-
-  .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 700px) {
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  .table {
-    min-width: 500px;
-    height: 550px;
-  }
-
-  .board {
-    max-width: 320px;
-    padding: 10px;
-  }
-
-  .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
-  }
-
-  .player-hand {
-    bottom: 50px;
-  }
-
-  .bot1-hand {
-    left: -25px;
-  }
-
-  .bot2-hand {
-    right: -25px;
-  }
-
-  button {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
-  
-  .game-container {
-    max-width: 550px;
-  }
-
-  .combination-area {
-    width: 140px;
-  }
-
-  .combo-slot {
-    width: 60px;
-    min-height: 110px;
-  }
-}
-
-@media (max-width: 550px) {
-  .table {
-    min-width: 400px;
-    height: 500px;
-  }
-
-  .board {
-    max-width: 280px;
-    gap: 10px;
-  }
-
-  .card {
-    width: 60px;
-    height: 90px;
-    font-size: 0.9rem;
-  }
-
-  .combination-area {
-    width: 120px;
-  }
-
-  .combo-slot {
-    width: 50px;
-    min-height: 100px;
-  }
-
-  dialog {
-    width: 300px;
-    padding: 15px;
-  }
-
-  dialog select,
-  dialog button {
-    font-size: 0.9rem;
-  }
-
-  .modal-buttons {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
-/* 5-Area Layout Additions */
-.capture-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  justify-content: center;
-}
-
-.base-area {
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-.sum-area, .match-area {
-  flex: 1;
-  min-height: 110px;
-  min-width: 60px;
-}
-
-/* Update combination-area for vertical layout */
-.combination-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0px;
-  width: 280px; /* Wider to fit 4 areas */
+.particle {
   position: absolute;
-  top: 20px;
+  background: #F1C40F;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: particleBurst 0.5s ease-out forwards;
+}
+
+@keyframes particleBurst {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.turn-indicator {
+  position: absolute;
+  top: 10px;
   left: 50%;
   transform: translateX(-50%);
+  padding: 5px 15px;
+  background-color: rgba(52, 152, 219, 0.8);
+  border-radius: 5px;
+  color: #fff;
+  font-weight: bold;
+  z-index: 10;
+  animation: slideIn 0.5s ease-out;
 }
 
-/* Responsive adjustments for 5 areas */
+@keyframes slideIn {
+  0% { transform: translateX(-50%) translateY(-20px); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* Responsive adjustments */
 @media (max-width: 900px) {
-  .combination-area {
-    width: 260px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 55px;
-  }
+  .table { min-width: 650px; height: 650px; }
+  .game-container { max-width: 700px; }
+  .combination-area { width: 260px; }
+  .sum-area, .match-area { min-width: 55px; }
 }
 
 @media (max-width: 700px) {
-  .combination-area {
-    width: 240px;
-  }
-  
-  .capture-row {
-    gap: 8px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 50px;
-    min-height: 100px;
-  }
+  h1 { font-size: 1.8rem; }
+  .table { min-width: 500px; height: 550px; }
+  .board { max-width: 320px; padding: 10px; }
+  .card { width: 70px; height: 100px; font-size: 1rem; }
+  .player-hand { bottom: 50px; }
+  .bot1-hand { left: -25px; }
+  .bot2-hand { right: -25px; }
+  button { padding: 8px 15px; font-size: 0.9rem; }
+  .game-container { max-width: 550px; }
+  .combination-area { width: 240px; }
+  .sum-area, .match-area { min-width: 50px; min-height: 100px; }
 }
 
 @media (max-width: 550px) {
-  .combination-area {
-    width: 220px;
-  }
-  
-  .capture-row {
-    gap: 6px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 45px;
-    min-height: 90px;
-  }
+  .table { min-width: 400px; height: 500px; }
+  .board { max-width: 280px; gap: 10px; }
+  .card { width: 60px; height: 90px; font-size: 0.9rem; }
+  .combination-area { width: 220px; }
+  .sum-area, .match-area { min-width: 45px; min-height: 90px; }
+  dialog { width: 300px; padding: 15px; }
+  dialog select, dialog button { font-size: 0.9rem; }
 }
