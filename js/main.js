@@ -1012,8 +1012,8 @@ function checkGameEnd() {
       state.scores.bot2 += bonusPoints;
     }
     
-    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`
-    playSound('jackpot'););
+    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
+playSound('jackpot');
     state.board = []; // Clear the board
     
     if (messageEl) messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
