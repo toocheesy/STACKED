@@ -717,7 +717,7 @@ function handleSubmit() {
 
   if (baseCards.length !== 1) {
     if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card."
-    playSound('invalid');;
+    playSound('invalid');
     return;
   }
 
@@ -747,7 +747,7 @@ function handleSubmit() {
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
         if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`
-        playSound('invalid');;
+        playSound('invalid');
         return;
       }
     }
@@ -755,7 +755,7 @@ function handleSubmit() {
 
   if (validCaptures.length === 0) {
     if (messageEl) messageEl.textContent = "No valid captures found."
-    playSound('invalid');;
+    playSound('invalid');
     return;
   }
 
