@@ -1273,6 +1273,61 @@ function checkGameEnd() {
         }
       }
     }
+<<<<<<< HEAD
+=======
+    
+    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
+    state.board = []; // Clear the board
+    
+    if (messageEl) messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
+  }
+  
+  // Check if anyone reached target score
+  const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
+  if (maxScore >= state.settings.targetScore) {
+    const scores = [
+      { name: 'Player', score: state.scores.player },
+      { name: 'Bot 1', score: state.scores.bot1 },
+      { name: 'Bot 2', score: state.scores.bot2 }
+    ];
+    const winner = scores.reduce((max, player) => 
+      player.score > max.score ? player : max, 
+      { score: -1, name: '' }
+    );
+    if (messageEl) messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
+    playSound('gameEnd');
+  } else {
+    // Deal new round
+    try {
+      const newDeck = shuffleDeck(createDeck());
+      const dealResult = dealCards(newDeck, 3, 4, 4);
+      state.hands = dealResult.players;
+      state.board = dealResult.board;
+      state.deck = dealResult.remainingDeck;
+      state.currentPlayer = 0;
+      state.lastCapturer = null; // Reset for new round
+      if (messageEl) messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
+      render();
+      playSound('turnChange');
+    } catch (e) {
+      console.error('Error dealing new round:', e);
+      if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+    }
+  }
+} else {
+  // Deal new round using existing dealCards function
+  try {
+    const dealResult = dealCards(state.deck, 3, 4, 0); // 3 players, 4 cards each, 0 to board
+    state.hands = dealResult.players;
+    state.deck = dealResult.remainingDeck;
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+    render();
+    playSound('turnChange');
+  } catch (e) {
+    console.error('Error dealing new round:', e);
+    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+>>>>>>> parent of 717504e (syntax issue ticket 7)
   }
 }
 
