@@ -8,43 +8,50 @@
   font-family: Arial, sans-serif;
 }
 
+html, body {
+  height: 100vh;
+  overflow: hidden;
+}
+
 body {
   background-color: #145A32;
   color: #fff;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 10px;
 }
 
 .game-container {
   text-align: center;
   max-width: 1200px;
   width: 100%;
+  max-height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 h1 {
   color: #F1C40F;
   font-size: 2.5rem;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
 .deck-count {
   color: #F1C40F;
   font-size: 1.2rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .combination-area {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 20px;
-  width: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  width: 280px;
   position: absolute;
-  top: 20px;
+  top: 15px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -60,7 +67,7 @@ h1 {
   text-align: center;
   font-size: 0.8rem;
   color: #333;
-  overflow: hidden; /* Ensure cards stay within bounds */
+  overflow: hidden;
 }
 
 .combo-slot[data-slot="0"]:before {
@@ -75,13 +82,13 @@ h1 {
   border-color: #2ecc71;
   box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
   background-color: rgba(46, 204, 113, 0.2);
-  transition: all 0.3s ease; /* Smooth transition for valid state */
+  transition: all 0.3s ease;
 }
 
 .table {
   position: relative;
   min-width: 800px;
-  height: 750px;
+  height: 650px;
   margin: 0 auto;
   background-color: black;
   border: 4px solid #7B3F00;
@@ -169,7 +176,7 @@ h1 {
   justify-content: flex-start;
   padding: 5px;
   cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.5s ease; /* Added opacity transition */
+  transition: transform 0.3s ease, opacity 0.5s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
   font-size: 1rem;
@@ -206,11 +213,11 @@ h1 {
 }
 
 .card.hint:hover {
-  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9); /* Enhanced hover effect */
+  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
 .actions {
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 button {
@@ -238,18 +245,18 @@ button:disabled {
 #restart-btn,
 #reset-play-area-btn,
 #hint-btn {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .message {
-  margin-top: 20px;
+  margin-top: 15px;
   font-size: 1.2rem;
   color: #F1C40F;
   font-weight: bold;
 }
 
 .capture-type {
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 1rem;
   color: #F1C40F;
   font-weight: bold;
@@ -356,15 +363,16 @@ dialog h2 {
 @media (max-width: 900px) {
   .table {
     min-width: 650px;
-    height: 650px;
+    height: 550px;
   }
   
   .game-container {
     max-width: 700px;
+    max-height: 100vh;
   }
 
   .combination-area {
-    width: 160px;
+    width: 260px;
   }
 
   .combo-slot {
@@ -386,13 +394,18 @@ dialog h2 {
 }
 
 @media (max-width: 700px) {
+  body {
+    padding: 5px;
+  }
+
   h1 {
     font-size: 1.8rem;
+    margin-bottom: 10px;
   }
 
   .table {
     min-width: 500px;
-    height: 550px;
+    height: 480px;
   }
 
   .board {
@@ -407,7 +420,7 @@ dialog h2 {
   }
 
   .player-hand {
-    bottom: 50px;
+    bottom: 45px;
   }
 
   .bot1-hand {
@@ -425,22 +438,36 @@ dialog h2 {
   
   .game-container {
     max-width: 550px;
+    max-height: 100vh;
   }
 
   .combination-area {
-    width: 140px;
+    width: 240px;
+    top: 10px;
   }
 
   .combo-slot {
     width: 60px;
     min-height: 110px;
   }
+
+  .actions {
+    margin-top: 15px;
+  }
+
+  .message {
+    margin-top: 10px;
+  }
 }
 
 @media (max-width: 550px) {
+  body {
+    padding: 3px;
+  }
+
   .table {
     min-width: 400px;
-    height: 500px;
+    height: 420px;
   }
 
   .board {
@@ -455,7 +482,8 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 120px;
+    width: 220px;
+    top: 8px;
   }
 
   .combo-slot {
@@ -476,6 +504,20 @@ dialog h2 {
   .modal-buttons {
     flex-direction: column;
     gap: 5px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .actions {
+    margin-top: 12px;
+  }
+
+  .message {
+    margin-top: 8px;
+    font-size: 1.1rem;
   }
 }
 
@@ -498,36 +540,14 @@ dialog h2 {
   min-width: 60px;
 }
 
-/* Update combination-area for vertical layout */
-.combination-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0px;
-  width: 280px; /* Wider to fit 4 areas */
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
 /* Responsive adjustments for 5 areas */
 @media (max-width: 900px) {
-  .combination-area {
-    width: 260px;
-  }
-  
   .sum-area, .match-area {
     min-width: 55px;
   }
 }
 
 @media (max-width: 700px) {
-  .combination-area {
-    width: 240px;
-  }
-  
   .capture-row {
     gap: 8px;
   }
@@ -539,10 +559,6 @@ dialog h2 {
 }
 
 @media (max-width: 550px) {
-  .combination-area {
-    width: 220px;
-  }
-  
   .capture-row {
     gap: 6px;
   }
