@@ -1,5 +1,5 @@
 /* 
- * Updated for dual play areas, capture-type display, and animated card reveal.
+ * Full-Screen Smart Scaling Game - No Scroll, Mobile Optimized
  */
 * {
   margin: 0;
@@ -8,59 +8,70 @@
   font-family: Arial, sans-serif;
 }
 
-body {
+html, body {
+  height: 100vh;
+  overflow: hidden;
   background-color: #145A32;
   color: #fff;
+}
+
+body {
   display: flex;
   justify-content: center;
-  padding: 20px;
+  align-items: center;
 }
 
 .game-container {
-  text-align: center;
-  max-width: 1200px;
-  width: 100%;
+  width: 100vw;
+  height: 100vh;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
 }
 
 h1 {
   color: #F1C40F;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  font-size: 4vw;
+  margin: 1vh 0;
+  text-align: center;
 }
 
 .deck-count {
   color: #F1C40F;
-  font-size: 1.2rem;
+  font-size: 2.5vw;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 1vh;
+  text-align: center;
 }
 
 .combination-area {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 20px;
-  width: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1vh;
+  width: 60vw;
   position: absolute;
-  top: 20px;
+  top: 8vh;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 10;
 }
 
 .combo-slot {
-  width: 70px;
-  min-height: 110px;
+  width: 12vw;
+  min-height: 18vh;
   background-color: rgba(241, 196, 15, 0.1);
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+  border: 0.3vw dashed #ccc;
+  border-radius: 1vw;
   position: relative;
-  padding: 5px;
+  padding: 1vw;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 2vw;
   color: #333;
-  overflow: hidden; /* Ensure cards stay within bounds */
+  overflow: hidden;
 }
 
 .combo-slot[data-slot="0"]:before {
@@ -73,74 +84,70 @@ h1 {
 
 .combo-slot.valid-combo {
   border-color: #2ecc71;
-  box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
+  box-shadow: 0 0 3vw 1vw rgba(46, 204, 113, 0.7);
   background-color: rgba(46, 204, 113, 0.2);
-  transition: all 0.3s ease; /* Smooth transition for valid state */
+  transition: all 0.3s ease;
 }
 
 .table {
-  position: relative;
-  min-width: 800px;
-  height: 750px;
-  margin: 0 auto;
-  background-color: black;
-  border: 4px solid #7B3F00;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100vw;
+  height: 100vh;
+  background-color: #145A32;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .score {
   position: absolute;
   background-color: #7B3F00;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 1vw 2vw;
+  border-radius: 1vw;
   font-family: 'Georgia', serif;
-  font-size: 1rem;
-  z-index: 10;
+  font-size: 2.5vw;
+  z-index: 15;
 }
 
 .player-score {
-  bottom: 20px;
+  bottom: 2vh;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .bot1-score {
-  top: 15px;
-  left: 15px;
+  top: 2vh;
+  left: 2vw;
 }
 
 .bot2-score {
-  top: 15px;
-  right: 15px;
+  top: 2vh;
+  right: 2vw;
 }
 
 .board {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 70px);
-  grid-auto-rows: 110px;
-  gap: 10px;
-  max-width: 320px;
-  padding: 15px;
-  border: 3px solid #F1C40F;
-  border-radius: 12px;
-  background-color: rgba(241, 196, 15, 0.1);
-  box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+  grid-template-columns: repeat(4, 12vw);
+  grid-auto-rows: 18vh;
+  gap: 2vw;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .hand {
   position: absolute;
   display: flex;
-  gap: 5px;
-  padding: 10px;
+  gap: 1vw;
+  padding: 2vw;
 }
 
 .player-hand {
-  bottom: 60px;
+  bottom: 15vh;
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
@@ -148,31 +155,33 @@ h1 {
 
 .bot1-hand {
   top: 50%;
+  left: 2vw;
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
+  right: 2vw;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
 
 .card {
-  width: 70px;
-  height: 100px;
+  width: 12vw;
+  height: 16vh;
   background-color: #fff;
-  border: 2px solid #ccc;
-  border-radius: 8px;
+  border: 0.3vw solid #ccc;
+  border-radius: 1vw;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 5px;
+  padding: 1vw;
   cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.5s ease; /* Added opacity transition */
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, opacity 0.5s ease;
+  box-shadow: 0.5vw 0.5vw 1vw rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 2.5vw;
   text-align: left;
   line-height: 1;
   color: #000;
@@ -201,26 +210,31 @@ h1 {
 
 .card.hint {
   border-color: #e67e22;
-  box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
+  box-shadow: 0 0 2vw 0.5vw rgba(230, 126, 34, 0.7);
   background-color: rgba(230, 126, 34, 0.2);
 }
 
 .card.hint:hover {
-  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9); /* Enhanced hover effect */
+  box-shadow: 0 0 3vw 1vw rgba(230, 126, 34, 0.9);
 }
 
 .actions {
-  margin-top: 30px;
+  position: absolute;
+  bottom: 2vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  gap: 2vw;
 }
 
 button {
-  padding: 10px 20px;
-  margin: 0 10px;
+  padding: 2vw 4vw;
   background-color: #F1C40F;
   border: none;
-  border-radius: 5px;
+  border-radius: 1vw;
   color: #000;
-  font-size: 1rem;
+  font-size: 2.5vw;
   cursor: pointer;
   transition: background-color 0.3s;
   font-weight: bold;
@@ -235,42 +249,46 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#restart-btn,
-#reset-play-area-btn,
-#hint-btn {
-  margin-top: 10px;
-}
-
 .message {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  color: #F1C40F;
-  font-weight: bold;
-}
-
-.capture-type {
-  margin-top: 10px;
-  font-size: 1rem;
+  position: absolute;
+  top: 12vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3vw;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
+  z-index: 15;
+}
+
+.capture-type {
+  position: absolute;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5vw;
+  color: #F1C40F;
+  font-weight: bold;
+  text-align: center;
+  z-index: 15;
 }
 
 dialog {
   background-color: #229954;
   color: #fff;
-  border: 3px solid #F1C40F;
-  border-radius: 8px;
-  padding: 20px;
-  width: 400px;
-  max-width: 90%;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 0.5vw solid #F1C40F;
+  border-radius: 2vw;
+  padding: 4vw;
+  width: 80vw;
+  max-width: 90vw;
+  box-shadow: 0 1vw 2vw rgba(0, 0, 0, 0.5);
   z-index: 1000;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -278,34 +296,35 @@ dialog::backdrop {
 dialog form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 3vw;
 }
 
 dialog label {
-  font-size: 1rem;
+  font-size: 3vw;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 1vw;
 }
 
 dialog select {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+  padding: 2vw;
+  border-radius: 1vw;
+  border: 0.2vw solid #ccc;
   background-color: #fff;
   color: #000;
-  font-size: 1rem;
+  font-size: 3vw;
 }
 
 dialog button {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 2vw;
+  padding: 3vw;
   background-color: #F1C40F;
   color: #000;
   border: none;
-  border-radius: 5px;
+  border-radius: 1vw;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.3s;
+  font-size: 3vw;
 }
 
 dialog button:hover {
@@ -315,7 +334,7 @@ dialog button:hover {
 .modal-buttons {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
+  gap: 2vw;
 }
 
 .modal-buttons button {
@@ -324,23 +343,25 @@ dialog button:hover {
 
 .tutorial-content {
   text-align: left;
-  max-height: 400px;
+  max-height: 60vh;
   overflow-y: auto;
-  padding-right: 10px;
+  padding-right: 2vw;
 }
 
 .tutorial-content h3 {
-  margin-top: 10px;
+  margin-top: 2vw;
   color: #F1C40F;
+  font-size: 3.5vw;
 }
 
 .tutorial-content ul {
-  margin-left: 20px;
+  margin-left: 4vw;
   list-style-type: disc;
+  font-size: 2.5vw;
 }
 
 .tutorial-content ul ul {
-  margin-left: 20px;
+  margin-left: 4vw;
   list-style-type: circle;
 }
 
@@ -350,205 +371,112 @@ dialog .modal-content {
 
 dialog h2 {
   color: #F1C40F;
-  margin-bottom: 15px;
+  margin-bottom: 3vw;
+  font-size: 4vw;
 }
 
-@media (max-width: 900px) {
-  .table {
-    min-width: 650px;
-    height: 650px;
-  }
-  
-  .game-container {
-    max-width: 700px;
-  }
-
-  .combination-area {
-    width: 160px;
-  }
-
-  .combo-slot {
-    width: 70px;
-    min-height: 110px;
-  }
-
-  .board {
-    max-width: 320px;
-    grid-template-columns: repeat(4, 70px);
-    grid-auto-rows: 110px;
-  }
-
-  .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
-  }
-}
-
-@media (max-width: 700px) {
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  .table {
-    min-width: 500px;
-    height: 550px;
-  }
-
-  .board {
-    max-width: 320px;
-    padding: 10px;
-  }
-
-  .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
-  }
-
-  .player-hand {
-    bottom: 50px;
-  }
-
-  .bot1-hand {
-    left: -25px;
-  }
-
-  .bot2-hand {
-    right: -25px;
-  }
-
-  button {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
-  
-  .game-container {
-    max-width: 550px;
-  }
-
-  .combination-area {
-    width: 140px;
-  }
-
-  .combo-slot {
-    width: 60px;
-    min-height: 110px;
-  }
-}
-
-@media (max-width: 550px) {
-  .table {
-    min-width: 400px;
-    height: 500px;
-  }
-
-  .board {
-    max-width: 280px;
-    gap: 10px;
-  }
-
-  .card {
-    width: 60px;
-    height: 90px;
-    font-size: 0.9rem;
-  }
-
-  .combination-area {
-    width: 120px;
-  }
-
-  .combo-slot {
-    width: 50px;
-    min-height: 100px;
-  }
-
-  dialog {
-    width: 300px;
-    padding: 15px;
-  }
-
-  dialog select,
-  dialog button {
-    font-size: 0.9rem;
-  }
-
-  .modal-buttons {
-    flex-direction: column;
-    gap: 5px;
-  }
-}
-
-/* 5-Area Layout Additions */
+/* 5-Area Layout */
 .capture-row {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 2vw;
+  margin-top: 2vh;
   justify-content: center;
 }
 
 .base-area {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 3vh;
 }
 
 .sum-area, .match-area {
   flex: 1;
-  min-height: 110px;
-  min-width: 60px;
+  min-height: 18vh;
+  min-width: 10vw;
 }
 
-/* Update combination-area for vertical layout */
-.combination-area {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0px;
-  width: 280px; /* Wider to fit 4 areas */
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Responsive adjustments for 5 areas */
-@media (max-width: 900px) {
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 5vw;
+  }
+  
+  .deck-count {
+    font-size: 3vw;
+  }
+  
+  .card {
+    width: 15vw;
+    height: 20vh;
+    font-size: 3vw;
+  }
+  
+  .board {
+    grid-template-columns: repeat(4, 15vw);
+    grid-auto-rows: 20vh;
+    gap: 3vw;
+  }
+  
+  .combo-slot {
+    width: 15vw;
+    min-height: 20vh;
+    font-size: 2.5vw;
+  }
+  
   .combination-area {
-    width: 260px;
+    width: 70vw;
+    top: 6vh;
   }
   
-  .sum-area, .match-area {
-    min-width: 55px;
+  .score {
+    font-size: 3vw;
+    padding: 1.5vw 3vw;
+  }
+  
+  button {
+    font-size: 3vw;
+    padding: 2.5vw 5vw;
+  }
+  
+  .message {
+    font-size: 3.5vw;
+  }
+  
+  .capture-type {
+    font-size: 3vw;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 480px) {
+  .card {
+    width: 18vw;
+    height: 22vh;
+    font-size: 3.5vw;
+  }
+  
+  .board {
+    grid-template-columns: repeat(4, 18vw);
+    grid-auto-rows: 22vh;
+    gap: 2vw;
+  }
+  
+  .combo-slot {
+    width: 18vw;
+    min-height: 22vh;
+    font-size: 3vw;
+  }
+  
   .combination-area {
-    width: 240px;
+    width: 80vw;
+    top: 5vh;
   }
   
-  .capture-row {
-    gap: 8px;
+  .actions {
+    flex-direction: column;
+    gap: 1vh;
   }
   
-  .sum-area, .match-area {
-    min-width: 50px;
-    min-height: 100px;
-  }
-}
-
-@media (max-width: 550px) {
-  .combination-area {
-    width: 220px;
-  }
-  
-  .capture-row {
-    gap: 6px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 45px;
-    min-height: 90px;
+  button {
+    font-size: 3.5vw;
+    padding: 3vw 6vw;
   }
 }
