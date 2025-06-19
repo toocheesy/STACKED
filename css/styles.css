@@ -625,15 +625,44 @@ dialog h2 {
   }
 }
 
-/* Legacy compatibility - keeping old classes for existing JS */
+/* Updated combination area for new layout */
 .combination-area {
-  display: none; /* Hide old combination area */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  position: static;
+  margin: 10px 0;
+  z-index: 20;
 }
 
 .capture-row {
-  display: none; /* Hide old capture row */
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.base-area {
+  width: 80px;
+  height: 120px;
+  margin-bottom: 10px;
 }
 
 .sum-area, .match-area {
-  display: none; /* Hide old individual areas */
+  width: 75px;
+  height: 115px;
+  background-color: rgba(241, 196, 15, 0.1);
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  position: relative;
+  padding: 5px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: #333;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
