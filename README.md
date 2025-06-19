@@ -91,7 +91,7 @@ Game ends when deck is empty. **Last Combo Takes All** rule: whoever made the fi
 - **Responsive design** - Works on desktop and mobile
 - **Clean codebase** - Well-organized JavaScript with proper separation
 
-**🚧 FINAL POLISH (2% remaining):**
+**🚧 FINAL POLISH (1% remaining):**
 - Minor bug fixes and validation edge cases
 - Performance optimization and visual enhancements
 - Enhanced bot strategy for multi-area combinations
