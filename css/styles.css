@@ -1,5 +1,5 @@
 /* 
- * Updated for dual play areas, capture-type display, and animated card reveal.
+ * COMPLETE REDESIGN: Base Area → Sum/Match Areas → Board → Player Hand
  */
 * {
   margin: 0;
@@ -24,18 +24,18 @@ body {
 
 .game-container {
   text-align: center;
-  max-width: 1200px;
+  max-width: 1000px;
   width: 100%;
   height: 95vh;
   position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 h1 {
   color: #F1C40F;
-  font-size: 2rem;
+  font-size: 1.8rem;
   margin-bottom: 5px;
 }
 
@@ -43,26 +43,19 @@ h1 {
   color: #F1C40F;
   font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
-.combination-area {
+/* TOP SECTION: Base Area */
+.base-section {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0px;
-  width: 280px;
-  position: absolute;
-  top: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
-.combo-slot {
-  width: 70px;
-  min-height: 110px;
+.base-area {
+  width: 80px;
+  height: 120px;
   background-color: rgba(241, 196, 15, 0.1);
   border: 2px dashed #ccc;
   border-radius: 8px;
@@ -72,14 +65,84 @@ h1 {
   font-size: 0.8rem;
   color: #333;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.base-area:before {
+  content: "Base Card";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: #888;
+}
+
+/* MIDDLE SECTION: Play Areas (3 Sum + 1 Match) */
+.play-areas-section {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.combo-slot {
+  width: 75px;
+  height: 115px;
+  background-color: rgba(241, 196, 15, 0.1);
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  position: relative;
+  padding: 5px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: #333;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .combo-slot[data-slot="0"]:before {
-  content: "Play Area";
+  content: "Sum 1";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: #888;
 }
 
 .combo-slot[data-slot="1"]:before {
-  content: "Principal Match";
+  content: "Sum 2";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: #888;
+}
+
+.combo-slot[data-slot="2"]:before {
+  content: "Sum 3";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: #888;
+}
+
+.combo-slot[data-slot="3"]:before {
+  content: "Match";
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  color: #888;
 }
 
 .combo-slot.valid-combo {
@@ -89,53 +152,53 @@ h1 {
   transition: all 0.3s ease;
 }
 
+/* MAIN SECTION: Game Table with Board */
 .table {
   position: relative;
-  min-width: 800px;
-  height: 500px;
+  width: 100%;
+  max-width: 800px;
+  height: 350px;
   margin: 0 auto;
-  margin-top: 60px;
   background-color: black;
   border: 4px solid #7B3F00;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .score {
   position: absolute;
   background-color: #7B3F00;
-  padding: 5px 10px;
+  padding: 4px 8px;
   border-radius: 5px;
   font-family: 'Georgia', serif;
-  font-size: 1rem;
+  font-size: 0.9rem;
   z-index: 10;
 }
 
 .player-score {
-  bottom: 15px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
 }
 
 .bot1-score {
-  top: 15px;
-  left: 15px;
+  top: 10px;
+  left: 10px;
 }
 
 .bot2-score {
-  top: 15px;
-  right: 15px;
+  top: 10px;
+  right: 10px;
 }
 
 .board {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   display: grid;
   grid-template-columns: repeat(4, 70px);
-  grid-auto-rows: 110px;
+  grid-auto-rows: 105px;
   gap: 10px;
   max-width: 320px;
   padding: 15px;
@@ -149,11 +212,11 @@ h1 {
   position: absolute;
   display: flex;
   gap: 5px;
-  padding: 10px;
+  padding: 8px;
 }
 
 .player-hand {
-  bottom: 45px;
+  bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
@@ -161,12 +224,14 @@ h1 {
 
 .bot1-hand {
   top: 50%;
+  left: 10px;
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
+  right: 10px;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
@@ -222,9 +287,10 @@ h1 {
   box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
+/* BOTTOM SECTION: Actions */
 .actions {
   margin-top: 10px;
-  padding: 10px;
+  padding: 8px;
   position: relative;
   z-index: 30;
 }
@@ -287,6 +353,7 @@ dialog {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -369,36 +436,40 @@ dialog h2 {
   margin-bottom: 15px;
 }
 
+/* RESPONSIVE DESIGN */
 @media (max-width: 900px) {
   .table {
-    min-width: 650px;
-    height: 450px;
+    height: 320px;
   }
   
   .game-container {
     max-width: 700px;
-    height: 95vh;
-  }
-
-  .combination-area {
-    width: 260px;
   }
 
   .combo-slot {
     width: 70px;
-    min-height: 110px;
+    height: 110px;
+  }
+
+  .base-area {
+    width: 75px;
+    height: 115px;
+  }
+
+  .play-areas-section {
+    gap: 12px;
   }
 
   .board {
-    max-width: 320px;
-    grid-template-columns: repeat(4, 70px);
-    grid-auto-rows: 110px;
+    grid-template-columns: repeat(4, 65px);
+    grid-auto-rows: 100px;
+    gap: 8px;
   }
 
   .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
+    width: 65px;
+    height: 95px;
+    font-size: 0.9rem;
   }
 }
 
@@ -413,33 +484,46 @@ dialog h2 {
   }
 
   .table {
-    min-width: 500px;
-    height: 400px;
-    margin-top: 50px;
+    height: 280px;
+  }
+
+  .combo-slot {
+    width: 60px;
+    height: 100px;
+  }
+
+  .base-area {
+    width: 65px;
+    height: 105px;
+  }
+
+  .play-areas-section {
+    gap: 8px;
   }
 
   .board {
-    max-width: 280px;
+    grid-template-columns: repeat(4, 60px);
+    grid-auto-rows: 90px;
+    gap: 6px;
     padding: 10px;
-    gap: 8px;
   }
 
   .card {
     width: 60px;
-    height: 90px;
-    font-size: 0.9rem;
+    height: 85px;
+    font-size: 0.8rem;
   }
 
   .player-hand {
-    bottom: 35px;
+    bottom: 12px;
   }
 
   .bot1-hand {
-    left: -25px;
+    left: 5px;
   }
 
   .bot2-hand {
-    right: -25px;
+    right: 5px;
   }
 
   button {
@@ -447,25 +531,10 @@ dialog h2 {
     font-size: 0.8rem;
     margin: 0 3px;
   }
-  
-  .game-container {
-    max-width: 550px;
-    height: 95vh;
-  }
-
-  .combination-area {
-    width: 220px;
-    top: 3px;
-  }
-
-  .combo-slot {
-    width: 50px;
-    min-height: 90px;
-  }
 
   .actions {
     margin-top: 8px;
-    padding: 8px;
+    padding: 6px;
   }
 
   .message {
@@ -475,7 +544,7 @@ dialog h2 {
 
   .deck-count {
     font-size: 0.9rem;
-    margin-bottom: 3px;
+    margin-bottom: 8px;
   }
 }
 
@@ -485,31 +554,34 @@ dialog h2 {
   }
 
   .table {
-    min-width: 400px;
-    height: 350px;
-    margin-top: 40px;
+    height: 250px;
+  }
+
+  .combo-slot {
+    width: 50px;
+    height: 90px;
+  }
+
+  .base-area {
+    width: 55px;
+    height: 95px;
+  }
+
+  .play-areas-section {
+    gap: 6px;
   }
 
   .board {
-    max-width: 260px;
-    gap: 6px;
+    grid-template-columns: repeat(4, 55px);
+    grid-auto-rows: 80px;
+    gap: 5px;
     padding: 8px;
   }
 
   .card {
     width: 55px;
-    height: 80px;
-    font-size: 0.8rem;
-  }
-
-  .combination-area {
-    width: 200px;
-    top: 2px;
-  }
-
-  .combo-slot {
-    width: 45px;
-    min-height: 80px;
+    height: 75px;
+    font-size: 0.7rem;
   }
 
   dialog {
@@ -534,7 +606,7 @@ dialog h2 {
 
   .actions {
     margin-top: 5px;
-    padding: 5px;
+    padding: 4px;
   }
 
   .message {
@@ -549,54 +621,19 @@ dialog h2 {
   }
 
   .player-hand {
-    bottom: 30px;
+    bottom: 10px;
   }
 }
 
-/* 5-Area Layout Additions */
-.capture-row {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  justify-content: center;
+/* Legacy compatibility - keeping old classes for existing JS */
+.combination-area {
+  display: none; /* Hide old combination area */
 }
 
-.base-area {
-  width: 100%;
-  margin-bottom: 15px;
+.capture-row {
+  display: none; /* Hide old capture row */
 }
 
 .sum-area, .match-area {
-  flex: 1;
-  min-height: 110px;
-  min-width: 60px;
-}
-
-/* Responsive adjustments for 5 areas */
-@media (max-width: 900px) {
-  .sum-area, .match-area {
-    min-width: 55px;
-  }
-}
-
-@media (max-width: 700px) {
-  .capture-row {
-    gap: 8px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 45px;
-    min-height: 90px;
-  }
-}
-
-@media (max-width: 550px) {
-  .capture-row {
-    gap: 6px;
-  }
-  
-  .sum-area, .match-area {
-    min-width: 40px;
-    min-height: 80px;
-  }
+  display: none; /* Hide old individual areas */
 }
