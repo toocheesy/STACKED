@@ -949,14 +949,31 @@ setTimeout(() => {
   if (state.hands[playerIndex].length > 0) {
     aiTurn();
   } else {
-    // Bot has no cards left after capture - end turn
+    // Bot has no cards left after capture - find next valid player
     console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
-    state.currentPlayer = (playerIndex + 1) % 3;
+    
+    // Find next player with cards
+    let nextPlayer = (playerIndex + 1) % 3;
+    let attempts = 0;
+    
+    while (attempts < 3) {
+      if (state.hands[nextPlayer] && state.hands[nextPlayer].length > 0) {
+        state.currentPlayer = nextPlayer;
+        console.log(`🔄 SWITCHED TO PLAYER ${nextPlayer} WITH ${state.hands[nextPlayer].length} CARDS`);
+        render();
+        if (nextPlayer !== 0) {
+          scheduleNextBotTurn();
+        }
+        return;
+      }
+      nextPlayer = (nextPlayer + 1) % 3;
+      attempts++;
+    }
+    
+    // No players with cards found - end game
+    console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING GAME`);
     checkGameEnd();
     render();
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      scheduleNextBotTurn();
-    }
   }
 }, 2000);
         }, 1000);
