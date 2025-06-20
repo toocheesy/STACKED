@@ -550,6 +550,9 @@ function renderBoard() {
 
 // Render hands with 5-area checking
 function renderHands() {
+  console.log('🔍 RENDERING PLAYER HAND:', state.hands[0]);
+  // ... rest of the function
+}
   const handEl = document.getElementById('player-hand');
   if (handEl) {
     handEl.innerHTML = '';
@@ -1043,20 +1046,29 @@ playSound('jackpot');
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
   }
-} else {
-  // Deal new round using existing dealCards function
-  try {
-    const dealResult = dealCards(state.deck, 3, 4, 0);
-    state.hands = dealResult.players;
-    state.deck = dealResult.remainingDeck;
-    state.currentPlayer = 0;
-    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-    render();
-    } catch (e) {
-    console.error('Error dealing new round:', e);
-    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-  }
-}
+    } else {
+      // Deal new round using existing dealCards function
+      try {
+        const dealResult = dealCards(state.deck, 3, 4, 0);
+        if (!dealResult.players[0] || dealResult.players[0].length === 0) {
+          console.error('🚨 CRITICAL: No cards dealt to human player!');
+          if (messageEl) messageEl.textContent = "Error: No cards available for player! Restart the game.";
+          state.currentPlayer = -1; // Prevent further turns
+          render();
+          return;
+        }
+        state.hands = dealResult.players;
+        state.deck = dealResult.remainingDeck;
+        state.currentPlayer = 0;
+        if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+        render();
+      } catch (e) {
+        console.error('🚨 Error dealing new round:', e);
+        if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+        state.currentPlayer = -1; // Prevent further turns
+        render();
+      }
+    }
 }
 } // <- This closing brace for checkGameEnd function
 
