@@ -553,7 +553,7 @@ function renderBoard() {
 function renderHands() {
   console.log('🔍 RENDERING PLAYER HAND:', state.hands[0]);
   // ... rest of the function
-}
+
   const handEl = document.getElementById('player-hand');
   if (handEl) {
     handEl.innerHTML = '';
