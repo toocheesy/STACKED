@@ -76,7 +76,7 @@
             <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
               <ul>
                 <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
-                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card's value. All cards are captured.</li>
+                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card’s value. All cards are captured.</li>
               </ul>
             </li>
             <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
@@ -89,16 +89,14 @@
           <ul>
             <li>Plan your combos carefully to maximize points.</li>
             <li>Watch the bots—they play smarter at higher difficulty levels!</li>
-            <li>Secure J, Q, K matches quickly—they're valuable but can't be used in sums!</li>
+            <li>Secure J, Q, K matches quickly—they’re valuable but can’t be used in sums!</li>
           </ul>
         </div>
         <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
       </div>
     </dialog>
 
-    <!-- Top UI Section -->
     <div class="deck-count" id="deck-count">Deck: 0 cards</div>
-    
 
     <div class="table">
       <!-- Scores -->
@@ -108,17 +106,17 @@
 
       <!-- Play Areas -->
       <div class="combination-area" id="combination-area">
-        <!-- Base Card Area (Top) -->
-        <div class="combo-slot base-area" data-slot="base">Base Card</div>
-        
-        <!-- Capture Areas (Bottom Row) -->
-        <div class="capture-row">
-          <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
-          <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
-        </div>
-      </div>
+  <!-- Base Card Area (Top) -->
+  <div class="combo-slot base-area" data-slot="base">Base Card</div>
+  
+  <!-- Capture Areas (Bottom Row) -->
+  <div class="capture-row">
+    <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
+    <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
+    <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
+    <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
+  </div>
+</div>
 
       <!-- Board -->
       <div class="board" id="board"></div>
@@ -129,18 +127,26 @@
       <div class="hand bot2-hand" id="bot2-hand"></div>
     </div>
 
-    <!-- Bottom Actions -->
+    <!-- Actions -->
     <div class="actions">
       <button id="submit-btn">Submit Move</button>
       <button id="reset-play-area-btn">Reset Play Area</button>
       <button id="hint-btn">Hint</button>
       <button id="restart-btn">Restart Game</button>
     </div>
+
+    <div class="capture-type" id="capture-type">
+      No cards in play areas.
+    </div>
+
+    <div class="message" id="message">
+      Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
+    </div>
   </div>
 
   <script src="js/deck.js"></script>
-  <script src="js/gameLogic.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/main.js"></script>
+<script src="js/gameLogic.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>

@@ -452,33 +452,32 @@ render();
 }
 
 // Handle touch drop
-// Handle touch drop
 function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.selectedCard) return;
 
   if (targetType === 'combo') {
     const slot = data;
-    if (slot === 'base' && state.combination.base.length > 0) {
-      state.combination.base = [];
+    if (slot === 1 && state.combination[1].length > 0) {
+      state.combination[1] = [];
     }
     state.combination[slot].push({
       source: state.selectedCard.source,
       index: state.selectedCard.index,
-      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
+card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
     });
   } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
-    const handCard = state.hands[0][state.selectedCard.index];
+    const handCard = state.hands[0][state.selectedCard.data];
     state.board.push(handCard);
-    state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.index);
+    state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
-    checkGameEnd();
+checkGameEnd();
     render();
     if (state.currentPlayer !== 0) {
       scheduleNextBotTurn();
     }
-  } else if (targetType === state.selectedCard.source && data === state.selectedCard.index) {
+  } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
     // Return to original position
   }
 
@@ -551,9 +550,6 @@ function renderBoard() {
 
 // Render hands with 5-area checking
 function renderHands() {
-  console.log('🔍 RENDERING PLAYER HAND:', state.hands[0]);
-  // ... rest of the function
-
   const handEl = document.getElementById('player-hand');
   if (handEl) {
     handEl.innerHTML = '';
@@ -949,31 +945,14 @@ setTimeout(() => {
   if (state.hands[playerIndex].length > 0) {
     aiTurn();
   } else {
-    // Bot has no cards left after capture - find next valid player
+    // Bot has no cards left after capture - end turn
     console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
-    
-    // Find next player with cards
-    let nextPlayer = (playerIndex + 1) % 3;
-    let attempts = 0;
-    
-    while (attempts < 3) {
-      if (state.hands[nextPlayer] && state.hands[nextPlayer].length > 0) {
-        state.currentPlayer = nextPlayer;
-        console.log(`🔄 SWITCHED TO PLAYER ${nextPlayer} WITH ${state.hands[nextPlayer].length} CARDS`);
-        render();
-        if (nextPlayer !== 0) {
-          scheduleNextBotTurn();
-        }
-        return;
-      }
-      nextPlayer = (nextPlayer + 1) % 3;
-      attempts++;
-    }
-    
-    // No players with cards found - end game
-    console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING GAME`);
+    state.currentPlayer = (playerIndex + 1) % 3;
     checkGameEnd();
     render();
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+      scheduleNextBotTurn();
+    }
   }
 }, 2000);
         }, 1000);
@@ -1064,29 +1043,20 @@ playSound('jackpot');
       if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
   }
-    } else {
-      // Deal new round using existing dealCards function
-      try {
-        const dealResult = dealCards(state.deck, 3, 4, 0);
-        if (!dealResult.players[0] || dealResult.players[0].length === 0) {
-          console.error('🚨 CRITICAL: No cards dealt to human player!');
-          if (messageEl) messageEl.textContent = "Error: No cards available for player! Restart the game.";
-          state.currentPlayer = -1; // Prevent further turns
-          render();
-          return;
-        }
-        state.hands = dealResult.players;
-        state.deck = dealResult.remainingDeck;
-        state.currentPlayer = 0;
-        if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
-        render();
-      } catch (e) {
-        console.error('🚨 Error dealing new round:', e);
-        if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-        state.currentPlayer = -1; // Prevent further turns
-        render();
-      }
-    }
+} else {
+  // Deal new round using existing dealCards function
+  try {
+    const dealResult = dealCards(state.deck, 3, 4, 0);
+    state.hands = dealResult.players;
+    state.deck = dealResult.remainingDeck;
+    state.currentPlayer = 0;
+    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+    render();
+    } catch (e) {
+    console.error('Error dealing new round:', e);
+    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+  }
+}
 }
 } // <- This closing brace for checkGameEnd function
 
