@@ -452,32 +452,33 @@ render();
 }
 
 // Handle touch drop
+// Handle touch drop
 function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.selectedCard) return;
 
   if (targetType === 'combo') {
     const slot = data;
-    if (slot === 1 && state.combination[1].length > 0) {
-      state.combination[1] = [];
+    if (slot === 'base' && state.combination.base.length > 0) {
+      state.combination.base = [];
     }
     state.combination[slot].push({
       source: state.selectedCard.source,
       index: state.selectedCard.index,
-card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
+      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
     });
   } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
-    const handCard = state.hands[0][state.selectedCard.data];
+    const handCard = state.hands[0][state.selectedCard.index];
     state.board.push(handCard);
-    state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
+    state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.index);
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
-checkGameEnd();
+    checkGameEnd();
     render();
     if (state.currentPlayer !== 0) {
       scheduleNextBotTurn();
     }
-  } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
+  } else if (targetType === state.selectedCard.source && data === state.selectedCard.index) {
     // Return to original position
   }
 
