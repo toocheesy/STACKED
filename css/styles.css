@@ -133,9 +133,9 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
-  gap: 10px;
-  max-width: 320px;
-  padding: 15px;
+  gap: 15px;
+  max-width: 420px;
+  padding: 20px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
@@ -423,9 +423,10 @@ dialog h2 {
   }
 
   .board {
-    max-width: 300px;
+    max-width: 380px;
     grid-template-columns: repeat(4, 65px);
     grid-auto-rows: 100px;
+    gap: 12px;
   }
 
   .card {
@@ -447,10 +448,11 @@ dialog h2 {
   }
 
   .board {
-    max-width: 280px;
+    max-width: 340px;
     padding: 10px;
     grid-template-columns: repeat(4, 60px);
     grid-auto-rows: 90px;
+    gap: 10px;
   }
 
   .card {
@@ -498,8 +500,8 @@ dialog h2 {
   }
 
   .board {
-    max-width: 260px;
-    gap: 8px;
+    max-width: 300px;
+    gap: 10px;
     grid-template-columns: repeat(4, 55px);
     grid-auto-rows: 80px;
   }
