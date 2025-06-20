@@ -1,5 +1,5 @@
 /* 
- * Clean Original Layout - No Scroll, Mobile Optimized
+ * Fixed Clean Layout - No Scroll, Mobile Optimized
  */
 * {
   margin: 0;
@@ -37,6 +37,10 @@ h1 {
   margin-bottom: 20px;
 }
 
+.top-ui {
+  margin-bottom: 15px;
+}
+
 .deck-count {
   color: #F1C40F;
   font-size: 1.2rem;
@@ -45,16 +49,17 @@ h1 {
 }
 
 .combination-area {
+  position: absolute;
+  top: 120px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 30px;
   width: 280px;
-  position: absolute;
-  top: 80px;
-  left: 50%;
-  transform: translateX(-50%);
+  z-index: 10;
 }
 
 .combo-slot {
@@ -71,12 +76,18 @@ h1 {
   overflow: hidden;
 }
 
-.combo-slot[data-slot="0"]:before {
-  content: "Play Area";
+.combo-slot[data-slot="base"]:before {
+  content: "Base Card";
 }
 
-.combo-slot[data-slot="1"]:before {
-  content: "Principal Match";
+.combo-slot[data-slot="sum1"]:before,
+.combo-slot[data-slot="sum2"]:before,
+.combo-slot[data-slot="sum3"]:before {
+  content: "Sum Cards";
+}
+
+.combo-slot[data-slot="match"]:before {
+  content: "Matching Cards";
 }
 
 .combo-slot.valid-combo {
@@ -158,12 +169,14 @@ h1 {
 
 .bot1-hand {
   top: 50%;
+  left: 0;
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
+  right: 0;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
@@ -219,27 +232,23 @@ h1 {
   box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
-.actions {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
+.action-bar {
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  margin-top: 15px;
+  z-index: 10;
+}
+
+.left-actions, .right-actions {
+  display: flex;
   gap: 15px;
-}
-
-.left-actions {
-  left: 20px;
-}
-
-.right-actions {
-  right: 20px;
 }
 
 button {
   padding: 12px 18px;
-  margin: 0;
   background-color: #F1C40F;
   border: none;
   border-radius: 8px;
@@ -260,35 +269,20 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#restart-btn,
-#reset-play-area-btn,
-#hint-btn {
-  margin-top: 10px;
-}
-
 .message {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   font-size: 1.2rem;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
-  z-index: 15;
-  max-width: 80%;
+  margin: 5px 0;
 }
 
 .capture-type {
-  position: absolute;
-  top: 50px;
-  left: 50%;
-  transform: translateX(-50%);
   font-size: 1rem;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
-  z-index: 15;
+  margin: 5px 0;
 }
 
 dialog {
@@ -420,8 +414,8 @@ dialog h2 {
     margin-bottom: 10px;
   }
   
-  .actions {
-    margin-top: 10px;
+  .combination-area {
+    top: 100px;
   }
 }
 
@@ -446,7 +440,7 @@ dialog h2 {
   }
 
   .board {
-    max-width: 380px;
+    max-width: 300px;
     grid-template-columns: repeat(4, 65px);
     grid-auto-rows: 100px;
     gap: 12px;
@@ -460,6 +454,15 @@ dialog h2 {
 }
 
 @media (max-width: 700px) {
+  .action-bar {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .left-actions, .right-actions {
+    justify-content: center;
+  }
+
   h1 {
     font-size: 1.8rem;
   }
@@ -471,7 +474,7 @@ dialog h2 {
   }
 
   .board {
-    max-width: 340px;
+    max-width: 280px;
     padding: 10px;
     grid-template-columns: repeat(4, 60px);
     grid-auto-rows: 90px;
@@ -485,7 +488,7 @@ dialog h2 {
   }
 
   .player-hand {
-    bottom: 40px;
+    bottom: 60px;
   }
 
   .bot1-hand {
@@ -499,6 +502,7 @@ dialog h2 {
   button {
     padding: 8px 15px;
     font-size: 0.9rem;
+    min-width: 100px;
   }
   
   .game-container {
@@ -507,6 +511,7 @@ dialog h2 {
 
   .combination-area {
     width: 240px;
+    top: 90px;
   }
 
   .combo-slot {
@@ -523,8 +528,8 @@ dialog h2 {
   }
 
   .board {
-    max-width: 300px;
-    gap: 10px;
+    max-width: 260px;
+    gap: 8px;
     grid-template-columns: repeat(4, 55px);
     grid-auto-rows: 80px;
   }
@@ -537,6 +542,7 @@ dialog h2 {
 
   .combination-area {
     width: 220px;
+    top: 80px;
   }
 
   .combo-slot {
@@ -562,6 +568,10 @@ dialog h2 {
   button {
     padding: 6px 12px;
     font-size: 0.8rem;
-    margin: 0 5px;
+    min-width: 90px;
+  }
+
+  .action-bar {
+    padding: 10px;
   }
 }

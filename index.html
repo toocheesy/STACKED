@@ -10,6 +10,16 @@
   <div class="game-container">
     <h1>Welcome to STACKED! 🎴</h1>
     <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
+    
+    <div class="top-ui">
+      <div class="deck-count" id="deck-count">Deck: 0 cards</div>
+      <div class="message" id="message">
+        Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
+      </div>
+      <div class="capture-type" id="capture-type">
+        No cards in play areas.
+      </div>
+    </div>
 
     <!-- Settings Modal -->
     <dialog id="settings-modal">
@@ -96,22 +106,11 @@
       </div>
     </dialog>
 
-    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
-
     <div class="table">
       <!-- Scores -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
       <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
-
-      <!-- Top Messages Area (Merged Instructions) -->
-      <div class="message" id="message">
-        Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.
-      </div>
-      
-      <div class="capture-type" id="capture-type">
-        No cards in play areas.
-      </div>
 
       <!-- Play Areas -->
       <div class="combination-area" id="combination-area">
@@ -134,15 +133,15 @@
       <div class="hand player-hand" id="player-hand"></div>
       <div class="hand bot1-hand" id="bot1-hand"></div>
       <div class="hand bot2-hand" id="bot2-hand"></div>
+    </div>
 
-      <!-- Left Side Actions -->
-      <div class="actions left-actions">
+    <!-- Actions moved outside the table -->
+    <div class="action-bar">
+      <div class="left-actions">
         <button id="reset-play-area-btn">Reset Play Area</button>
         <button id="restart-btn">Restart Game</button>
       </div>
-
-      <!-- Right Side Actions -->
-      <div class="actions right-actions">
+      <div class="right-actions">
         <button id="submit-btn">Submit Move</button>
         <button id="hint-btn">Hint</button>
       </div>
