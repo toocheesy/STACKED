@@ -25,7 +25,7 @@ body {
   width: 100%;
   position: relative;
   transform-origin: center top;
-  transform: scale(min(1, calc(100vh / 1000px)));
+  transform: scale(min(1, calc(100vh / 1100px)));
 }
 
 h1 {
