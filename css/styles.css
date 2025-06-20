@@ -1,530 +1,521 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STACKED!</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+/* 
+ * Original Working Layout + Natural Scroll (ONLY scroll changes applied)
+ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      min-height: 100vh;
-      padding: 10px;
-    }
+body {
+  background-color: #145A32;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  min-height: 100vh;
+}
 
-    .game-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+.game-container {
+  text-align: center;
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+}
 
-    h1 {
-      text-align: center;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-      margin-bottom: 5px;
-    }
+h1 {
+  color: #F1C40F;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
 
-    .game-container > p {
-      text-align: center;
-      font-size: 1.1em;
-      opacity: 0.9;
-      margin-bottom: 10px;
-    }
+.deck-count {
+  color: #F1C40F;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
 
-    /* FIXED: Single message area */
-    .ui-messages {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 10px 0;
-    }
+.combination-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0px;
+  width: 280px;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
-    .deck-count {
-      background: rgba(255,255,255,0.1);
-      padding: 8px 15px;
-      border-radius: 20px;
-      text-align: center;
-      font-weight: bold;
-      border: 2px solid rgba(255,255,255,0.2);
-    }
+.combo-slot {
+  width: 70px;
+  min-height: 110px;
+  background-color: rgba(241, 196, 15, 0.1);
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  position: relative;
+  padding: 5px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #333;
+  overflow: hidden;
+}
 
-    .message, .capture-type {
-      background: rgba(255,255,255,0.15);
-      padding: 10px 15px;
-      border-radius: 15px;
-      text-align: center;
-      border: 1px solid rgba(255,255,255,0.3);
-      font-size: 1em;
-    }
+.combo-slot[data-slot="0"]:before {
+  content: "Play Area";
+}
 
-    .capture-type {
-      background: rgba(241, 196, 15, 0.2);
-      border-color: rgba(241, 196, 15, 0.5);
-    }
+.combo-slot[data-slot="1"]:before {
+  content: "Principal Match";
+}
 
-    /* FIXED: Table layout */
-    .table {
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      padding: 20px;
-      backdrop-filter: blur(10px);
-      border: 2px solid rgba(255,255,255,0.2);
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 20px;
-      max-height: none; /* REMOVED HEIGHT CONSTRAINT */
-    }
+.combo-slot.valid-combo {
+  border-color: #2ecc71;
+  box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
+  background-color: rgba(46, 204, 113, 0.2);
+  transition: all 0.3s ease;
+}
 
-    /* Scores */
-    .scores-row {
-      display: flex;
-      justify-content: space-around;
-      gap: 20px;
-    }
+.table {
+  position: relative;
+  min-width: 800px;
+  height: 750px;
+  margin: 0 auto;
+  background-color: black;
+  border: 4px solid #7B3F00;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
-    .score {
-      background: rgba(255,255,255,0.2);
-      padding: 10px 20px;
-      border-radius: 15px;
-      text-align: center;
-      font-weight: bold;
-      flex: 1;
-      border: 2px solid rgba(255,255,255,0.3);
-    }
+.score {
+  position: absolute;
+  background-color: #7B3F00;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  z-index: 10;
+}
 
-    /* FIXED: Combination area - flexible height */
-    .combination-area {
-      background: rgba(241, 196, 15, 0.15);
-      border-radius: 15px;
-      padding: 15px;
-      border: 2px solid rgba(241, 196, 15, 0.4);
-      min-height: 200px; /* MINIMUM not FIXED height */
-      max-height: 400px; /* PREVENT excessive growth */
-      overflow-y: auto; /* ALLOW SCROLL if needed */
-    }
+.player-score {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
-    .base-area {
-      background: rgba(52, 152, 219, 0.3);
-      border: 2px dashed rgba(52, 152, 219, 0.6);
-      border-radius: 10px;
-      padding: 15px;
-      text-align: center;
-      min-height: 80px;
-      margin-bottom: 15px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
+.bot1-score {
+  top: 15px;
+  left: 15px;
+}
 
-    .capture-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 10px;
-    }
+.bot2-score {
+  top: 15px;
+  right: 15px;
+}
 
-    .combo-slot {
-      background: rgba(255,255,255,0.1);
-      border: 2px dashed rgba(255,255,255,0.4);
-      border-radius: 10px;
-      padding: 10px;
-      text-align: center;
-      min-height: 80px;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9em;
-      transition: all 0.3s ease;
-    }
+.board {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  grid-template-columns: repeat(4, 70px);
+  grid-auto-rows: 110px;
+  gap: 10px;
+  max-width: 320px;
+  padding: 15px;
+  border: 3px solid #F1C40F;
+  border-radius: 12px;
+  background-color: rgba(241, 196, 15, 0.1);
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+}
 
-    .combo-slot.valid-combo {
-      background: rgba(46, 204, 113, 0.3);
-      border-color: rgba(46, 204, 113, 0.8);
-      box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
-    }
+.hand {
+  position: absolute;
+  display: flex;
+  gap: 5px;
+  padding: 10px;
+}
 
-    /* Board */
-    .board {
-      background: rgba(34, 139, 34, 0.2);
-      border-radius: 15px;
-      padding: 15px;
-      min-height: 120px;
-      border: 2px solid rgba(34, 139, 34, 0.4);
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: center;
-    }
+.player-hand {
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+}
 
-    /* Hands */
-    .hands-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
-      gap: 20px;
-      align-items: center;
-    }
+.bot1-hand {
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  transform-origin: center;
+}
 
-    .hand {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      padding: 10px;
-      border-radius: 10px;
-      min-height: 100px;
-      align-items: center;
-    }
+.bot2-hand {
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+}
 
-    .player-hand {
-      background: rgba(46, 204, 113, 0.2);
-      border: 2px solid rgba(46, 204, 113, 0.4);
-    }
+.card {
+  width: 70px;
+  height: 100px;
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 5px;
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.5s ease;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: left;
+  line-height: 1;
+  color: #000;
+  position: relative;
+  touch-action: none;
+}
 
-    .bot1-hand, .bot2-hand {
-      background: rgba(231, 76, 60, 0.2);
-      border: 2px solid rgba(231, 76, 60, 0.4);
-    }
+.card.red {
+  color: #e74c3c;
+}
 
-    /* Cards */
-    .card {
-      width: 70px;
-      height: 95px;
-      background: white;
-      color: black;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 0.9em;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid #ccc;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      user-select: none;
-      position: relative;
-    }
+.card.selected {
+  border-color: #3498db;
+  transform: scale(1.05);
+}
 
-    .card.red {
-      color: #e74c3c;
-    }
+.card:hover {
+  transform: scale(1.1);
+}
 
-    .card.back {
-      background: linear-gradient(45deg, #3498db, #2980b9);
-      color: white;
-    }
+.card.back {
+  background-color: #2C3E50;
+  color: transparent;
+  border-color: #34495E;
+}
 
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
+.card.hint {
+  border-color: #e67e22;
+  box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
+  background-color: rgba(230, 126, 34, 0.2);
+}
 
-    .card.selected {
-      transform: scale(1.1);
-      box-shadow: 0 0 20px rgba(241, 196, 15, 0.8);
-      z-index: 10;
-    }
+.card.hint:hover {
+  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
+}
 
-    .card.hint {
-      animation: pulse 1s infinite;
-      box-shadow: 0 0 20px rgba(46, 204, 113, 0.8);
-    }
+.actions {
+  margin-top: 30px;
+}
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
+button {
+  padding: 10px 20px;
+  margin: 0 10px;
+  background-color: #F1C40F;
+  border: none;
+  border-radius: 5px;
+  color: #000;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
 
-    /* Actions */
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
+button:hover {
+  background-color: #D4AC0D;
+}
 
-    button {
-      background: linear-gradient(45deg, #3498db, #2980b9);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-size: 1em;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid rgba(255,255,255,0.2);
-    }
+button:disabled {
+  background-color: #7f8c8d;
+  cursor: not-allowed;
+}
 
-    button:hover {
-      background: linear-gradient(45deg, #2980b9, #1f618d);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
+#restart-btn,
+#reset-play-area-btn,
+#hint-btn {
+  margin-top: 10px;
+}
 
-    button:disabled {
-      background: rgba(127,140,141,0.5);
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+.message {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #F1C40F;
+  font-weight: bold;
+}
 
-    button#submit-btn {
-      background: linear-gradient(45deg, #27ae60, #229954);
-    }
+.capture-type {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #F1C40F;
+  font-weight: bold;
+  text-align: center;
+}
 
-    button#submit-btn:hover {
-      background: linear-gradient(45deg, #229954, #1e8449);
-    }
+dialog {
+  background-color: #229954;
+  color: #fff;
+  border: 3px solid #F1C40F;
+  border-radius: 8px;
+  padding: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
 
-    /* Modals */
-    dialog {
-      background: rgba(44, 62, 80, 0.95);
-      color: white;
-      border: none;
-      border-radius: 15px;
-      padding: 30px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      max-width: 600px;
-      width: 90%;
-    }
+dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 
-    dialog::backdrop {
-      background: rgba(0,0,0,0.7);
-    }
+dialog label {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
 
-    .modal-content h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #3498db;
-    }
+dialog select {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #000;
+  font-size: 1rem;
+}
 
-    .modal-content form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
+dialog button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #F1C40F;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
 
-    .modal-content label {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+dialog button:hover {
+  background-color: #D4AC0D;
+}
 
-    .modal-content select {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      background: white;
-      color: black;
-    }
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
 
-    .modal-buttons {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      margin-top: 20px;
-    }
+.modal-buttons button {
+  flex: 1;
+}
 
-    .tutorial-content {
-      max-height: 400px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-    }
+.tutorial-content {
+  text-align: left;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
 
-    .tutorial-content ul {
-      margin-left: 20px;
-      margin-top: 10px;
-    }
+.tutorial-content h3 {
+  margin-top: 10px;
+  color: #F1C40F;
+}
 
-    .tutorial-content li {
-      margin: 8px 0;
-    }
+.tutorial-content ul {
+  margin-left: 20px;
+  list-style-type: disc;
+}
 
-    /* RESPONSIVE */
-    @media (max-width: 768px) {
-      .hands-row {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      
-      .capture-row {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      
-      .card {
-        width: 60px;
-        height: 80px;
-        font-size: 0.8em;
-      }
-      
-      .actions {
-        gap: 10px;
-      }
-      
-      button {
-        padding: 10px 20px;
-        font-size: 0.9em;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="game-container">
-    <h1>Welcome to STACKED! 🎴</h1>
-    <p>Capture cards by matching pairs (e.g., 5 captures 5) or sums (e.g., 5 + 5 captures 10). Score points to win!</p>
+.tutorial-content ul ul {
+  margin-left: 20px;
+  list-style-type: circle;
+}
 
-    <!-- Settings Modal -->
-    <dialog id="settings-modal">
-      <div class="modal-content">
-        <h2>Settings</h2>
-        <form>
-          <label for="card-speed">Card Reveal Speed:</label>
-          <select id="card-speed">
-            <option value="slow">Slow</option>
-            <option value="fast" selected>Fast</option>
-          </select>
+dialog .modal-content {
+  text-align: center;
+}
 
-          <label for="sound-effects">Sound Effects:</label>
-          <select id="sound-effects">
-            <option value="on">On</option>
-            <option value="off" selected>Off</option>
-          </select>
+dialog h2 {
+  color: #F1C40F;
+  margin-bottom: 15px;
+}
 
-          <label for="target-score">Target Score:</label>
-          <select id="target-score">
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500" selected>500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-            <option value="1000">1000</option>
-            <option value="1100">1100</option>
-            <option value="1200">1200</option>
-            <option value="1300">1300</option>
-            <option value="1400">1400</option>
-            <option value="1500">1500</option>
-          </select>
+@media (max-width: 900px) {
+  .table {
+    min-width: 650px;
+    height: 650px;
+  }
+  
+  .game-container {
+    max-width: 700px;
+  }
 
-          <label for="bot-difficulty">Bot Difficulty:</label>
-          <select id="bot-difficulty">
-            <option value="beginner">Beginner</option>
-            <option value="intermediate" selected>Intermediate</option>
-            <option value="legendary">Legendary</option>
-          </select>
+  .combination-area {
+    width: 260px;
+  }
 
-          <div class="modal-buttons">
-            <button type="button" id="start-game-btn">Start Game</button>
-            <button type="button" id="tutorial-btn">Tutorial</button>
-          </div>
-        </form>
-      </div>
-    </dialog>
+  .combo-slot {
+    width: 70px;
+    min-height: 110px;
+  }
 
-    <!-- Tutorial Modal -->
-    <dialog id="tutorial-modal">
-      <div class="modal-content">
-        <h2>How to Play STACKED!</h2>
-        <div class="tutorial-content">
-          <p>Welcome to <strong>STACKED!</strong>, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
-          <h3>Objective:</h3>
-          <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
-          <h3>How to Play:</h3>
-          <ul>
-            <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
-            <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
-              <ul>
-                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
-                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card's value. All cards are captured.</li>
-              </ul>
-            </li>
-            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
-            <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
-            <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
-            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
-            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
-          </ul>
-          <h3>Tips:</h3>
-          <ul>
-            <li>Plan your combos carefully to maximize points.</li>
-            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
-            <li>Secure J, Q, K matches quickly—they're valuable but can't be used in sums!</li>
-          </ul>
-        </div>
-        <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
-      </div>
-    </dialog>
+  .board {
+    max-width: 320px;
+    grid-template-columns: repeat(4, 70px);
+    grid-auto-rows: 110px;
+  }
 
-    <!-- FIXED: Single UI Messages Section -->
-    <div class="ui-messages">
-      <div class="deck-count" id="deck-count">Deck: 0 cards</div>
-      <div class="message" id="message">Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.</div>
-      <div class="capture-type" id="capture-type">No cards in play areas.</div>
-    </div>
+  .card {
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 55px;
+  }
+}
 
-    <div class="table">
-      <!-- Scores -->
-      <div class="scores-row">
-        <div class="score player-score" id="player-score">Player: 0 pts</div>
-        <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
-        <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
-      </div>
+@media (max-width: 700px) {
+  h1 {
+    font-size: 1.8rem;
+  }
 
-      <!-- FIXED: Play Areas with better structure -->
-      <div class="combination-area" id="combination-area">
-        <!-- Base Card Area (Top) -->
-        <div class="base-area combo-slot" data-slot="base">Base Card</div>
-        
-        <!-- Capture Areas (Bottom Row) -->
-        <div class="capture-row">
-          <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
-          <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
-        </div>
-      </div>
+  .table {
+    min-width: 500px;
+    height: 550px;
+  }
 
-      <!-- Board -->
-      <div class="board" id="board"></div>
+  .board {
+    max-width: 320px;
+    padding: 10px;
+  }
 
-      <!-- Hands -->
-      <div class="hands-row">
-        <div class="hand player-hand" id="player-hand"></div>
-        <div class="hand bot1-hand" id="bot1-hand"></div>
-        <div class="hand bot2-hand" id="bot2-hand"></div>
-      </div>
-    </div>
+  .card {
+    width: 70px;
+    height: 100px;
+    font-size: 1rem;
+  }
 
-    <!-- Bottom Actions -->
-    <div class="actions">
-      <button id="submit-btn">Submit Move</button>
-      <button id="reset-play-area-btn">Reset Play Area</button>
-      <button id="hint-btn">Hint</button>
-      <button id="restart-btn">Restart Game</button>
-    </div>
-  </div>
+  .player-hand {
+    bottom: 50px;
+  }
 
-  <script>
-    // Placeholder for your existing JavaScript
-    console.log("STACKED Game Ready! Add your main.js, deck.js, gameLogic.js, and ai.js files");
-  </script>
-</body>
-</html>
+  .bot1-hand {
+    left: -25px;
+  }
+
+  .bot2-hand {
+    right: -25px;
+  }
+
+  button {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .game-container {
+    max-width: 550px;
+  }
+
+  .combination-area {
+    width: 240px;
+  }
+
+  .combo-slot {
+    width: 60px;
+    min-height: 110px;
+  }
+  
+  .capture-row {
+    gap: 8px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 50px;
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 550px) {
+  .table {
+    min-width: 400px;
+    height: 500px;
+  }
+
+  .board {
+    max-width: 280px;
+    gap: 10px;
+  }
+
+  .card {
+    width: 60px;
+    height: 90px;
+    font-size: 0.9rem;
+  }
+
+  .combination-area {
+    width: 220px;
+  }
+
+  .combo-slot {
+    width: 50px;
+    min-height: 100px;
+  }
+
+  dialog {
+    width: 300px;
+    padding: 15px;
+  }
+
+  dialog select,
+  dialog button {
+    font-size: 0.9rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .capture-row {
+    gap: 6px;
+  }
+  
+  .sum-area, .match-area {
+    min-width: 45px;
+    min-height: 90px;
+  }
+}
+
+/* 5-Area Layout Additions */
+.capture-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.base-area {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.combination-area {
+  max-height: 300px;
+  overflow-y: auto;
+}
