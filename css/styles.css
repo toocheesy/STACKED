@@ -133,9 +133,9 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
-  gap: 15px;
-  max-width: 420px;
-  padding: 20px;
+  gap: 25px;
+  max-width: 600px;
+  padding: 40px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
