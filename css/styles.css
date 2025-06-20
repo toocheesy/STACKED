@@ -88,7 +88,7 @@ h1 {
 
 .table {
   position: relative;
-  min-width: 800px;
+  min-width: 1000px;
   height: calc(100vh - 200px);
   max-height: 650px;
   margin: 0 auto;
@@ -133,9 +133,9 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
-  gap: 25px;
-  max-width: 600px;
-  padding: 40px;
+  gap: 10px;
+  max-width: 320px;
+  padding: 15px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
