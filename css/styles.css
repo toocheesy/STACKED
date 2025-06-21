@@ -218,17 +218,19 @@ h1 {
 
 .actions {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  justify-content: center;       /* Center buttons horizontally */
+  align-items: center;           /* Align buttons vertically */
+  flex-wrap: wrap;               /* Allow buttons to wrap on small screens */
   gap: 10px;
   padding: 10px 0;
   flex-shrink: 0;
 
-  /* NEW: Add subtle divider above */
+  /* Visual divider above buttons */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 15px;
   margin-top: 5px;
 }
+
 
 
 button {
