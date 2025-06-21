@@ -1400,6 +1400,7 @@ function checkGameEnd() {
       
       jackpotMessage = `${lastCapturerName} sweeps ${state.board.length} cards! +${bonusPoints} pts`;
       console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+      playSound('jackpot');
       state.board = [];
     }
 
@@ -1408,7 +1409,7 @@ function checkGameEnd() {
       const winner = rankPlayers()[0];
       showGameOverModal(jackpotMessage, currentRound);
       smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
-    } else {
+    } else if (jackpotMessage) {
       showRoundEndModal(jackpotMessage, currentRound);
     }
   }
