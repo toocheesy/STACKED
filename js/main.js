@@ -264,30 +264,36 @@ class BotModalInterface {
   }
 
   // Place a card on the board (end turn)
-  async botPlaceCard(card, handIndex) {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
+async botPlaceCard(card, handIndex) {
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
 
-    console.log(`🤖 BOT: Placing ${card.value}${card.suit} on board to end turn`);
+  console.log(`🤖 BOT: Placing ${card.value}${card.suit} on board to end turn`);
 
-    // Add visual delay
-    await this.delay(500);
+  // Add visual delay
+  await this.delay(500);
 
-    // Execute the placement
-    const currentPlayer = state.currentPlayer;
-    state.board.push(card);
-    state.hands[currentPlayer] = state.hands[currentPlayer].filter((_, i) => i !== handIndex);
-    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  // Execute the placement
+  const currentPlayer = state.currentPlayer;
+  state.board.push(card);
+  state.hands[currentPlayer] = state.hands[currentPlayer].filter((_, i) => i !== handIndex);
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-    // Switch to next player
-    state.currentPlayer = (currentPlayer + 1) % 3;
-    
-    render();
-    checkGameEnd();
+  // Switch to next player
+  state.currentPlayer = (currentPlayer + 1) % 3;
+  
+  render();
+  checkGameEnd();
 
-    this.isAnimating = false;
-    return true;
+  // CRITICAL FIX: Continue to next bot or player
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+    console.log(`🔄 BOT PLACED CARD - CONTINUING TO PLAYER ${state.currentPlayer}`);
+    setTimeout(async () => await scheduleNextBotTurn(), 1000);
   }
+
+  this.isAnimating = false;
+  return true;
+}
 
   // Utility function for delays
   delay(ms) {
@@ -929,22 +935,27 @@ function updateSubmitButton() {
   }
 }
 
-// Update message (unchanged from original)
+// Update message with smart messaging integration
 function updateMessage() {
   const messageEl = document.getElementById('message');
   if (messageEl) {
     if (state.currentPlayer === 0) {
       if (state.hands[0].length === 0) {
         messageEl.textContent = "You're out of cards! Bots will finish the round.";
+        smartMessages.showMessage("You're out of cards! Bots will finish the round.");
         state.currentPlayer = 1;
         setTimeout(async () => await scheduleNextBotTurn(), 100);
       } else if (state.combination.base.length === 0) {
         messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
+        smartMessages.updateMessage('turn_start');
       } else {
         messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
+        smartMessages.updateMessage('cards_in_areas');
       }
     } else {
-      messageEl.textContent = `Bot ${state.currentPlayer}'s turn...`;
+      const botMessage = `Bot ${state.currentPlayer}'s turn...`;
+      messageEl.textContent = botMessage;
+      smartMessages.showMessage(botMessage);
     }
   }
 }
