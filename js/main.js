@@ -260,6 +260,7 @@ await this.delay(500);
 
 this.isAnimating = false;
 return success;
+}
 
 // NEW: Bot-specific submit logic that bypasses player checks
 executeBotSubmit() {
@@ -277,7 +278,7 @@ executeBotSubmit() {
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
 
-  // Validate all capture areas (same logic as handleSubmit)
+  // Validate all capture areas
   const captureAreas = [
     { name: 'sum1', cards: state.combination.sum1 },
     { name: 'sum2', cards: state.combination.sum2 },
@@ -309,23 +310,37 @@ executeBotSubmit() {
 
   console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
-  // Execute the capture (same as handleSubmit)
+  // Execute the capture
   executeCapture(baseCard, validCaptures, allCapturedCards);
-  
+
   // Track last capturer
   state.lastCapturer = currentPlayer;
-  
+
+  // Award points to the correct bot
+  const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+  const points = scoreFunction(allCapturedCards);
+
+  if (currentPlayer === 1) {
+    state.scores.bot1 += points;
+    console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
+  } else if (currentPlayer === 2) {
+    state.scores.bot2 += points;
+    console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
+  }
+
   // Reset state
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-  // Continue to next player or end turn
+  // Proper turn continuation
   if (state.hands[currentPlayer].length > 0) {
-    // Bot can continue playing
-    console.log(`🤖 BOT ${currentPlayer}: Continuing turn`);
+    console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
   } else {
-    // Bot is out of cards, move to next player
     state.currentPlayer = (currentPlayer + 1) % 3;
     console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
+    
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    }
   }
 
   render();
