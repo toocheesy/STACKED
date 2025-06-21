@@ -24,6 +24,8 @@ body {
 .game-container {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   height: 100vh;
   max-width: 1200px;
   width: 100%;
@@ -87,13 +89,16 @@ h1 {
 }
 
 .table {
-  flex: 1;
+  flex-grow: 1;
   margin: 10px 0;
   background-color: black;
   border: 4px solid #7B3F00;
   border-radius: 8px;
   position: relative;
-  min-height: 0; /* This allows flexbox to shrink it */
+  min-height: 0;
+  width: 100%;
+  max-height: 65vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .score {
@@ -218,14 +223,12 @@ h1 {
 
 .actions {
   display: flex;
-  justify-content: center;       /* Center buttons horizontally */
-  align-items: center;           /* Align buttons vertically */
-  flex-wrap: wrap;               /* Allow buttons to wrap on small screens */
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 0;
   flex-shrink: 0;
-
-  /* Visual divider above buttons */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 15px;
   margin-top: 5px;
@@ -375,13 +378,30 @@ dialog h2 {
 
 @media (max-width: 900px) {
   .table {
-    min-width: 650px;
-    height: 650px;
-  }
+  flex-grow: 1;
+  margin: 10px 0;
+  background-color: black;
+  border: 4px solid #7B3F00;
+  border-radius: 8px;
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  max-height: 65vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
   
   .game-container {
-    max-width: 700px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  max-width: 1200px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
 
   .combination-area {
     width: 260px;
@@ -415,9 +435,17 @@ dialog h2 {
   }
 
   .table {
-    min-width: 500px;
-    height: 550px;
-  }
+  flex-grow: 1;
+  margin: 10px 0;
+  background-color: black;
+  border: 4px solid #7B3F00;
+  border-radius: 8px;
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  max-height: 65vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
   .board {
     max-width: 320px;
@@ -448,8 +476,17 @@ dialog h2 {
   }
   
   .game-container {
-    max-width: 550px;
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  max-width: 1200px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
 
   .combination-area {
     width: 240px;
@@ -472,9 +509,17 @@ dialog h2 {
 
 @media (max-width: 550px) {
   .table {
-    min-width: 400px;
-    height: 500px;
-  }
+  flex-grow: 1;
+  margin: 10px 0;
+  background-color: black;
+  border: 4px solid #7B3F00;
+  border-radius: 8px;
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  max-height: 65vh;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
   .board {
     max-width: 280px;
