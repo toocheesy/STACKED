@@ -57,7 +57,7 @@ h1 {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  width: 300px;
+  width: 348px;
   min-height: 400px;
   z-index: 1000;
   background-color: rgba(0, 0, 0, 0.95);
@@ -150,7 +150,7 @@ h1 {
 
 .board {
   position: absolute;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
@@ -593,6 +593,6 @@ dialog h2 {
 }
 
 .base-area {
-  width: 100%;
+  width: 70px;
   margin-bottom: 15px;
 }
