@@ -226,23 +226,102 @@ class BotModalInterface {
   }
 
   // Simulate bot clicking submit button
-  async botSubmitCapture() {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
+  // Simulate bot clicking submit button
+async botSubmitCapture() {
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
 
-    console.log(`🤖 BOT: Attempting to submit capture`);
+  console.log(`🤖 BOT: Attempting to submit capture`);
 
-    // Visual delay to show the "thinking"
-    await this.delay(300);
+  // Visual delay to show the "thinking"
+  await this.delay(300);
 
-    // Trigger the same submit logic as human players
-    handleSubmit();
-
-    await this.delay(500);
-    
-    this.isAnimating = false;
-    return true;
+  // FIXED: Use bot-specific submit logic
+  const success = this.executeBotSubmit();
+  
+  if (success) {
+    console.log(`🤖 BOT: Capture successful!`);
+  } else {
+    console.log(`🤖 BOT: Capture failed, placing card instead`);
   }
+
+  await this.delay(500);
+  
+  this.isAnimating = false;
+  return success;
+}
+
+// NEW: Bot-specific submit logic that bypasses player checks
+executeBotSubmit() {
+  const baseCards = state.combination.base;
+  const currentPlayer = state.currentPlayer;
+
+  if (baseCards.length !== 1) {
+    console.log(`🚨 BOT SUBMIT FAILED: Base card count = ${baseCards.length}`);
+    return false;
+  }
+
+  const baseCard = baseCards[0];
+  const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
+
+  let validCaptures = [];
+  let allCapturedCards = [baseCard.card];
+
+  // Validate all capture areas (same logic as handleSubmit)
+  const captureAreas = [
+    { name: 'sum1', cards: state.combination.sum1 },
+    { name: 'sum2', cards: state.combination.sum2 },
+    { name: 'sum3', cards: state.combination.sum3 },
+    { name: 'match', cards: state.combination.match }
+  ];
+
+  for (const area of captureAreas) {
+    if (area.cards.length > 0) {
+      const isSum = area.name.startsWith('sum');
+      const result = isSum 
+        ? validateSumCapture(area.cards, baseValue, baseCard)
+        : validateMatchCapture(area.cards, baseValue, baseCard);
+
+      if (result.isValid) {
+        validCaptures.push({ name: area.name, cards: area.cards });
+        allCapturedCards.push(...area.cards.map(entry => entry.card));
+      } else {
+        console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
+        return false;
+      }
+    }
+  }
+
+  if (validCaptures.length === 0) {
+    console.log(`🚨 BOT SUBMIT FAILED: No valid captures`);
+    return false;
+  }
+
+  console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+
+  // Execute the capture (same as handleSubmit)
+  executeCapture(baseCard, validCaptures, allCapturedCards);
+  
+  // Track last capturer
+  state.lastCapturer = currentPlayer;
+  
+  // Reset state
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+  // Continue to next player or end turn
+  if (state.hands[currentPlayer].length > 0) {
+    // Bot can continue playing
+    console.log(`🤖 BOT ${currentPlayer}: Continuing turn`);
+  } else {
+    // Bot is out of cards, move to next player
+    state.currentPlayer = (currentPlayer + 1) % 3;
+    console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
+  }
+
+  render();
+  playSound('capture');
+  return true;
+}
 
   // Reset the modal (clear all areas)
   async botResetModal() {
