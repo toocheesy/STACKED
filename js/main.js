@@ -32,9 +32,6 @@ const sounds = {
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
 
-// Initialize the smart message system
-const smartMessages = new SmartMessageSystem();
-
 // Smart Contextual Error Detection System
 class SmartMessageSystem {
   constructor() {
@@ -111,6 +108,9 @@ class SmartMessageSystem {
     }
   }
 }
+
+// Initialize the smart message system (MOVED HERE!)
+const smartMessages = new SmartMessageSystem();
 
 // Initialize the game
 function initGame() {
