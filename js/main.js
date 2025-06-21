@@ -533,19 +533,31 @@ function render() {
   }
 
   const tableEl = document.querySelector('.table');
-  if (tableEl) {
-    const cardCount = state.board ? state.board.length : 0;
-    const baseWidth = 800;
-    const cardWidth = 80;
-    const tableWidth = Math.max(baseWidth, cardCount <= 4 ? baseWidth : (cardCount * cardWidth) + 100);
-    tableEl.style.width = `${tableWidth}px`;
-    
-    const botOffset = -20 - (cardCount > 4 ? (cardCount - 4) * 10 : 0);
-    const bot1HandEl = document.querySelector('.bot1-hand');
-    const bot2HandEl = document.querySelector('.bot2-hand');
-    if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
-    if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
-  }
+if (tableEl) {
+  const cardCount = state.board ? state.board.length : 0;
+  const baseWidth = 800;
+  const baseHeight = 600;
+  const cardWidth = 80;
+  const cardHeight = 110;
+  
+  // Calculate grid layout for board cards
+  const cardsPerRow = Math.min(8, Math.max(4, cardCount));
+  const rows = Math.ceil(cardCount / cardsPerRow);
+  
+  // Dynamic width and height
+  const tableWidth = Math.max(baseWidth, (cardsPerRow * cardWidth) + 100);
+  const tableHeight = Math.max(baseHeight, baseHeight + ((rows - 1) * 60));
+  
+  tableEl.style.width = `${tableWidth}px`;
+  tableEl.style.height = `${tableHeight}px`;
+  
+  // Adjust bot positions based on width only
+  const botOffset = -20 - (cardCount > 8 ? (cardCount - 8) * 5 : 0);
+  const bot1HandEl = document.querySelector('.bot1-hand');
+  const bot2HandEl = document.querySelector('.bot2-hand');
+  if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
+  if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
+}
 
   // NEW 5-AREA COMBINATION RENDERING
   const comboAreaEl = document.getElementById('combination-area');
@@ -823,25 +835,41 @@ function handleDrop(e, slot) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
+  // Remove card from previous slot if moving within combo area
   if (state.draggedCard.slot !== undefined) {
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
   }
 
-  // Limit Principal Match (slot 1) to one card
-  if (slot === 1 && state.combination[1].length > 0) {
-    state.combination[1] = [];
+  // Handle base card slot (only one card allowed)
+  if (slot === 'base' && state.combination.base.length > 0) {
+    // Move existing base card to first available sum slot
+    const existingBase = state.combination.base[0];
+    state.combination.base = [];
+    
+    // Find first available sum slot
+    if (state.combination.sum1.length === 0) {
+      state.combination.sum1.push(existingBase);
+    } else if (state.combination.sum2.length === 0) {
+      state.combination.sum2.push(existingBase);
+    } else if (state.combination.sum3.length === 0) {
+      state.combination.sum3.push(existingBase);
+    } else {
+      // All sum slots full, move to match
+      state.combination.match.push(existingBase);
+    }
   }
+
+  // Add card to target slot
   state.combination[slot].push({
-  source: state.draggedCard.source,
-  index: state.draggedCard.index,
-  card: state.draggedCard.card
-});
+    source: state.draggedCard.source,
+    index: state.draggedCard.index,
+    card: state.draggedCard.card
+  });
 
-console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
-console.log(`🔧 COMBINATION STATE:`, state.combination);
+  console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
 
-state.draggedCard = null;
-render();
+  state.draggedCard = null;
+  render();
 }
 
 // Handle touch drop
@@ -936,8 +964,8 @@ function renderBoard() {
     }
 
     boardEl.addEventListener('dragover', (e) => e.preventDefault());
-    boardEl.addEventListener('drop', handlePlaceDrop);
-    boardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'board'));
+boardEl.addEventListener('drop', handleBoardDrop); // ✅ SINGLE HANDLER
+boardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'board'));
   }
 }
 
@@ -1064,10 +1092,29 @@ function updateMessage() {
   }
 }
 
-// Handle place drop on board
-function handlePlaceDrop(e) {
+// Handle all drops on board (place cards + return from combo)
+function handleBoardDrop(e) {
   e.preventDefault();
-  if (state.currentPlayer !== 0 || !state.draggedCard || state.draggedCard.source !== 'hand') return;
+  if (state.currentPlayer !== 0 || !state.draggedCard) return;
+
+  // Case 1: Returning card from combo area to board
+  if (state.draggedCard.slot !== undefined) {
+    console.log(`🔄 RETURNING CARD: ${state.draggedCard.card.value}${state.draggedCard.card.suit} from ${state.draggedCard.slot} back to board`);
+    
+    // Remove card from combo area
+    state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+    
+    // Add card back to board
+    state.board.push(state.draggedCard.card);
+    
+    state.draggedCard = null;
+    render();
+    smartMessages.showSuccessMessage("Card returned to board!");
+    return;
+  }
+
+  // Case 2: Placing card from hand to end turn
+  if (state.draggedCard.source !== 'hand') return;
 
   const handCard = state.draggedCard.card;
   const handIndex = state.draggedCard.index;
@@ -1080,8 +1127,8 @@ function handlePlaceDrop(e) {
   checkGameEnd();
   render();
   if (state.currentPlayer !== 0) {
-  setTimeout(async () => await scheduleNextBotTurn(), 100);
-}
+    setTimeout(async () => await scheduleNextBotTurn(), 100);
+  }
 }
 
 // Handle reset play area
@@ -1102,7 +1149,6 @@ function handleResetPlayArea() {
 smartMessages.updateMessage('turn_start');
 }
 
-// Handle submit action
 // Updated submit function for multiple captures
 function handleSubmit() {
   if (state.currentPlayer !== 0) return;
