@@ -217,8 +217,17 @@ h1 {
 }
 
 .actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 0;
+  flex-shrink: 0;
+
+  /* NEW: Add subtle divider above */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 10px;
+  padding-top: 15px;
+  margin-top: 5px;
 }
 
 
