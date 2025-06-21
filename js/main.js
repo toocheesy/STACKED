@@ -1,16 +1,13 @@
 /* 
- * Updated main.js with Scoreboard Modal System
- * Includes original game logic and new modal for round-end/game-over
- * Integrates with state.scores, smartMessages, and playSound
+ * Clean main.js - Fixed version without duplicate declarations
+ * Updated to work with gameLogic.js global functions
  */
-
-/* SECTION: Existing Game State and Systems */
 let state = {
   deck: [],
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
   scores: { player: 0, bot1: 0, bot2: 0 },
-  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
+  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] }, // New 5-area structure  
   currentPlayer: 0,
   settings: {
     cardSpeed: 'fast',
@@ -25,7 +22,7 @@ let state = {
 
 let botTurnInProgress = false;
 
-// Base64-encoded audio files (shortened; use real base64 audio in production)
+// Base64-encoded audio files (shortened for brevity; use real base64 audio in production)
 const sounds = {
   capture: new Audio('audio/capture.mp3'),
   invalid: new Audio('audio/invalid.mp3'),
@@ -43,47 +40,62 @@ class SmartMessageSystem {
     this.currentTimeout = null;
   }
 
+  // Main context detection and message update
   updateMessage(gameState = 'default') {
     let message = this.getContextualMessage(gameState);
     this.showMessage(message);
   }
 
+  // Context-aware message selection
   getContextualMessage(context) {
     switch(context) {
       case 'turn_start':
         return "Drag cards to build captures or place one on board to end turn";
+      
       case 'cards_in_areas':
         return "Submit your capture or reset to try again";
+      
       case 'game_over_player':
         return "🎉 Game Over! You win! 🎉";
+      
       case 'game_over_bot':
         return "Game Over! Bot wins this round - try again!";
+      
       case 'valid_combo':
         return "✅ Valid combo! Click Submit Move to capture";
+      
       default:
         return this.defaultMessage;
     }
   }
 
+  // Show error message with auto-clear
   showErrorMessage(errorText) {
-    this.showMessage(`❌ ${errorText}`, 'error');
-    if (typeof playSound === 'function') {
-      playSound('invalid');
-    }
+  this.showMessage(`❌ ${errorText}`, 'error');
+  // Play invalid sound if available
+  if (typeof playSound === 'function') {
+    playSound('invalid');
   }
+}
 
+  // Show success message
   showSuccessMessage(successText) {
     this.showMessage(`✅ ${successText}`, 'success');
   }
 
+  // Core message display function
   showMessage(text, type = 'normal') {
     if (!this.messageElement) return;
     
+    // Clear any existing timeout
     if (this.currentTimeout) {
       clearTimeout(this.currentTimeout);
     }
 
+    // Update message with styling
     this.messageElement.textContent = text;
+    
+    // Add styling based on message type
     this.messageElement.className = 'smart-message';
     if (type === 'error') {
       this.messageElement.classList.add('error-message');
@@ -91,15 +103,17 @@ class SmartMessageSystem {
       this.messageElement.classList.add('success-message');
     }
 
+    // Auto-clear back to default after 3 seconds (only for errors/success)
     if (type !== 'normal') {
       this.currentTimeout = setTimeout(() => {
         this.updateMessage('default');
-        this.messageElement.className = 'smart-message';
+        this.messageElement.className = 'smart-message'; // Reset styling
       }, 3000);
     }
   }
 }
 
+// Initialize the smart message system (MOVED HERE!)
 const smartMessages = new SmartMessageSystem();
 
 // Draggable Modal System
@@ -118,6 +132,7 @@ class DraggableModal {
   }
   
   init() {
+    // Only make the title bar draggable
     const titleBar = this.modal.querySelector('.modal-title');
     if (titleBar) {
       titleBar.style.cursor = 'move';
@@ -151,6 +166,7 @@ class DraggableModal {
     const newX = this.initialX + deltaX;
     const newY = this.initialY + deltaY;
     
+    // Keep modal within viewport bounds
     const maxX = window.innerWidth - this.modal.offsetWidth;
     const maxY = window.innerHeight - this.modal.offsetHeight;
     
@@ -174,18 +190,21 @@ class BotModalInterface {
     this.isAnimating = false;
   }
 
+  // Simulate bot dragging a card to a specific slot
   async botDragCardToSlot(card, sourceType, sourceIndex, targetSlot) {
     if (this.isAnimating) return false;
     this.isAnimating = true;
 
     console.log(`🤖 BOT: Dragging ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
 
+    // Create the card entry for the combination
     const cardEntry = {
       source: sourceType,
       index: sourceIndex,
       card: card
     };
 
+    // Handle base card slot (only one card allowed)
     if (targetSlot === 'base') {
       if (state.combination.base.length > 0) {
         console.log(`🤖 BOT: Clearing existing base card`);
@@ -193,300 +212,212 @@ class BotModalInterface {
       }
     }
 
+    // Add card to the target slot
     state.combination[targetSlot].push(cardEntry);
+
+    // Visual feedback - render the changes
     render();
+
+    // Add delay for visual effect
     await this.delay(500);
-    this.isAnimating = false;
-    return true;
-  }
-
-  async botSubmitCapture() {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
-
-    console.log(`🤖 BOT: Attempting to submit capture`);
-    await this.delay(300);
-
-    const success = this.executeBotSubmit();
     
-    if (success) {
-      console.log(`🤖 BOT: Capture successful!`);
-      const currentPlayer = state.currentPlayer;
-      if (state.hands[currentPlayer].length > 0) {
-        console.log(`🤖 BOT ${currentPlayer}: Has ${state.hands[currentPlayer].length} cards left, continuing turn`);
-        setTimeout(async () => await aiTurn(), 1000);
-      } else {
-        console.log(`🤖 BOT ${currentPlayer}: Out of cards, turn managed in submit`);
-      }
-    } else {
-      console.log(`🤖 BOT: Capture failed, placing card instead`);
-    }
-
-    await this.delay(500);
     this.isAnimating = false;
-    return success;
-  }
-
-  executeBotSubmit() {
-    const baseCards = state.combination.base;
-    const currentPlayer = state.currentPlayer;
-
-    if (baseCards.length !== 1) {
-      console.log(`🚨 BOT SUBMIT FAILED: Base card count = ${baseCards.length}`);
-      return false;
-    }
-
-    const baseCard = baseCards[0];
-    const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
-
-    let validCaptures = [];
-    let allCapturedCards = [baseCard.card];
-
-    const captureAreas = [
-      { name: 'sum1', cards: state.combination.sum1 },
-      { name: 'sum2', cards: state.combination.sum2 },
-      { name: 'sum3', cards: state.combination.sum3 },
-      { name: 'match', cards: state.combination.match }
-    ];
-
-    for (const area of captureAreas) {
-      if (area.cards.length > 0) {
-        const isSum = area.name.startsWith('sum');
-        const result = isSum 
-          ? validateSumCapture(area.cards, baseValue, baseCard)
-          : validateMatchCapture(area.cards, baseValue, baseCard);
-
-        if (result.isValid) {
-          validCaptures.push({ name: area.name, cards: area.cards });
-          allCapturedCards.push(...area.cards.map(entry => entry.card));
-        } else {
-          console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
-          return false;
-        }
-      }
-    }
-
-    if (validCaptures.length === 0) {
-      console.log(`🚨 BOT SUBMIT FAILED: No valid captures`);
-      return false;
-    }
-
-    console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
-
-    executeCapture(baseCard, validCaptures, allCapturedCards);
-    state.lastCapturer = currentPlayer;
-
-    const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-    const points = scoreFunction(allCapturedCards);
-
-    if (currentPlayer === 1) {
-      state.scores.bot1 += points;
-      console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
-    } else if (currentPlayer === 2) {
-      state.scores.bot2 += points;
-      console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
-    }
-
-    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-
-    if (state.hands[currentPlayer].length > 0) {
-      console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
-    } else {
-      state.currentPlayer = (currentPlayer + 1) % 3;
-      console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
-      if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
-        setTimeout(async () => await scheduleNextBotTurn(), 1000);
-      }
-    }
-
-    render();
-    playSound('capture');
     return true;
   }
 
+  // Simulate bot clicking submit button
+  // Simulate bot clicking submit button
+async botSubmitCapture() {
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
+
+  console.log(`🤖 BOT: Attempting to submit capture`);
+
+  // Visual delay to show the "thinking"
+  await this.delay(300);
+
+  // FIXED: Use bot-specific submit logic
+  const success = this.executeBotSubmit();
+  
+  if (success) {
+  console.log(`🤖 BOT: Capture successful!`);
+  
+  // CRITICAL FIX: After successful capture, bot should continue or end turn
+  const currentPlayer = state.currentPlayer;
+  if (state.hands[currentPlayer].length > 0) {
+    // Bot still has cards - should place one to end turn or make another capture
+    console.log(`🤖 BOT ${currentPlayer}: Has ${state.hands[currentPlayer].length} cards left, continuing turn`);
+    setTimeout(async () => await aiTurn(), 1000);  // Continue bot's turn
+  } else {
+    // Bot is out of cards - already handled in executeBotSubmit
+    console.log(`🤖 BOT ${currentPlayer}: Out of cards, turn managed in submit`);
+  }
+} else {
+  console.log(`🤖 BOT: Capture failed, placing card instead`);
+}
+
+await this.delay(500);
+
+this.isAnimating = false;
+return success;
+}
+
+// NEW: Bot-specific submit logic that bypasses player checks
+executeBotSubmit() {
+  const baseCards = state.combination.base;
+  const currentPlayer = state.currentPlayer;
+
+  if (baseCards.length !== 1) {
+    console.log(`🚨 BOT SUBMIT FAILED: Base card count = ${baseCards.length}`);
+    return false;
+  }
+
+  const baseCard = baseCards[0];
+  const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
+
+  let validCaptures = [];
+  let allCapturedCards = [baseCard.card];
+
+  // Validate all capture areas
+  const captureAreas = [
+    { name: 'sum1', cards: state.combination.sum1 },
+    { name: 'sum2', cards: state.combination.sum2 },
+    { name: 'sum3', cards: state.combination.sum3 },
+    { name: 'match', cards: state.combination.match }
+  ];
+
+  for (const area of captureAreas) {
+    if (area.cards.length > 0) {
+      const isSum = area.name.startsWith('sum');
+      const result = isSum 
+        ? validateSumCapture(area.cards, baseValue, baseCard)
+        : validateMatchCapture(area.cards, baseValue, baseCard);
+
+      if (result.isValid) {
+        validCaptures.push({ name: area.name, cards: area.cards });
+        allCapturedCards.push(...area.cards.map(entry => entry.card));
+      } else {
+        console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
+        return false;
+      }
+    }
+  }
+
+  if (validCaptures.length === 0) {
+    console.log(`🚨 BOT SUBMIT FAILED: No valid captures`);
+    return false;
+  }
+
+  console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+
+  // Execute the capture
+  executeCapture(baseCard, validCaptures, allCapturedCards);
+
+  // Track last capturer
+  state.lastCapturer = currentPlayer;
+
+  // Award points to the correct bot
+  const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+  const points = scoreFunction(allCapturedCards);
+
+  if (currentPlayer === 1) {
+    state.scores.bot1 += points;
+    console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
+  } else if (currentPlayer === 2) {
+    state.scores.bot2 += points;
+    console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
+  }
+
+  // Reset state
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+  // Proper turn continuation
+  if (state.hands[currentPlayer].length > 0) {
+    console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
+  } else {
+    state.currentPlayer = (currentPlayer + 1) % 3;
+    console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
+    
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    }
+  }
+
+  render();
+  playSound('capture');
+  return true;
+}
+
+  // Reset the modal (clear all areas)
   async botResetModal() {
     if (this.isAnimating) return false;
     this.isAnimating = true;
 
     console.log(`🤖 BOT: Resetting modal`);
+
+    // Clear all combination areas
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+    // Visual feedback
     render();
+
     await this.delay(300);
-    this.isAnimating = false;
-    return true;
-  }
-
-  async botPlaceCard(card, handIndex) {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
-
-    console.log(`🤖 BOT: Placing ${card.value}${card.suit} on board to end turn`);
-    await this.delay(500);
-
-    const currentPlayer = state.currentPlayer;
-    state.board.push(card);
-    state.hands[currentPlayer] = state.hands[currentPlayer].filter((_, i) => i !== handIndex);
-    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    state.currentPlayer = (currentPlayer + 1) % 3;
     
-    render();
-    checkGameEnd();
-
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
-      console.log(`🔄 BOT PLACED CARD - CONTINUING TO PLAYER ${state.currentPlayer}`);
-      setTimeout(async () => await scheduleNextBotTurn(), 1000);
-    }
-
     this.isAnimating = false;
     return true;
   }
 
+  // Place a card on the board (end turn)
+async botPlaceCard(card, handIndex) {
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
+
+  console.log(`🤖 BOT: Placing ${card.value}${card.suit} on board to end turn`);
+
+  // Add visual delay
+  await this.delay(500);
+
+  // Execute the placement
+  const currentPlayer = state.currentPlayer;
+  state.board.push(card);
+  state.hands[currentPlayer] = state.hands[currentPlayer].filter((_, i) => i !== handIndex);
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+  // Switch to next player
+  state.currentPlayer = (currentPlayer + 1) % 3;
+  
+  render();
+  checkGameEnd();
+
+  // CRITICAL FIX: Continue to next bot or player
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+    console.log(`🔄 BOT PLACED CARD - CONTINUING TO PLAYER ${state.currentPlayer}`);
+    setTimeout(async () => await scheduleNextBotTurn(), 1000);
+  }
+
+  this.isAnimating = false;
+  return true;
+}
+
+  // Utility function for delays
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  // Check if bot can make any captures
   canBotCapture(hand, board) {
+    // This will be enhanced in step 2
     return hand.length > 0 && board.length > 0;
   }
 }
 
+// Initialize bot modal interface
 const botModal = new BotModalInterface();
+
+// Initialize draggable modal
 const draggableCombo = new DraggableModal('combination-area');
 
-/* SECTION: Scoreboard Modal System */
-function rankPlayers() {
-  const players = [
-    { name: 'Player', score: state.scores.player, index: 0 },
-    { name: 'Bot 1', score: state.scores.bot1, index: 1 },
-    { name: 'Bot 2', score: state.scores.bot2, index: 2 }
-  ];
-  return players.sort((a, b) => b.score - a.score);
-}
-
-function createConfetti() {
-  const container = document.getElementById('confetti-container');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < 50; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.left = `${Math.random() * 100}%`;
-    confetti.style.animationDelay = `${Math.random() * 2}s`;
-    container.appendChild(confetti);
-  }
-}
-
-function showRoundEndModal(jackpotMessage, currentRound) {
-  const modal = document.getElementById('scoreboard-modal');
-  if (!modal) return;
-
-  const jackpotEl = document.getElementById('jackpot-message');
-  const titleEl = document.getElementById('scoreboard-title');
-  const listEl = document.getElementById('scoreboard-list');
-  const buttonsEl = document.getElementById('scoreboard-buttons');
-  const confettiEl = document.getElementById('confetti-container');
-
-  if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
-    jackpotEl.textContent = jackpotMessage || '';
-    jackpotEl.classList.toggle('visible', !!jackpotMessage);
-    titleEl.textContent = `Round ${currentRound} Scores`;
-    confettiEl.classList.remove('active');
-
-    const rankedPlayers = rankPlayers();
-    listEl.innerHTML = rankedPlayers.map((player, index) => `
-      <div class="scoreboard-item ${index === 0 ? 'leader' : ''}">
-        <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
-        <span class="scoreboard-name">${player.name}</span>
-        <span class="scoreboard-score">${player.score} pts</span>
-      </div>
-    `).join('');
-
-    buttonsEl.innerHTML = `
-      <button id="next-round-btn">Next Round</button>
-    `;
-
-    modal.showModal();
-    playSound('jackpot');
-
-    const nextRoundBtn = document.getElementById('next-round-btn');
-    if (nextRoundBtn) {
-      nextRoundBtn.addEventListener('click', () => {
-        modal.close();
-        try {
-          const newDeck = shuffleDeck(createDeck());
-          const dealResult = dealCards(newDeck, 3, 4, 4);
-          state.hands = dealResult.players;
-          state.board = dealResult.board;
-          state.deck = dealResult.remainingDeck;
-          state.currentPlayer = 0;
-          state.lastCapturer = null;
-          smartMessages.updateMessage('turn_start');
-          render();
-        } catch (e) {
-          console.error('Error dealing new round:', e);
-          smartMessages.showErrorMessage('Error dealing cards! Restart the game.');
-        }
-      });
-    }
-
-    setTimeout(() => {
-      if (modal.open) {
-        buttonsEl.querySelectorAll('button').forEach(btn => btn.disabled = false);
-      }
-    }, 3000);
-  }
-}
-
-function showGameOverModal(jackpotMessage, totalRounds) {
-  const modal = document.getElementById('scoreboard-modal');
-  if (!modal) return;
-
-  const jackpotEl = document.getElementById('jackpot-message');
-  const titleEl = document.getElementById('scoreboard-title');
-  const listEl = document.getElementById('scoreboard-list');
-  const buttonsEl = document.getElementById('scoreboard-buttons');
-  const confettiEl = document.getElementById('confetti-container');
-
-  if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
-    jackpotEl.textContent = jackpotMessage || '';
-    jackpotEl.classList.toggle('visible', !!jackpotMessage);
-    titleEl.textContent = 'Game Over!';
-    createConfetti();
-    confettiEl.classList.add('active');
-
-    const rankedPlayers = rankPlayers();
-    listEl.innerHTML = rankedPlayers.map((player, index) => `
-      <div class="scoreboard-item ${index === 0 ? 'leader' : ''}">
-        <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
-        <span class="scoreboard-name">${player.name}</span>
-        <span class="scoreboard-score">${player.score} pts</span>
-      </div>
-    `).join('');
-
-    buttonsEl.innerHTML = `
-      <button id="new-game-btn">New Game</button>
-    `;
-
-    modal.showModal();
-    playSound('winner');
-
-    const newGameBtn = document.getElementById('new-game-btn');
-    if (newGameBtn) {
-      newGameBtn.addEventListener('click', () => {
-        modal.close();
-        initGame();
-      });
-    }
-
-    setTimeout(() => {
-      if (modal.open) {
-        buttonsEl.querySelectorAll('button').forEach(btn => btn.disabled = false);
-      }
-    }, 3000);
-  }
-}
-
-/* SECTION: Game Initialization and Core Logic */
+// Initialize the game
 function initGame() {
   let deck;
   try {
@@ -523,12 +454,14 @@ function initGame() {
   playSound('capture');
 }
 
+// Play sound based on settings
 function playSound(type) {
   if (state.settings.soundEffects === 'on' && sounds[type]) {
     sounds[type].play().catch(e => console.error('Sound play failed:', e));
   }
 }
 
+// Show settings modal
 function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
   if (modal) {
@@ -557,6 +490,7 @@ function showSettingsModal() {
   }
 }
 
+// Provide hints by highlighting valid captures
 function provideHint() {
   if (state.currentPlayer !== 0) return;
   const possibleCaptures = [];
@@ -590,6 +524,8 @@ function provideHint() {
   }, 3000);
 }
 
+// Render the game state
+// Updated render function for 5-area layout
 function render() {
   const deckCountEl = document.getElementById('deck-count');
   if (deckCountEl) {
@@ -597,29 +533,33 @@ function render() {
   }
 
   const tableEl = document.querySelector('.table');
-  if (tableEl) {
-    const cardCount = state.board ? state.board.length : 0;
-    const baseWidth = 800;
-    const baseHeight = 600;
-    const cardWidth = 80;
-    const cardHeight = 110;
-    
-    const cardsPerRow = Math.min(8, Math.max(4, cardCount));
-    const rows = Math.ceil(cardCount / cardsPerRow);
-    
-    const tableWidth = Math.max(baseWidth, (cardsPerRow * cardWidth) + 100);
-    const tableHeight = Math.max(baseHeight, baseHeight + ((rows - 1) * 60));
-    
-    tableEl.style.width = `${tableWidth}px`;
-    tableEl.style.height = `${tableHeight}px`;
-    
-    const botOffset = -20 - (cardCount > 8 ? (cardCount - 8) * 5 : 0);
-    const bot1HandEl = document.querySelector('.bot1-hand');
-    const bot2HandEl = document.querySelector('.bot2-hand');
-    if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
-    if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
-  }
+if (tableEl) {
+  const cardCount = state.board ? state.board.length : 0;
+  const baseWidth = 800;
+  const baseHeight = 600;
+  const cardWidth = 80;
+  const cardHeight = 110;
+  
+  // Calculate grid layout for board cards
+  const cardsPerRow = Math.min(8, Math.max(4, cardCount));
+  const rows = Math.ceil(cardCount / cardsPerRow);
+  
+  // Dynamic width and height
+  const tableWidth = Math.max(baseWidth, (cardsPerRow * cardWidth) + 100);
+  const tableHeight = Math.max(baseHeight, baseHeight + ((rows - 1) * 60));
+  
+  tableEl.style.width = `${tableWidth}px`;
+  tableEl.style.height = `${tableHeight}px`;
+  
+  // Adjust bot positions based on width only
+  const botOffset = -20 - (cardCount > 8 ? (cardCount - 8) * 5 : 0);
+  const bot1HandEl = document.querySelector('.bot1-hand');
+  const bot2HandEl = document.querySelector('.bot2-hand');
+  if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
+  if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
+}
 
+  // NEW 5-AREA COMBINATION RENDERING
   const comboAreaEl = document.getElementById('combination-area');
   let captureTypeMessage = "No cards in play areas.";
   
@@ -631,12 +571,18 @@ function render() {
     const matchEl = comboAreaEl.querySelector('[data-slot="match"]');
     
     if (baseEl && sum1El && sum2El && sum3El && matchEl) {
+      // Render Base Card Area
       renderArea(baseEl, state.combination.base, 'base', 'Base Card');
+      
+      // Render Sum Areas
       renderArea(sum1El, state.combination.sum1, 'sum1', 'Sum Cards');
       renderArea(sum2El, state.combination.sum2, 'sum2', 'Sum Cards');
       renderArea(sum3El, state.combination.sum3, 'sum3', 'Sum Cards');
+      
+      // Render Match Area
       renderArea(matchEl, state.combination.match, 'match', 'Matching Cards');
 
+      // VALIDATION LOGIC
       let validCaptures = [];
       let isAnyValid = false;
 
@@ -644,6 +590,7 @@ function render() {
         const baseCard = state.combination.base[0];
         const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
 
+        // Validate Sum1 Area
         if (state.combination.sum1.length > 0) {
           const result = validateSumCapture(state.combination.sum1, baseValue, baseCard);
           if (result.isValid) {
@@ -655,6 +602,7 @@ function render() {
           }
         }
 
+        // Validate Sum2 Area
         if (state.combination.sum2.length > 0) {
           const result = validateSumCapture(state.combination.sum2, baseValue, baseCard);
           if (result.isValid) {
@@ -666,6 +614,7 @@ function render() {
           }
         }
 
+        // Validate Sum3 Area
         if (state.combination.sum3.length > 0) {
           const result = validateSumCapture(state.combination.sum3, baseValue, baseCard);
           if (result.isValid) {
@@ -677,6 +626,7 @@ function render() {
           }
         }
 
+        // Validate Match Area
         if (state.combination.match.length > 0) {
           const result = validateMatchCapture(state.combination.match, baseValue, baseCard);
           if (result.isValid) {
@@ -696,12 +646,14 @@ function render() {
           captureTypeMessage = "Invalid: Capture areas must match Base Card value.";
         }
       } else {
+        // Clear all validation states
         [baseEl, sum1El, sum2El, sum3El, matchEl].forEach(el => el.classList.remove('valid-combo'));
         captureTypeMessage = state.combination.base.length === 0 
           ? "Add a Base Card to start building captures."
           : "Invalid: Base Card area must have exactly one card.";
       }
 
+      // Add event listeners to all areas
       const areas = [
         { el: baseEl, slot: 'base' },
         { el: sum1El, slot: 'sum1' },
@@ -718,18 +670,31 @@ function render() {
     }
   }
 
+  // Update capture type display
   const captureTypeEl = document.getElementById('capture-type');
   if (captureTypeEl) {
     captureTypeEl.textContent = captureTypeMessage;
   }
 
+  // Render board
   renderBoard();
+  
+  // Render hands
   renderHands();
+  
+  // Render bot hands
   renderBotHands();
+  
+  // Render scores
   renderScores();
+  
+  // Update submit button
   updateSubmitButton();
+  
+  // Update message
   updateMessage();
   
+  // Update smart message context
   const hasCardsInAreas = Object.values(state.combination).some(area => area.length > 0);
   if (hasCardsInAreas) {
     smartMessages.updateMessage('cards_in_areas');
@@ -738,6 +703,7 @@ function render() {
   }
 }
 
+// Helper function to render individual areas
 function renderArea(areaEl, cards, slotName, placeholderText) {
   areaEl.innerHTML = '';
   
@@ -767,6 +733,7 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
   }
 }
 
+// Validation functions
 function validateSumCapture(sumCards, baseValue, baseCard) {
   const hasHandCard = sumCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
   const hasBoardCard = sumCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
@@ -816,12 +783,14 @@ function validateMatchCapture(matchCards, baseValue, baseCard) {
   };
 }
 
+// Handle drag start
 function handleDragStart(e, source, index) {
   if (state.currentPlayer !== 0) return;
   state.draggedCard = { source, index, card: source === 'hand' ? state.hands[0][index] : state.board[index] };
   e.target.classList.add('selected');
 }
 
+// Handle drag start from combo area
 function handleDragStartCombo(e, slot, comboIndex) {
   if (state.currentPlayer !== 0) return;
   state.draggedCard = state.combination[slot][comboIndex];
@@ -830,11 +799,13 @@ function handleDragStartCombo(e, slot, comboIndex) {
   e.target.classList.add('selected');
 }
 
+// Handle drag end
 function handleDragEnd(e) {
   e.target.classList.remove('selected');
   state.draggedCard = null;
 }
 
+// Handle touch start
 function handleTouchStart(e, source, data) {
   if (state.currentPlayer !== 0) return;
   e.preventDefault();
@@ -850,6 +821,7 @@ function handleTouchStart(e, source, data) {
   }, 1000);
 }
 
+// Handle touch end
 function handleTouchEnd(e) {
   if (state.currentPlayer !== 0 || !state.selectedCard) return;
   e.preventDefault();
@@ -858,17 +830,23 @@ function handleTouchEnd(e) {
   state.selectedCard = null;
 }
 
+// Handle drop into combo area
 function handleDrop(e, slot) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
+  // Remove card from previous slot if moving within combo area
   if (state.draggedCard.slot !== undefined) {
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
   }
 
+  // Handle base card slot (only one card allowed)
   if (slot === 'base' && state.combination.base.length > 0) {
+    // Move existing base card to first available sum slot
     const existingBase = state.combination.base[0];
     state.combination.base = [];
+    
+    // Find first available sum slot
     if (state.combination.sum1.length === 0) {
       state.combination.sum1.push(existingBase);
     } else if (state.combination.sum2.length === 0) {
@@ -876,10 +854,12 @@ function handleDrop(e, slot) {
     } else if (state.combination.sum3.length === 0) {
       state.combination.sum3.push(existingBase);
     } else {
+      // All sum slots full, move to match
       state.combination.match.push(existingBase);
     }
   }
 
+  // Add card to target slot
   state.combination[slot].push({
     source: state.draggedCard.source,
     index: state.draggedCard.index,
@@ -887,10 +867,12 @@ function handleDrop(e, slot) {
   });
 
   console.log(`🔧 CARD DROPPED: ${state.draggedCard.card.value}${state.draggedCard.card.suit} to slot ${slot}`);
+
   state.draggedCard = null;
   render();
 }
 
+// Handle touch drop
 function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.selectedCard) return;
@@ -903,7 +885,7 @@ function handleTouchDrop(e, targetType, data) {
     state.combination[slot].push({
       source: state.selectedCard.source,
       index: state.selectedCard.index,
-      card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
+card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.index] : state.board[state.selectedCard.index]
     });
   } else if (targetType === 'board' && state.selectedCard.source === 'hand') {
     const handCard = state.hands[0][state.selectedCard.data];
@@ -911,7 +893,7 @@ function handleTouchDrop(e, targetType, data) {
     state.hands[0] = state.hands[0].filter((_, i) => i !== state.selectedCard.data);
     state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     state.currentPlayer = 1;
-    checkGameEnd();
+checkGameEnd();
     render();
     if (state.currentPlayer !== 0) {
       setTimeout(async () => await scheduleNextBotTurn(), 100);
@@ -926,6 +908,7 @@ function handleTouchDrop(e, targetType, data) {
   render();
 }
 
+// Handle drop back to original spot
 function handleDropOriginal(e, source, index) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
@@ -945,6 +928,9 @@ function handleDropOriginal(e, source, index) {
   }
 }
 
+// Helper functions for the new render system
+
+// Render board with 5-area checking
 function renderBoard() {
   const boardEl = document.getElementById('board');
   if (boardEl) {
@@ -978,11 +964,12 @@ function renderBoard() {
     }
 
     boardEl.addEventListener('dragover', (e) => e.preventDefault());
-    boardEl.addEventListener('drop', handleBoardDrop);
-    boardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'board'));
+boardEl.addEventListener('drop', handleBoardDrop); // ✅ SINGLE HANDLER
+boardEl.addEventListener('touchend', (e) => handleTouchDrop(e, 'board'));
   }
 }
 
+// Render hands with 5-area checking
 function renderHands() {
   const handEl = document.getElementById('player-hand');
   if (handEl) {
@@ -992,6 +979,7 @@ function renderHands() {
       const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
+      // Check if card is in any play area
       const isInPlayArea = !card || !card.value || !card.suit || 
         state.combination.base.some(entry => entry.source === 'hand' && entry.index === index) ||
         state.combination.sum1.some(entry => entry.source === 'hand' && entry.index === index) ||
@@ -1027,6 +1015,7 @@ function renderHands() {
   }
 }
 
+// Render bot hands (unchanged from original)
 function renderBotHands() {
   const bot1HandElementEl = document.getElementById('bot1-hand');
   if (bot1HandElementEl) {
@@ -1053,6 +1042,7 @@ function renderBotHands() {
   }
 }
 
+// Render scores (unchanged from original)
 function renderScores() {
   const playerScoreEl = document.getElementById('player-score');
   const bot1ScoreEl = document.getElementById('bot1-score');
@@ -1063,6 +1053,7 @@ function renderScores() {
   if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
 }
 
+// Update submit button logic for 5 areas
 function updateSubmitButton() {
   const submitBtn = document.getElementById('submit-btn');
   if (submitBtn) {
@@ -1076,6 +1067,7 @@ function updateSubmitButton() {
   }
 }
 
+// Update message with smart messaging integration
 function updateMessage() {
   const messageEl = document.getElementById('message');
   if (messageEl) {
@@ -1100,20 +1092,28 @@ function updateMessage() {
   }
 }
 
+// Handle all drops on board (place cards + return from combo)
 function handleBoardDrop(e) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
+  // Case 1: Returning card from combo area to board
   if (state.draggedCard.slot !== undefined) {
     console.log(`🔄 RETURNING CARD: ${state.draggedCard.card.value}${state.draggedCard.card.suit} from ${state.draggedCard.slot} back to board`);
+    
+    // Remove card from combo area
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
+    
+    // Add card back to board
     state.board.push(state.draggedCard.card);
+    
     state.draggedCard = null;
     render();
     smartMessages.showSuccessMessage("Card returned to board!");
     return;
   }
 
+  // Case 2: Placing card from hand to end turn
   if (state.draggedCard.source !== 'hand') return;
 
   const handCard = state.draggedCard.card;
@@ -1131,9 +1131,11 @@ function handleBoardDrop(e) {
   }
 }
 
+// Handle reset play area
 function handleResetPlayArea() {
   if (state.currentPlayer !== 0) return;
 
+  // Restore cards to original positions from all 5 areas
   Object.values(state.combination).flat().forEach(entry => {
     if (entry.source === 'hand' && state.hands[0][entry.index]) {
       state.hands[0][entry.index] = entry.card;
@@ -1144,9 +1146,10 @@ function handleResetPlayArea() {
 
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   render();
-  smartMessages.updateMessage('turn_start');
+smartMessages.updateMessage('turn_start');
 }
 
+// Updated submit function for multiple captures
 function handleSubmit() {
   if (state.currentPlayer !== 0) return;
 
@@ -1165,6 +1168,7 @@ function handleSubmit() {
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
 
+  // Validate and collect all valid captures
   const captureAreas = [
     { name: 'sum1', cards: state.combination.sum1 },
     { name: 'sum2', cards: state.combination.sum2 },
@@ -1184,12 +1188,12 @@ function handleSubmit() {
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
         const areaNames = {
-          'sum1': 'Sum Area 1',
-          'sum2': 'Sum Area 2', 
-          'sum3': 'Sum Area 3',
-          'match': 'Match Area'
-        };
-        smartMessages.showErrorMessage(`${areaNames[area.name]}: ${result.details}`);
+  'sum1': 'Sum Area 1',
+  'sum2': 'Sum Area 2', 
+  'sum3': 'Sum Area 3',
+  'match': 'Match Area'
+};
+smartMessages.showErrorMessage(`${areaNames[area.name]}: ${result.details}`);
         playSound('invalid');
         return;
       }
@@ -1202,9 +1206,15 @@ function handleSubmit() {
     return;
   }
 
-  console.log(`🎯 MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+console.log(`🎯 MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+
+  // Execute the capture
   executeCapture(baseCard, validCaptures, allCapturedCards);
-  state.lastCapturer = 0;
+  
+  // Track last capturer
+  state.lastCapturer = 0; // Player is always index 0
+  
+  // Reset state
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
   if (state.hands[0].length > 0) {
@@ -1219,7 +1229,9 @@ function handleSubmit() {
   playSound('capture');
 }
 
+// Helper function to execute capture
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
+  // Remove captured cards from board
   const boardIndicesToRemove = new Set();
   if (baseCard.source === 'board') {
     boardIndicesToRemove.add(baseCard.index);
@@ -1235,6 +1247,7 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
 
   state.board = state.board.filter((_, i) => !boardIndicesToRemove.has(i));
 
+  // Remove captured cards from hand
   const handIndicesToRemove = new Set();
   if (baseCard.source === 'hand') {
     handIndicesToRemove.add(baseCard.index);
@@ -1248,6 +1261,7 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
     });
   });
 
+  // Mark hand slots as null, then filter
   Array.from(handIndicesToRemove).forEach(index => {
     if (state.hands[0][index]) {
       state.hands[0][index] = null;
@@ -1255,16 +1269,20 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
   });
   state.hands[0] = state.hands[0].filter(card => card !== null);
 
+  // Update score
   const scoreFunction = window.scoreCards || function(cards) { 
-    return cards.length * 5;
+    return cards.length * 5; // Fallback scoring
   };
   state.scores.player += scoreFunction(allCapturedCards);
 
   console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
-  const points = scoreFunction(allCapturedCards);
-  smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
+  
+  // Show success message
+  const points = (window.scoreCards || (cards => cards.length * 5))(allCapturedCards);
+smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
 }
 
+// Add this helper function to prevent double bot turns
 async function scheduleNextBotTurn() {
   console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}, InProgress: ${botTurnInProgress}`);
   if (botTurnInProgress) {
@@ -1272,13 +1290,15 @@ async function scheduleNextBotTurn() {
     return;
   }
   
+  // Check if current player has cards
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
     botTurnInProgress = true;
     setTimeout(async () => {
-      botTurnInProgress = false;
-      await aiTurn();
-    }, 1000);
+  botTurnInProgress = false;
+  await aiTurn();
+}, 1000);
   } else if (state.currentPlayer !== 0) {
+    // Current bot has no cards, find next bot with cards or end game
     console.log(`🚫 BOT ${state.currentPlayer} HAS NO CARDS - FINDING NEXT PLAYER`);
     
     let nextPlayer = (state.currentPlayer + 1) % 3;
@@ -1298,6 +1318,7 @@ async function scheduleNextBotTurn() {
       attempts++;
     }
     
+    // No players with cards found - end game
     console.log(`🏁 NO PLAYERS WITH CARDS - ENDING GAME`);
     checkGameEnd();
   }
@@ -1312,62 +1333,71 @@ async function aiTurn() {
   const playerIndex = state.currentPlayer;
   
   if (state.hands[playerIndex].length === 0) {
-    state.currentPlayer = (playerIndex + 1) % 3;
-    checkGameEnd();
-    render();
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      setTimeout(async () => await scheduleNextBotTurn(), 100);
-    }
-    return;
+  state.currentPlayer = (playerIndex + 1) % 3;
+  checkGameEnd();
+  render();
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
+    setTimeout(async () => await scheduleNextBotTurn(), 100);
   }
+  return;
+}
 
-  const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-  if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
-    console.log(`🎯 LAST PLAYER: Bot ${playerIndex} must play all ${state.hands[playerIndex].length} cards`);
-    
-    while (state.hands[playerIndex].length > 0) {
-      const handCard = state.hands[playerIndex][0];
-      state.board.push(handCard);
-      state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-      console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
-      render();
-    }
-    
-    checkGameEnd();
-    return;
+// NEW: Check if this is the only player with cards
+const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
+if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
+  console.log(`🎯 LAST PLAYER: Bot ${playerIndex} must play all ${state.hands[playerIndex].length} cards`);
+  
+  // Play all remaining cards immediately
+  while (state.hands[playerIndex].length > 0) {
+    const handCard = state.hands[playerIndex][0];
+    state.board.push(handCard);
+    state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
+    console.log(`🎯 FINAL CARD PLACED: Bot ${playerIndex} has ${state.hands[playerIndex].length} cards left`);
+    render();
   }
+  
+  checkGameEnd();
+  return;
+}
 
   console.log(`🤖 BOT ${playerIndex} TURN - Hand: ${state.hands[playerIndex].length} cards`);
   
   setTimeout(() => {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
-    console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
+console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
     
-    if (move && move.action === 'capture') {
-      console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
-      const baseCard = move.handCard;
-      const handIndex = state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+    // Use the new bot modal interface
+// Use the new bot modal interface
+if (move && move.action === 'capture') {
+console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
 
-      if (handIndex !== -1) {
-        botModal.botResetModal().then(() => {
-          return botModal.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
-        }).then(() => {
-          let promise = Promise.resolve();
-          for (const targetCard of move.capture.targets) {
-            const boardIndex = state.board.findIndex(bc => bc.id === targetCard.id);
-            if (boardIndex !== -1) {
-              promise = promise.then(() => botModal.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1'));
-            }
-          }
-          return promise;
-        }).then(() => {
-          return botModal.botSubmitCapture();
-        }).catch(error => {
-          console.error('🚨 Bot capture error:', error);
-        });
-        return;
+// Use bot modal interface
+const baseCard = move.handCard;
+const handIndex = state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+
+if (handIndex !== -1) {
+  // Chain the bot actions with Promises
+  botModal.botResetModal().then(() => {
+    return botModal.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+  }).then(() => {
+    // Add target cards to sum1 area sequentially
+    let promise = Promise.resolve();
+    for (const targetCard of move.capture.targets) {
+      const boardIndex = state.board.findIndex(bc => bc.id === targetCard.id);
+      if (boardIndex !== -1) {
+        promise = promise.then(() => botModal.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1'));
       }
+    }
+    return promise;
+  }).then(() => {
+    return botModal.botSubmitCapture();
+  }).catch(error => {
+    console.error('🚨 Bot capture error:', error);
+  });
+  return;
+}
     } else {
+      // If no capture or capture failed, place a card
       const handCard = move ? move.handCard : state.hands[playerIndex][0];
       if (handCard) {
         const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
@@ -1375,47 +1405,90 @@ async function aiTurn() {
       }
     }
   }, 1000);
-}
+} // <- MISSING CLOSING BRACE FOR aiTurn() FUNCTION
 
-/* SECTION: Updated Game End Logic with Scoreboard Modal */
+// Check game end - Fixed to use dealCards instead of missing dealAfterBots
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-  let currentRound = Math.floor((52 - state.deck.length) / 12) + 1;
+  const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
-    let jackpotMessage = null;
-    if (state.lastCapturer !== null && state.board.length > 0) {
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const lastCapturerName = playerNames[state.lastCapturer];
-      const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-      const bonusPoints = scoreFunction(state.board);
-      
-      if (state.lastCapturer === 0) {
-        state.scores.player += bonusPoints;
-      } else if (state.lastCapturer === 1) {
-        state.scores.bot1 += bonusPoints;
-      } else {
-        state.scores.bot2 += bonusPoints;
-      }
-      
-      jackpotMessage = `${lastCapturerName} sweeps ${state.board.length} cards! +${bonusPoints} pts`;
-      console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
-      playSound('jackpot');
-      state.board = [];
+    // All players are out of cards
+    if (state.deck.length === 0) {
+  // Round over - apply Last Combo Takes All rule
+  if (state.lastCapturer !== null && state.board.length > 0) {
+    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+    const lastCapturerName = playerNames[state.lastCapturer];
+    
+    // Last capturer gets all remaining board cards
+    const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+    const bonusPoints = scoreFunction(state.board);
+    
+    if (state.lastCapturer === 0) {
+      state.scores.player += bonusPoints;
+    } else if (state.lastCapturer === 1) {
+      state.scores.bot1 += bonusPoints;
+    } else {
+      state.scores.bot2 += bonusPoints;
     }
-
-    const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
-    if (maxScore >= state.settings.targetScore) {
-      const winner = rankPlayers()[0];
-      showGameOverModal(jackpotMessage, currentRound);
-      smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
-    } else if (jackpotMessage) {
-      showRoundEndModal(jackpotMessage, currentRound);
+    
+    console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} gets ${state.board.length} cards (+${bonusPoints} pts)`);
+playSound('jackpot');
+    state.board = []; // Clear the board
+    
+    if (messageEl) messageEl.textContent = `${lastCapturerName} takes remaining ${state.board.length} cards! +${bonusPoints} points`;
+  }
+  
+  // Check if anyone reached target score
+  const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
+  if (maxScore >= state.settings.targetScore) {
+    const scores = [
+      { name: 'Player', score: state.scores.player },
+      { name: 'Bot 1', score: state.scores.bot1 },
+      { name: 'Bot 2', score: state.scores.bot2 }
+    ];
+    const winner = scores.reduce((max, player) => 
+      player.score > max.score ? player : max, 
+      { score: -1, name: '' }
+    );
+    smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
+    playSound('winner');
+  } else {
+    // Deal new round
+    try {
+      const newDeck = shuffleDeck(createDeck());
+      const dealResult = dealCards(newDeck, 3, 4, 4);
+      state.hands = dealResult.players;
+      state.board = dealResult.board;
+      state.deck = dealResult.remainingDeck;
+      state.currentPlayer = 0;
+      state.lastCapturer = null; // Reset for new round
+      smartMessages.updateMessage('turn_start');
+      render();
+      } catch (e) {
+      console.error('Error dealing new round:', e);
+      if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
     }
   }
+} else {
+  // Deal new round using existing dealCards function
+  try {
+    const dealResult = dealCards(state.deck, 3, 4, 0);
+    state.hands = dealResult.players;
+    state.deck = dealResult.remainingDeck;
+    state.currentPlayer = 0;
+    smartMessages.updateMessage('turn_start');
+    render();
+    } catch (e) {
+    console.error('Error dealing new round:', e);
+    if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+  }
 }
+}
+} // <- This closing brace for checkGameEnd function
 
-/* SECTION: Event Listeners and Game Start */
+
+// Event listeners
 document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submit-btn');
   const restartBtn = document.getElementById('restart-btn');
@@ -1439,4 +1512,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Start the game
 initGame();
