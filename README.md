@@ -4,15 +4,17 @@ A fast-paced, strategic card game where pairing and arithmetic collide. Capture 
 
 ## 🧠 What Is STACKED!?
 
-STACKED! is a digital recreation of a lost family card game, brought back to life for the first time ever. Originally played by families for generations, this version captures the strategic depth of matching pairs and building sums in a revolutionary **5-area multi-capture system**.
+STACKED! is a digital recreation of a lost family card game, brought back to life for the first time ever. Originally played by families for generations, this version captures the strategic depth of matching pairs and building sums in a revolutionary **5-area multi-capture system** with **smart contextual messaging** and **draggable interface**.
 
 **Game Features:**
 - Single-player vs 2 AI bots with 3 difficulty levels
 - **Revolutionary 5-area combo system** - make multiple captures simultaneously
+- **Draggable modal combo builder** - position anywhere on screen for optimal gameplay
+- **Smart contextual messaging** - intelligent error detection and helpful feedback
 - **Multi-area validation** - combine sum captures with pair captures in one turn
 - **Complete audio system** - Sound effects for captures, invalid moves, wins, and jackpots
+- **Responsive flexbox layout** - perfectly fits any screen without scrolling
 - Adjustable difficulty and scoring targets (100-1500 points)
-- Responsive web design for desktop and mobile
 - Real-time visual feedback with glowing valid combinations
 - **Last Combo Takes All** endgame rule for dramatic finishes
 
@@ -28,8 +30,8 @@ Be the first to reach the target score (default 500 points, adjustable in settin
 - Player goes first, followed by bots
 
 ### Your Turn - 5-AREA SYSTEM
-1. **Build Multi-Captures** - Drag cards to the 5 specialized areas:
-   - **Base Card Area**: Your target/principal card (required)
+1. **Build Multi-Captures** - Drag cards to the movable combo builder:
+   - **Base Card Area**: Your target/principal card (single card only)
    - **Sum Area 1**: Cards that add up to base card value
    - **Sum Area 2**: Additional sum combination
    - **Sum Area 3**: Third sum combination  
@@ -46,7 +48,9 @@ Be the first to reach the target score (default 500 points, adjustable in settin
 4. **End Turn**: Place a card on the board to finish your turn
 
 ### Advanced Strategy
+- **Draggable interface**: Move the combo builder anywhere for perfect visibility
 - **Multi-area planning**: Set up combinations across multiple areas for massive point captures
+- **Smart feedback**: Real-time error detection helps you learn optimal plays
 - **Resource management**: Balance immediate captures vs setting up larger future combinations
 - **Endgame positioning**: Save powerful cards for the "Last Combo Takes All" finale
 
@@ -63,7 +67,7 @@ Game ends when deck is empty and someone reaches the target score. **Last Combo 
 
 **Complete sound design** enhances gameplay:
 - **Capture Sound**: Plays when successfully capturing cards
-- **Invalid Sound**: Alerts for invalid moves or combinations
+- **Invalid Sound**: Alerts for invalid moves or combinations with smart error messages
 - **Winner Sound**: Celebrates game victories
 - **Jackpot Sound**: Special "Last Combo Takes All" moments
 - **Settings Control**: Toggle sound effects on/off in game settings
@@ -73,6 +77,22 @@ Game ends when deck is empty and someone reaches the target score. **Last Combo 
 **Live Demo**: [https://stacked-orcin.vercel.app](https://stacked-orcin.vercel.app)
 
 *Settings modal appears on load - configure your game and click "Start Game" to begin! Don't forget to enable sound effects for the full experience.*
+
+## 🆕 Latest Updates
+
+### Smart User Experience
+- **Contextual messaging system** - Messages adapt based on game state
+- **Intelligent error detection** - Specific feedback for different invalid moves
+- **Auto-clearing notifications** - Success/error messages with visual styling
+- **Draggable combo builder** - Position the interface anywhere on screen
+- **Responsive layout** - No more scrolling issues, perfect fit on any screen
+
+### Enhanced Interface
+- **Professional modal design** - Black background with gold borders
+- **Visual feedback system** - Green glow for valid combos, red for errors
+- **Point display in captures** - See exactly how many points you earned
+- **Reset area feedback** - Clear confirmation when clearing play areas
+- **Favicon support** - Browser tab icon for professional appearance
 
 ## 🏗️ For Developers
 
@@ -85,20 +105,23 @@ STACKED/
 │   ├── winner.mp3     # Victory celebration
 │   └── jackpot.mp3    # Last Combo Takes All bonus
 ├── css/
-│   └── styles.css     # All game styling + 5-area layout
+│   └── styles.css     # Responsive flexbox layout + draggable modal
 ├── js/
 │   ├── ai.js          # Bot logic for 5-area system
 │   ├── deck.js        # Card creation and dealing
 │   ├── gameLogic.js   # Multi-capture validation and scoring
-│   └── main.js        # Core game engine (1000+ lines)
-├── index.html         # 5-area game interface  
+│   └── main.js        # Core engine + Smart messaging + Draggable system
+├── index.html         # Modern responsive interface  
 └── README.md         # This file
 ```
 
 ### Architecture Notes
 - **State Management**: 5-area combination object for complex captures
+- **Smart Messaging System**: Context-aware feedback with error detection
 - **Audio System**: 4-file MP3 system with settings integration
+- **Draggable Interface**: Professional modal with viewport boundary detection
 - **Validation System**: Supports multiple simultaneous capture types
+- **Responsive Design**: Flexbox-based layout that adapts to any screen
 - **Render Engine**: Modular rendering with helper functions
 - **AI Integration**: Smart bots with difficulty scaling
 - **No Framework Dependencies**: Pure JavaScript implementation
@@ -121,13 +144,14 @@ git push origin main
 
 This game is a digital recreation of "Points" - a card game passed down through family generations that had no official rules or digital version. Through careful research, memory reconstruction, and innovative game design, STACKED! brings this lost game back to life with modern enhancements that honor the original while expanding strategic possibilities.
 
-The addition of the 5-area multi-capture system and complete audio integration represents months of development and testing, creating a gaming experience that exceeds the original while maintaining its strategic heart.
+The addition of the 5-area multi-capture system, smart contextual messaging, draggable interface, and complete audio integration represents months of development and testing, creating a gaming experience that exceeds the original while maintaining its strategic heart.
 
 ## 🏆 Credits
 
 - **Created by**: toocheesy
 - **Inspired by**: A cherished family card game tradition  
 - **Development**: Built with AI assistance for rapid prototyping and architecture design
+- **UX Design**: Smart contextual messaging and draggable interface for modern gameplay
 - **Audio**: Custom sound effects for enhanced gameplay experience
 - **Special Thanks**: To Grandma, who taught us this game originally
 
