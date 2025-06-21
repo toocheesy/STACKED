@@ -184,6 +184,126 @@ class DraggableModal {
   }
 }
 
+// Bot Modal Interface System
+class BotModalInterface {
+  constructor() {
+    this.isAnimating = false;
+  }
+
+  // Simulate bot dragging a card to a specific slot
+  async botDragCardToSlot(card, sourceType, sourceIndex, targetSlot) {
+    if (this.isAnimating) return false;
+    this.isAnimating = true;
+
+    console.log(`🤖 BOT: Dragging ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
+
+    // Create the card entry for the combination
+    const cardEntry = {
+      source: sourceType,
+      index: sourceIndex,
+      card: card
+    };
+
+    // Handle base card slot (only one card allowed)
+    if (targetSlot === 'base') {
+      if (state.combination.base.length > 0) {
+        console.log(`🤖 BOT: Clearing existing base card`);
+        state.combination.base = [];
+      }
+    }
+
+    // Add card to the target slot
+    state.combination[targetSlot].push(cardEntry);
+
+    // Visual feedback - render the changes
+    render();
+
+    // Add delay for visual effect
+    await this.delay(500);
+    
+    this.isAnimating = false;
+    return true;
+  }
+
+  // Simulate bot clicking submit button
+  async botSubmitCapture() {
+    if (this.isAnimating) return false;
+    this.isAnimating = true;
+
+    console.log(`🤖 BOT: Attempting to submit capture`);
+
+    // Visual delay to show the "thinking"
+    await this.delay(300);
+
+    // Trigger the same submit logic as human players
+    handleSubmit();
+
+    await this.delay(500);
+    
+    this.isAnimating = false;
+    return true;
+  }
+
+  // Reset the modal (clear all areas)
+  async botResetModal() {
+    if (this.isAnimating) return false;
+    this.isAnimating = true;
+
+    console.log(`🤖 BOT: Resetting modal`);
+
+    // Clear all combination areas
+    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+    // Visual feedback
+    render();
+
+    await this.delay(300);
+    
+    this.isAnimating = false;
+    return true;
+  }
+
+  // Place a card on the board (end turn)
+  async botPlaceCard(card, handIndex) {
+    if (this.isAnimating) return false;
+    this.isAnimating = true;
+
+    console.log(`🤖 BOT: Placing ${card.value}${card.suit} on board to end turn`);
+
+    // Add visual delay
+    await this.delay(500);
+
+    // Execute the placement
+    const currentPlayer = state.currentPlayer;
+    state.board.push(card);
+    state.hands[currentPlayer] = state.hands[currentPlayer].filter((_, i) => i !== handIndex);
+    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+    // Switch to next player
+    state.currentPlayer = (currentPlayer + 1) % 3;
+    
+    render();
+    checkGameEnd();
+
+    this.isAnimating = false;
+    return true;
+  }
+
+  // Utility function for delays
+  delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // Check if bot can make any captures
+  canBotCapture(hand, board) {
+    // This will be enhanced in step 2
+    return hand.length > 0 && board.length > 0;
+  }
+}
+
+// Initialize bot modal interface
+const botModal = new BotModalInterface();
+
 // Initialize draggable modal
 const draggableCombo = new DraggableModal('combination-area');
 
@@ -942,7 +1062,7 @@ smartMessages.showErrorMessage(`${areaNames[area.name]}: ${result.details}`);
   } else {
     state.currentPlayer = 1;
     if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-    setTimeout(aiTurn, 1000);
+    setTimeout(async () => await aiTurn(), 1000);
   }
   render();
   playSound('capture');
@@ -1012,10 +1132,10 @@ function scheduleNextBotTurn() {
   // Check if current player has cards
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
     botTurnInProgress = true;
-    setTimeout(() => {
-      botTurnInProgress = false;
-      aiTurn();
-    }, 1000);
+    setTimeout(async () => {
+  botTurnInProgress = false;
+  await aiTurn();
+}, 1000);
   } else if (state.currentPlayer !== 0) {
     // Current bot has no cards, find next bot with cards or end game
     console.log(`🚫 BOT ${state.currentPlayer} HAS NO CARDS - FINDING NEXT PLAYER`);
@@ -1028,7 +1148,7 @@ function scheduleNextBotTurn() {
         state.currentPlayer = nextPlayer;
         console.log(`🔄 SWITCHED TO PLAYER ${nextPlayer}`);
         if (nextPlayer !== 0) {
-          scheduleNextBotTurn();
+          setTimeout(async () => await scheduleNextBotTurn(), 100);
         }
         render();
         return;
@@ -1043,7 +1163,7 @@ function scheduleNextBotTurn() {
   }
 }
 
-function aiTurn() {
+async function aiTurn() {
   if (state.currentPlayer === 0) {
     console.error('🚨 CRITICAL: AI called for player turn!');
     return;
@@ -1085,71 +1205,42 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
     const move = aiMove(state.hands[playerIndex], state.board, state.settings.botDifficulty);
 console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
     
-    if (move && move.action === 'capture') {
-      // Handle capture
-      const handIndex = state.hands[playerIndex].findIndex(c => c.id === move.handCard.id);
-      if (handIndex !== -1) {
-        state.combination.sum1 = move.capture.targets.map(card => ({
-          source: 'board',
-          index: state.board.findIndex(bc => bc.id === card.id),
-          card
-        }));
-        state.combination.base = [{ source: 'hand', index: handIndex, card: move.handCard }];
-        console.log(`🎯 BOT COMBO: Base=${state.combination.base.length} cards, Sum1=${state.combination.sum1.length} cards`);
-        render();
-        
-        setTimeout(() => {
-          const captured = [...state.combination.sum1.map(c => c.card), move.handCard];
-          state.board = state.board.filter((_, i) =>
-            !state.combination.sum1.some(entry => entry.index === i)
-          );
-          state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== move.handCard.id);
-          state.scores[playerIndex === 1 ? 'bot1' : 'bot2'] += (window.scoreCards || (cards => cards.length * 5))(captured);
-          state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-          
-          // Track last capturer
-          state.lastCapturer = playerIndex;
-          
-          console.log(`🤖 BOT ${playerIndex} captured - continuing turn`);
-render();
-playSound('capture');
-
-// Continue playing - check for more captures or place to end turn
-setTimeout(() => {
-  if (state.hands[playerIndex].length > 0) {
-    aiTurn();
-  } else {
-    // Bot has no cards left after capture - end turn
-    console.log(`🤖 BOT ${playerIndex} OUT OF CARDS AFTER CAPTURE`);
-    state.currentPlayer = (playerIndex + 1) % 3;
-    checkGameEnd();
-    render();
-    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-      scheduleNextBotTurn();
-    }
-  }
-}, 2000);
-        }, 1000);
-        return;
+    // Use the new bot modal interface
+if (move && move.action === 'capture') {
+  console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
+  
+  // Use bot modal interface
+  const baseCard = move.handCard;
+  const handIndex = state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+  
+  if (handIndex !== -1) {
+    // Reset modal first
+    await botModal.botResetModal();
+    
+    // Add base card
+    await botModal.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+    
+    // Add target cards to sum1 area
+    for (const targetCard of move.capture.targets) {
+      const boardIndex = state.board.findIndex(bc => bc.id === targetCard.id);
+      if (boardIndex !== -1) {
+        await botModal.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
       }
     }
     
-    // Either no capture available or chose to place - end turn
-    const handCard = move ? move.handCard : state.hands[playerIndex][0];
-    if (handCard) {
-      state.board.push(handCard);
-      state.hands[playerIndex] = state.hands[playerIndex].filter(card => card.id !== handCard.id);
-      state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-      
-      state.currentPlayer = (playerIndex + 1) % 3;
-      checkGameEnd();
-      render();
-      console.log(`🤖 BOT ${playerIndex} TURN END - placed card`);
-      
-      if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-        scheduleNextBotTurn();
-      }
-    }
+    // Submit the capture
+    await botModal.botSubmitCapture();
+    
+    return; // Exit early - capture handled
+  }
+}
+
+// If no capture or capture failed, place a card
+const handCard = move ? move.handCard : state.hands[playerIndex][0];
+if (handCard) {
+  const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
+  await botModal.botPlaceCard(handCard, handIndex);
+}
   }, 1000);
 }
 
