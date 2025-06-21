@@ -1488,4 +1488,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Start the game
 initGame();
-// <- ADD THIS CLOSING BRACE AT THE VERY END
+
+} // <- MISSING CLOSING BRACE #1 (probably for a function or class)
+} // <- MISSING CLOSING BRACE #2 (probably for the main scope or another function)
