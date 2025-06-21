@@ -71,8 +71,12 @@ class SmartMessageSystem {
 
   // Show error message with auto-clear
   showErrorMessage(errorText) {
-    this.showMessage(`❌ ${errorText}`, 'error');
+  this.showMessage(`❌ ${errorText}`, 'error');
+  // Play invalid sound if available
+  if (typeof playSound === 'function') {
+    playSound('invalid');
   }
+}
 
   // Show success message
   showSuccessMessage(successText) {
@@ -789,6 +793,7 @@ function handleResetPlayArea() {
 
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   render();
+smartMessages.updateMessage('turn_start');
 }
 
 // Handle submit action
@@ -830,7 +835,13 @@ function handleSubmit() {
         validCaptures.push({ name: area.name, cards: area.cards });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
-        smartMessages.showErrorMessage(`${area.name}: ${result.details}`);
+        const areaNames = {
+  'sum1': 'Sum Area 1',
+  'sum2': 'Sum Area 2', 
+  'sum3': 'Sum Area 3',
+  'match': 'Match Area'
+};
+smartMessages.showErrorMessage(`${areaNames[area.name]}: ${result.details}`);
         playSound('invalid');
         return;
       }
@@ -915,7 +926,8 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
   console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
   
   // Show success message
-  smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards!`);
+  const points = (window.scoreCards || (cards => cards.length * 5))(allCapturedCards);
+smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
 }
 
 // Add this helper function to prevent double bot turns
