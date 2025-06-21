@@ -758,7 +758,7 @@ card: state.selectedCard.source === 'hand' ? state.hands[0][state.selectedCard.i
 checkGameEnd();
     render();
     if (state.currentPlayer !== 0) {
-      scheduleNextBotTurn();
+      setTimeout(async () => await scheduleNextBotTurn(), 100);
     }
   } else if (targetType === state.selectedCard.source && data === state.selectedCard.data) {
     // Return to original position
@@ -937,7 +937,7 @@ function updateMessage() {
       if (state.hands[0].length === 0) {
         messageEl.textContent = "You're out of cards! Bots will finish the round.";
         state.currentPlayer = 1;
-        scheduleNextBotTurn();
+        setTimeout(async () => await scheduleNextBotTurn(), 100);
       } else if (state.combination.base.length === 0) {
         messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
       } else {
@@ -965,7 +965,7 @@ function handlePlaceDrop(e) {
   checkGameEnd();
   render();
   if (state.currentPlayer !== 0) {
-  scheduleNextBotTurn();
+  setTimeout(async () => await scheduleNextBotTurn(), 100);
 }
 }
 
@@ -1122,7 +1122,7 @@ smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${
 }
 
 // Add this helper function to prevent double bot turns
-function scheduleNextBotTurn() {
+async function scheduleNextBotTurn() {
   console.log(`⏰ SCHEDULING BOT TURN - CurrentPlayer: ${state.currentPlayer}, InProgress: ${botTurnInProgress}`);
   if (botTurnInProgress) {
     console.log('🚫 BOT TURN ALREADY SCHEDULED - SKIPPING');
@@ -1176,7 +1176,7 @@ async function aiTurn() {
   checkGameEnd();
   render();
   if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
-    scheduleNextBotTurn();
+    setTimeout(async () => await scheduleNextBotTurn(), 100);
   }
   return;
 }
