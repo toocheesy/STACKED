@@ -240,16 +240,26 @@ async botSubmitCapture() {
   const success = this.executeBotSubmit();
   
   if (success) {
-    console.log(`🤖 BOT: Capture successful!`);
-  } else {
-    console.log(`🤖 BOT: Capture failed, placing card instead`);
-  }
-
-  await this.delay(500);
+  console.log(`🤖 BOT: Capture successful!`);
   
-  this.isAnimating = false;
-  return success;
+  // CRITICAL FIX: After successful capture, bot should continue or end turn
+  const currentPlayer = state.currentPlayer;
+  if (state.hands[currentPlayer].length > 0) {
+    // Bot still has cards - should place one to end turn or make another capture
+    console.log(`🤖 BOT ${currentPlayer}: Has ${state.hands[currentPlayer].length} cards left, continuing turn`);
+    setTimeout(async () => await aiTurn(), 1000);  // Continue bot's turn
+  } else {
+    // Bot is out of cards - already handled in executeBotSubmit
+    console.log(`🤖 BOT ${currentPlayer}: Out of cards, turn managed in submit`);
+  }
+} else {
+  console.log(`🤖 BOT: Capture failed, placing card instead`);
 }
+
+await this.delay(500);
+
+this.isAnimating = false;
+return success;
 
 // NEW: Bot-specific submit logic that bypasses player checks
 executeBotSubmit() {
@@ -1137,26 +1147,46 @@ smartMessages.showErrorMessage(`${areaNames[area.name]}: ${result.details}`);
 
   console.log(`🎯 MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
-  // Execute the capture
-  executeCapture(baseCard, validCaptures, allCapturedCards);
-  
-  // Track last capturer
-  state.lastCapturer = 0; // Player is always index 0
-  
-  // Reset state
-  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+// Execute the capture (same as handleSubmit)
+executeCapture(baseCard, validCaptures, allCapturedCards);
 
-  if (state.hands[0].length > 0) {
-    state.currentPlayer = 0;
-    if (messageEl) messageEl.textContent = "Capture successful! Place a card to end your turn.";
-  } else {
-    state.currentPlayer = 1;
-    if (messageEl) messageEl.textContent = "You're out of cards! Bots will finish the round.";
-    setTimeout(async () => await aiTurn(), 1000);
-  }
-  render();
-  playSound('capture');
+// Track last capturer
+state.lastCapturer = currentPlayer;
+
+// CRITICAL FIX: Award points to the correct bot
+const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+const points = scoreFunction(allCapturedCards);
+
+if (currentPlayer === 1) {
+  state.scores.bot1 += points;
+  console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
+} else if (currentPlayer === 2) {
+  state.scores.bot2 += points;
+  console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
 }
+
+// Reset state
+state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+// CRITICAL FIX: Proper turn continuation
+if (state.hands[currentPlayer].length > 0) {
+  // Bot can make another capture or place a card
+  console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
+  // Don't change currentPlayer - bot keeps playing
+} else {
+  // Bot is out of cards, move to next player
+  state.currentPlayer = (currentPlayer + 1) % 3;
+  console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
+  
+  // Schedule next turn if needed
+  if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+    setTimeout(async () => await scheduleNextBotTurn(), 1000);
+  }
+}
+
+render();
+playSound('capture');
+return true;
 
 // Helper function to execute capture
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
