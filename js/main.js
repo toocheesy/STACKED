@@ -1241,7 +1241,6 @@ if (handCard) {
   const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
   botModal.botPlaceCard(handCard, handIndex);
 }
-  }, 1000);
 }
 
 
