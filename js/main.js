@@ -1206,6 +1206,7 @@ if (playersWithCards === 1 && state.hands[playerIndex].length > 0) {
 console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}, MOVE: ${move?.action}`);
     
     // Use the new bot modal interface
+// Use the new bot modal interface
 if (move && move.action === 'capture') {
 console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
 
@@ -1234,15 +1235,16 @@ if (handIndex !== -1) {
   });
   return;
 }
-
-// If no capture or capture failed, place a card
-const handCard = move ? move.handCard : state.hands[playerIndex][0];
-if (handCard) {
-  const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
-  botModal.botPlaceCard(handCard, handIndex);
-}
-}
-
+    } else {
+      // If no capture or capture failed, place a card
+      const handCard = move ? move.handCard : state.hands[playerIndex][0];
+      if (handCard) {
+        const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
+        botModal.botPlaceCard(handCard, handIndex);
+      }
+    }
+  }, 1000);
+} // <- MISSING CLOSING BRACE FOR aiTurn() FUNCTION
 
 // Check game end - Fixed to use dealCards instead of missing dealAfterBots
 function checkGameEnd() {
@@ -1351,3 +1353,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Start the game
 initGame();
+// <- ADD THIS CLOSING BRACE AT THE VERY END
