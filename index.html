@@ -3,70 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STACKED!</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
-  <link rel="stylesheet" href="css/styles.css">
+  <title>STACKED! 🎴</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div class="game-container">
     <h1>Welcome to STACKED! 🎴</h1>
-    
-    <!-- Smart Contextual Message (replaces both old instruction areas) -->
     <div class="smart-message" id="smart-message">
       Drag cards to build captures or place one on board to end turn • Score 500 to win!
     </div>
-    <!-- Add this if it's missing (usually near smart-message) -->
-    <div id="message" style="display: none;"></div>
 
     <!-- Settings Modal -->
     <dialog id="settings-modal">
-      <div class="modal-content">
+      <form>
         <h2>Settings</h2>
-        <form>
-          <label for="card-speed">Card Reveal Speed:</label>
-          <select id="card-speed">
-            <option value="slow">Slow</option>
-            <option value="fast" selected>Fast</option>
-          </select>
-
-          <label for="sound-effects">Sound Effects:</label>
-          <select id="sound-effects">
-            <option value="on">On</option>
-            <option value="off" selected>Off</option>
-          </select>
-
-          <label for="target-score">Target Score:</label>
-          <select id="target-score">
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500" selected>500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-            <option value="1000">1000</option>
-            <option value="1100">1100</option>
-            <option value="1200">1200</option>
-            <option value="1300">1300</option>
-            <option value="1400">1400</option>
-            <option value="1500">1500</option>
-          </select>
-
-          <label for="bot-difficulty">Bot Difficulty:</label>
-          <select id="bot-difficulty">
-            <option value="beginner">Beginner</option>
-            <option value="intermediate" selected>Intermediate</option>
-            <option value="legendary">Legendary</option>
-          </select>
-
-          <div class="modal-buttons">
-            <button type="button" id="start-game-btn">Start Game</button>
-            <button type="button" id="tutorial-btn">Tutorial</button>
-          </div>
-        </form>
-      </div>
+        <label for="card-speed">Card Reveal Speed:</label>
+        <select id="card-speed">
+          <option value="slow">Slow</option>
+          <option value="fast" selected>Fast</option>
+        </select>
+        <label for="sound-effects">Sound Effects:</label>
+        <select id="sound-effects">
+          <option value="on">On</option>
+          <option value="off" selected>Off</option>
+        </select>
+        <label for="target-score">Target Score:</label>
+        <select id="target-score">
+          <option value="100">100</option>
+          <option value="200">200</option>
+          <option value="300">300</option>
+          <option value="400">400</option>
+          <option value="500" selected>500</option>
+          <option value="600">600</option>
+          <option value="700">700</option>
+          <option value="800">800</option>
+          <option value="900">900</option>
+          <option value="1000">1000</option>
+          <option value="1100">1100</option>
+          <option value="1200">1200</option>
+          <option value="1300">1300</option>
+          <option value="1400">1400</option>
+          <option value="1500">1500</option>
+        </select>
+        <label for="bot-difficulty">Bot Difficulty:</label>
+        <select id="bot-difficulty">
+          <option value="beginner">Beginner</option>
+          <option value="intermediate" selected>Intermediate</option>
+          <option value="legendary">Legendary</option>
+        </select>
+        <div class="modal-buttons">
+          <button type="button" id="start-game-btn">Start Game</button>
+          <button type="button" id="tutorial-btn">Tutorial</button>
+        </div>
+      </form>
     </dialog>
 
     <!-- Tutorial Modal -->
@@ -74,7 +63,7 @@
       <div class="modal-content">
         <h2>How to Play STACKED!</h2>
         <div class="tutorial-content">
-          <p>Welcome to <strong>STACKED!</strong>, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
+          <p>Welcome to STACKED!, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
           <h3>Objective:</h3>
           <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
           <h3>How to Play:</h3>
@@ -99,54 +88,59 @@
             <li>Secure J, Q, K matches quickly—they're valuable but can't be used in sums!</li>
           </ul>
         </div>
-        <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
+        <div class="modal-buttons">
+          <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
+        </div>
       </div>
     </dialog>
 
-    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
+    <!-- New Scoreboard Modal -->
+    <dialog id="scoreboard-modal">
+      <div class="confetti-container" id="confetti-container"></div>
+      <div class="jackpot-message" id="jackpot-message"></div>
+      <div class="scoreboard">
+        <div class="scoreboard-title" id="scoreboard-title">Scoreboard</div>
+        <div class="scoreboard-list" id="scoreboard-list"></div>
+      </div>
+      <div class="scoreboard-buttons" id="scoreboard-buttons"></div>
+    </dialog>
 
+    <!-- Game Elements -->
+    <div id="deck-count">Deck: 0 cards</div>
     <div class="table">
-      <!-- Scores -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
       <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
       <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
-
-      <!-- Play Areas -->
-      <div class="combination-area" id="combination-area">
-  <div class="modal-title">Combo Builder 🎯</div>
-  <!-- Base Card Area (Top) -->
-  <div class="combo-slot base-area" data-slot="base">Base Card</div>
-  
-  <!-- Capture Areas (Bottom Row) -->
-  <div class="capture-row">
-    <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
-    <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
-    <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
-    <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
-  </div>
-</div>
-
-      <!-- Board -->
       <div class="board" id="board"></div>
-
-      <!-- Hands -->
       <div class="hand player-hand" id="player-hand"></div>
       <div class="hand bot1-hand" id="bot1-hand"></div>
       <div class="hand bot2-hand" id="bot2-hand"></div>
     </div>
 
+    <!-- Combination Area -->
+    <div class="combination-area" id="combination-area">
+      <div class="modal-title">Combo Builder 🎯</div>
+      <div class="base-area">
+        <div class="combo-slot" data-slot="base">Base Card</div>
+      </div>
+      <div class="capture-row">
+        <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
+        <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
+        <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
+        <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
+      </div>
+      <div id="capture-type"></div>
+    </div>
+
     <!-- Actions -->
     <div class="actions">
-      <button id="submit-btn">Submit Move</button>
+      <button id="submit-btn" disabled>Submit Move</button>
       <button id="reset-play-area-btn">Reset Play Area</button>
       <button id="hint-btn">Hint</button>
       <button id="restart-btn">Restart Game</button>
     </div>
   </div>
 
-  <script src="js/deck.js"></script>
-  <script src="js/gameLogic.js"></script>
-  <script src="js/ai.js"></script>
-  <script src="js/main.js"></script>
+  <script src="./main.js"></script>
 </body>
 </html>
