@@ -264,19 +264,16 @@ button:disabled {
   margin-top: 10px;
 }
 
-.message {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  color: #F1C40F;
-  font-weight: bold;
-}
-
-.capture-type {
-  margin-top: 10px;
-  font-size: 1rem;
+.smart-message {
+  margin: 10px 0;
+  font-size: 1.1rem;
   color: #F1C40F;
   font-weight: bold;
   text-align: center;
+  padding: 8px;
+  background-color: rgba(241, 196, 15, 0.1);
+  border-radius: 5px;
+  border: 1px solid rgba(241, 196, 15, 0.3);
 }
 
 dialog {
