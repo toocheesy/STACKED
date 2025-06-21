@@ -32,6 +32,86 @@ const sounds = {
 
 const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
 
+// Initialize the smart message system
+const smartMessages = new SmartMessageSystem();
+
+// Smart Contextual Error Detection System
+class SmartMessageSystem {
+  constructor() {
+    this.messageElement = document.getElementById('smart-message');
+    this.defaultMessage = "Drag cards to build captures or place one on board to end turn • Score 500 to win!";
+    this.currentTimeout = null;
+  }
+
+  // Main context detection and message update
+  updateMessage(gameState = 'default') {
+    let message = this.getContextualMessage(gameState);
+    this.showMessage(message);
+  }
+
+  // Context-aware message selection
+  getContextualMessage(context) {
+    switch(context) {
+      case 'turn_start':
+        return "Drag cards to build captures or place one on board to end turn";
+      
+      case 'cards_in_areas':
+        return "Submit your capture or reset to try again";
+      
+      case 'game_over_player':
+        return "🎉 Game Over! You win! 🎉";
+      
+      case 'game_over_bot':
+        return "Game Over! Bot wins this round - try again!";
+      
+      case 'valid_combo':
+        return "✅ Valid combo! Click Submit Move to capture";
+      
+      default:
+        return this.defaultMessage;
+    }
+  }
+
+  // Show error message with auto-clear
+  showErrorMessage(errorText) {
+    this.showMessage(`❌ ${errorText}`, 'error');
+  }
+
+  // Show success message
+  showSuccessMessage(successText) {
+    this.showMessage(`✅ ${successText}`, 'success');
+  }
+
+  // Core message display function
+  showMessage(text, type = 'normal') {
+    if (!this.messageElement) return;
+    
+    // Clear any existing timeout
+    if (this.currentTimeout) {
+      clearTimeout(this.currentTimeout);
+    }
+
+    // Update message with styling
+    this.messageElement.textContent = text;
+    
+    // Add styling based on message type
+    this.messageElement.className = 'smart-message';
+    if (type === 'error') {
+      this.messageElement.classList.add('error-message');
+    } else if (type === 'success') {
+      this.messageElement.classList.add('success-message');
+    }
+
+    // Auto-clear back to default after 3 seconds (only for errors/success)
+    if (type !== 'normal') {
+      this.currentTimeout = setTimeout(() => {
+        this.updateMessage('default');
+        this.messageElement.className = 'smart-message'; // Reset styling
+      }, 3000);
+    }
+  }
+}
+
 // Initialize the game
 function initGame() {
   let deck;
@@ -296,6 +376,14 @@ function render() {
   
   // Update message
   updateMessage();
+  
+  // Update smart message context
+  const hasCardsInAreas = Object.values(state.combination).some(area => area.length > 0);
+  if (hasCardsInAreas) {
+    smartMessages.updateMessage('cards_in_areas');
+  } else if (state.currentPlayer === 0) {
+    smartMessages.updateMessage('turn_start');
+  }
 }
 
 // Helper function to render individual areas
@@ -712,7 +800,7 @@ function handleSubmit() {
   const messageEl = document.getElementById('message');
 
   if (baseCards.length !== 1) {
-    if (messageEl) messageEl.textContent = "Invalid: Base Card must have exactly one card."
+    smartMessages.showErrorMessage("Base Card area must have exactly one card!");
     playSound('invalid');
     return;
   }
@@ -742,7 +830,7 @@ function handleSubmit() {
         validCaptures.push({ name: area.name, cards: area.cards });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
-        if (messageEl) messageEl.textContent = `Invalid ${area.name}: ${result.details}`
+        smartMessages.showErrorMessage(`${area.name}: ${result.details}`);
         playSound('invalid');
         return;
       }
@@ -750,7 +838,7 @@ function handleSubmit() {
   }
 
   if (validCaptures.length === 0) {
-    if (messageEl) messageEl.textContent = "No valid captures found."
+    smartMessages.showErrorMessage("No valid captures found - check your combinations!");
     playSound('invalid');
     return;
   }
@@ -825,6 +913,9 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
   state.scores.player += scoreFunction(allCapturedCards);
 
   console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
+  
+  // Show success message
+  smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards!`);
 }
 
 // Add this helper function to prevent double bot turns
@@ -1024,7 +1115,7 @@ playSound('jackpot');
       player.score > max.score ? player : max, 
       { score: -1, name: '' }
     );
-    if (messageEl) messageEl.textContent = `${winner.name} wins the game with ${winner.score} points! Restart to play again.`;
+    smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
     playSound('winner');
   } else {
     // Deal new round
@@ -1036,7 +1127,7 @@ playSound('jackpot');
       state.deck = dealResult.remainingDeck;
       state.currentPlayer = 0;
       state.lastCapturer = null; // Reset for new round
-      if (messageEl) messageEl.textContent = `New round! Scores - Player: ${state.scores.player}, Bot 1: ${state.scores.bot1}, Bot 2: ${state.scores.bot2}`;
+      smartMessages.updateMessage('turn_start');
       render();
       } catch (e) {
       console.error('Error dealing new round:', e);
@@ -1050,7 +1141,7 @@ playSound('jackpot');
     state.hands = dealResult.players;
     state.deck = dealResult.remainingDeck;
     state.currentPlayer = 0;
-    if (messageEl) messageEl.textContent = "New round! Drag or tap cards to the play areas to capture.";
+    smartMessages.updateMessage('turn_start');
     render();
     } catch (e) {
     console.error('Error dealing new round:', e);
