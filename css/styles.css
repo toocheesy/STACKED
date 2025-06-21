@@ -1,6 +1,10 @@
 /* 
- * Original Working Layout + Natural Scroll (ONLY scroll changes applied)
+ * Updated styles.css with Scoreboard Modal System
+ * Includes original layout, natural scroll, and new modal styles
+ * Modern card game aesthetic with gold/green scheme, confetti animation
  */
+
+/* Global Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -21,6 +25,7 @@ body {
   align-items: center;
 }
 
+/* Game Container */
 .game-container {
   display: flex;
   flex-direction: column;
@@ -34,6 +39,7 @@ body {
   overflow: hidden;
 }
 
+/* Headings and Text */
 h1 {
   font-size: 2rem;
   margin-bottom: 5px;
@@ -48,6 +54,7 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* Combination Area (Draggable Modal) */
 .combination-area {
   position: fixed;
   right: 20px;
@@ -109,6 +116,7 @@ h1 {
   transition: all 0.3s ease;
 }
 
+/* Table and Score Displays */
 .table {
   flex-grow: 1;
   margin: 10px 0;
@@ -148,6 +156,7 @@ h1 {
   right: 15px;
 }
 
+/* Board */
 .board {
   position: absolute;
   top: 40%;
@@ -165,6 +174,7 @@ h1 {
   box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
 }
 
+/* Hands */
 .hand {
   position: absolute;
   display: flex;
@@ -191,6 +201,7 @@ h1 {
   transform-origin: center;
 }
 
+/* Cards */
 .card {
   width: 70px;
   height: 100px;
@@ -242,6 +253,7 @@ h1 {
   box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
+/* Actions and Buttons */
 .actions {
   display: flex;
   justify-content: center;
@@ -254,8 +266,6 @@ h1 {
   padding-top: 15px;
   margin-top: 5px;
 }
-
-
 
 button {
   padding: 10px 20px;
@@ -285,6 +295,7 @@ button:disabled {
   margin-top: 10px;
 }
 
+/* Smart Message */
 .smart-message {
   margin: 10px 0;
   font-size: 1.1rem;
@@ -297,6 +308,7 @@ button:disabled {
   border: 1px solid rgba(241, 196, 15, 0.3);
 }
 
+/* Existing Modals (Settings and Tutorial) */
 dialog {
   background-color: #229954;
   color: #fff;
@@ -312,6 +324,7 @@ dialog {
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
 }
@@ -394,32 +407,218 @@ dialog h2 {
   margin-bottom: 15px;
 }
 
-@media (max-width: 900px) {
-  .table {
-  flex-grow: 1;
-  margin: 10px 0;
-  background-color: black;
-  border: 4px solid #7B3F00;
+/* New Scoreboard Modal Styles */
+#scoreboard-modal {
+  background-color: #229954;
+  color: #fff;
+  border: 3px solid #F1C40F;
   border-radius: 8px;
-  position: relative;
-  min-height: 0;
-  width: 100%;
-  max-height: 65vh;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-  
-  .game-container {
+  padding: 20px;
+  width: 450px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  max-width: 1200px;
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow: hidden;
+  gap: 15px;
+  animation: fadeIn 0.5s ease-in-out;
 }
+
+#scoreboard-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Jackpot Message */
+.jackpot-message {
+  background-color: rgba(241, 196, 15, 0.2);
+  border: 2px solid #F1C40F;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #F1C40F;
+  display: none; /* Hidden by default */
+}
+
+.jackpot-message.visible {
+  display: block;
+}
+
+/* Scoreboard */
+.scoreboard {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid #F1C40F;
+  border-radius: 5px;
+  padding: 15px;
+}
+
+.scoreboard-title {
+  font-size: 1.5rem;
+  color: #F1C40F;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.scoreboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scoreboard-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  font-size: 1.1rem;
+}
+
+.scoreboard-item.leader {
+  background-color: rgba(241, 196, 15, 0.3);
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+.scoreboard-rank {
+  font-size: 1.2rem;
+  width: 30px;
+  text-align: center;
+}
+
+.scoreboard-name {
+  flex: 1;
+}
+
+.scoreboard-score {
+  font-weight: bold;
+}
+
+/* Confetti Animation for Game Over */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  display: none;
+}
+
+.confetti-container.active {
+  display: block;
+}
+
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #F1C40F;
+  opacity: 0.8;
+  animation: confettiFall 3s ease-out infinite;
+  transform: rotate(45deg);
+}
+
+.confetti:nth-child(odd) {
+  background-color: #2ecc71;
+}
+
+.confetti:nth-child(3n) {
+  background-color: #e74c3c;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Scoreboard Buttons */
+.scoreboard-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scoreboard-buttons button {
+  flex: 1;
+  padding: 10px;
+  background-color: #F1C40F;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.scoreboard-buttons button:hover {
+  background-color: #D4AC0D;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(241, 196, 15, 1);
+  }
+}
+
+/* Media Queries */
+@media (max-width: 900px) {
+  .table {
+    flex-grow: 1;
+    margin: 10px 0;
+    background-color: black;
+    border: 4px solid #7B3F00;
+    border-radius: 8px;
+    position: relative;
+    min-height: 0;
+    width: 100%;
+    max-height: 65vh;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-width: 1200px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
 
   .combination-area {
     width: 260px;
@@ -445,6 +644,23 @@ dialog h2 {
   .sum-area, .match-area {
     min-width: 55px;
   }
+
+  #scoreboard-modal {
+    width: 350px;
+    padding: 15px;
+  }
+
+  .scoreboard-title {
+    font-size: 1.3rem;
+  }
+
+  .scoreboard-item {
+    font-size: 1rem;
+  }
+
+  .jackpot-message {
+    font-size: 1.1rem;
+  }
 }
 
 @media (max-width: 700px) {
@@ -453,17 +669,17 @@ dialog h2 {
   }
 
   .table {
-  flex-grow: 1;
-  margin: -50px auto 10px auto;
-  background-color: black;
-  border: 4px solid #7B3F00;
-  border-radius: 8px;
-  position: relative;
-  min-height: 0;
-  width: 100%;
-  max-height: 65vh;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+    flex-grow: 1;
+    margin: -50px auto 10px auto;
+    background-color: black;
+    border: 4px solid #7B3F00;
+    border-radius: 8px;
+    position: relative;
+    min-height: 0;
+    width: 100%;
+    max-height: 65vh;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
 
   .board {
     max-width: 320px;
@@ -494,17 +710,17 @@ dialog h2 {
   }
   
   .game-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  height: 100vh;
-  max-width: 1200px;
-  width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
-  overflow: hidden;
-}
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+    max-width: 1200px;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
 
   .combination-area {
     width: 240px;
@@ -523,21 +739,35 @@ dialog h2 {
     min-width: 50px;
     min-height: 100px;
   }
+
+  #scoreboard-modal {
+    width: 320px;
+  }
+
+  .scoreboard-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .scoreboard-buttons button {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 550px) {
   .table {
-  flex-grow: 1;
-  margin: 10px 0;
-  background-color: black;
-  border: 4px solid #7B3F00;
-  border-radius: 8px;
-  position: relative;
-  min-height: 0;
-  width: 100%;
-  max-height: 65vh;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
+    flex-grow: 1;
+    margin: 10px 0;
+    background-color: black;
+    border: 4px solid #7B3F00;
+    border-radius: 8px;
+    position: relative;
+    min-height: 0;
+    width: 100%;
+    max-height: 65vh;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
 
   .board {
     max-width: 280px;
@@ -581,6 +811,28 @@ dialog h2 {
   .sum-area, .match-area {
     min-width: 45px;
     min-height: 90px;
+  }
+
+  #scoreboard-modal {
+    width: 280px;
+    padding: 10px;
+  }
+
+  .scoreboard-title {
+    font-size: 1.2rem;
+  }
+
+  .scoreboard-item {
+    font-size: 0.9rem;
+    padding: 6px;
+  }
+
+  .jackpot-message {
+    font-size: 1rem;
+  }
+
+  .scoreboard-rank {
+    width: 25px;
   }
 }
 
