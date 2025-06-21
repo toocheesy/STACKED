@@ -1207,39 +1207,39 @@ console.log(`🤖 BOT ${playerIndex} DIFFICULTY: ${state.settings.botDifficulty}
     
     // Use the new bot modal interface
 if (move && move.action === 'capture') {
-  console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
-  
-  // Use bot modal interface
-  const baseCard = move.handCard;
-  const handIndex = state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
-  
-  if (handIndex !== -1) {
-    // Reset modal first
-    await botModal.botResetModal();
-    
-    // Add base card
-    await botModal.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
-    
-    // Add target cards to sum1 area
+console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
+
+// Use bot modal interface
+const baseCard = move.handCard;
+const handIndex = state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+
+if (handIndex !== -1) {
+  // Chain the bot actions with Promises
+  botModal.botResetModal().then(() => {
+    return botModal.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+  }).then(() => {
+    // Add target cards to sum1 area sequentially
+    let promise = Promise.resolve();
     for (const targetCard of move.capture.targets) {
       const boardIndex = state.board.findIndex(bc => bc.id === targetCard.id);
       if (boardIndex !== -1) {
-        await botModal.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+        promise = promise.then(() => botModal.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1'));
       }
     }
-    
-    // Submit the capture
-    await botModal.botSubmitCapture();
-    
-    return; // Exit early - capture handled
-  }
+    return promise;
+  }).then(() => {
+    return botModal.botSubmitCapture();
+  }).catch(error => {
+    console.error('🚨 Bot capture error:', error);
+  });
+  return;
 }
 
 // If no capture or capture failed, place a card
 const handCard = move ? move.handCard : state.hands[playerIndex][0];
 if (handCard) {
   const handIndex = state.hands[playerIndex].findIndex(c => c.id === handCard.id);
-  await botModal.botPlaceCard(handCard, handIndex);
+  botModal.botPlaceCard(handCard, handIndex);
 }
   }, 1000);
 }
