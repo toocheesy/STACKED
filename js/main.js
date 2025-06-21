@@ -116,6 +116,77 @@ class SmartMessageSystem {
 // Initialize the smart message system (MOVED HERE!)
 const smartMessages = new SmartMessageSystem();
 
+// Draggable Modal System
+class DraggableModal {
+  constructor(elementId) {
+    this.modal = document.getElementById(elementId);
+    this.isDragging = false;
+    this.startX = 0;
+    this.startY = 0;
+    this.initialX = 0;
+    this.initialY = 0;
+    
+    if (this.modal) {
+      this.init();
+    }
+  }
+  
+  init() {
+    // Only make the title bar draggable
+    const titleBar = this.modal.querySelector('.modal-title');
+    if (titleBar) {
+      titleBar.style.cursor = 'move';
+      titleBar.addEventListener('mousedown', (e) => this.startDrag(e));
+    }
+    
+    document.addEventListener('mousemove', (e) => this.drag(e));
+    document.addEventListener('mouseup', () => this.stopDrag());
+  }
+  
+  startDrag(e) {
+    this.isDragging = true;
+    this.startX = e.clientX;
+    this.startY = e.clientY;
+    
+    const rect = this.modal.getBoundingClientRect();
+    this.initialX = rect.left;
+    this.initialY = rect.top;
+    
+    this.modal.style.transition = 'none';
+  }
+  
+  drag(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    
+    const deltaX = e.clientX - this.startX;
+    const deltaY = e.clientY - this.startY;
+    
+    const newX = this.initialX + deltaX;
+    const newY = this.initialY + deltaY;
+    
+    // Keep modal within viewport bounds
+    const maxX = window.innerWidth - this.modal.offsetWidth;
+    const maxY = window.innerHeight - this.modal.offsetHeight;
+    
+    const boundedX = Math.max(0, Math.min(newX, maxX));
+    const boundedY = Math.max(0, Math.min(newY, maxY));
+    
+    this.modal.style.left = boundedX + 'px';
+    this.modal.style.top = boundedY + 'px';
+    this.modal.style.right = 'auto';
+  }
+  
+  stopDrag() {
+    this.isDragging = false;
+    this.modal.style.transition = '';
+  }
+}
+
+// Initialize draggable modal
+const draggableCombo = new DraggableModal('combination-area');
+
 // Initialize the game
 function initGame() {
   let deck;

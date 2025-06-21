@@ -50,22 +50,34 @@ h1 {
 
 .combination-area {
   position: fixed;
-  right: 116px;
-  top: 45%;
-  transform: translateY(-50%);
+  right: 20px;
+  top: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
-  width: 384px;
+  width: 300px;
   min-height: 400px;
-  z-index: 100;
-  background-color: black;
-  border: 3px solid #7B3F00;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 3px solid #F1C40F;
   border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  cursor: move;
+  user-select: none;
+}
+
+.modal-title {
+  color: #F1C40F;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  text-align: center;
+  border-bottom: 1px solid #F1C40F;
+  padding-bottom: 5px;
+  width: 100%;
 }
 
 .combo-slot {
@@ -404,7 +416,7 @@ dialog h2 {
   height: 100vh;
   max-width: 1200px;
   width: 100%;
-  padding: 10px 270px 10px 10px;
+  padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
 }
