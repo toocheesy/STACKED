@@ -407,7 +407,8 @@ dialog h2 {
   margin-bottom: 15px;
 }
 
-/* New Scoreboard Modal Styles */
+/* REPLACE YOUR #scoreboard-modal CSS RULE WITH THIS: */
+
 #scoreboard-modal {
   background-color: #229954;
   color: #fff;
@@ -426,6 +427,12 @@ dialog h2 {
   flex-direction: column;
   gap: 15px;
   animation: fadeIn 0.5s ease-in-out;
+  /* CRITICAL FIX - HIDE BY DEFAULT */
+  display: none;
+}
+
+#scoreboard-modal[open] {
+  display: flex;
 }
 
 #scoreboard-modal::backdrop {
