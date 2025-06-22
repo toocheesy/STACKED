@@ -1380,37 +1380,77 @@ async function aiTurn() {
 /* SECTION: Updated Game End Logic with Scoreboard Modal */
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
-  let currentRound = Math.floor((52 - state.deck.length) / 12) + 1;
+  const messageEl = document.getElementById('message');
 
   if (playersWithCards === 0) {
-    let jackpotMessage = null;
-    if (state.lastCapturer !== null && state.board.length > 0) {
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const lastCapturerName = playerNames[state.lastCapturer];
-      const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-      const bonusPoints = scoreFunction(state.board);
-      
-      if (state.lastCapturer === 0) {
-        state.scores.player += bonusPoints;
-      } else if (state.lastCapturer === 1) {
-        state.scores.bot1 += bonusPoints;
-      } else {
-        state.scores.bot2 += bonusPoints;
+    // All players are out of cards
+    if (state.deck.length === 0) {
+      // Round over - apply Last Combo Takes All rule
+      let jackpotMessage = null;
+      if (state.lastCapturer !== null && state.board.length > 0) {
+        const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+        const lastCapturerName = playerNames[state.lastCapturer];
+        
+        // Last capturer gets all remaining board cards
+        const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+        const bonusPoints = scoreFunction(state.board);
+        
+        if (state.lastCapturer === 0) {
+          state.scores.player += bonusPoints;
+        } else if (state.lastCapturer === 1) {
+          state.scores.bot1 += bonusPoints;
+        } else {
+          state.scores.bot2 += bonusPoints;
+        }
+        
+        jackpotMessage = `${lastCapturerName} sweeps ${state.board.length} cards! +${bonusPoints} pts`;
+        console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+        playSound('jackpot');
+        state.board = []; // Clear the board
       }
       
-      jackpotMessage = `${lastCapturerName} sweeps ${state.board.length} cards! +${bonusPoints} pts`;
-      console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
-      playSound('jackpot');
-      state.board = [];
-    }
-
-    const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
-    if (maxScore >= state.settings.targetScore) {
-      const winner = rankPlayers()[0];
-      showGameOverModal(jackpotMessage, currentRound);
-      smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
-    } else if (jackpotMessage) {
-      showRoundEndModal(jackpotMessage, currentRound);
+      // Check if anyone reached target score
+      const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
+      if (maxScore >= state.settings.targetScore) {
+        const winner = rankPlayers()[0];
+        showGameOverModal(jackpotMessage, Math.floor((52 - state.deck.length) / 12) + 1);
+        smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
+        playSound('winner');
+      } else {
+        // Show round end modal only if there was a jackpot
+        if (jackpotMessage) {
+          showRoundEndModal(jackpotMessage, Math.floor((52 - state.deck.length) / 12) + 1);
+        } else {
+          // Deal new round without modal
+          try {
+            const newDeck = shuffleDeck(createDeck());
+            const dealResult = dealCards(newDeck, 3, 4, 4);
+            state.hands = dealResult.players;
+            state.board = dealResult.board;
+            state.deck = dealResult.remainingDeck;
+            state.currentPlayer = 0;
+            state.lastCapturer = null;
+            smartMessages.updateMessage('turn_start');
+            render();
+          } catch (e) {
+            console.error('Error dealing new round:', e);
+            if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+          }
+        }
+      }
+    } else {
+      // Deal new round using existing dealCards function
+      try {
+        const dealResult = dealCards(state.deck, 3, 4, 0);
+        state.hands = dealResult.players;
+        state.deck = dealResult.remainingDeck;
+        state.currentPlayer = 0;
+        smartMessages.updateMessage('turn_start');
+        render();
+      } catch (e) {
+        console.error('Error dealing new round:', e);
+        if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
+      }
     }
   }
 }
