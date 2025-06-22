@@ -487,6 +487,8 @@ function showGameOverModal(jackpotMessage, totalRounds) {
 }
 
 /* SECTION: Game Initialization and Core Logic */
+// ADD THIS TO THE END OF YOUR initGame() function, right before render():
+
 function initGame() {
   let deck;
   try {
@@ -518,6 +520,13 @@ function initGame() {
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
+  
+  // FORCE CLOSE ANY OPEN MODALS
+  const scoreboardModal = document.getElementById('scoreboard-modal');
+  if (scoreboardModal && scoreboardModal.open) {
+    scoreboardModal.close();
+  }
+  
   render();
   showSettingsModal();
   playSound('capture');
@@ -1457,6 +1466,12 @@ function checkGameEnd() {
 
 /* SECTION: Event Listeners and Game Start */
 document.addEventListener('DOMContentLoaded', () => {
+  // FORCE CLOSE SCOREBOARD MODAL ON PAGE LOAD
+  const scoreboardModal = document.getElementById('scoreboard-modal');
+  if (scoreboardModal) {
+    scoreboardModal.close();
+  }
+  
   const submitBtn = document.getElementById('submit-btn');
   const restartBtn = document.getElementById('restart-btn');
   const resetBtn = document.getElementById('reset-play-area-btn');
