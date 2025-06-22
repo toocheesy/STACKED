@@ -227,82 +227,101 @@ class BotModalInterface {
     return success;
   }
 
-  executeBotSubmit() {
-    const baseCards = state.combination.base;
-    const currentPlayer = state.currentPlayer;
+  // REPLACE the executeBotSubmit() function in your main.js with this fixed version:
 
-    if (baseCards.length !== 1) {
-      console.log(`🚨 BOT SUBMIT FAILED: Base card count = ${baseCards.length}`);
-      return false;
-    }
+executeBotSubmit() {
+  const baseCards = state.combination.base;
+  const currentPlayer = state.currentPlayer;
 
-    const baseCard = baseCards[0];
-    const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
-
-    let validCaptures = [];
-    let allCapturedCards = [baseCard.card];
-
-    const captureAreas = [
-      { name: 'sum1', cards: state.combination.sum1 },
-      { name: 'sum2', cards: state.combination.sum2 },
-      { name: 'sum3', cards: state.combination.sum3 },
-      { name: 'match', cards: state.combination.match }
-    ];
-
-    for (const area of captureAreas) {
-      if (area.cards.length > 0) {
-        const isSum = area.name.startsWith('sum');
-        const result = isSum 
-          ? validateSumCapture(area.cards, baseValue, baseCard)
-          : validateMatchCapture(area.cards, baseValue, baseCard);
-
-        if (result.isValid) {
-          validCaptures.push({ name: area.name, cards: area.cards });
-          allCapturedCards.push(...area.cards.map(entry => entry.card));
-        } else {
-          console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
-          return false;
-        }
-      }
-    }
-
-    if (validCaptures.length === 0) {
-      console.log(`🚨 BOT SUBMIT FAILED: No valid captures`);
-      return false;
-    }
-
-    console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
-
-    executeCapture(baseCard, validCaptures, allCapturedCards);
-    state.lastCapturer = currentPlayer;
-
-    const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-    const points = scoreFunction(allCapturedCards);
-
-    if (currentPlayer === 1) {
-      state.scores.bot1 += points;
-      console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
-    } else if (currentPlayer === 2) {
-      state.scores.bot2 += points;
-      console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
-    }
-
-    state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-
-    if (state.hands[currentPlayer].length > 0) {
-      console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
-    } else {
-      state.currentPlayer = (currentPlayer + 1) % 3;
-      console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
-      if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
-        setTimeout(async () => await scheduleNextBotTurn(), 1000);
-      }
-    }
-
-    render();
-    playSound('capture');
-    return true;
+  if (baseCards.length !== 1) {
+    console.log(`🚨 BOT SUBMIT FAILED: Base card count = ${baseCards.length}`);
+    return false;
   }
+
+  const baseCard = baseCards[0];
+  
+  // FIXED: Proper value calculation for bot validation
+  let baseValue;
+  if (['J', 'Q', 'K'].includes(baseCard.card.value)) {
+    // Face cards can only do pair captures, not sum captures
+    baseValue = baseCard.card.value; // Keep as string for matching
+  } else if (baseCard.card.value === 'A') {
+    baseValue = 1;
+  } else {
+    baseValue = parseInt(baseCard.card.value);
+  }
+
+  let validCaptures = [];
+  let allCapturedCards = [baseCard.card];
+
+  const captureAreas = [
+    { name: 'sum1', cards: state.combination.sum1 },
+    { name: 'sum2', cards: state.combination.sum2 },
+    { name: 'sum3', cards: state.combination.sum3 },
+    { name: 'match', cards: state.combination.match }
+  ];
+
+  for (const area of captureAreas) {
+    if (area.cards.length > 0) {
+      const isSum = area.name.startsWith('sum');
+      
+      // FIXED: Face cards can only do match captures, not sums
+      if (isSum && ['J', 'Q', 'K'].includes(baseCard.card.value)) {
+        console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - Face cards can't do sum captures`);
+        return false;
+      }
+      
+      const result = isSum 
+        ? validateSumCapture(area.cards, baseValue, baseCard)
+        : validateMatchCapture(area.cards, baseValue, baseCard);
+
+      if (result.isValid) {
+        validCaptures.push({ name: area.name, cards: area.cards });
+        allCapturedCards.push(...area.cards.map(entry => entry.card));
+      } else {
+        console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
+        return false;
+      }
+    }
+  }
+
+  if (validCaptures.length === 0) {
+    console.log(`🚨 BOT SUBMIT FAILED: No valid captures`);
+    return false;
+  }
+
+  console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
+
+  executeCapture(baseCard, validCaptures, allCapturedCards);
+  state.lastCapturer = currentPlayer;
+
+  const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
+  const points = scoreFunction(allCapturedCards);
+
+  if (currentPlayer === 1) {
+    state.scores.bot1 += points;
+    console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
+  } else if (currentPlayer === 2) {
+    state.scores.bot2 += points;
+    console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
+  }
+
+  state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+  if (state.hands[currentPlayer].length > 0) {
+    console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
+  } else {
+    state.currentPlayer = (currentPlayer + 1) % 3;
+    console.log(`🤖 BOT ${currentPlayer}: Out of cards, switching to player ${state.currentPlayer}`);
+    if (state.currentPlayer !== 0 && state.hands[state.currentPlayer] && state.hands[state.currentPlayer].length > 0) {
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    }
+  }
+
+  render();
+  playSound('capture');
+  return true;
+}
 
   async botResetModal() {
     if (this.isAnimating) return false;
@@ -776,6 +795,8 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
   }
 }
 
+// REPLACE your validateSumCapture and validateMatchCapture functions with these:
+
 function validateSumCapture(sumCards, baseValue, baseCard) {
   const hasHandCard = sumCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
   const hasBoardCard = sumCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
@@ -784,21 +805,62 @@ function validateSumCapture(sumCards, baseValue, baseCard) {
     return { isValid: false, details: "Requires hand + board cards" };
   }
 
-  const sumValues = sumCards.map(entry => 
-    parseInt(entry.card.value) || (window.valueMap && window.valueMap[entry.card.value]) || 1
-  );
-  const totalSum = sumValues.reduce((a, b) => a + b, 0);
+  // FIXED: Face cards cannot be used in sum captures
+  if (['J', 'Q', 'K'].includes(baseCard.card.value)) {
+    return { isValid: false, details: "Face cards can't be used in sum captures" };
+  }
 
-  if (totalSum === baseValue) {
+  // FIXED: Proper value mapping for sum calculations
+  const sumValues = sumCards.map(entry => {
+    if (['J', 'Q', 'K'].includes(entry.card.value)) {
+      return { isValid: false, details: "Face cards can't be used in sums" };
+    }
+    return entry.card.value === 'A' ? 1 : parseInt(entry.card.value);
+  });
+
+  // Check if any face cards were found in sum cards
+  const faceCardFound = sumValues.find(val => typeof val === 'object');
+  if (faceCardFound) {
+    return faceCardFound;
+  }
+
+  const totalSum = sumValues.reduce((a, b) => a + b, 0);
+  const targetValue = baseCard.card.value === 'A' ? 1 : parseInt(baseCard.card.value);
+
+  if (totalSum === targetValue) {
     return { 
       isValid: true, 
-      details: `${sumValues.join(' + ')} = ${baseValue}` 
+      details: `${sumValues.join(' + ')} = ${targetValue}` 
     };
   }
 
   return { 
     isValid: false, 
-    details: `${sumValues.join(' + ')} = ${totalSum} ≠ ${baseValue}` 
+    details: `${sumValues.join(' + ')} = ${totalSum} ≠ ${targetValue}` 
+  };
+}
+
+function validateMatchCapture(matchCards, baseValue, baseCard) {
+  const hasHandCard = matchCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
+  const hasBoardCard = matchCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
+  
+  if (!hasHandCard || !hasBoardCard) {
+    return { isValid: false, details: "Requires hand + board cards" };
+  }
+
+  // FIXED: Match captures work with exact value matching (including face cards)
+  const allMatch = matchCards.every(entry => entry.card.value === baseCard.card.value);
+  
+  if (allMatch) {
+    return { 
+      isValid: true, 
+      details: `${matchCards.length + 1} cards matching ${baseCard.card.value}` 
+    };
+  }
+
+  return { 
+    isValid: false, 
+    details: "Cards must match Base Card value exactly" 
   };
 }
 
