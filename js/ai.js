@@ -1,6 +1,5 @@
-/* 
- * Updated AI for 5-area system with better difficulty scaling
- */
+// REPLACE your aiMove function in ai.js with this fixed version:
+
 function aiMove(hand, board, difficulty = 'intermediate') {
   console.log(`🎯 AI MOVE CALLED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
   
@@ -28,7 +27,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   for (const handCard of hand) {
     const captures = canCapture(handCard, board);
     
-    // Simple pair captures (face cards)
+    // FIXED: Only face cards can do pair captures
     const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
     if (isFaceCard) {
       const matchingIndices = board
@@ -48,7 +47,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
         });
       }
     } else {
-      // Sum captures (number cards)
+      // FIXED: Number cards and Aces can do both pair and sum captures
       for (const capture of captures) {
         if (capture.type === 'pair') {
           // Simple pair for number cards
@@ -61,16 +60,30 @@ function aiMove(hand, board, difficulty = 'intermediate') {
             },
             score: capture.cards.length * 5
           });
-        } else if (capture.type === 'sum') {
-          // Sum capture
+        }
+      }
+      
+      // FIXED: Add sum captures for number cards only
+      const handValue = handCard.value === 'A' ? 1 : parseInt(handCard.value);
+      if (!isNaN(handValue)) {
+        // Find combinations that sum to handValue
+        const boardValues = board.map((card, idx) => ({
+          value: card.value === 'A' ? 1 : (isNaN(parseInt(card.value)) ? null : parseInt(card.value)),
+          idx: idx,
+          card: card
+        })).filter(item => item.value !== null); // Only number cards and Aces
+        
+        // Simple sum capture - find single board card that matches
+        const singleMatch = boardValues.find(item => item.value === handValue);
+        if (singleMatch) {
           possibleCaptures.push({
             handCard,
             capture: {
-              type: 'sum', 
-              cards: capture.cards,
-              targets: capture.cards.map(idx => board[idx])
+              type: 'sum',
+              cards: [singleMatch.idx],
+              targets: [singleMatch.card]
             },
-            score: capture.cards.length * 5
+            score: 2 * 5 // Base + target
           });
         }
       }

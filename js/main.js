@@ -1175,16 +1175,31 @@ function handleBoardDrop(e) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
+  // Case 1: Returning card from combo area to board
   if (state.draggedCard.slot !== undefined) {
     console.log(`🔄 RETURNING CARD: ${state.draggedCard.card.value}${state.draggedCard.card.suit} from ${state.draggedCard.slot} back to board`);
+    
+    // Remove card from combo area
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
-    state.board.push(state.draggedCard.card);
+    
+    // FIXED: Don't add to board if it came FROM board originally
+    if (state.draggedCard.source === 'board') {
+      // Card came from board originally - just put it back at its original index
+      // Don't add duplicate to board
+      console.log(`🔄 BOARD CARD RETURNED: Not adding duplicate, card stays at original position`);
+    } else if (state.draggedCard.source === 'hand') {
+      // Card came from hand originally - add it to board (this is a new placement)
+      state.board.push(state.draggedCard.card);
+      console.log(`🔄 HAND CARD PLACED: Added to board from hand`);
+    }
+    
     state.draggedCard = null;
     render();
-    smartMessages.showSuccessMessage("Card returned to board!");
+    smartMessages.showSuccessMessage("Card returned!");
     return;
   }
 
+  // Case 2: Placing card from hand to end turn
   if (state.draggedCard.source !== 'hand') return;
 
   const handCard = state.draggedCard.card;
