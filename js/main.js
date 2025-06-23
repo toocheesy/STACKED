@@ -227,8 +227,6 @@ class BotModalInterface {
     return success;
   }
 
-  // REPLACE the executeBotSubmit() function in your main.js with this fixed version:
-
 executeBotSubmit() {
   const baseCards = state.combination.base;
   const currentPlayer = state.currentPlayer;
@@ -239,21 +237,12 @@ executeBotSubmit() {
   }
 
   const baseCard = baseCards[0];
-  
-  // FIXED: Proper value calculation for bot validation
-  let baseValue;
-  if (['J', 'Q', 'K'].includes(baseCard.card.value)) {
-    // Face cards can only do pair captures, not sum captures
-    baseValue = baseCard.card.value; // Keep as string for matching
-  } else if (baseCard.card.value === 'A') {
-    baseValue = 1;
-  } else {
-    baseValue = parseInt(baseCard.card.value);
-  }
+  const baseValue = baseCard.card.value; // Keep as string for flexible matching
 
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
 
+  // ALL SLOTS ARE NOW INTERCHANGEABLE - use the same validation for all
   const captureAreas = [
     { name: 'sum1', cards: state.combination.sum1 },
     { name: 'sum2', cards: state.combination.sum2 },
@@ -263,21 +252,13 @@ executeBotSubmit() {
 
   for (const area of captureAreas) {
     if (area.cards.length > 0) {
-      const isSum = area.name.startsWith('sum');
-      
-      // FIXED: Face cards can only do match captures, not sums
-      if (isSum && ['J', 'Q', 'K'].includes(baseCard.card.value)) {
-        console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - Face cards can't do sum captures`);
-        return false;
-      }
-      
-      const result = isSum 
-        ? validateSumCapture(area.cards, baseValue, baseCard)
-        : validateMatchCapture(area.cards, baseValue, baseCard);
+      // SMART VALIDATION: Each area can be either pair OR sum
+      const result = validateCaptureArea(area.cards, baseValue, baseCard, area.name);
 
       if (result.isValid) {
-        validCaptures.push({ name: area.name, cards: area.cards });
+        validCaptures.push({ name: area.name, cards: area.cards, type: result.captureType });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
+        console.log(`✅ BOT ${area.name}: ${result.details}`);
       } else {
         console.log(`🚨 BOT VALIDATION FAILED: ${area.name} - ${result.details}`);
         return false;
@@ -795,96 +776,95 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
   }
 }
 
-// REPLACE your validateSumCapture and validateMatchCapture functions with these:
-
-function validateSumCapture(sumCards, baseValue, baseCard) {
-  const hasHandCard = sumCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
-  const hasBoardCard = sumCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
+function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
+  const hasHandCard = areaCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
+  const hasBoardCard = areaCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
   
   if (!hasHandCard || !hasBoardCard) {
     return { isValid: false, details: "Requires hand + board cards" };
   }
 
-  // FIXED: Face cards cannot be used in sum captures
+  // SMART DETECTION: Try both pair and sum validation
+  const pairResult = validatePairLogic(areaCards, baseCard);
+  const sumResult = validateSumLogic(areaCards, baseCard);
+  
+  // Return whichever one is valid (prefer pair if both work)
+  if (pairResult.isValid) {
+    return { 
+      isValid: true, 
+      details: `PAIR: ${pairResult.details}`,
+      captureType: 'pair'
+    };
+  } else if (sumResult.isValid) {
+    return { 
+      isValid: true, 
+      details: `SUM: ${sumResult.details}`,
+      captureType: 'sum'
+    };
+  } else {
+    return { 
+      isValid: false, 
+      details: `Not valid as pair (${pairResult.details}) or sum (${sumResult.details})`
+    };
+  }
+}
+
+function validatePairLogic(areaCards, baseCard) {
+  // Check if all cards match the base card value
+  const allMatch = areaCards.every(entry => entry.card.value === baseCard.card.value);
+  
+  if (allMatch) {
+    return { 
+      isValid: true, 
+      details: `${areaCards.length + 1} cards matching ${baseCard.card.value}` 
+    };
+  } else {
+    return { 
+      isValid: false, 
+      details: "Cards don't match base card value" 
+    };
+  }
+}
+
+function validateSumLogic(areaCards, baseCard) {
+  // Face cards cannot be used in sum captures
   if (['J', 'Q', 'K'].includes(baseCard.card.value)) {
     return { isValid: false, details: "Face cards can't be used in sum captures" };
   }
 
-  // FIXED: Proper value mapping for sum calculations
-  const sumValues = sumCards.map(entry => {
-    if (['J', 'Q', 'K'].includes(entry.card.value)) {
-      return { isValid: false, details: "Face cards can't be used in sums" };
-    }
-    return entry.card.value === 'A' ? 1 : parseInt(entry.card.value);
-  });
-
-  // Check if any face cards were found in sum cards
-  const faceCardFound = sumValues.find(val => typeof val === 'object');
-  if (faceCardFound) {
-    return faceCardFound;
+  // Check if any area cards are face cards
+  const hasFaceCards = areaCards.some(entry => ['J', 'Q', 'K'].includes(entry.card.value));
+  if (hasFaceCards) {
+    return { isValid: false, details: "Face cards can't be used in sums" };
   }
 
-  const totalSum = sumValues.reduce((a, b) => a + b, 0);
-  const targetValue = baseCard.card.value === 'A' ? 1 : parseInt(baseCard.card.value);
+  // Calculate sum
+  const areaValues = areaCards.map(entry => 
+    entry.card.value === 'A' ? 1 : parseInt(entry.card.value)
+  );
+  const totalSum = areaValues.reduce((a, b) => a + b, 0);
+  const baseNumValue = baseCard.card.value === 'A' ? 1 : parseInt(baseCard.card.value);
 
-  if (totalSum === targetValue) {
+  if (totalSum === baseNumValue) {
     return { 
       isValid: true, 
-      details: `${sumValues.join(' + ')} = ${targetValue}` 
+      details: `${areaValues.join(' + ')} = ${baseNumValue}` 
+    };
+  } else {
+    return { 
+      isValid: false, 
+      details: `${areaValues.join(' + ')} = ${totalSum} ≠ ${baseNumValue}` 
     };
   }
+}
 
-  return { 
-    isValid: false, 
-    details: `${sumValues.join(' + ')} = ${totalSum} ≠ ${targetValue}` 
-  };
+// Keep these wrapper functions for compatibility
+function validateSumCapture(sumCards, baseValue, baseCard) {
+  return validateCaptureArea(sumCards, baseValue, baseCard, 'sum');
 }
 
 function validateMatchCapture(matchCards, baseValue, baseCard) {
-  const hasHandCard = matchCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
-  const hasBoardCard = matchCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
-  
-  if (!hasHandCard || !hasBoardCard) {
-    return { isValid: false, details: "Requires hand + board cards" };
-  }
-
-  // FIXED: Match captures work with exact value matching (including face cards)
-  const allMatch = matchCards.every(entry => entry.card.value === baseCard.card.value);
-  
-  if (allMatch) {
-    return { 
-      isValid: true, 
-      details: `${matchCards.length + 1} cards matching ${baseCard.card.value}` 
-    };
-  }
-
-  return { 
-    isValid: false, 
-    details: "Cards must match Base Card value exactly" 
-  };
-}
-
-function validateMatchCapture(matchCards, baseValue, baseCard) {
-  const hasHandCard = matchCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
-  const hasBoardCard = matchCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
-  
-  if (!hasHandCard || !hasBoardCard) {
-    return { isValid: false, details: "Requires hand + board cards" };
-  }
-
-  const allMatch = matchCards.every(entry => entry.card.value === baseCard.card.value);
-  
-  if (allMatch) {
-    return { 
-      isValid: true, 
-      details: `${matchCards.length + 1} cards matching ${baseCard.card.value}` 
-    };
-  }
-
-  return { 
-    isValid: false, 
-    details: "Cards must match Base Card value" 
-  };
+  return validateCaptureArea(matchCards, baseValue, baseCard, 'match');
 }
 
 function handleDragStart(e, source, index) {
