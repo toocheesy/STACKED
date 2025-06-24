@@ -410,9 +410,7 @@ function showRoundEndModal(jackpotMessage, currentRound) {
     if (nextRoundBtn) {
       nextRoundBtn.addEventListener('click', () => {
         modal.close();
-        currentDealer = (currentDealer + 1) % 3; // ADD THIS LINE
-  try {
-    const newDeck = shuffleDeck(createDeck());
+        currentDealer = (currentDealer + 1) % 3;
         try {
           const newDeck = shuffleDeck(createDeck());
           const dealResult = dealCards(newDeck, 3, 4, 4);
