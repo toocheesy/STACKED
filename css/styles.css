@@ -1,6 +1,6 @@
 /* 
- * Updated styles.css with Scoreboard Modal System
- * Includes original layout, natural scroll, and new modal styles
+ * Updated styles.css with COMBO COMMAND CENTER
+ * Includes original layout, natural scroll, and new modal action buttons
  * Modern card game aesthetic with gold/green scheme, confetti animation
  */
 
@@ -54,7 +54,7 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Combination Area (Draggable Modal) */
+/* Combination Area (Draggable Modal) - ENHANCED COMMAND CENTER */
 .combination-area {
   position: fixed;
   right: 20px;
@@ -65,40 +65,50 @@ h1 {
   justify-content: flex-start;
   gap: 10px;
   width: 348px;
-  min-height: 400px;
+  min-height: 500px;
   z-index: 1000;
-  background-color: rgba(0, 0, 0, 0.95);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 90, 50, 0.95) 100%);
   border: 3px solid #F1C40F;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(241, 196, 15, 0.3);
   cursor: move;
   user-select: none;
+  backdrop-filter: blur(10px);
 }
 
 .modal-title {
   color: #F1C40F;
   font-weight: bold;
-  font-size: 1.1rem;
-  margin-bottom: 10px;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
   text-align: center;
-  border-bottom: 1px solid #F1C40F;
-  padding-bottom: 5px;
+  border-bottom: 2px solid #F1C40F;
+  padding-bottom: 8px;
   width: 100%;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .combo-slot {
   width: 70px;
   min-height: 110px;
-  background-color: rgba(241, 196, 15, 0.1);
-  border: 2px dashed #ccc;
-  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(241, 196, 15, 0.15) 0%, rgba(241, 196, 15, 0.05) 100%);
+  border: 2px dashed rgba(241, 196, 15, 0.6);
+  border-radius: 10px;
   position: relative;
   padding: 5px;
   text-align: center;
   font-size: 0.8rem;
-  color: #333;
+  color: #F1C40F;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.combo-slot:hover {
+  border-color: #F1C40F;
+  background: linear-gradient(145deg, rgba(241, 196, 15, 0.25) 0%, rgba(241, 196, 15, 0.1) 100%);
+  transform: translateY(-2px);
 }
 
 .combo-slot[data-slot="0"]:before {
@@ -111,9 +121,89 @@ h1 {
 
 .combo-slot.valid-combo {
   border-color: #2ecc71;
-  box-shadow: 0 0 15px 5px rgba(46, 204, 113, 0.7);
-  background-color: rgba(46, 204, 113, 0.2);
+  box-shadow: 0 0 20px 8px rgba(46, 204, 113, 0.7), inset 0 2px 4px rgba(46, 204, 113, 0.3);
+  background: linear-gradient(145deg, rgba(46, 204, 113, 0.3) 0%, rgba(46, 204, 113, 0.1) 100%);
   transition: all 0.3s ease;
+  animation: validPulse 2s ease-in-out infinite;
+}
+
+@keyframes validPulse {
+  0%, 100% { box-shadow: 0 0 20px 8px rgba(46, 204, 113, 0.7), inset 0 2px 4px rgba(46, 204, 113, 0.3); }
+  50% { box-shadow: 0 0 30px 12px rgba(46, 204, 113, 0.9), inset 0 2px 4px rgba(46, 204, 113, 0.5); }
+}
+
+/* Modal Action Buttons - COMMAND CENTER STYLE */
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid rgba(241, 196, 15, 0.3);
+}
+
+.modal-btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-btn:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.modal-btn:hover:before {
+  left: 100%;
+}
+
+.modal-btn.primary {
+  background: linear-gradient(135deg, #F1C40F 0%, #D4AC0D 100%);
+  color: #000;
+  border: 2px solid transparent;
+  box-shadow: 0 6px 12px rgba(241, 196, 15, 0.4);
+}
+
+.modal-btn.primary:hover {
+  background: linear-gradient(135deg, #D4AC0D 0%, #B7950B 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(241, 196, 15, 0.6);
+}
+
+.modal-btn.primary:disabled {
+  background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+  color: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.modal-btn.secondary {
+  background: linear-gradient(135deg, rgba(52, 152, 219, 0.9) 0%, rgba(41, 128, 185, 0.9) 100%);
+  color: #fff;
+  border: 2px solid rgba(52, 152, 219, 0.3);
+}
+
+.modal-btn.secondary:hover {
+  background: linear-gradient(135deg, rgba(41, 128, 185, 1) 0%, rgba(30, 120, 180, 1) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
 }
 
 /* Table and Score Displays */
@@ -253,7 +343,7 @@ h1 {
   box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
-/* Actions and Buttons */
+/* Actions and Buttons - SIMPLIFIED FOR QUIT ONLY */
 .actions {
   display: flex;
   justify-content: center;
@@ -289,10 +379,22 @@ button:disabled {
   cursor: not-allowed;
 }
 
-#restart-btn,
-#reset-play-area-btn,
-#hint-btn {
-  margin-top: 10px;
+/* SPECIAL STYLING FOR QUIT BUTTON */
+#restart-btn {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  color: #fff;
+  border: 2px solid rgba(231, 76, 60, 0.3);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+}
+
+#restart-btn:hover {
+  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(231, 76, 60, 0.5);
 }
 
 /* Smart Message */
@@ -407,8 +509,7 @@ dialog h2 {
   margin-bottom: 15px;
 }
 
-/* REPLACE YOUR #scoreboard-modal CSS RULE WITH THIS: */
-
+/* SCOREBOARD MODAL */
 #scoreboard-modal {
   background-color: #229954;
   color: #fff;
@@ -628,12 +729,13 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 260px;
+    width: 280px;
+    min-height: 480px;
   }
 
   .combo-slot {
-    width: 70px;
-    min-height: 110px;
+    width: 65px;
+    min-height: 105px;
   }
 
   .board {
@@ -730,12 +832,13 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 240px;
+    width: 260px;
+    min-height: 460px;
   }
 
   .combo-slot {
     width: 60px;
-    min-height: 110px;
+    min-height: 100px;
   }
   
   .capture-row {
@@ -745,6 +848,11 @@ dialog h2 {
   .sum-area, .match-area {
     min-width: 50px;
     min-height: 100px;
+  }
+
+  .modal-btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
   }
 
   #scoreboard-modal {
@@ -788,12 +896,13 @@ dialog h2 {
   }
 
   .combination-area {
-    width: 220px;
+    width: 240px;
+    min-height: 440px;
   }
 
   .combo-slot {
     width: 50px;
-    min-height: 100px;
+    min-height: 95px;
   }
 
   dialog {
@@ -818,6 +927,11 @@ dialog h2 {
   .sum-area, .match-area {
     min-width: 45px;
     min-height: 90px;
+  }
+
+  .modal-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
   }
 
   #scoreboard-modal {
