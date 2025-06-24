@@ -1546,19 +1546,19 @@ function checkGameEnd() {
           currentRound++; // INCREMENT ROUND COUNTER
           currentDealer = (currentDealer + 1) % 3; // ADD THIS LINE
           try {
-            const newDeck = shuffleDeck(createDeck());
-            const dealResult = dealCards(newDeck, 3, 4, 4);
-            state.hands = dealResult.players;
-            state.board = dealResult.board;
-            state.deck = dealResult.remainingDeck;
-            state.currentPlayer = 0;
-            state.lastCapturer = null;
-            smartMessages.updateMessage('turn_start');
-            render();
-          } catch (e) {
-            console.error('Error dealing new round:', e);
-            if (messageEl) messageEl.textContent = "Error dealing cards! Restart the game.";
-          }
+  const newDeck = shuffleDeck(createDeck());
+  const dealResult = dealCards(newDeck, 3, 4, 4);
+  state.hands = dealResult.players;
+  state.board = dealResult.board;
+  state.deck = dealResult.remainingDeck;
+  state.currentPlayer = 0;
+  state.lastCapturer = null;
+  smartMessages.updateMessage('turn_start');
+  render();
+} catch (e) {
+  console.error('Error dealing new round:', e);
+  smartMessages.showErrorMessage('Error dealing cards! Restart the game.');
+}
         }
       }
     } else {
