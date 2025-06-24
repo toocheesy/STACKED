@@ -11,13 +11,6 @@
   <div class="game-container">
     <h1>Welcome to STACKED! 🎴</h1>
     
-    <!-- Smart Contextual Message -->
-    <div class="smart-message" id="smart-message">
-      Drag cards to build captures or place one on board to end turn • Score 500 to win!
-    </div>
-    <!-- Add this if it's missing (usually near smart-message) -->
-    <div id="message" style="display: none;"></div>
-
     <!-- Settings Modal -->
     <dialog id="settings-modal">
       <div class="modal-content">
@@ -114,8 +107,6 @@
       <div class="scoreboard-buttons" id="scoreboard-buttons"></div>
     </dialog>
 
-    <div class="deck-count" id="deck-count">Deck: 0 cards</div>
-
     <div class="table">
       <!-- Scores -->
       <div class="score player-score" id="player-score">Player: 0 pts</div>
@@ -155,6 +146,14 @@
 
     <!-- Top Right Quit Button -->
     <button id="restart-btn" class="quit-button">✕</button>
+
+    <!-- Bottom Message Area -->
+    <div class="bottom-ui">
+      <div class="smart-message" id="smart-message">
+        Drag cards to build captures or place one on board to end turn • Score 500 to win!
+      </div>
+      <div id="message" style="display: none;"></div>
+    </div>
 
   <script src="js/deck.js"></script>
   <script src="js/gameLogic.js"></script>

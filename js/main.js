@@ -25,6 +25,7 @@ let state = {
 
 let botTurnInProgress = false;
 let currentRound = 1; // Track actual rounds
+let currentDealer = 0; // 0 = Player, 1 = Bot 1, 2 = Bot 2
 
 // Base64-encoded audio files (shortened; use real base64 audio in production)
 const sounds = {
@@ -409,6 +410,9 @@ function showRoundEndModal(jackpotMessage, currentRound) {
     if (nextRoundBtn) {
       nextRoundBtn.addEventListener('click', () => {
         modal.close();
+        currentDealer = (currentDealer + 1) % 3; // ADD THIS LINE
+  try {
+    const newDeck = shuffleDeck(createDeck());
         try {
           const newDeck = shuffleDeck(createDeck());
           const dealResult = dealCards(newDeck, 3, 4, 4);
@@ -1112,6 +1116,34 @@ function renderScores() {
   if (playerScoreEl) playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
   if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
   if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
+
+  // ADD DEALER INDICATOR SYSTEM
+  renderDealerIndicator();
+}
+
+function renderDealerIndicator() {
+  // Remove existing dealer indicators
+  const existingDealer = document.querySelector('.dealer-indicator');
+  if (existingDealer) existingDealer.remove();
+
+  // Create new dealer indicator
+  const dealerEl = document.createElement('div');
+  dealerEl.className = 'dealer-indicator';
+  
+  const dealerNames = ['Player', 'Bot 1', 'Bot 2'];
+  const deckCount = state.deck ? state.deck.length : 0;
+  dealerEl.textContent = `${dealerNames[currentDealer]} Deals • Deck: ${deckCount}`;
+  
+  // Position based on current dealer
+  if (currentDealer === 0) {
+    dealerEl.classList.add('player-dealer');
+  } else if (currentDealer === 1) {
+    dealerEl.classList.add('bot1-dealer');
+  } else {
+    dealerEl.classList.add('bot2-dealer');
+  }
+  
+  document.querySelector('.table').appendChild(dealerEl);
 }
 
 function updateSubmitButton() {
@@ -1512,6 +1544,7 @@ function checkGameEnd() {
         } else {
           // Deal new round without modal
           currentRound++; // INCREMENT ROUND COUNTER
+          currentDealer = (currentDealer + 1) % 3; // ADD THIS LINE
           try {
             const newDeck = shuffleDeck(createDeck());
             const dealResult = dealCards(newDeck, 3, 4, 4);
