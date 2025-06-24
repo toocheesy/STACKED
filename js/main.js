@@ -515,7 +515,7 @@ function initGame() {
     return hand;
   });
   state.scores = { player: 0, bot1: 0, bot2: 0 };
-  state.currentPlayer = 0;
+  state.currentPlayer = (currentDealer + 1) % 3;
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
@@ -1549,7 +1549,7 @@ function checkGameEnd() {
   state.hands = dealResult.players;
   state.board = dealResult.board;
   state.deck = dealResult.remainingDeck;
-  state.currentPlayer = 0;
+  state.currentPlayer = (currentDealer + 1) % 3;
   state.lastCapturer = null;
   smartMessages.updateMessage('turn_start');
   render();

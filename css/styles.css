@@ -277,10 +277,10 @@ h1 {
   to { box-shadow: 0 5px 12px rgba(241, 196, 15, 0.8); }
 }
 
-/* Board - PERFECTLY CENTERED WITH UPWARD EXPANSION */
+/* Board - MOVED HIGHER UP THE SCREEN */
 .board {
   position: absolute;
-  top: 50%;
+  top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
