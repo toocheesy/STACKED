@@ -246,10 +246,10 @@ h1 {
   right: 15px;
 }
 
-/* Board */
+/* Board - PERFECTLY CENTERED WITH UPWARD EXPANSION */
 .board {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
@@ -262,6 +262,9 @@ h1 {
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
   box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+  /* CRITICAL: Make board expand upward from center */
+  justify-items: center;
+  align-content: center;
 }
 
 /* Hands */

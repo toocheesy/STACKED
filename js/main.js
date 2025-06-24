@@ -604,28 +604,30 @@ function render() {
   }
 
   const tableEl = document.querySelector('.table');
-  if (tableEl) {
-    const cardCount = state.board ? state.board.length : 0;
-    const baseWidth = 800;
-    const baseHeight = 600;
-    const cardWidth = 80;
-    const cardHeight = 110;
-    
-    const cardsPerRow = Math.min(8, Math.max(4, cardCount));
-    const rows = Math.ceil(cardCount / cardsPerRow);
-    
-    const tableWidth = Math.max(baseWidth, (cardsPerRow * cardWidth) + 100);
-    const tableHeight = Math.max(baseHeight, baseHeight + ((rows - 1) * 60));
-    
-    tableEl.style.width = `${tableWidth}px`;
-    tableEl.style.height = `${tableHeight}px`;
-    
-    const botOffset = -20 - (cardCount > 8 ? (cardCount - 8) * 5 : 0);
-    const bot1HandEl = document.querySelector('.bot1-hand');
-    const bot2HandEl = document.querySelector('.bot2-hand');
-    if (bot1HandEl) bot1HandEl.style.left = `${botOffset}px`;
-    if (bot2HandEl) bot2HandEl.style.right = `${botOffset}px`;
+if (tableEl) {
+  const cardCount = state.board ? state.board.length : 0;
+  
+  // Keep table size consistent - don't expand it
+  tableEl.style.width = '100%';
+  tableEl.style.height = 'auto';
+  
+  // Adjust board position based on card count to expand upward
+  const boardEl = document.getElementById('board');
+  if (boardEl && cardCount > 8) {
+    const rows = Math.ceil(cardCount / 4);
+    const extraRows = rows - 2; // Base is 2 rows (8 cards)
+    const upwardShift = extraRows * 60; // Move up by 60px per extra row
+    boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
+  } else if (boardEl) {
+    boardEl.style.transform = 'translate(-50%, -50%)'; // Reset to center
   }
+  
+  // Keep bot positions stable
+  const bot1HandEl = document.querySelector('.bot1-hand');
+  const bot2HandEl = document.querySelector('.bot2-hand');
+  if (bot1HandEl) bot1HandEl.style.left = '-20px';
+  if (bot2HandEl) bot2HandEl.style.right = '-20px';
+}
 
   const comboAreaEl = document.getElementById('combination-area');
   let captureTypeMessage = "No cards in play areas.";
