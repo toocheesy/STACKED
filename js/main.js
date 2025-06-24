@@ -24,6 +24,7 @@ let state = {
 };
 
 let botTurnInProgress = false;
+let currentRound = 1; // Track actual rounds
 
 // Base64-encoded audio files (shortened; use real base64 audio in production)
 const sounds = {
@@ -520,6 +521,7 @@ function initGame() {
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
+  currentRound = 1; // Reset round counter when starting new game
   
   // FORCE CLOSE ANY OPEN MODALS
   const scoreboardModal = document.getElementById('scoreboard-modal');
@@ -1285,7 +1287,10 @@ function handleSubmit() {
   playSound('capture');
 }
 
+// REPLACE your executeCapture function with this FIXED version:
+
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
+  // CRITICAL FIX: Sort board indices in descending order to remove from end first
   const boardIndicesToRemove = new Set();
   if (baseCard.source === 'board') {
     boardIndicesToRemove.add(baseCard.index);
@@ -1299,8 +1304,14 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
     });
   });
 
-  state.board = state.board.filter((_, i) => !boardIndicesToRemove.has(i));
+  // FIXED: Remove board cards from highest index to lowest to prevent index shifting
+  const sortedBoardIndices = Array.from(boardIndicesToRemove).sort((a, b) => b - a);
+  sortedBoardIndices.forEach(index => {
+    console.log(`🗑️ REMOVING BOARD CARD AT INDEX ${index}: ${state.board[index]?.value}${state.board[index]?.suit}`);
+    state.board.splice(index, 1);
+  });
 
+  // Handle hand cards (same as before)
   const handIndicesToRemove = new Set();
   if (baseCard.source === 'hand') {
     handIndicesToRemove.add(baseCard.index);
@@ -1314,19 +1325,22 @@ function executeCapture(baseCard, validCaptures, allCapturedCards) {
     });
   });
 
-  Array.from(handIndicesToRemove).forEach(index => {
-    if (state.hands[0][index]) {
-      state.hands[0][index] = null;
-    }
+  // FIXED: Remove hand cards from highest index to lowest
+  const sortedHandIndices = Array.from(handIndicesToRemove).sort((a, b) => b - a);
+  sortedHandIndices.forEach(index => {
+    console.log(`🗑️ REMOVING HAND CARD AT INDEX ${index}: ${state.hands[0][index]?.value}${state.hands[0][index]?.suit}`);
+    state.hands[0].splice(index, 1);
   });
-  state.hands[0] = state.hands[0].filter(card => card !== null);
 
+  // Update score
   const scoreFunction = window.scoreCards || function(cards) { 
     return cards.length * 5;
   };
   state.scores.player += scoreFunction(allCapturedCards);
 
   console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
+  
+  // Show success message
   const points = scoreFunction(allCapturedCards);
   smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
 }
@@ -1444,6 +1458,7 @@ async function aiTurn() {
 }
 
 /* SECTION: Updated Game End Logic with Scoreboard Modal */
+// REPLACE your checkGameEnd function with this FIXED version:
 function checkGameEnd() {
   const playersWithCards = state.hands.filter(hand => hand.length > 0).length;
   const messageEl = document.getElementById('message');
@@ -1479,15 +1494,16 @@ function checkGameEnd() {
       const maxScore = Math.max(state.scores.player, state.scores.bot1, state.scores.bot2);
       if (maxScore >= state.settings.targetScore) {
         const winner = rankPlayers()[0];
-        showGameOverModal(jackpotMessage, Math.floor((52 - state.deck.length) / 12) + 1);
+        showGameOverModal(jackpotMessage, currentRound); // Use actual round counter
         smartMessages.updateMessage(winner.name === 'Player' ? 'game_over_player' : 'game_over_bot');
         playSound('winner');
       } else {
-        // Show round end modal only if there was a jackpot
+        // Show round end modal with jackpot (if any)
         if (jackpotMessage) {
-          showRoundEndModal(jackpotMessage, Math.floor((52 - state.deck.length) / 12) + 1);
+          showRoundEndModal(jackpotMessage, currentRound); // Use actual round counter
         } else {
           // Deal new round without modal
+          currentRound++; // INCREMENT ROUND COUNTER
           try {
             const newDeck = shuffleDeck(createDeck());
             const dealResult = dealCards(newDeck, 3, 4, 4);
@@ -1505,7 +1521,7 @@ function checkGameEnd() {
         }
       }
     } else {
-      // Deal new round using existing dealCards function
+      // Deal new round using existing dealCards function (same round continues)
       try {
         const dealResult = dealCards(state.deck, 3, 4, 0);
         state.hands = dealResult.players;
