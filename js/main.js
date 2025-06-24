@@ -228,6 +228,8 @@ class BotModalInterface {
     return success;
   }
 
+// REPLACE your executeBotSubmit function with this CLEANED version:
+
 executeBotSubmit() {
   const baseCards = state.combination.base;
   const currentPlayer = state.currentPlayer;
@@ -274,22 +276,16 @@ executeBotSubmit() {
 
   console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
+  // FIXED: Use the new executeCapture function that handles scoring
   executeCapture(baseCard, validCaptures, allCapturedCards);
   state.lastCapturer = currentPlayer;
 
-  const scoreFunction = window.scoreCards || function(cards) { return cards.length * 5; };
-  const points = scoreFunction(allCapturedCards);
+  // REMOVED: Duplicate scoring code (now handled in executeCapture)
 
-  if (currentPlayer === 1) {
-    state.scores.bot1 += points;
-    console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
-  } else if (currentPlayer === 2) {
-    state.scores.bot2 += points;
-    console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
-  }
-
+  // Reset combination state
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
+  // Handle turn continuation
   if (state.hands[currentPlayer].length > 0) {
     console.log(`🤖 BOT ${currentPlayer}: Can continue, staying current player`);
   } else {
@@ -1289,60 +1285,70 @@ function handleSubmit() {
 
 // REPLACE your executeCapture function with this FIXED version:
 
+// REPLACE your executeCapture function with this COMPLETELY FIXED version:
+
 function executeCapture(baseCard, validCaptures, allCapturedCards) {
-  // CRITICAL FIX: Sort board indices in descending order to remove from end first
-  const boardIndicesToRemove = new Set();
+  console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit} from ${baseCard.source}[${baseCard.index}]`);
+  
+  // FIXED: Track which actual cards we're removing by ID, not index
+  const cardsToRemove = {
+    board: [],
+    hand: []
+  };
+  
+  // Collect base card
   if (baseCard.source === 'board') {
-    boardIndicesToRemove.add(baseCard.index);
+    cardsToRemove.board.push(baseCard.card.id);
+  } else if (baseCard.source === 'hand') {
+    cardsToRemove.hand.push(baseCard.card.id);
   }
   
+  // Collect all capture area cards
   validCaptures.forEach(capture => {
     capture.cards.forEach(entry => {
       if (entry.source === 'board') {
-        boardIndicesToRemove.add(entry.index);
+        cardsToRemove.board.push(entry.card.id);
+      } else if (entry.source === 'hand') {
+        cardsToRemove.hand.push(entry.card.id);
       }
     });
   });
 
-  // FIXED: Remove board cards from highest index to lowest to prevent index shifting
-  const sortedBoardIndices = Array.from(boardIndicesToRemove).sort((a, b) => b - a);
-  sortedBoardIndices.forEach(index => {
-    console.log(`🗑️ REMOVING BOARD CARD AT INDEX ${index}: ${state.board[index]?.value}${state.board[index]?.suit}`);
-    state.board.splice(index, 1);
-  });
+  console.log(`🗑️ REMOVING BOARD CARDS:`, cardsToRemove.board);
+  console.log(`🗑️ REMOVING HAND CARDS:`, cardsToRemove.hand);
 
-  // Handle hand cards (same as before)
-  const handIndicesToRemove = new Set();
-  if (baseCard.source === 'hand') {
-    handIndicesToRemove.add(baseCard.index);
+  // FIXED: Remove board cards by ID, not index
+  state.board = state.board.filter(card => !cardsToRemove.board.includes(card.id));
+
+  // FIXED: Remove hand cards by ID for current player
+  const currentPlayer = state.currentPlayer;
+  if (currentPlayer === 0) {
+    // Player capture
+    state.hands[0] = state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
+  } else {
+    // Bot capture - remove from correct bot hand
+    state.hands[currentPlayer] = state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
   }
-  
-  validCaptures.forEach(capture => {
-    capture.cards.forEach(entry => {
-      if (entry.source === 'hand') {
-        handIndicesToRemove.add(entry.index);
-      }
-    });
-  });
 
-  // FIXED: Remove hand cards from highest index to lowest
-  const sortedHandIndices = Array.from(handIndicesToRemove).sort((a, b) => b - a);
-  sortedHandIndices.forEach(index => {
-    console.log(`🗑️ REMOVING HAND CARD AT INDEX ${index}: ${state.hands[0][index]?.value}${state.hands[0][index]?.suit}`);
-    state.hands[0].splice(index, 1);
-  });
-
-  // Update score
+  // Update score for correct player
   const scoreFunction = window.scoreCards || function(cards) { 
     return cards.length * 5;
   };
-  state.scores.player += scoreFunction(allCapturedCards);
-
-  console.log(`🎯 CAPTURED: ${allCapturedCards.length} cards, ${scoreFunction(allCapturedCards)} points`);
-  
-  // Show success message
   const points = scoreFunction(allCapturedCards);
-  smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
+
+  if (currentPlayer === 0) {
+    state.scores.player += points;
+    console.log(`🎯 PLAYER SCORED: +${points} pts (Total: ${state.scores.player})`);
+    smartMessages.showSuccessMessage(`Captured ${allCapturedCards.length} cards (+${points} pts)!`);
+  } else if (currentPlayer === 1) {
+    state.scores.bot1 += points;
+    console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${state.scores.bot1})`);
+  } else if (currentPlayer === 2) {
+    state.scores.bot2 += points;
+    console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${state.scores.bot2})`);
+  }
+
+  console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
 }
 
 async function scheduleNextBotTurn() {
