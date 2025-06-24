@@ -343,18 +343,9 @@ h1 {
   box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
 }
 
-/* Actions and Buttons - SIMPLIFIED FOR QUIT ONLY */
+/* Actions - REMOVED SINCE QUIT MOVED TO TOP RIGHT */
 .actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 0;
-  flex-shrink: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 15px;
-  margin-top: 5px;
+  display: none;
 }
 
 button {
@@ -379,22 +370,40 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* SPECIAL STYLING FOR QUIT BUTTON */
-#restart-btn {
-  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+/* TOP RIGHT QUIT BUTTON - SLEEK EXIT BUTTON */
+.quit-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.9) 100%);
   color: #fff;
   border: 2px solid rgba(231, 76, 60, 0.3);
-  padding: 12px 24px;
-  font-size: 1.1rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  margin: 0;
+  padding: 0;
 }
 
-#restart-btn:hover {
-  background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(231, 76, 60, 0.5);
+.quit-button:hover {
+  background: linear-gradient(135deg, rgba(192, 57, 43, 1) 0%, rgba(169, 50, 38, 1) 100%);
+  transform: scale(1.1) rotate(90deg);
+  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.6);
+  border-color: rgba(231, 76, 60, 0.6);
+}
+
+.quit-button:active {
+  transform: scale(0.95) rotate(90deg);
 }
 
 /* Smart Message */
