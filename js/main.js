@@ -607,24 +607,68 @@ function render() {
   }
 
   const tableEl = document.querySelector('.table');
-if (tableEl) {
-  const cardCount = state.board ? state.board.length : 0;
-  
-  // Keep table size consistent - don't expand it
-  tableEl.style.width = '100%';
-  tableEl.style.height = 'auto';
-  
-  // Adjust board position based on card count to expand upward
-  const boardEl = document.getElementById('board');
-  if (boardEl && cardCount > 8) {
-    const rows = Math.ceil(cardCount / 4);
-    const extraRows = rows - 2; // Base is 2 rows (8 cards)
-    const upwardShift = extraRows * 60; // Move up by 60px per extra row
-    boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
-  } else if (boardEl) {
-    boardEl.style.transform = 'translate(-50%, -50%)'; // Reset to center
+  if (tableEl) {
+    const cardCount = state.board ? state.board.length : 0;
+    
+    // 🚨 REMOVE THIS DYNAMIC SIZING CODE:
+    // Keep table size consistent - don't expand it
+    tableEl.style.width = '100%';
+    tableEl.style.height = 'auto';
+    
+    // Adjust board position based on card count to expand upward
+    const boardEl = document.getElementById('board');
+    if (boardEl && cardCount > 8) {
+      const rows = Math.ceil(cardCount / 4);
+      const extraRows = rows - 2; // Base is 2 rows (8 cards)
+      const upwardShift = extraRows * 60; // Move up by 60px per extra row
+      boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
+    } else if (boardEl) {
+      boardEl.style.transform = 'translate(-50%, -50%)'; // Reset to center
+    }
   }
-}
+  
+  // 🎯 REPLACE WITH THIS FIXED VERSION:
+  
+  const tableEl = document.querySelector('.table');
+  if (tableEl) {
+    const cardCount = state.board ? state.board.length : 0;
+    
+    // ✅ FIXED: Keep table size absolutely consistent
+    tableEl.style.width = '800px !important';
+    tableEl.style.maxWidth = '800px !important';
+    tableEl.style.height = 'auto';
+    
+    // ✅ FIXED: Board positioning without affecting bot hands
+    const boardEl = document.getElementById('board');
+    if (boardEl && cardCount > 8) {
+      const rows = Math.ceil(cardCount / 4);
+      const extraRows = rows - 2;
+      const upwardShift = extraRows * 60;
+      boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
+    } else if (boardEl) {
+      boardEl.style.transform = 'translate(-50%, -50%)';
+    }
+    
+    // 🎯 FORCE FIXED BOT HAND POSITIONS
+    const bot1Hand = document.getElementById('bot1-hand');
+    const bot2Hand = document.getElementById('bot2-hand');
+    
+    if (bot1Hand) {
+      bot1Hand.style.position = 'absolute !important';
+      bot1Hand.style.top = '50% !important';
+      bot1Hand.style.left = '-20px !important';
+      bot1Hand.style.transform = 'translateY(-50%) rotate(90deg) !important';
+      bot1Hand.style.transformOrigin = 'center !important';
+    }
+    
+    if (bot2Hand) {
+      bot2Hand.style.position = 'absolute !important';
+      bot2Hand.style.top = '50% !important';
+      bot2Hand.style.right = '-20px !important';
+      bot2Hand.style.transform = 'translateY(-50%) rotate(-90deg) !important';
+      bot2Hand.style.transformOrigin = 'center !important';
+    }
+  }
 
   const comboAreaEl = document.getElementById('combination-area');
   let captureTypeMessage = "No cards in play areas.";
