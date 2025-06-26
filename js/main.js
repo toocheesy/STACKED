@@ -794,6 +794,7 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.style.height = '110px';
     areaEl.textContent = placeholderText;
   }
+}
 
 function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
   const hasHandCard = areaCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
@@ -844,7 +845,7 @@ function validatePairLogic(areaCards, baseCard) {
     };
   }
 }
-}
+
 
 function validateSumLogic(areaCards, baseCard) {
   // Face cards cannot be used in sum captures
