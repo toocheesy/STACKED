@@ -786,7 +786,7 @@ if (tableEl) {
   } else if (state.currentPlayer === 0) {
     smartMessages.updateMessage('turn_start');
   }
-}
+
 
 function renderArea(areaEl, cards, slotName, placeholderText) {
   areaEl.innerHTML = '';
