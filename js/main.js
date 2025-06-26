@@ -606,48 +606,48 @@ function render() {
     deckCountEl.textContent = `Deck: ${state.deck.length || 0} cards`;
   }
 
-  const tableEl = document.querySelector('.table');
-  if (tableEl) {
-    const cardCount = state.board ? state.board.length : 0;
-    
-    // 🚨 REMOVE THIS DYNAMIC SIZING CODE:
-    // Keep table size consistent - don't expand it
-    tableEl.style.width = '100%';
-    tableEl.style.height = 'auto';
-    
-    // Adjust board position based on card count to expand upward
-    const boardEl = document.getElementById('board');
-    if (boardEl && cardCount > 8) {
-      const rows = Math.ceil(cardCount / 4);
-      const extraRows = rows - 2; // Base is 2 rows (8 cards)
-      const upwardShift = extraRows * 60; // Move up by 60px per extra row
-      boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
-    } else if (boardEl) {
-      boardEl.style.transform = 'translate(-50%, -50%)'; // Reset to center
-    }
+  // 🎯 REPLACE YOUR EXISTING tableEl SECTION WITH THIS:
+
+const tableEl = document.querySelector('.table');
+if (tableEl) {
+  const cardCount = state.board ? state.board.length : 0;
+  
+  // ✅ FIXED: Keep table size absolutely consistent
+  tableEl.style.width = '800px';
+  tableEl.style.maxWidth = '800px';
+  tableEl.style.height = 'auto';
+  
+  // ✅ FIXED: Board positioning without affecting bot hands
+  const boardEl = document.getElementById('board');
+  if (boardEl && cardCount > 8) {
+    const rows = Math.ceil(cardCount / 4);
+    const extraRows = rows - 2;
+    const upwardShift = extraRows * 60;
+    boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
+  } else if (boardEl) {
+    boardEl.style.transform = 'translate(-50%, -50%)';
   }
   
-  // 🎯 REPLACE WITH THIS FIXED VERSION:
+  // 🎯 FORCE FIXED BOT HAND POSITIONS WITH !IMPORTANT VIA JAVASCRIPT
+  const bot1Hand = document.getElementById('bot1-hand');
+  const bot2Hand = document.getElementById('bot2-hand');
   
-  const tableEl = document.querySelector('.table');
-  if (tableEl) {
-    const cardCount = state.board ? state.board.length : 0;
-    
-    // ✅ FIXED: Keep table size absolutely consistent
-    tableEl.style.width = '800px !important';
-    tableEl.style.maxWidth = '800px !important';
-    tableEl.style.height = 'auto';
-    
-    // ✅ FIXED: Board positioning without affecting bot hands
-    const boardEl = document.getElementById('board');
-    if (boardEl && cardCount > 8) {
-      const rows = Math.ceil(cardCount / 4);
-      const extraRows = rows - 2;
-      const upwardShift = extraRows * 60;
-      boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
-    } else if (boardEl) {
-      boardEl.style.transform = 'translate(-50%, -50%)';
-    }
+  if (bot1Hand) {
+    bot1Hand.style.setProperty('position', 'absolute', 'important');
+    bot1Hand.style.setProperty('top', '50%', 'important');
+    bot1Hand.style.setProperty('left', '-20px', 'important');
+    bot1Hand.style.setProperty('transform', 'translateY(-50%) rotate(90deg)', 'important');
+    bot1Hand.style.setProperty('transform-origin', 'center', 'important');
+  }
+  
+  if (bot2Hand) {
+    bot2Hand.style.setProperty('position', 'absolute', 'important');
+    bot2Hand.style.setProperty('top', '50%', 'important');
+    bot2Hand.style.setProperty('right', '-20px', 'important');
+    bot2Hand.style.setProperty('transform', 'translateY(-50%) rotate(-90deg)', 'important');
+    bot2Hand.style.setProperty('transform-origin', 'center', 'important');
+  }
+}
     
     // 🎯 FORCE FIXED BOT HAND POSITIONS
     const bot1Hand = document.getElementById('bot1-hand');
