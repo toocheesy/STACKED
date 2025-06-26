@@ -828,7 +828,7 @@ function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
       details: `Not valid as pair (${pairResult.details}) or sum (${sumResult.details})`
     };
   }
-
+}
 
 function validatePairLogic(areaCards, baseCard) {
   // Check if all cards match the base card value
@@ -878,7 +878,6 @@ function validateSumLogic(areaCards, baseCard) {
       details: `${areaValues.join(' + ')} = ${totalSum} ≠ ${baseNumValue}` 
     };
   }
-}
 }
 
 // Keep these wrapper functions for compatibility
