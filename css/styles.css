@@ -328,22 +328,22 @@ h1 {
   transform-origin: center;
 }
 
-/* Cards - BACK TO NORMAL SIZE */
+/* Cards - BACK TO SMALLER SIZE */
 .card {
-  width: 70px; /* BACK TO NORMAL from 50px */
-  height: 100px; /* BACK TO NORMAL from 75px */
+  width: 50px; /* BACK TO SMALLER */
+  height: 75px; /* BACK TO SMALLER */
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 8px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 5px; /* BACK TO NORMAL from 3px */
+  padding: 3px; /* BACK TO SMALLER */
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.5s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  font-size: 1rem; /* BACK TO NORMAL from 0.75rem */
+  font-size: 0.75rem; /* BACK TO SMALLER */
   text-align: left;
   line-height: 1;
   color: #000;
@@ -1017,15 +1017,15 @@ dialog h2 {
   }
 }
 
-/* 5-Area Layout Additions */
+/* 5-Area Layout Additions - SMALLER BASE AREA */
 .capture-row {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 6px; /* SMALLER from 10px */
+  margin-top: 8px; /* SMALLER from 10px */
   justify-content: center;
 }
 
 .base-area {
-  width: 70px;
-  margin-bottom: 15px;
+  width: 50px; /* MATCHES SMALL CARDS */
+  margin-bottom: 10px; /* SMALLER from 15px */
 }
