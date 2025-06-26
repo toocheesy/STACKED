@@ -795,6 +795,7 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.textContent = placeholderText;
   }
 }
+}
 
 function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
   const hasHandCard = areaCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
@@ -827,7 +828,7 @@ function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
       details: `Not valid as pair (${pairResult.details}) or sum (${sumResult.details})`
     };
   }
-}
+
 
 function validatePairLogic(areaCards, baseCard) {
   // Check if all cards match the base card value
