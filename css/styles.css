@@ -126,22 +126,22 @@ h1 {
   50% { box-shadow: 0 0 30px 12px rgba(46, 204, 113, 0.9), inset 0 2px 4px rgba(46, 204, 113, 0.5); }
 }
 
-/* Modal Action Buttons - COMMAND CENTER STYLE */
+/* Modal Action Buttons - SMALLER TO FIT COMPACT MODAL */
 .modal-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px; /* SMALLER from 12px */
   width: 100%;
-  margin-top: 20px;
-  padding-top: 15px;
+  margin-top: 15px; /* SMALLER from 20px */
+  padding-top: 10px; /* SMALLER from 15px */
   border-top: 2px solid rgba(241, 196, 15, 0.3);
 }
 
 .modal-btn {
-  padding: 12px 20px;
+  padding: 8px 16px; /* SMALLER from 12px 20px */
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 6px; /* SMALLER from 8px */
+  font-size: 0.9rem; /* SMALLER from 1rem */
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -149,7 +149,7 @@ h1 {
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3); /* SMALLER from 0 4px 8px */
 }
 
 .modal-btn:before {
@@ -299,7 +299,7 @@ h1 {
   align-content: center;
 }
 
-/* Hands - FIXED POSITIONS CORRECTED */
+/* Hands - ABSOLUTELY FIXED POSITIONS */
 .hand {
   position: absolute;
   display: flex;
@@ -316,34 +316,34 @@ h1 {
 
 .bot1-hand {
   top: 50%;
-  left: -25px; /* MOVED BACK IN from -15px */
+  left: -20px !important; /* FORCE FIXED POSITION */
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
-  right: -25px; /* MOVED BACK IN from -15px */
+  right: -20px !important; /* FORCE FIXED POSITION */
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
 
-/* Cards - EVEN SMALLER TO FIT NARROW BOARD */
+/* Cards - BACK TO NORMAL SIZE */
 .card {
-  width: 50px; /* EVEN SMALLER from 60px */
-  height: 75px; /* EVEN SMALLER from 90px */
+  width: 70px; /* BACK TO NORMAL from 50px */
+  height: 100px; /* BACK TO NORMAL from 75px */
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 8px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 3px; /* EVEN SMALLER from 4px */
+  padding: 5px; /* BACK TO NORMAL from 3px */
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.5s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  font-size: 0.75rem; /* EVEN SMALLER from 0.85rem */
+  font-size: 1rem; /* BACK TO NORMAL from 0.75rem */
   text-align: left;
   line-height: 1;
   color: #000;
