@@ -277,7 +277,7 @@ h1 {
   to { box-shadow: 0 5px 12px rgba(241, 196, 15, 0.8); }
 }
 
-/* Board - MOVED HIGHER UP THE SCREEN */
+/* Board - NARROWER AND MOVED UP */
 .board {
   position: absolute;
   top: 35%;
@@ -286,14 +286,13 @@ h1 {
   display: grid;
   grid-template-columns: repeat(4, 70px);
   grid-auto-rows: 110px;
-  gap: 10px;
-  max-width: 368px;
-  padding: 15px;
+  gap: 8px; /* Reduced from 10px */
+  max-width: 320px; /* Reduced from 368px */
+  padding: 12px; /* Reduced from 15px */
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
   box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
-  /* CRITICAL: Make board expand upward from center */
   justify-items: center;
   align-content: center;
 }

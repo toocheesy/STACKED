@@ -515,11 +515,12 @@ function initGame() {
     return hand;
   });
   state.scores = { player: 0, bot1: 0, bot2: 0 };
-  state.currentPlayer = (currentDealer + 1) % 3;
+  state.currentPlayer = 0;
   state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   state.draggedCard = null;
   state.selectedCard = null;
   currentRound = 1; // Reset round counter when starting new game
+currentDealer = Math.floor(Math.random() * 3); // Random first dealer (0=Player, 1=Bot1, 2=Bot2)
   
   // FORCE CLOSE ANY OPEN MODALS
   const scoreboardModal = document.getElementById('scoreboard-modal');
@@ -1431,7 +1432,7 @@ async function aiTurn() {
   
   if (state.hands[playerIndex].length === 0) {
     state.currentPlayer = (playerIndex + 1) % 3;
-    checkGameEnd();
+    state.currentPlayer = 0; // REVERT TO ALWAYS START WITH PLAYER;
     render();
     if (state.currentPlayer !== 0 && state.hands[state.currentPlayer].length > 0) {
       setTimeout(async () => await scheduleNextBotTurn(), 100);
@@ -1549,7 +1550,7 @@ function checkGameEnd() {
   state.hands = dealResult.players;
   state.board = dealResult.board;
   state.deck = dealResult.remainingDeck;
-  state.currentPlayer = (currentDealer + 1) % 3;
+  state.currentPlayer = 0;
   state.lastCapturer = null;
   smartMessages.updateMessage('turn_start');
   render();
