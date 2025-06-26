@@ -279,18 +279,18 @@ h1 {
   to { box-shadow: 0 5px 12px rgba(241, 196, 15, 0.8); }
 }
 
-/* Board - MUCH NARROWER TO PREVENT BOT DISPLACEMENT */
+/* Board - MOVED HIGHER TO AVOID BOTTOM BORDER */
 .board {
   position: absolute;
-  top: 35%;
+  top: 25%; /* MOVED UP from 35% */
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 50px); /* EVEN SMALLER from 60px */
-  grid-auto-rows: 75px; /* EVEN SMALLER from 90px */
-  gap: 4px; /* EVEN SMALLER from 5px */
-  max-width: 220px; /* EVEN SMALLER from 260px */
-  padding: 6px; /* EVEN SMALLER from 8px */
+  grid-template-columns: repeat(4, 50px);
+  grid-auto-rows: 75px;
+  gap: 4px;
+  max-width: 220px;
+  padding: 6px;
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
