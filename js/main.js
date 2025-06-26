@@ -648,27 +648,6 @@ if (tableEl) {
     bot2Hand.style.setProperty('transform-origin', 'center', 'important');
   }
 }
-    
-    // 🎯 FORCE FIXED BOT HAND POSITIONS
-    const bot1Hand = document.getElementById('bot1-hand');
-    const bot2Hand = document.getElementById('bot2-hand');
-    
-    if (bot1Hand) {
-      bot1Hand.style.position = 'absolute !important';
-      bot1Hand.style.top = '50% !important';
-      bot1Hand.style.left = '-20px !important';
-      bot1Hand.style.transform = 'translateY(-50%) rotate(90deg) !important';
-      bot1Hand.style.transformOrigin = 'center !important';
-    }
-    
-    if (bot2Hand) {
-      bot2Hand.style.position = 'absolute !important';
-      bot2Hand.style.top = '50% !important';
-      bot2Hand.style.right = '-20px !important';
-      bot2Hand.style.transform = 'translateY(-50%) rotate(-90deg) !important';
-      bot2Hand.style.transformOrigin = 'center !important';
-    }
-  }
 
   const comboAreaEl = document.getElementById('combination-area');
   let captureTypeMessage = "No cards in play areas.";
@@ -865,6 +844,7 @@ function validatePairLogic(areaCards, baseCard) {
       details: "Cards don't match base card value" 
     };
   }
+}
 }
 
 function validateSumLogic(areaCards, baseCard) {
