@@ -283,11 +283,11 @@ h1 {
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 60px); /* MUCH SMALLER from 70px */
-  grid-auto-rows: 90px; /* MUCH SMALLER from 110px */
-  gap: 5px; /* MUCH SMALLER from 10px */
-  max-width: 260px; /* MUCH SMALLER from 368px */
-  padding: 8px; /* MUCH SMALLER from 15px */
+  grid-template-columns: repeat(4, 50px); /* EVEN SMALLER from 60px */
+  grid-auto-rows: 75px; /* EVEN SMALLER from 90px */
+  gap: 4px; /* EVEN SMALLER from 5px */
+  max-width: 220px; /* EVEN SMALLER from 260px */
+  padding: 6px; /* EVEN SMALLER from 8px */
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
@@ -296,7 +296,7 @@ h1 {
   align-content: center;
 }
 
-/* Hands - FIXED POSITIONS */
+/* Hands - FIXED POSITIONS CORRECTED */
 .hand {
   position: absolute;
   display: flex;
@@ -313,34 +313,34 @@ h1 {
 
 .bot1-hand {
   top: 50%;
-  left: -15px; /* FIXED POSITION - won't move */
+  left: -25px; /* MOVED BACK IN from -15px */
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
-  right: -15px; /* FIXED POSITION - won't move */
+  right: -25px; /* MOVED BACK IN from -15px */
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
 
-/* Cards - SMALLER TO FIT NARROW BOARD */
+/* Cards - EVEN SMALLER TO FIT NARROW BOARD */
 .card {
-  width: 60px; /* SMALLER from 70px */
-  height: 90px; /* SMALLER from 100px */
+  width: 50px; /* EVEN SMALLER from 60px */
+  height: 75px; /* EVEN SMALLER from 90px */
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 8px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 4px; /* SMALLER from 5px */
+  padding: 3px; /* EVEN SMALLER from 4px */
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.5s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  font-size: 0.85rem; /* SMALLER from 1rem */
+  font-size: 0.75rem; /* EVEN SMALLER from 0.85rem */
   text-align: left;
   line-height: 1;
   color: #000;
