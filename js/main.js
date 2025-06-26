@@ -877,6 +877,7 @@ function validateSumLogic(areaCards, baseCard) {
     };
   }
 }
+}
 
 // Keep these wrapper functions for compatibility
 function validateSumCapture(sumCards, baseValue, baseCard) {
@@ -885,7 +886,6 @@ function validateSumCapture(sumCards, baseValue, baseCard) {
 
 function validateMatchCapture(matchCards, baseValue, baseCard) {
   return validateCaptureArea(matchCards, baseValue, baseCard, 'match');
-}
 }
 
 function handleDragStart(e, source, index) {
