@@ -794,7 +794,6 @@ function renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.style.height = '110px';
     areaEl.textContent = placeholderText;
   }
-}
 
 function validateCaptureArea(areaCards, baseValue, baseCard, areaName) {
   const hasHandCard = areaCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
@@ -886,6 +885,7 @@ function validateSumCapture(sumCards, baseValue, baseCard) {
 
 function validateMatchCapture(matchCards, baseValue, baseCard) {
   return validateCaptureArea(matchCards, baseValue, baseCard, 'match');
+}
 }
 
 function handleDragStart(e, source, index) {
