@@ -1,24 +1,24 @@
 /* 
  * Updated styles.css for STACKED! card game
- * Fixes combo slot card stacking overflow with dynamic height expansion
- * Enhances woody aesthetic with wood-grain textures and fanned card stacking
- * Preserves 50px slot width (45px on small screens) and existing JavaScript positioning
+ * Full woody aesthetic with lumberyard vibe across all elements
+ * Fixes combo slot card stacking with dynamic height expansion
+ * Preserves 50px slot width (45px on small screens) and game functionality
  */
 
-/* Global Reset and Base Styles (unchanged) */
+/* Global Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Cabin', Arial, sans-serif; /* Rustic font */
 }
 
 body {
-  background-color: #145A32; /* Placeholder; woody texture planned */
-  color: #fff;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect x="0" y="0" width="100%" height="100%" fill="rgba(0,0,0,0.2)" /></svg>') repeat;
+  background-color: #331E0F; /* Dark walnut base */
+  color: #D2A679; /* Caramel text */
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
   height: 100vh;
   overflow: hidden;
   display: flex;
@@ -26,7 +26,7 @@ body {
   align-items: center;
 }
 
-/* Game Container - OPTIMIZED FOR BOTTOM MESSAGING (unchanged) */
+/* Game Container */
 .game-container {
   display: flex;
   flex-direction: column;
@@ -38,17 +38,22 @@ body {
   padding: 10px 10px 60px 10px;
   box-sizing: border-box;
   overflow: hidden;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>') repeat;
+  border: 4px solid #8B5A2B; /* Cedar border */
+  border-radius: 12px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
-/* Headings and Text (unchanged) */
+/* Headings and Text */
 h1 {
   font-size: 2rem;
   margin-bottom: 15px;
-  color: #F1C40F;
+  color: #D2A679; /* Caramel */
   text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Combination Area (Draggable Modal) - ENHANCED COMMAND CENTER (unchanged) */
+/* Combination Area (Draggable Modal) */
 .combination-area {
   position: fixed;
   right: 20px;
@@ -61,40 +66,39 @@ h1 {
   width: 348px;
   min-height: 500px;
   z-index: 1000;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.98) 0%, rgba(20, 90, 50, 0.95) 100%);
-  border: 3px solid #F1C40F;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  border: 4px solid #8B5A2B;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(241, 196, 15, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
   cursor: move;
   user-select: none;
-  backdrop-filter: blur(10px);
 }
 
 .modal-title {
-  color: #F1C40F;
+  color: #D2A679;
   font-weight: bold;
   font-size: 1.2rem;
   margin-bottom: 15px;
   text-align: center;
-  border-bottom: 2px solid #F1C40F;
+  border-bottom: 2px solid #8B5A2B;
   padding-bottom: 8px;
   width: 100%;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* 🎯 FIXED: Combo Slots with Dynamic Height and Woody Stacking */
+/* Combo Slots with Dynamic Height and Woody Stacking */
 .combo-slot {
   width: 50px !important;
-  min-height: 75px !important; /* Allow expansion */
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>'); /* Woody grain */
-  border: 2px dashed #8B5A2B; /* Cedar brown */
+  min-height: 75px !important;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 2px dashed #8B5A2B;
   border-radius: 6px;
   position: relative;
   padding: 3px;
   text-align: center;
   font-size: 0.7rem;
-  color: #D2A679; /* Caramel text */
+  color: #D2A679;
   overflow: hidden;
   transition: min-height 0.3s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
@@ -102,7 +106,7 @@ h1 {
 
 .base-area {
   width: 50px !important;
-  min-height: 75px !important; /* Allow expansion */
+  min-height: 75px !important;
   margin-bottom: 10px;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border: 2px dashed #8B5A2B;
@@ -115,7 +119,7 @@ h1 {
 
 .sum-area {
   width: 50px !important;
-  min-height: 75px !important; /* Allow expansion */
+  min-height: 75px !important;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border: 2px dashed #8B5A2B;
   border-radius: 6px;
@@ -127,7 +131,7 @@ h1 {
 
 .match-area {
   width: 50px !important;
-  min-height: 75px !important; /* Allow expansion */
+  min-height: 75px !important;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border: 2px dashed #8B5A2B;
   border-radius: 6px;
@@ -142,12 +146,17 @@ h1 {
 .base-area .card,
 .sum-area .card,
 .match-area .card {
-  width: 46px; /* Slightly smaller to fit padding */
-  height: 70px; /* Match slot min-height */
+  width: 46px;
+  height: 70px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 1px solid #4A2B17;
+  border-radius: 4px;
   transition: transform 0.2s ease, top 0.2s ease;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  font-size: 0.7rem;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
 }
 
-/* Fan cards for visibility */
 .combo-slot .card:nth-child(1),
 .base-area .card:nth-child(1),
 .sum-area .card:nth-child(1),
@@ -181,7 +190,7 @@ h1 {
 .base-area:hover,
 .sum-area:hover,
 .match-area:hover {
-  border-color: #D2A679; /* Caramel hover */
+  border-color: #D2A679;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   transform: translateY(-2px);
 }
@@ -204,7 +213,7 @@ h1 {
 .base-area.valid-combo,
 .sum-area.valid-combo,
 .match-area.valid-combo {
-  border-color: #4A7043; /* Mossy green */
+  border-color: #4A7043;
   box-shadow: 0 0 15px 6px rgba(74, 112, 67, 0.7), inset 0 2px 4px rgba(74, 112, 67, 0.3);
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(74,112,67,0.3)" /></svg>');
   animation: validPulse 2s ease-in-out infinite;
@@ -215,7 +224,7 @@ h1 {
   50% { box-shadow: 0 0 20px 8px rgba(74, 112, 67, 0.9), inset 0 2px 4px rgba(74, 112, 67, 0.5); }
 }
 
-/* Modal Action Buttons - SMALLER TO FIT COMPACT MODAL (unchanged) */
+/* Modal Action Buttons */
 .modal-actions {
   display: flex;
   flex-direction: column;
@@ -223,12 +232,12 @@ h1 {
   width: 100%;
   margin-top: 15px;
   padding-top: 10px;
-  border-top: 2px solid rgba(241, 196, 15, 0.3);
+  border-top: 2px solid #8B5A2B;
 }
 
 .modal-btn {
   padding: 8px 16px;
-  border: none;
+  border: 2px solid #4A2B17;
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: bold;
@@ -239,6 +248,8 @@ h1 {
   position: relative;
   overflow: hidden;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #D2A679;
 }
 
 .modal-btn:before {
@@ -248,7 +259,7 @@ h1 {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  background: linear-gradient(90deg, transparent, rgba(210, 166, 121, 0.2), transparent);
   transition: left 0.5s;
 }
 
@@ -257,20 +268,19 @@ h1 {
 }
 
 .modal-btn.primary {
-  background: linear-gradient(135deg, #F1C40F 0%, #D4AC0D 100%);
-  color: #000;
-  border: 2px solid transparent;
-  box-shadow: 0 6px 12px rgba(241, 196, 15, 0.4);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #331E0F;
+  box-shadow: 0 6px 12px rgba(139, 90, 43, 0.4);
 }
 
 .modal-btn.primary:hover {
-  background: linear-gradient(135deg, #D4AC0D 0%, #B7950B 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23B88A5A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(241, 196, 15, 0.6);
+  box-shadow: 0 8px 16px rgba(139, 90, 43, 0.6);
 }
 
 .modal-btn.primary:disabled {
-  background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%237f8c8d" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   color: #bdc3c7;
   cursor: not-allowed;
   transform: none;
@@ -278,42 +288,44 @@ h1 {
 }
 
 .modal-btn.secondary {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.9) 0%, rgba(41, 128, 185, 0.9) 100%);
-  color: #fff;
-  border: 2px solid rgba(52, 152, 219, 0.3);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%234A7043" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #D2A679;
+  border: 2px solid #4A2B17;
 }
 
 .modal-btn.secondary:hover {
-  background: linear-gradient(135deg, rgba(41, 128, 185, 1) 0%, rgba(30, 120, 180, 1) 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%233A5A36" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+  box-shadow: 0 6px 12px rgba(74, 112, 67, 0.4);
 }
 
-/* Table and Score Displays - MUCH NARROWER TABLE CONTAINER (unchanged) */
+/* Table and Score Displays */
 .table {
   flex-grow: 1;
   margin: 10px 0;
-  background-color: black;
-  border: 4px solid #7B3F00;
-  border-radius: 8px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="4" opacity="0.7" /></svg>');
+  border: 6px solid #7B3F00; /* Bark-like edge */
+  border-radius: 12px;
   position: relative;
   min-height: 0;
   width: 800px;
   max-width: 800px;
   max-height: 70vh;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   margin-left: auto;
   margin-right: auto;
 }
 
 .score {
   position: absolute;
-  background-color: #7B3F00;
+  background: #7B3F00;
   padding: 5px 10px;
   border-radius: 5px;
   font-family: 'Georgia', serif;
   font-size: 1rem;
   z-index: 10;
+  border: 1px solid #4A2B17;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .player-score {
@@ -332,18 +344,18 @@ h1 {
   right: 15px;
 }
 
-/* DEALER INDICATOR & DECK COUNT (unchanged) */
+/* DEALER INDICATOR */
 .dealer-indicator {
   position: absolute;
-  background: linear-gradient(135deg, #F1C40F 0%, #D4AC0D 100%);
-  color: #000;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #331E0F;
   padding: 8px 12px;
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: bold;
   z-index: 15;
-  box-shadow: 0 3px 8px rgba(241, 196, 15, 0.5);
-  border: 2px solid rgba(241, 196, 15, 0.3);
+  box-shadow: 0 3px 8px rgba(139, 90, 43, 0.5);
+  border: 2px solid #8B5A2B;
   animation: dealerGlow 2s ease-in-out infinite alternate;
 }
 
@@ -364,11 +376,11 @@ h1 {
 }
 
 @keyframes dealerGlow {
-  from { box-shadow: 0 3px 8px rgba(241, 196, 15, 0.5); }
-  to { box-shadow: 0 5px 12px rgba(241, 196, 15, 0.8); }
+  from { box-shadow: 0 3px 8px rgba(139, 90, 43, 0.5); }
+  to { box-shadow: 0 5px 12px rgba(139, 90, 43, 0.8); }
 }
 
-/* Board - MOVED HIGHER TO AVOID BOTTOM BORDER (unchanged) */
+/* Board */
 .board {
   position: absolute;
   top: 25%;
@@ -380,20 +392,23 @@ h1 {
   gap: 4px;
   max-width: 220px;
   padding: 6px;
-  border: 3px solid #F1C40F;
+  border: 3px solid #8B5A2B;
   border-radius: 12px;
-  background-color: rgba(241, 196, 15, 0.1);
-  box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
   justify-items: center;
   align-content: center;
 }
 
-/* Hands - ABSOLUTELY FIXED POSITIONS (unchanged) */
+/* Hands */
 .hand {
   position: absolute;
   display: flex;
   gap: 5px;
   padding: 10px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 2px solid #8B5A2B;
+  border-radius: 6px;
 }
 
 .player-hand {
@@ -417,35 +432,35 @@ h1 {
   transform-origin: center;
 }
 
-/* Cards - BACK TO SMALLER SIZE (unchanged) */
+/* Cards */
 .card {
   width: 50px;
   height: 75px;
-  background-color: #fff;
-  border: 2px solid #ccc;
-  border-radius: 8px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 1px solid #4A2B17;
+  border-radius: 4px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
   padding: 3px;
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.5s ease;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
   font-weight: bold;
   font-size: 0.75rem;
   text-align: left;
   line-height: 1;
-  color: #000;
+  color: #4A2B17;
   position: relative;
   touch-action: none;
 }
 
 .card.red {
-  color: #e74c3c;
+  color: #A52A2A; /* Darker red for woody vibe */
 }
 
 .card.selected {
-  border-color: #3498db;
+  border-color: #8B5A2B;
   transform: scale(1.05);
 }
 
@@ -454,22 +469,22 @@ h1 {
 }
 
 .card.back {
-  background-color: #2C3E50;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%232C3E50" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   color: transparent;
   border-color: #34495E;
 }
 
 .card.hint {
-  border-color: #e67e22;
-  box-shadow: 0 0 10px 3px rgba(230, 126, 34, 0.7);
-  background-color: rgba(230, 126, 34, 0.2);
+  border-color: #D2691E; /* Burnt orange */
+  box-shadow: 0 0 10px 3px rgba(210, 105, 30, 0.7);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="rgba(210,105,30,0.2)" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
 }
 
 .card.hint:hover {
-  box-shadow: 0 0 15px 5px rgba(230, 126, 34, 0.9);
+  box-shadow: 0 0 15px 5px rgba(210, 105, 30, 0.9);
 }
 
-/* Actions - REMOVED SINCE QUIT MOVED TO TOP RIGHT (unchanged) */
+/* Actions (unchanged) */
 .actions {
   display: none;
 }
@@ -477,35 +492,39 @@ h1 {
 button {
   padding: 10px 20px;
   margin: 0 10px;
-  background-color: #F1C40F;
-  border: none;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  border: 2px solid #4A2B17;
   border-radius: 5px;
-  color: #000;
+  color: #331E0F;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
   font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 button:hover {
-  background-color: #D4AC0D;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23B88A5A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  transform: scale(1.05);
 }
 
 button:disabled {
-  background-color: #7f8c8d;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%237f8c8d" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #bdc3c7;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* TOP RIGHT QUIT BUTTON - SLEEK EXIT BUTTON (unchanged) */
+/* TOP RIGHT QUIT BUTTON */
 .quit-button {
   position: fixed;
   top: 20px;
   right: 20px;
   width: 45px;
   height: 45px;
-  background: linear-gradient(135deg, rgba(231, 76, 60, 0.9) 0%, rgba(192, 57, 43, 0.9) 100%);
-  color: #fff;
-  border: 2px solid rgba(231, 76, 60, 0.3);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23A52A2A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #F5E8C7;
+  border: 2px solid #4A2B17;
   border-radius: 50%;
   font-size: 1.2rem;
   font-weight: bold;
@@ -514,57 +533,52 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+  box-shadow: 0 4px 12px rgba(165, 42, 42, 0.4);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  margin: 0;
-  padding: 0;
 }
 
 .quit-button:hover {
-  background: linear-gradient(135deg, rgba(192, 57, 43, 1) 0%, rgba(169, 50, 38, 1) 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23800000" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   transform: scale(1.1) rotate(90deg);
-  box-shadow: 0 6px 16px rgba(231, 76, 60, 0.6);
-  border-color: rgba(231, 76, 60, 0.6);
+  box-shadow: 0 6px 16px rgba(165, 42, 42, 0.6);
 }
 
 .quit-button:active {
   transform: scale(0.95) rotate(90deg);
 }
 
-/* Smart Message - MOVED TO BOTTOM (unchanged) */
+/* Smart Message */
 .bottom-ui {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(180deg, transparent 0%, rgba(20, 90, 50, 0.95) 30%, rgba(0, 0, 0, 0.98) 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   padding: 15px 20px 20px 20px;
   z-index: 500;
-  backdrop-filter: blur(10px);
-  border-top: 2px solid rgba(241, 196, 15, 0.3);
+  border-top: 2px solid #8B5A2B;
 }
 
 .smart-message {
   margin: 0;
   font-size: 1.1rem;
-  color: #F1C40F;
+  color: #D2A679;
   font-weight: bold;
   text-align: center;
   padding: 12px 15px;
-  background: linear-gradient(135deg, rgba(241, 196, 15, 0.15) 0%, rgba(241, 196, 15, 0.05) 100%);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border-radius: 8px;
-  border: 1px solid rgba(241, 196, 15, 0.4);
+  border: 1px solid #8B5A2B;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Existing Modals (Settings and Tutorial) (unchanged) */
+/* Existing Modals */
 dialog {
-  background-color: #229954;
-  color: #fff;
-  border: 3px solid #F1C40F;
-  border-radius: 8px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #D2A679;
+  border: 4px solid #8B5A2B;
+  border-radius: 12px;
   padding: 20px;
   width: 400px;
   max-width: 90%;
@@ -590,31 +604,34 @@ dialog label {
   font-size: 1rem;
   font-weight: bold;
   margin-bottom: 5px;
+  color: #D2A679;
 }
 
 dialog select {
   padding: 5px;
   border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  color: #000;
+  border: 1px solid #4A2B17;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  color: #331E0F;
   font-size: 1rem;
 }
 
 dialog button {
   margin-top: 10px;
   padding: 10px;
-  background-color: #F1C40F;
-  color: #000;
-  border: none;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #331E0F;
+  border: 2px solid #4A2B17;
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 dialog button:hover {
-  background-color: #D4AC0D;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23B88A5A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  transform: scale(1.05);
 }
 
 .modal-buttons {
@@ -632,11 +649,12 @@ dialog button:hover {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 10px;
+  color: #D2A679;
 }
 
 .tutorial-content h3 {
   margin-top: 10px;
-  color: #F1C40F;
+  color: #D2A679;
 }
 
 .tutorial-content ul {
@@ -654,16 +672,16 @@ dialog .modal-content {
 }
 
 dialog h2 {
-  color: #F1C40F;
+  color: #D2A679;
   margin-bottom: 15px;
 }
 
-/* SCOREBOARD MODAL (unchanged) */
+/* SCOREBOARD MODAL */
 #scoreboard-modal {
-  background-color: #229954;
-  color: #fff;
-  border: 3px solid #F1C40F;
-  border-radius: 8px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #D2A679;
+  border: 4px solid #8B5A2B;
+  border-radius: 12px;
   padding: 20px;
   width: 450px;
   max-width: 90%;
@@ -688,16 +706,16 @@ dialog h2 {
   background-color: rgba(0, 0, 0, 0.7);
 }
 
-/* Jackpot Message (unchanged) */
+/* Jackpot Message */
 .jackpot-message {
-  background-color: rgba(241, 196, 15, 0.2);
-  border: 2px solid #F1C40F;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 2px solid #8B5A2B;
   border-radius: 5px;
   padding: 10px;
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
-  color: #F1C40F;
+  color: #D2A679;
   display: none;
 }
 
@@ -705,17 +723,17 @@ dialog h2 {
   display: block;
 }
 
-/* Scoreboard (unchanged) */
+/* Scoreboard */
 .scoreboard {
-  background-color: rgba(0, 0, 0, 0.3);
-  border: 1px solid #F1C40F;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(51,30,15,0.5)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  border: 1px solid #8B5A2B;
   border-radius: 5px;
   padding: 15px;
 }
 
 .scoreboard-title {
   font-size: 1.5rem;
-  color: #F1C40F;
+  color: #D2A679;
   text-align: center;
   margin-bottom: 10px;
   font-weight: bold;
@@ -732,14 +750,14 @@ dialog h2 {
   align-items: center;
   gap: 10px;
   padding: 8px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(245,232,199,0.1)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border-radius: 5px;
   font-size: 1.1rem;
 }
 
 .scoreboard-item.leader {
-  background-color: rgba(241, 196, 15, 0.3);
-  box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.3)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  box-shadow: 0 0 10px rgba(139, 90, 43, 0.7);
   animation: glow 1.5s ease-in-out infinite alternate;
 }
 
@@ -757,7 +775,7 @@ dialog h2 {
   font-weight: bold;
 }
 
-/* Confetti Animation for Game Over (unchanged) */
+/* Confetti Animation for Game Over (reimagined as wood chips) */
 .confetti-container {
   position: absolute;
   top: 0;
@@ -775,23 +793,23 @@ dialog h2 {
 
 .confetti {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: #F1C40F;
+  width: 8px;
+  height: 8px;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 0 L5 10 L10 0 Z" fill="none" stroke="%234A2B17" stroke-width="1" /></svg>');
   opacity: 0.8;
-  animation: confettiFall 3s ease-out infinite;
+  animation: woodChipFall 3s ease-out infinite;
   transform: rotate(45deg);
 }
 
 .confetti:nth-child(odd) {
-  background-color: #2ecc71;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="100%" height="100%" fill="%234A7043" /><path d="M0 0 L5 10 L10 0 Z" fill="none" stroke="%234A2B17" stroke-width="1" /></svg>');
 }
 
 .confetti:nth-child(3n) {
-  background-color: #e74c3c;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="100%" height="100%" fill="%23A52A2A" /><path d="M0 0 L5 10 L10 0 Z" fill="none" stroke="%234A2B17" stroke-width="1" /></svg>');
 }
 
-@keyframes confettiFall {
+@keyframes woodChipFall {
   0% {
     transform: translateY(-100%) rotate(0deg);
     opacity: 0.8;
@@ -802,7 +820,7 @@ dialog h2 {
   }
 }
 
-/* Scoreboard Buttons (unchanged) */
+/* Scoreboard Buttons */
 .scoreboard-buttons {
   display: flex;
   justify-content: space-between;
@@ -812,22 +830,23 @@ dialog h2 {
 .scoreboard-buttons button {
   flex: 1;
   padding: 10px;
-  background-color: #F1C40F;
-  color: #000;
-  border: none;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #331E0F;
+  border: 2px solid #4A2B17;
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
   font-weight: bold;
   transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .scoreboard-buttons button:hover {
-  background-color: #D4AC0D;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23B88A5A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   transform: scale(1.05);
 }
 
-/* Animations (unchanged) */
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -841,14 +860,14 @@ dialog h2 {
 
 @keyframes glow {
   from {
-    box-shadow: 0 0 10px rgba(241, 196, 15, 0.7);
+    box-shadow: 0 0 10px rgba(139, 90, 43, 0.7);
   }
   to {
-    box-shadow: 0 0 20px rgba(241, 196, 15, 1);
+    box-shadow: 0 0 20px rgba(139, 90, 43, 1);
   }
 }
 
-/* 5-Area Layout Additions - ALL FORCED TO 50x75px (unchanged) */
+/* 5-Area Layout Additions */
 .capture-row {
   display: flex;
   gap: 6px;
@@ -861,14 +880,14 @@ dialog h2 {
   .table {
     flex-grow: 1;
     margin: 10px 0;
-    background-color: black;
-    border: 4px solid #7B3F00;
-    border-radius: 8px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="4" opacity="0.7" /></svg>');
+    border: 6px solid #7B3F00;
+    border-radius: 12px;
     position: relative;
     min-height: 0;
     width: 100%;
     max-height: 65vh;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
   
   .game-container {
@@ -889,7 +908,6 @@ dialog h2 {
     min-height: 480px;
   }
 
-  /* FIXED: Adjusted slot sizes for mobile */
   .combo-slot,
   .base-area,
   .sum-area,
@@ -943,14 +961,14 @@ dialog h2 {
   .table {
     flex-grow: 1;
     margin: -50px auto 10px auto;
-    background-color: black;
-    border: 4px solid #7B3F00;
-    border-radius: 8px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="4" opacity="0.7" /></svg>');
+    border: 6px solid #7B3F00;
+    border-radius: 12px;
     position: relative;
     min-height: 0;
     width: 100%;
     max-height: 65vh;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
 
   .board {
@@ -999,7 +1017,6 @@ dialog h2 {
     min-height: 460px;
   }
 
-  /* FIXED: Adjusted slot sizes for mobile */
   .combo-slot,
   .base-area,
   .sum-area,
@@ -1043,14 +1060,14 @@ dialog h2 {
   .table {
     flex-grow: 1;
     margin: 10px 0;
-    background-color: black;
-    border: 4px solid #7B3F00;
-    border-radius: 8px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="4" opacity="0.7" /></svg>');
+    border: 6px solid #7B3F00;
+    border-radius: 12px;
     position: relative;
     min-height: 0;
     width: 100%;
     max-height: 65vh;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   }
 
   .board {
@@ -1069,7 +1086,6 @@ dialog h2 {
     min-height: 440px;
   }
 
-  /* FIXED: Adjusted slot sizes for small screens */
   .combo-slot,
   .base-area,
   .sum-area,
