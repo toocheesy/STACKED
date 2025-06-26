@@ -1,7 +1,8 @@
 /* 
- * Updated styles.css with COMBO COMMAND CENTER
+ * Updated styles.css with COMBO COMMAND CENTER + NARROWER BOARD
  * Includes original layout, natural scroll, and new modal action buttons
  * Modern card game aesthetic with gold/green scheme, confetti animation
+ * FIXED: Much narrower board and smaller cards to prevent bot card displacement
  */
 
 /* Global Reset and Base Styles */
@@ -46,8 +47,6 @@ h1 {
   color: #F1C40F;
   text-align: center;
 }
-
-/* REMOVED DECK COUNT - NOW DYNAMIC BY DEALER */
 
 /* Combination Area (Draggable Modal) - ENHANCED COMMAND CENTER */
 .combination-area {
@@ -277,18 +276,18 @@ h1 {
   to { box-shadow: 0 5px 12px rgba(241, 196, 15, 0.8); }
 }
 
-/* Board - NARROWER AND MOVED UP */
+/* Board - MUCH NARROWER TO PREVENT BOT DISPLACEMENT */
 .board {
   position: absolute;
   top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(4, 70px);
-  grid-auto-rows: 110px;
-  gap: 8px; /* Reduced from 10px */
-  max-width: 320px; /* Reduced from 368px */
-  padding: 12px; /* Reduced from 15px */
+  grid-template-columns: repeat(4, 60px); /* MUCH SMALLER from 70px */
+  grid-auto-rows: 90px; /* MUCH SMALLER from 110px */
+  gap: 5px; /* MUCH SMALLER from 10px */
+  max-width: 260px; /* MUCH SMALLER from 368px */
+  padding: 8px; /* MUCH SMALLER from 15px */
   border: 3px solid #F1C40F;
   border-radius: 12px;
   background-color: rgba(241, 196, 15, 0.1);
@@ -297,7 +296,7 @@ h1 {
   align-content: center;
 }
 
-/* Hands */
+/* Hands - FIXED POSITIONS */
 .hand {
   position: absolute;
   display: flex;
@@ -314,32 +313,34 @@ h1 {
 
 .bot1-hand {
   top: 50%;
+  left: -15px; /* FIXED POSITION - won't move */
   transform: translateY(-50%) rotate(90deg);
   transform-origin: center;
 }
 
 .bot2-hand {
   top: 50%;
+  right: -15px; /* FIXED POSITION - won't move */
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
 }
 
-/* Cards */
+/* Cards - SMALLER TO FIT NARROW BOARD */
 .card {
-  width: 70px;
-  height: 100px;
+  width: 60px; /* SMALLER from 70px */
+  height: 90px; /* SMALLER from 100px */
   background-color: #fff;
   border: 2px solid #ccc;
   border-radius: 8px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 5px;
+  padding: 4px; /* SMALLER from 5px */
   cursor: pointer;
   transition: transform 0.3s ease, opacity 0.5s ease;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 0.85rem; /* SMALLER from 1rem */
   text-align: left;
   line-height: 1;
   color: #000;
@@ -795,15 +796,15 @@ dialog h2 {
   }
 
   .board {
-    max-width: 320px;
-    grid-template-columns: repeat(4, 70px);
-    grid-auto-rows: 110px;
+    max-width: 240px;
+    grid-template-columns: repeat(4, 55px);
+    grid-auto-rows: 85px;
   }
 
   .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
+    width: 55px;
+    height: 85px;
+    font-size: 0.8rem;
   }
   
   .sum-area, .match-area {
@@ -847,14 +848,14 @@ dialog h2 {
   }
 
   .board {
-    max-width: 320px;
-    padding: 10px;
+    max-width: 220px;
+    padding: 6px;
   }
 
   .card {
-    width: 70px;
-    height: 100px;
-    font-size: 1rem;
+    width: 50px;
+    height: 80px;
+    font-size: 0.75rem;
   }
 
   .player-hand {
@@ -862,11 +863,11 @@ dialog h2 {
   }
 
   .bot1-hand {
-    left: -25px;
+    left: -20px;
   }
 
   .bot2-hand {
-    right: -25px;
+    right: -20px;
   }
 
   button {
@@ -941,14 +942,14 @@ dialog h2 {
   }
 
   .board {
-    max-width: 280px;
-    gap: 10px;
+    max-width: 200px;
+    gap: 4px;
   }
 
   .card {
-    width: 60px;
-    height: 90px;
-    font-size: 0.9rem;
+    width: 45px;
+    height: 75px;
+    font-size: 0.7rem;
   }
 
   .combination-area {

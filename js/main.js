@@ -624,12 +624,6 @@ if (tableEl) {
   } else if (boardEl) {
     boardEl.style.transform = 'translate(-50%, -50%)'; // Reset to center
   }
-  
-  // Keep bot positions stable
-  const bot1HandEl = document.querySelector('.bot1-hand');
-  const bot2HandEl = document.querySelector('.bot2-hand');
-  if (bot1HandEl) bot1HandEl.style.left = '-20px';
-  if (bot2HandEl) bot2HandEl.style.right = '-20px';
 }
 
   const comboAreaEl = document.getElementById('combination-area');
