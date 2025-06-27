@@ -189,13 +189,25 @@ function handleBoardDrop(e) {
   const handCard = game.state.draggedCard.card;
   const handIndex = game.state.draggedCard.index;
 
+  console.log(`🎴 PLAYER: Placing ${handCard.value}${handCard.suit} on board to end turn`);
+
+  // CRITICAL FIX: Clear ALL combo areas when ending turn
+  console.log(`🧹 CLEARING: All combo areas before ending turn`);
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
+  // Place card on board and remove from hand
   game.state.board.push(handCard);
   game.state.hands[0] = game.state.hands[0].filter((_, i) => i !== handIndex);
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  
+  // End turn
   game.state.currentPlayer = 1;
   game.state.draggedCard = null;
+  
+  console.log(`🔄 TURN ENDED: Switching to Bot 1`);
+  
   checkGameEnd();
   ui.render();
+  
   if (game.state.currentPlayer !== 0) {
     setTimeout(async () => await scheduleNextBotTurn(), 100);
   }
