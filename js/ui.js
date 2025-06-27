@@ -310,26 +310,35 @@ class UISystem {
   }
 
   updateMessage() {
-    const messageEl = document.getElementById('message');
-    if (!messageEl) return;
+  const messageEl = document.getElementById('message');
+  if (!messageEl) return;
 
-    if (this.game.state.currentPlayer === 0) {
-      if (this.game.state.hands[0].length === 0) {
-        messageEl.textContent = "You're out of cards! Bots will finish the round.";
-        this.smartMessages.showMessage("You're out of cards! Bots will finish the round.");
-      } else if (this.game.state.combination.base.length === 0) {
-        messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
-        this.smartMessages.updateMessage('turn_start');
-      } else {
-        messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
-        this.smartMessages.updateMessage('cards_in_areas');
-      }
+  if (this.game.state.currentPlayer === 0) {
+    // CRITICAL FIX: Check if player is out of cards
+    if (this.game.state.hands[0].length === 0) {
+      messageEl.textContent = "You're out of cards! Bots will finish the round.";
+      this.smartMessages.showMessage("You're out of cards! Bots will finish the round.");
+      
+      // FORCE SWITCH TO NEXT BOT
+      this.game.state.currentPlayer = 1;
+      console.log(`🏁 PLAYER OUT OF CARDS: Switching to Bot 1`);
+      
+      // Schedule bot turn
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+      return;
+    } else if (this.game.state.combination.base.length === 0) {
+      messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
+      this.smartMessages.updateMessage('turn_start');
     } else {
-      const botMessage = `Bot ${this.game.state.currentPlayer}'s turn...`;
-      messageEl.textContent = botMessage;
-      this.smartMessages.showMessage(botMessage);
+      messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
+      this.smartMessages.updateMessage('cards_in_areas');
     }
+  } else {
+    const botMessage = `Bot ${this.game.state.currentPlayer}'s turn...`;
+    messageEl.textContent = botMessage;
+    this.smartMessages.showMessage(botMessage);
   }
+}
 
   // Helper methods
   isCardInPlayArea(index, source) {
