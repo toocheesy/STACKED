@@ -51,7 +51,16 @@ function startGame(modeName = 'classic', settings = {}) {
 // Main initialization
 function initGame() {
   initGameSystems();
-  startGame('classic'); // Default to classic mode
+  
+  // Check if mode was selected from homepage
+  const selectedMode = localStorage.getItem('selectedMode');
+  if (selectedMode && modeSelector.availableModes[selectedMode]) {
+    modeSelector.currentMode = selectedMode;
+    localStorage.removeItem('selectedMode'); // Clear it
+    console.log(`🎮 Homepage selected: ${selectedMode}`);
+  }
+  
+  startGame(modeSelector.currentMode || 'classic'); // Use selected or default
 }
 
 // Event Handlers - Now work with any game mode
@@ -273,14 +282,12 @@ async function scheduleNextBotTurn() {
   }
 }
 
-// Settings modal - now mode-aware with ModeSelector
+// Settings modal - now simplified (no mode selection)
 function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
   if (!modal) return;
 
-  // Create mode selector UI
-  modeSelector.createModeSelector();
-
+  // DON'T create mode selector - that's on homepage now!
   modal.showModal();
 
   const startGameBtn = document.getElementById('start-game-btn');
@@ -289,24 +296,24 @@ function showSettingsModal() {
 
   if (startGameBtn) {
     startGameBtn.addEventListener('click', () => {
-      // Get selected mode and its settings
-      const selectedMode = modeSelector.getSelectedModeObject();
-      const modeSettings = modeSelector.getSelectedModeSettings();
-      
-      // Apply standard settings
+      // Apply standard settings only
       game.state.settings.cardSpeed = document.getElementById('card-speed')?.value || 'fast';
       game.state.settings.soundEffects = document.getElementById('sound-effects')?.value || 'off';
       game.state.settings.targetScore = parseInt(document.getElementById('target-score')?.value || 500);
       game.state.settings.botDifficulty = document.getElementById('bot-difficulty')?.value || 'intermediate';
       
-      // Override with mode-specific settings
-      Object.assign(game.state.settings, modeSettings);
-      
-      // Reinitialize game with selected mode
-      game.initGame(selectedMode, game.state.settings);
+      // Keep current mode, just update settings
+      if (game.currentMode && game.currentMode.config) {
+        // Override target score with mode's default if user didn't change it
+        if (game.currentMode.config.targetScore) {
+          game.state.settings.targetScore = game.currentMode.config.targetScore;
+        }
+      }
       
       modal.close();
       ui.render();
+      
+      console.log(`⚙️ Settings updated for ${game.currentMode?.name || 'Classic'} mode`);
     });
   }
 
