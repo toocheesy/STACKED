@@ -198,16 +198,33 @@ class BotModalInterface {
   }
 
   async botResetModal() {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
-
-    console.log(`🤖 BOT: Resetting modal`);
+  console.log(`🤖 BOT: Resetting modal - clearing ALL areas`);
+  
+  // SIMPLE FIX: Just clear everything, don't try to return cards
+  // (Cards should already be back in their original positions)
+  this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  
+  this.ui.render();
+  await this.delay(500);
+  
+  // VERIFY: Check that all areas are actually empty
+  const totalCards = this.game.state.combination.base.length +
+                    this.game.state.combination.sum1.length +
+                    this.game.state.combination.sum2.length +
+                    this.game.state.combination.sum3.length +
+                    this.game.state.combination.match.length;
+                    
+  console.log(`🤖 BOT: Modal reset complete - ${totalCards} cards remaining in combo areas`);
+  
+  if (totalCards > 0) {
+    console.log(`🚨 BOT: Warning - combo areas not fully cleared!`);
+    // Force clear again
     this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     this.ui.render();
-    await this.delay(300);
-    this.isAnimating = false;
-    return true;
   }
+  
+  return true;
+}
 
   async placeCard(handCard, playerIndex) {
     if (this.isAnimating) return false;
