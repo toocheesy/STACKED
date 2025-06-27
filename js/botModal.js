@@ -12,30 +12,37 @@ class BotModalInterface {
   }
 
   async botDragCardToSlot(card, sourceType, sourceIndex, targetSlot) {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
+  if (this.isAnimating) return false;
 
-    console.log(`🤖 BOT: Dragging ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
+  console.log(`🤖 BOT: Dragging ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
 
-    const cardEntry = {
-      source: sourceType,
-      index: sourceIndex,
-      card: card
-    };
+  const cardEntry = {
+    source: sourceType,
+    index: sourceIndex,
+    card: card
+  };
 
-    if (targetSlot === 'base') {
-      if (this.game.state.combination.base.length > 0) {
-        console.log(`🤖 BOT: Clearing existing base card`);
-        this.game.state.combination.base = [];
-      }
-    }
-
-    this.game.state.combination[targetSlot].push(cardEntry);
-    this.ui.render();
-    await this.delay(500);
-    this.isAnimating = false;
-    return true;
+  // CRITICAL FIX: Clear base slot completely if targeting base
+  if (targetSlot === 'base') {
+    console.log(`🤖 BOT: Clearing base slot for new card`);
+    this.game.state.combination.base = [];
   }
+
+  // Add card to target slot
+  this.game.state.combination[targetSlot].push(cardEntry);
+  
+  // CRITICAL: Force render to update DOM immediately
+  this.ui.render();
+  
+  // LONGER DELAY: Give DOM time to update
+  await this.delay(800);
+  
+  // VERIFY: Check that card was actually placed
+  const cardCount = this.game.state.combination[targetSlot].length;
+  console.log(`🤖 BOT: Verified ${targetSlot} now has ${cardCount} cards`);
+  
+  return true;
+}
 
   async executeCapture(move, playerIndex) {
   if (this.isAnimating) return false;
@@ -47,13 +54,24 @@ class BotModalInterface {
 
   if (handIndex !== -1) {
     try {
+      // STEP 1: Reset modal completely
       await this.botResetModal();
+      console.log(`🤖 BOT: Modal reset complete`);
       
-      // CRITICAL FIX: Ensure base card is placed first
+      // STEP 2: Place base card with verification
       console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
       await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
       
-      // Add target cards to appropriate slots
+      // STEP 3: Verify base card is there
+      if (this.game.state.combination.base.length !== 1) {
+        console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
+        this.fallbackPlaceCard(baseCard, playerIndex);
+        this.isAnimating = false;
+        return false;
+      }
+      console.log(`✅ BOT: Base card verified in place`);
+      
+      // STEP 4: Add target cards one by one with verification
       for (const targetCard of move.capture.targets) {
         const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
         if (boardIndex !== -1) {
@@ -62,11 +80,19 @@ class BotModalInterface {
         }
       }
       
-      // Verify we have base card before submitting
-      if (this.game.state.combination.base.length === 1) {
+      // STEP 5: Final verification before submit
+      const baseCount = this.game.state.combination.base.length;
+      const captureCount = this.game.state.combination.sum1.length + 
+                          this.game.state.combination.sum2.length + 
+                          this.game.state.combination.sum3.length + 
+                          this.game.state.combination.match.length;
+                          
+      console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
+      
+      if (baseCount === 1 && captureCount > 0) {
         await this.botSubmitCapture();
       } else {
-        console.log(`🚨 BOT: Base card missing, falling back to place`);
+        console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
         this.fallbackPlaceCard(baseCard, playerIndex);
       }
     } catch (error) {
