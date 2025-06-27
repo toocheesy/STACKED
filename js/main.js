@@ -259,11 +259,42 @@ async function aiTurn() {
 
   const playerIndex = game.state.currentPlayer;
   
+  // 🔥 CRITICAL FIX: Check if current bot is out of cards
   if (game.state.hands[playerIndex].length === 0) {
+    console.log(`🤖 BOT ${playerIndex}: Out of cards, switching to next player`);
     game.nextPlayer();
     ui.render();
-    if (game.state.currentPlayer !== 0 && game.state.hands[game.state.currentPlayer].length > 0) {
-      setTimeout(async () => await scheduleNextBotTurn(), 100);
+    
+    // 🚨 CRITICAL: Check if we need to continue or end round
+    const remainingPlayers = game.state.hands.filter((hand, idx) => hand.length > 0);
+    const playersWithCards = remainingPlayers.length;
+    
+    console.log(`🎯 REMAINING PLAYERS WITH CARDS: ${playersWithCards}`);
+    
+    if (playersWithCards === 0) {
+      // All players out of cards - check game end
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - CHECKING GAME END`);
+      checkGameEnd();
+      return;
+    } else if (game.state.currentPlayer !== 0 && game.state.hands[game.state.currentPlayer].length > 0) {
+      // Continue with next bot that has cards
+      console.log(`🤖 CONTINUING TO BOT ${game.state.currentPlayer}`);
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    } else if (game.state.currentPlayer === 0 && game.state.hands[0].length === 0) {
+      // Player is also out of cards, find next bot with cards
+      console.log(`🎯 PLAYER ALSO OUT - FINDING NEXT BOT WITH CARDS`);
+      let nextBot = 1;
+      while (nextBot < 3 && game.state.hands[nextBot].length === 0) {
+        nextBot++;
+      }
+      if (nextBot < 3) {
+        game.state.currentPlayer = nextBot;
+        console.log(`🤖 SWITCHING TO BOT ${nextBot}`);
+        setTimeout(async () => await scheduleNextBotTurn(), 1000);
+      } else {
+        console.log(`🏁 NO MORE BOTS WITH CARDS - ENDING ROUND`);
+        checkGameEnd();
+      }
     }
     return;
   }
