@@ -257,11 +257,37 @@ class GameEngine {
     }
   }
 
-  // Advance to next player
-  nextPlayer() {
+  // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
+nextPlayer() {
+  let attempts = 0;
+  const maxAttempts = 3; // Prevent infinite loops
+  
+  do {
     this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer}`);
-  }
+    attempts++;
+    
+    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
+    
+    // If current player has cards, we're good!
+    if (this.state.hands[this.state.currentPlayer].length > 0) {
+      return;
+    }
+    
+    // If no one has cards, end the round
+    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+    if (totalCards === 0) {
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+      // Force check game end
+      setTimeout(() => checkGameEnd(), 100);
+      return;
+    }
+    
+  } while (attempts < maxAttempts);
+  
+  // Safety fallback - if we can't find anyone with cards
+  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+  setTimeout(() => checkGameEnd(), 100);
+}
 
   // Check if game should end (uses current mode)
   checkGameEnd() {
