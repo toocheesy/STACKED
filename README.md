@@ -227,4 +227,5 @@ modeSelector.registerMode('newmode', NewMode);
 
 ---
 
+
 *Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, and every capture writes legend.* 🎮⚡
