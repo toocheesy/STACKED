@@ -314,23 +314,11 @@ class UISystem {
   if (!messageEl) return;
 
   if (this.game.state.currentPlayer === 0) {
-    // 🚨 CRITICAL FIX: Check if player is out of cards
+    // 🚨 CRITICAL FIX: Check if player is out of cards BUT DON'T TRIGGER BOTS
     if (this.game.state.hands[0].length === 0) {
       messageEl.textContent = "You're out of cards! Bots will finish the round.";
       this.smartMessages.showMessage("You're out of cards! Bots will finish the round.");
-      
-      // 🔥 FORCE SWITCH TO NEXT BOT
-      this.game.state.currentPlayer = 1;
-      console.log(`🏁 PLAYER OUT OF CARDS: Switching to Bot 1`);
-      
-      // 🤖 Schedule bot turn immediately  
-      setTimeout(async () => {
-        if (window.scheduleNextBotTurn) {
-          await window.scheduleNextBotTurn();
-        } else if (window.aiTurn) {
-          await window.aiTurn();
-        }
-      }, 1000);
+      // 🔥 REMOVED: The automatic bot scheduling that was causing the loop!
       return;
     } else if (this.game.state.combination.base.length === 0) {
       messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
