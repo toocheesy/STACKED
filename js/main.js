@@ -1205,31 +1205,30 @@ function handleBoardDrop(e) {
   e.preventDefault();
   if (state.currentPlayer !== 0 || !state.draggedCard) return;
 
-  // Case 1: Returning card from combo area to board
+  // Case 1: Returning card from combo area
   if (state.draggedCard.slot !== undefined) {
-    console.log(`🔄 RETURNING CARD: ${state.draggedCard.card.value}${state.draggedCard.card.suit} from ${state.draggedCard.slot} back to board`);
+    console.log(`🔄 RETURNING CARD: ${state.draggedCard.card.value}${state.draggedCard.card.suit} from ${state.draggedCard.slot}`);
     
     // Remove card from combo area
     state.combination[state.draggedCard.slot] = state.combination[state.draggedCard.slot].filter((_, i) => i !== state.draggedCard.comboIndex);
     
-    // FIXED: Don't add to board if it came FROM board originally
+    // 🎯 NEW: Smart return based on original source
     if (state.draggedCard.source === 'board') {
-      // Card came from board originally - just put it back at its original index
-      // Don't add duplicate to board
-      console.log(`🔄 BOARD CARD RETURNED: Not adding duplicate, card stays at original position`);
+      // Board cards return to board (existing behavior)
+      console.log(`🔄 BOARD CARD RETURNED: Stays at original position`);
     } else if (state.draggedCard.source === 'hand') {
-      // Card came from hand originally - add it to board (this is a new placement)
-      state.board.push(state.draggedCard.card);
-      console.log(`🔄 HAND CARD PLACED: Added to board from hand`);
+      // 🔄 Hand cards return to hand (NEW!)
+      console.log(`🔄 HAND CARD RETURNED: Going back to hand position ${state.draggedCard.index}`);
+      state.hands[0][state.draggedCard.index] = state.draggedCard.card;
     }
     
     state.draggedCard = null;
     render();
-    smartMessages.showSuccessMessage("Card returned!");
+    smartMessages.showSuccessMessage("Card returned to original location!");
     return;
   }
 
-  // Case 2: Placing card from hand to end turn
+  // Case 2: Placing card from hand to end turn (unchanged)
   if (state.draggedCard.source !== 'hand') return;
 
   const handCard = state.draggedCard.card;
