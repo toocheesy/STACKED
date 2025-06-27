@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STACKED!</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>Welcome to STACKED! 🎴</h1>
+    
+    <!-- Settings Modal -->
+    <dialog id="settings-modal">
+      <div class="modal-content">
+        <h2>Settings</h2>
+        <form>
+          <label for="card-speed">Card Reveal Speed:</label>
+          <select id="card-speed">
+            <option value="slow">Slow</option>
+            <option value="fast" selected>Fast</option>
+          </select>
+
+          <label for="sound-effects">Sound Effects:</label>
+          <select id="sound-effects">
+            <option value="on">On</option>
+            <option value="off" selected>Off</option>
+          </select>
+
+          <label for="target-score">Target Score:</label>
+          <select id="target-score">
+            <option value="100">100</option>
+            <option value="200">200</option>
+            <option value="300">300</option>
+            <option value="400">400</option>
+            <option value="500" selected>500</option>
+            <option value="600">600</option>
+            <option value="700">700</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+            <option value="1000">1000</option>
+            <option value="1100">1100</option>
+            <option value="1200">1200</option>
+            <option value="1300">1300</option>
+            <option value="1400">1400</option>
+            <option value="1500">1500</option>
+          </select>
+
+          <label for="bot-difficulty">Bot Difficulty:</label>
+          <select id="bot-difficulty">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate" selected>Intermediate</option>
+            <option value="legendary">Legendary</option>
+          </select>
+
+          <div class="modal-buttons">
+            <button type="button" id="start-game-btn">Start Game</button>
+            <button type="button" id="tutorial-btn">Tutorial</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- Tutorial Modal -->
+    <dialog id="tutorial-modal">
+      <div class="modal-content">
+        <h2>How to Play STACKED!</h2>
+        <div class="tutorial-content">
+          <p>Welcome to <strong>STACKED!</strong>, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
+          <h3>Objective:</h3>
+          <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
+          <h3>How to Play:</h3>
+          <ul>
+            <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
+            <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
+              <ul>
+                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
+                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card's value. All cards are captured.</li>
+              </ul>
+            </li>
+            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
+            <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
+            <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
+            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
+            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
+          </ul>
+          <h3>Tips:</h3>
+          <ul>
+            <li>Plan your combos carefully to maximize points.</li>
+            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
+            <li>Secure J, Q, K matches quickly—they're valuable but can't be used in sums!</li>
+          </ul>
+        </div>
+        <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
+      </div>
+    </dialog>
+
+    <!-- NEW: Scoreboard Modal -->
+    <dialog id="scoreboard-modal">
+      <div class="confetti-container" id="confetti-container"></div>
+      <div class="jackpot-message" id="jackpot-message"></div>
+      <div class="scoreboard">
+        <div class="scoreboard-title" id="scoreboard-title">Scoreboard</div>
+        <div class="scoreboard-list" id="scoreboard-list"></div>
+      </div>
+      <div class="scoreboard-buttons" id="scoreboard-buttons"></div>
+    </dialog>
+
+    <div class="table">
+      <!-- Scores -->
+      <div class="score player-score" id="player-score">Player: 0 pts</div>
+      <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
+      <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
+
+      <!-- Play Areas -->
+      <div class="combination-area" id="combination-area">
+        <div class="modal-title">Combo Builder 🎯</div>
+        <!-- Base Card Area (Top) -->
+        <div class="combo-slot base-area" data-slot="base">Base Card</div>
+        
+        <!-- Capture Areas (Bottom Row) -->
+        <div class="capture-row">
+          <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
+          <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
+          <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
+          <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
+        </div>
+        
+        <!-- Modal Action Buttons -->
+        <div class="modal-actions">
+          <button id="submit-btn" class="modal-btn primary">Submit Move</button>
+          <button id="reset-play-area-btn" class="modal-btn secondary">Reset Play Area</button>
+          <button id="hint-btn" class="modal-btn secondary">Hint</button>
+        </div>
+      </div>
+
+      <!-- Board -->
+      <div class="board" id="board"></div>
+
+      <!-- Hands -->
+      <div class="hand player-hand" id="player-hand"></div>
+      <div class="hand bot1-hand" id="bot1-hand"></div>
+      <div class="hand bot2-hand" id="bot2-hand"></div>
+    </div>
+
+    <!-- Top Right Quit Button -->
+    <button id="restart-btn" class="quit-button">✕</button>
+
+    <!-- Bottom Message Area -->
+    <div class="bottom-ui">
+      <div class="smart-message" id="smart-message">
+        Drag cards to build captures or place one on board to end turn • Score 500 to win!
+      </div>
+      <div id="message" style="display: none;"></div>
+    </div>
+
+  <script src="js/deck.js"></script>
+<script src="js/gameLogic.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/core/game.js"></script>          <!-- NEW -->
+<script src="js/core/utils.js"></script>         <!-- NEW -->
+<script src="js/core/modeSelector.js"></script>  <!-- NEW -->
+<script src="js/ui.js"></script>
+<script src="js/botModal.js"></script>
+<script src="js/modes/classic.js"></script>
+<script src="js/modes/speed.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -3,168 +3,423 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STACKED!</title>
+  <title>STACKED! - Strategic Card Combat</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
-  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Homepage Styles with Woody Lumberyard Theme */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Cabin', Arial, sans-serif;
+    }
+
+    body {
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(0,0,0,0.2)" /></svg>') repeat;
+      background-color: #331E0F;
+      color: #D2A679;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    .homepage-container {
+      max-width: 1200px;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Epic Header */
+    .game-logo {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #D2A679;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+      margin-bottom: 10px;
+      letter-spacing: 3px;
+    }
+
+    .game-subtitle {
+      font-size: 1.5rem;
+      color: #B88A5A;
+      margin-bottom: 40px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Game Mode Cards */
+    .game-modes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 30px;
+      margin-bottom: 50px;
+    }
+
+    .mode-card {
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+      border: 3px solid #8B5A2B;
+      border-radius: 15px;
+      padding: 30px 25px;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mode-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(210, 166, 121, 0.1), transparent);
+      transition: left 0.8s;
+    }
+
+    .mode-card:hover::before {
+      left: 100%;
+    }
+
+    .mode-card:hover {
+      border-color: #D2A679;
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 16px 48px rgba(139, 90, 43, 0.4);
+    }
+
+    .mode-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    .mode-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #D2A679;
+      margin-bottom: 15px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .mode-description {
+      font-size: 1rem;
+      line-height: 1.5;
+      color: #B88A5A;
+      margin-bottom: 20px;
+    }
+
+    .mode-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .feature-tag {
+      background: rgba(74, 43, 23, 0.6);
+      border: 1px solid #4A2B17;
+      border-radius: 15px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      color: #D2A679;
+    }
+
+    .play-button {
+      background: linear-gradient(45deg, #D2A679, #B88A5A);
+      border: none;
+      border-radius: 25px;
+      padding: 12px 30px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #331E0F;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(210, 166, 121, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .play-button:hover {
+      background: linear-gradient(45deg, #B88A5A, #8B5A2B);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(210, 166, 121, 0.6);
+    }
+
+    /* Special Effects for Different Modes */
+    .classic-mode {
+      border-color: #8B5A2B;
+    }
+
+    .classic-mode:hover {
+      border-color: #D2A679;
+      box-shadow: 0 16px 48px rgba(139, 90, 43, 0.4);
+    }
+
+    .speed-mode {
+      border-color: #e74c3c;
+      animation: speedPulse 3s ease-in-out infinite;
+    }
+
+    .speed-mode:hover {
+      border-color: #c0392b;
+      box-shadow: 0 16px 48px rgba(231, 76, 60, 0.4);
+    }
+
+    @keyframes speedPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(231, 76, 60, 0.2); }
+      50% { box-shadow: 0 12px 40px rgba(231, 76, 60, 0.4); }
+    }
+
+    .tournament-mode {
+      border-color: #f39c12;
+    }
+
+    .tournament-mode:hover {
+      border-color: #e67e22;
+      box-shadow: 0 16px 48px rgba(243, 156, 18, 0.4);
+    }
+
+    /* Footer */
+    .homepage-footer {
+      margin-top: 40px;
+      padding: 20px;
+      text-align: center;
+      color: #8B5A2B;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #D2A679;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #B88A5A;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .game-logo {
+        font-size: 3rem;
+      }
+      
+      .game-subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .game-modes {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .mode-card {
+        padding: 25px 20px;
+      }
+      
+      .mode-title {
+        font-size: 1.5rem;
+      }
+      
+      .stats-bar {
+        gap: 20px;
+      }
+      
+      .stat-number {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Particles Background Effect */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #8B5A2B;
+      border-radius: 50%;
+      animation: float 20s infinite linear;
+      opacity: 0.1;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.1;
+      }
+      90% {
+        opacity: 0.1;
+      }
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="game-container">
-    <h1>Welcome to STACKED! 🎴</h1>
-    
-    <!-- Settings Modal -->
-    <dialog id="settings-modal">
-      <div class="modal-content">
-        <h2>Settings</h2>
-        <form>
-          <label for="card-speed">Card Reveal Speed:</label>
-          <select id="card-speed">
-            <option value="slow">Slow</option>
-            <option value="fast" selected>Fast</option>
-          </select>
-
-          <label for="sound-effects">Sound Effects:</label>
-          <select id="sound-effects">
-            <option value="on">On</option>
-            <option value="off" selected>Off</option>
-          </select>
-
-          <label for="target-score">Target Score:</label>
-          <select id="target-score">
-            <option value="100">100</option>
-            <option value="200">200</option>
-            <option value="300">300</option>
-            <option value="400">400</option>
-            <option value="500" selected>500</option>
-            <option value="600">600</option>
-            <option value="700">700</option>
-            <option value="800">800</option>
-            <option value="900">900</option>
-            <option value="1000">1000</option>
-            <option value="1100">1100</option>
-            <option value="1200">1200</option>
-            <option value="1300">1300</option>
-            <option value="1400">1400</option>
-            <option value="1500">1500</option>
-          </select>
-
-          <label for="bot-difficulty">Bot Difficulty:</label>
-          <select id="bot-difficulty">
-            <option value="beginner">Beginner</option>
-            <option value="intermediate" selected>Intermediate</option>
-            <option value="legendary">Legendary</option>
-          </select>
-
-          <div class="modal-buttons">
-            <button type="button" id="start-game-btn">Start Game</button>
-            <button type="button" id="tutorial-btn">Tutorial</button>
-          </div>
-        </form>
-      </div>
-    </dialog>
-
-    <!-- Tutorial Modal -->
-    <dialog id="tutorial-modal">
-      <div class="modal-content">
-        <h2>How to Play STACKED!</h2>
-        <div class="tutorial-content">
-          <p>Welcome to <strong>STACKED!</strong>, a strategic card game where you capture cards to score points and outsmart your opponents!</p>
-          <h3>Objective:</h3>
-          <p>Be the first to reach the target score (set in settings) by capturing cards from the board.</p>
-          <h3>How to Play:</h3>
-          <ul>
-            <li><strong>Setup:</strong> Each player (you and two bots) is dealt 4 cards. 4 cards are placed on the board.</li>
-            <li><strong>Your Turn:</strong> Drag cards to the play areas to build a combo:
-              <ul>
-                <li><strong>Pair Capture:</strong> Place a matching card (from hand or board) in the Principal Match area and a matching card in the Play Area. Both areas must include at least one hand card and one board card.</li>
-                <li><strong>Sum Capture (2-10 only):</strong> Place the target card in the Principal Match area. In the Play Area, use at least one hand card and one board card whose sum equals the Principal Match card's value. All cards are captured.</li>
-              </ul>
-            </li>
-            <li><strong>Submit Combo:</strong> Click "Submit Move" to capture. Both play areas will glow green if your combo is valid. You can make multiple combos per turn!</li>
-            <li><strong>End Turn:</strong> Drag a hand card to the board to place it and end your turn.</li>
-            <li><strong>Reset Play Area:</strong> Click "Reset Play Area" to return cards to their original positions.</li>
-            <li><strong>Scoring:</strong> Number cards (2-9) are worth 5 points, 10/J/Q/K are worth 10 points, Aces are worth 15 points.</li>
-            <li><strong>Game End:</strong> The game ends when the deck runs out. The player with the highest score wins!</li>
-          </ul>
-          <h3>Tips:</h3>
-          <ul>
-            <li>Plan your combos carefully to maximize points.</li>
-            <li>Watch the bots—they play smarter at higher difficulty levels!</li>
-            <li>Secure J, Q, K matches quickly—they're valuable but can't be used in sums!</li>
-          </ul>
-        </div>
-        <button type="button" onclick="document.getElementById('tutorial-modal').close()">Close</button>
-      </div>
-    </dialog>
-
-    <!-- NEW: Scoreboard Modal -->
-    <dialog id="scoreboard-modal">
-      <div class="confetti-container" id="confetti-container"></div>
-      <div class="jackpot-message" id="jackpot-message"></div>
-      <div class="scoreboard">
-        <div class="scoreboard-title" id="scoreboard-title">Scoreboard</div>
-        <div class="scoreboard-list" id="scoreboard-list"></div>
-      </div>
-      <div class="scoreboard-buttons" id="scoreboard-buttons"></div>
-    </dialog>
-
-    <div class="table">
-      <!-- Scores -->
-      <div class="score player-score" id="player-score">Player: 0 pts</div>
-      <div class="score bot1-score" id="bot1-score">Bot 1: 0 pts</div>
-      <div class="score bot2-score" id="bot2-score">Bot 2: 0 pts</div>
-
-      <!-- Play Areas -->
-      <div class="combination-area" id="combination-area">
-        <div class="modal-title">Combo Builder 🎯</div>
-        <!-- Base Card Area (Top) -->
-        <div class="combo-slot base-area" data-slot="base">Base Card</div>
-        
-        <!-- Capture Areas (Bottom Row) -->
-        <div class="capture-row">
-          <div class="combo-slot sum-area" data-slot="sum1">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum2">Sum Cards</div>
-          <div class="combo-slot sum-area" data-slot="sum3">Sum Cards</div>
-          <div class="combo-slot match-area" data-slot="match">Matching Cards</div>
-        </div>
-        
-        <!-- Modal Action Buttons -->
-        <div class="modal-actions">
-          <button id="submit-btn" class="modal-btn primary">Submit Move</button>
-          <button id="reset-play-area-btn" class="modal-btn secondary">Reset Play Area</button>
-          <button id="hint-btn" class="modal-btn secondary">Hint</button>
-        </div>
-      </div>
-
-      <!-- Board -->
-      <div class="board" id="board"></div>
-
-      <!-- Hands -->
-      <div class="hand player-hand" id="player-hand"></div>
-      <div class="hand bot1-hand" id="bot1-hand"></div>
-      <div class="hand bot2-hand" id="bot2-hand"></div>
+  <!-- Floating Particles Background -->
+  <div class="particles" id="particles"></div>
+  
+  <div class="homepage-container">
+    <!-- Header -->
+    <div class="game-header">
+      <h1 class="game-logo">🎴 STACKED!</h1>
+      <p class="game-subtitle">Strategic Card Combat • Master the Art of Capture</p>
     </div>
 
-    <!-- Top Right Quit Button -->
-    <button id="restart-btn" class="quit-button">✕</button>
-
-    <!-- Bottom Message Area -->
-    <div class="bottom-ui">
-      <div class="smart-message" id="smart-message">
-        Drag cards to build captures or place one on board to end turn • Score 500 to win!
+    <!-- Game Modes -->
+    <div class="game-modes">
+      <!-- Classic Mode -->
+      <div class="mode-card classic-mode" onclick="playMode('classic')">
+        <span class="mode-icon">🏛️</span>
+        <h2 class="mode-title">Classic STACKED</h2>
+        <p class="mode-description">
+          The original STACKED! experience with strategic captures, multi-area combos, and intelligent AI opponents.
+        </p>
+        <div class="mode-features">
+          <span class="feature-tag">🎯 Target: 500 pts</span>
+          <span class="feature-tag">🤖 Smart AI</span>
+          <span class="feature-tag">🎪 Multi-Capture</span>
+          <span class="feature-tag">💡 Hints Available</span>
+        </div>
+        <button class="play-button">Play Classic</button>
       </div>
-      <div id="message" style="display: none;"></div>
+
+      <!-- Speed Mode -->
+      <div class="mode-card speed-mode" onclick="playMode('speed')">
+        <span class="mode-icon">⚡</span>
+        <h2 class="mode-title">Speed STACKED</h2>
+        <p class="mode-description">
+          Fast-paced gameplay with time pressure! Race against the clock with speed bonuses and lightning-fast rounds.
+        </p>
+        <div class="mode-features">
+          <span class="feature-tag">⏰ 60s Rounds</span>
+          <span class="feature-tag">⚡ Speed Bonuses</span>
+          <span class="feature-tag">🎯 Target: 300 pts</span>
+          <span class="feature-tag">🏁 Best of 3</span>
+        </div>
+        <button class="play-button">Play Speed</button>
+      </div>
+
+      <!-- Tournament Mode (Coming Soon) -->
+      <div class="mode-card tournament-mode" onclick="showComingSoon('tournament')">
+        <span class="mode-icon">🏆</span>
+        <h2 class="mode-title">Tournament Mode</h2>
+        <p class="mode-description">
+          Compete in elimination brackets! Climb the ladder, defeat champion AI, and claim your throne as STACKED! legend.
+        </p>
+        <div class="mode-features">
+          <span class="feature-tag">🏆 Elimination</span>
+          <span class="feature-tag">👑 Champion AI</span>
+          <span class="feature-tag">🎖️ Leaderboards</span>
+          <span class="feature-tag">🔥 Coming Soon</span>
+        </div>
+        <button class="play-button">Coming Soon</button>
+      </div>
     </div>
 
-  <script src="js/deck.js"></script>
-<script src="js/gameLogic.js"></script>
-<script src="js/ai.js"></script>
-<script src="js/core/game.js"></script>          <!-- NEW -->
-<script src="js/core/utils.js"></script>         <!-- NEW -->
-<script src="js/core/modeSelector.js"></script>  <!-- NEW -->
-<script src="js/ui.js"></script>
-<script src="js/botModal.js"></script>
-<script src="js/modes/classic.js"></script>
-<script src="js/modes/speed.js"></script>
-<script src="js/main.js"></script>
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Game Modes</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">∞</span>
+        <span class="stat-label">Strategies</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">5</span>
+        <span class="stat-label">Capture Areas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">AI Levels</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="homepage-footer">
+      <p>© 2024 STACKED! • Strategic Card Combat Engine • Built for Legends</p>
+    </div>
+  </div>
+
+  <script>
+    // Create floating particles
+    function createParticles() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 50;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 20 + 's';
+        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+        particlesContainer.appendChild(particle);
+      }
+    }
+
+    // Navigation functions
+    function playMode(mode) {
+      // Store selected mode in localStorage for the game to pick up
+      localStorage.setItem('selectedMode', mode);
+      
+      // Navigate to game
+      window.location.href = 'game.html';
+    }
+
+    function showComingSoon(mode) {
+      alert(`🏆 ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode is coming soon!\n\nThis epic mode is in development and will be available in the next update. Stay tuned for elimination tournaments and championship battles!`);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      
+      // Add some interactive effects
+      const modeCards = document.querySelectorAll('.mode-card');
+      modeCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+        });
+      });
+    });
+  </script>
 </body>
 </html>

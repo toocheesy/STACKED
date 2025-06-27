@@ -38,35 +38,45 @@ class BotModalInterface {
   }
 
   async executeCapture(move, playerIndex) {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
 
-    console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
-    const baseCard = move.handCard;
-    const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+  console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
+  const baseCard = move.handCard;
+  const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
 
-    if (handIndex !== -1) {
-      try {
-        await this.botResetModal();
-        await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
-        
-        // Add target cards to appropriate slots
-        for (const targetCard of move.capture.targets) {
-          const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-          if (boardIndex !== -1) {
-            await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
-          }
+  if (handIndex !== -1) {
+    try {
+      await this.botResetModal();
+      
+      // CRITICAL FIX: Ensure base card is placed first
+      console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
+      await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+      
+      // Add target cards to appropriate slots
+      for (const targetCard of move.capture.targets) {
+        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+        if (boardIndex !== -1) {
+          console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
+          await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
         }
-        
+      }
+      
+      // Verify we have base card before submitting
+      if (this.game.state.combination.base.length === 1) {
         await this.botSubmitCapture();
-      } catch (error) {
-        console.error('🚨 Bot capture error:', error);
+      } else {
+        console.log(`🚨 BOT: Base card missing, falling back to place`);
         this.fallbackPlaceCard(baseCard, playerIndex);
       }
+    } catch (error) {
+      console.error('🚨 Bot capture error:', error);
+      this.fallbackPlaceCard(baseCard, playerIndex);
     }
-
-    this.isAnimating = false;
   }
+
+  this.isAnimating = false;
+}
 
   async botSubmitCapture() {
     console.log(`🤖 BOT: Attempting to submit capture`);
