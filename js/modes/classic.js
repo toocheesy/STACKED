@@ -145,11 +145,15 @@ const ClassicMode = {
   },
 
   onRoundEnd(gameEngine) {
-    // Rotate dealer
-    gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
-    gameEngine.currentRound++;
-    console.log(`🔄 Round ${gameEngine.currentRound} starting, ${['Player', 'Bot 1', 'Bot 2'][gameEngine.currentDealer]} deals`);
-  },
+  // 🔥 FIX: Only increment round when actually dealing new cards
+  console.log(`🔄 Round ${gameEngine.currentRound} completed`);
+  
+  // Rotate dealer for NEXT round (when it starts)
+  gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
+  
+  // DON'T increment currentRound here - do it when dealing new cards
+  console.log(`🎯 Next dealer will be: ${['Player', 'Bot 1', 'Bot 2'][gameEngine.currentDealer]}`);
+},
 
   onGameEnd(gameEngine) {
     const winner = this.getWinner(gameEngine);

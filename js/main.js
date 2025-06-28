@@ -238,14 +238,21 @@ function checkGameEnd() {
 
 function dealNewCards() {
   try {
-    const dealResult = dealCards(game.state.deck, 3, 4, 0);
+    // 🔥 FIX: Increment round counter when actually dealing new cards
+    game.currentRound++;
+    console.log(`🎮 Starting Round ${game.currentRound}`);
+    
+    const newDeck = shuffleDeck(createDeck());
+    const dealResult = dealCards(newDeck, 3, 4, 4);
     game.state.hands = dealResult.players;
+    game.state.board = dealResult.board;
     game.state.deck = dealResult.remainingDeck;
     game.state.currentPlayer = 0;
+    game.state.lastCapturer = null;
     ui.smartMessages.updateMessage('turn_start');
     ui.render();
   } catch (e) {
-    console.error('Error dealing new cards:', e);
+    console.error('Error dealing new round:', e);
     ui.smartMessages.showErrorMessage('Error dealing cards! Restart the game.');
   }
 }
@@ -325,12 +332,51 @@ async function scheduleNextBotTurn() {
   }
 }
 
-// Settings modal - now simplified (no mode selection)
+/* 
+ * 🎫 TICKET #2 FIXES for main.js
+ * Fix mode settings application and speed timer early start
+ */
+
+// REPLACE the showSettingsModal() function in main.js with this FIXED version:
+
 function showSettingsModal() {
   const modal = document.getElementById('settings-modal');
   if (!modal) return;
 
-  // DON'T create mode selector - that's on homepage now!
+  // 🔥 FIX 1: Apply mode settings BEFORE showing modal
+  const currentMode = game.currentMode;
+  if (currentMode && currentMode.config) {
+    // Update target score dropdown to reflect mode default
+    const targetScoreSelect = document.getElementById('target-score');
+    if (targetScoreSelect && currentMode.config.targetScore) {
+      targetScoreSelect.value = currentMode.config.targetScore;
+      game.state.settings.targetScore = currentMode.config.targetScore;
+    }
+    
+    // Add mode indicator to modal
+    const modalContent = modal.querySelector('.modal-content');
+    let modeIndicator = modal.querySelector('.current-mode-indicator');
+    if (!modeIndicator) {
+      modeIndicator = document.createElement('div');
+      modeIndicator.className = 'current-mode-indicator';
+      modeIndicator.style.cssText = `
+        background: rgba(74, 112, 67, 0.3);
+        border: 2px solid #4A7043;
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 15px;
+        text-align: center;
+        font-weight: bold;
+        color: #D2A679;
+      `;
+      modalContent.insertBefore(modeIndicator, modalContent.firstChild);
+    }
+    modeIndicator.innerHTML = `
+      🎮 <strong>${currentMode.name}</strong><br>
+      <small>Target: ${currentMode.config.targetScore || 500} pts</small>
+    `;
+  }
+
   modal.showModal();
 
   const startGameBtn = document.getElementById('start-game-btn');
@@ -339,24 +385,21 @@ function showSettingsModal() {
 
   if (startGameBtn) {
     startGameBtn.addEventListener('click', () => {
-      // Apply standard settings only
+      // Apply settings
       game.state.settings.cardSpeed = document.getElementById('card-speed')?.value || 'fast';
       game.state.settings.soundEffects = document.getElementById('sound-effects')?.value || 'off';
       game.state.settings.targetScore = parseInt(document.getElementById('target-score')?.value || 500);
       game.state.settings.botDifficulty = document.getElementById('bot-difficulty')?.value || 'intermediate';
       
-      // Keep current mode, just update settings
-      if (game.currentMode && game.currentMode.config) {
-        // Override target score with mode's default if user didn't change it
-        if (game.currentMode.config.targetScore) {
-          game.state.settings.targetScore = game.currentMode.config.targetScore;
-        }
+      // 🔥 FIX 2: Initialize mode AFTER settings are confirmed
+      if (game.currentMode && game.currentMode.init) {
+        game.currentMode.init(game);
       }
       
       modal.close();
       ui.render();
       
-      console.log(`⚙️ Settings updated for ${game.currentMode?.name || 'Classic'} mode`);
+      console.log(`⚙️ Settings applied and ${game.currentMode?.name || 'Classic'} mode started`);
     });
   }
 

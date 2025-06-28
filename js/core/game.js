@@ -291,24 +291,49 @@ nextPlayer() {
 
   // Check if game should end (uses current mode)
   checkGameEnd() {
-    if (this.currentMode.checkEndCondition) {
-      return this.currentMode.checkEndCondition(this);
-    }
-    
-    // Default end condition
-    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-      if (maxScore >= this.state.settings.targetScore) {
-        return { gameOver: true, reason: 'target_score_reached' };
-      } else {
-        return { roundOver: true, gameOver: false, reason: 'round_complete' };
-      }
-    }
-    
-    return { continue: true };
+  if (this.currentMode.checkEndCondition) {
+    return this.currentMode.checkEndCondition(this);
   }
+  
+  // Default end condition
+  const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
+  
+  if (playersWithCards === 0) {
+    // 🔥 FIX: Apply "Last Combo Takes All" rule here
+    let jackpotMessage = null;
+    if (this.state.lastCapturer !== null && this.state.board.length > 0) {
+      const bonusPoints = this.calculateScore(this.state.board);
+      this.addScore(this.state.lastCapturer, bonusPoints);
+      
+      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+      const lastCapturerName = playerNames[this.state.lastCapturer];
+      
+      jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
+      console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+      
+      // Clear the board
+      this.state.board = [];
+    }
+    
+    const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
+    if (maxScore >= this.state.settings.targetScore) {
+      return { 
+        gameOver: true, 
+        reason: 'target_score_reached',
+        message: jackpotMessage 
+      };
+    } else {
+      return { 
+        roundOver: true, 
+        gameOver: false, 
+        reason: 'round_complete',
+        message: jackpotMessage 
+      };
+    }
+  }
+  
+  return { continue: true };
+}
 
   // Get ranked players
   getRankedPlayers() {
