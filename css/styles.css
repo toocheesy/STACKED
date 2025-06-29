@@ -1380,3 +1380,16 @@ dialog h2 {
     right: -5px;
   }
 }
+
+/* 🔧 FORCE BOT BUTTON STYLES - DEBUG */
+[data-difficulty] {
+  background: red !important;
+  color: white !important;
+  border: 3px solid yellow !important;
+  padding: 10px !important;
+}
+
+[data-difficulty].selected {
+  background: green !important;
+  transform: scale(1.2) !important;
+}
