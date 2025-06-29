@@ -276,25 +276,28 @@ function checkGameEnd() {
 
 function dealNewCards() {
   try {
-    // 🔥 FIX: Increment round counter when actually dealing new cards
-    game.currentRound++;
-    console.log(`🎮 Starting Round ${game.currentRound}`);
+    // 🔥 DON'T increment round here - that should happen when deck actually runs out
+    console.log(`🎮 Dealing new cards - Current Round: ${game.currentRound}`);
     
-    const newDeck = shuffleDeck(createDeck());
+    // 🎯 CRITICAL FIX: Use EXISTING deck, don't create new one!
+    if (game.state.deck.length < 12) {
+      console.log(`🚨 DECK TOO LOW: Only ${game.state.deck.length} cards left - this should trigger game end!`);
+      checkGameEnd();
+      return;
+    }
     
-    // 🎯 CRITICAL FIX: Change dealCards(newDeck, 3, 4, 4) to dealCards(newDeck, 3, 4, 0)
-    // This preserves existing board cards for "Last Combo Takes All" jackpot mechanics!
-    const dealResult = dealCards(newDeck, 3, 4, 0);  // ← 0 board cards = preserve existing board!
+    // Deal from EXISTING deck - this preserves the board!
+    const dealResult = dealCards(game.state.deck, 3, 4, 0);  // ← Use existing deck!
     
     game.state.hands = dealResult.players;
-    // 🔥 IMPORTANT: Don't replace the board - keep existing cards for jackpot!
-    // game.state.board = dealResult.board;  ← COMMENTED OUT
+    // 🔥 BOARD STAYS UNCHANGED - this is the key!
     game.state.deck = dealResult.remainingDeck;
     game.state.currentPlayer = 0;
     game.state.lastCapturer = null;
     
-    console.log(`✅ NEW ROUND: ${game.state.hands[0].length} cards dealt to each player`);
+    console.log(`✅ NEW CARDS DEALT: ${game.state.hands[0].length} cards to each player`);
     console.log(`🎯 BOARD PRESERVED: ${game.state.board.length} cards remain for jackpot`);
+    console.log(`📦 DECK REMAINING: ${game.state.deck.length} cards`);
     
     ui.smartMessages.updateMessage('turn_start');
     ui.render();
