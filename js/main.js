@@ -281,12 +281,21 @@ function dealNewCards() {
     console.log(`🎮 Starting Round ${game.currentRound}`);
     
     const newDeck = shuffleDeck(createDeck());
-    const dealResult = dealCards(newDeck, 3, 4, 4);
+    
+    // 🎯 CRITICAL FIX: Change dealCards(newDeck, 3, 4, 4) to dealCards(newDeck, 3, 4, 0)
+    // This preserves existing board cards for "Last Combo Takes All" jackpot mechanics!
+    const dealResult = dealCards(newDeck, 3, 4, 0);  // ← 0 board cards = preserve existing board!
+    
     game.state.hands = dealResult.players;
-    game.state.board = dealResult.board;
+    // 🔥 IMPORTANT: Don't replace the board - keep existing cards for jackpot!
+    // game.state.board = dealResult.board;  ← COMMENTED OUT
     game.state.deck = dealResult.remainingDeck;
     game.state.currentPlayer = 0;
     game.state.lastCapturer = null;
+    
+    console.log(`✅ NEW ROUND: ${game.state.hands[0].length} cards dealt to each player`);
+    console.log(`🎯 BOARD PRESERVED: ${game.state.board.length} cards remain for jackpot`);
+    
     ui.smartMessages.updateMessage('turn_start');
     ui.render();
   } catch (e) {
