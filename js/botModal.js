@@ -236,29 +236,77 @@ class BotModalInterface {
     return true;
   }
 
-  async placeCard(handCard, playerIndex) {
-    if (this.isAnimating) return false;
-    this.isAnimating = true;
+  /* 
+ * 🔧 BULLETPROOF CARD TRACKING FIX
+ * Replace the placeCard() function in botModal.js
+ */
 
-    console.log(`🤖 BOT: Placing ${handCard.value}${handCard.suit} on board to end turn`);
+async placeCard(handCard, playerIndex) {
+  if (this.isAnimating) return false;
+  this.isAnimating = true;
+
+  console.log(`🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} on board`);
+  
+  // 🔥 CRITICAL FIX: Ensure card placement is ATOMIC
+  try {
     await this.delay(500);
 
-    this.game.state.board.push(handCard);
-    this.game.state.hands[playerIndex] = this.game.state.hands[playerIndex].filter(card => card.id !== handCard.id);
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    this.game.nextPlayer();
+    // STEP 1: Remove card from bot's hand FIRST
+    const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === handCard.id);
+    if (cardIndex === -1) {
+      console.error(`🚨 CRITICAL: Card ${handCard.value}${handCard.suit} not found in Bot ${playerIndex} hand!`);
+      this.isAnimating = false;
+      return false;
+    }
     
+    // Remove from hand
+    this.game.state.hands[playerIndex].splice(cardIndex, 1);
+    console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
+    
+    // STEP 2: Add card to board IMMEDIATELY
+    this.game.state.board.push(handCard);
+    console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${this.game.state.board.length} cards total)`);
+    
+    // STEP 3: Clear combo areas
+    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    console.log(`✅ CLEARED: All combo areas`);
+    
+    // STEP 4: Update UI immediately
     this.ui.render();
+    console.log(`✅ RENDERED: UI updated`);
+    
+    // STEP 5: Handle turn logic AFTER card is safely placed
+    const remainingCards = this.game.state.hands[playerIndex].length;
+    if (remainingCards > 0) {
+      // Bot still has cards, switch to next player
+      this.game.nextPlayer();
+      console.log(`🔄 BOT ${playerIndex} placed card, switching to player ${this.game.state.currentPlayer}`);
+    } else {
+      // Bot is out of cards, switch to next player with cards
+      console.log(`🏁 BOT ${playerIndex} is out of cards`);
+      this.game.nextPlayer();
+    }
+    
+    // STEP 6: Check game end conditions
     checkGameEnd();
-
-    if (this.game.state.currentPlayer !== 0 && this.game.state.hands[this.game.state.currentPlayer] && this.game.state.hands[this.game.state.currentPlayer].length > 0) {
-      console.log(`🔄 BOT PLACED CARD - CONTINUING TO PLAYER ${this.game.state.currentPlayer}`);
+    
+    // STEP 7: Continue game flow if needed
+    if (this.game.state.currentPlayer !== 0 && 
+        this.game.state.hands[this.game.state.currentPlayer] && 
+        this.game.state.hands[this.game.state.currentPlayer].length > 0) {
+      console.log(`🔄 CONTINUING TO BOT ${this.game.state.currentPlayer}`);
       setTimeout(async () => await scheduleNextBotTurn(), 1000);
     }
 
     this.isAnimating = false;
     return true;
+    
+  } catch (error) {
+    console.error(`🚨 CRITICAL ERROR in placeCard:`, error);
+    this.isAnimating = false;
+    return false;
   }
+}
 
   fallbackPlaceCard(handCard, playerIndex) {
     console.log(`🔄 BOT FALLBACK: Placing card instead of capturing`);
@@ -271,6 +319,25 @@ class BotModalInterface {
 
   canBotCapture(hand, board) {
     return hand.length > 0 && board.length > 0;
+  }
+debugCardState() {
+    console.log(`🔍 CARD STATE DEBUG:`);
+    console.log(`   Player hand: ${this.game.state.hands[0].length} cards`);
+    console.log(`   Bot 1 hand: ${this.game.state.hands[1].length} cards`);
+    console.log(`   Bot 2 hand: ${this.game.state.hands[2].length} cards`);
+    console.log(`   Board: ${this.game.state.board.length} cards`);
+    console.log(`   Deck: ${this.game.state.deck.length} cards`);
+    
+    const totalCards = this.game.state.hands[0].length + 
+                      this.game.state.hands[1].length + 
+                      this.game.state.hands[2].length + 
+                      this.game.state.board.length + 
+                      this.game.state.deck.length;
+    console.log(`   TOTAL CARDS: ${totalCards} (should be 52)`);
+    
+    if (totalCards !== 52) {
+      console.error(`🚨 CARD COUNT MISMATCH! Missing ${52 - totalCards} cards!`);
+    }
   }
 }
 

@@ -1157,8 +1157,7 @@ dialog h2 {
 }
 
 /* 
- * Bot Difficulty Selector Styles - ADD to styles.css
- * Beautiful woody theme integration
+ * Beautiful 3-Button Bot Selector - REPLACE the dropdown CSS with this
  */
 
 .bot-difficulty-selector {
@@ -1181,80 +1180,124 @@ dialog h2 {
   color: #D2A679;
   font-size: 0.9rem;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.bot-difficulty-selector select {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+.difficulty-buttons {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.difficulty-btn {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border: 2px solid #4A2B17;
   border-radius: 6px;
   padding: 8px 12px;
-  color: #331E0F;
+  color: #D2A679;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
-  width: 100%;
-  max-width: 180px;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 70px;
+  position: relative;
+  overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.bot-difficulty-selector select:hover {
+.difficulty-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(210, 166, 121, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.difficulty-btn:hover::before {
+  left: 100%;
+}
+
+.difficulty-btn:hover {
   border-color: #8B5A2B;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-.bot-difficulty-selector select:focus {
-  outline: none;
+.difficulty-btn.selected {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23D2A679" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   border-color: #D2A679;
-  box-shadow: 0 0 8px rgba(210, 166, 121, 0.5);
-}
-
-.bot-difficulty-selector select:disabled {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23cccccc" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.3" /></svg>');
-  color: #888;
-  cursor: not-allowed;
-  border-color: #999;
-}
-
-/* Option styling (limited browser support but adds polish) */
-.bot-difficulty-selector select option {
-  background: #F5E8C7;
   color: #331E0F;
-  padding: 5px;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(210, 166, 121, 0.6);
+  animation: selectedGlow 2s ease-in-out infinite alternate;
 }
 
-/* Mobile responsive adjustments */
+.difficulty-btn.selected:hover {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23B88A5A" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+}
+
+.difficulty-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.difficulty-name {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+@keyframes selectedGlow {
+  from { box-shadow: 0 4px 12px rgba(210, 166, 121, 0.6); }
+  to { box-shadow: 0 6px 16px rgba(210, 166, 121, 0.8); }
+}
+
+/* Mobile responsive */
 @media (max-width: 768px) {
-  .bot-difficulty-selector {
-    margin: 12px 0 15px 0;
-    padding: 10px;
+  .difficulty-buttons {
+    gap: 4px;
   }
   
-  .bot-difficulty-selector label {
-    font-size: 0.85rem;
-    margin-bottom: 6px;
+  .difficulty-btn {
+    min-width: 60px;
+    padding: 6px 8px;
+    font-size: 0.75rem;
   }
   
-  .bot-difficulty-selector select {
-    font-size: 0.85rem;
-    padding: 6px 10px;
-    max-width: 160px;
+  .difficulty-icon {
+    font-size: 1rem;
+  }
+  
+  .difficulty-name {
+    font-size: 0.7rem;
   }
 }
 
 @media (max-width: 550px) {
-  .bot-difficulty-selector {
-    margin: 10px 0 12px 0;
-    padding: 8px;
+  .difficulty-buttons {
+    gap: 3px;
   }
   
-  .bot-difficulty-selector select {
-    font-size: 0.8rem;
-    padding: 5px 8px;
-    max-width: 140px;
+  .difficulty-btn {
+    min-width: 55px;
+    padding: 5px 6px;
+  }
+  
+  .difficulty-icon {
+    font-size: 0.9rem;
+  }
+  
+  .difficulty-name {
+    font-size: 0.65rem;
   }
 }

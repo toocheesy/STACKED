@@ -314,14 +314,23 @@
           <span class="feature-tag">💡 Hints Available</span>
         </div>
         
-        <!-- NEW: Bot Difficulty Selector -->
+        <!-- NEW: Beautiful 3-Button Bot Difficulty Selector -->
         <div class="bot-difficulty-selector">
           <label>🤖 AI Opponent:</label>
-          <select id="classic-bot-difficulty" onclick="event.stopPropagation();">
-            <option value="beginner">🟢 Beginner Bot</option>
-            <option value="intermediate" selected>🟡 Intermediate Bot</option>
-            <option value="legendary">🔴 Legendary Bot</option>
-          </select>
+          <div class="difficulty-buttons" data-mode="classic">
+            <button class="difficulty-btn" data-difficulty="beginner">
+              <span class="difficulty-icon">🟢</span>
+              <span class="difficulty-name">Beginner</span>
+            </button>
+            <button class="difficulty-btn selected" data-difficulty="intermediate">
+              <span class="difficulty-icon">🟡</span>
+              <span class="difficulty-name">Intermediate</span>
+            </button>
+            <button class="difficulty-btn" data-difficulty="legendary">
+              <span class="difficulty-icon">🔴</span>
+              <span class="difficulty-name">Legendary</span>
+            </button>
+          </div>
         </div>
         
         <button class="play-button">Play Classic</button>
@@ -341,14 +350,23 @@
           <span class="feature-tag">🏁 Best of 3</span>
         </div>
         
-        <!-- NEW: Bot Difficulty Selector -->
+        <!-- NEW: Beautiful 3-Button Bot Difficulty Selector -->
         <div class="bot-difficulty-selector">
           <label>🤖 AI Opponent:</label>
-          <select id="speed-bot-difficulty" onclick="event.stopPropagation();">
-            <option value="beginner">🟢 Beginner Bot</option>
-            <option value="intermediate" selected>🟡 Intermediate Bot</option>
-            <option value="legendary">🔴 Legendary Bot</option>
-          </select>
+          <div class="difficulty-buttons" data-mode="classic">
+            <button class="difficulty-btn" data-difficulty="beginner">
+              <span class="difficulty-icon">🟢</span>
+              <span class="difficulty-name">Beginner</span>
+            </button>
+            <button class="difficulty-btn selected" data-difficulty="intermediate">
+              <span class="difficulty-icon">🟡</span>
+              <span class="difficulty-name">Intermediate</span>
+            </button>
+            <button class="difficulty-btn" data-difficulty="legendary">
+              <span class="difficulty-icon">🔴</span>
+              <span class="difficulty-name">Legendary</span>
+            </button>
+          </div>
         </div>
         
         <button class="play-button">Play Speed</button>
@@ -368,12 +386,23 @@
           <span class="feature-tag">🔥 Coming Soon</span>
         </div>
         
-        <!-- NEW: Bot Difficulty Selector (Disabled for Coming Soon) -->
+        <!-- NEW: Beautiful 3-Button Bot Difficulty Selector -->
         <div class="bot-difficulty-selector">
           <label>🤖 AI Opponent:</label>
-          <select id="tournament-bot-difficulty" disabled onclick="event.stopPropagation();">
-            <option value="champion">👑 Champion AI</option>
-          </select>
+          <div class="difficulty-buttons" data-mode="classic">
+            <button class="difficulty-btn" data-difficulty="beginner">
+              <span class="difficulty-icon">🟢</span>
+              <span class="difficulty-name">Beginner</span>
+            </button>
+            <button class="difficulty-btn selected" data-difficulty="intermediate">
+              <span class="difficulty-icon">🟡</span>
+              <span class="difficulty-name">Intermediate</span>
+            </button>
+            <button class="difficulty-btn" data-difficulty="legendary">
+              <span class="difficulty-icon">🔴</span>
+              <span class="difficulty-name">Legendary</span>
+            </button>
+          </div>
         </div>
         
         <button class="play-button">Coming Soon</button>
@@ -424,20 +453,70 @@
 
     // Navigation functions
     function playMode(mode) {
-      // Store selected mode in localStorage for the game to pick up
-      localStorage.setItem('selectedMode', mode);
+      // 🔥 NEW: Get bot difficulty from selected button
+      const modeCard = event.currentTarget;
+      const selectedButton = modeCard.querySelector('.difficulty-btn.selected');
+      const botDifficulty = selectedButton ? selectedButton.dataset.difficulty : 'intermediate';
       
-      // Navigate to game
-      window.location.href = 'game.html';
+      // 🎯 Store selected mode and difficulty
+      localStorage.setItem('selectedMode', mode);
+      localStorage.setItem('botDifficulty', botDifficulty);
+      
+      console.log(`🎮 Selected: ${mode} mode with ${botDifficulty} AI`);
+      
+      // ✨ Enhanced visual feedback
+      if (modeCard) {
+        modeCard.style.transform = 'scale(0.95)';
+        modeCard.style.transition = 'transform 0.1s ease';
+        
+        setTimeout(() => {
+          modeCard.style.transform = '';
+          window.location.href = 'game.html';
+        }, 100);
+      } else {
+        window.location.href = 'game.html';
+      }
     }
 
     function showComingSoon(mode) {
       alert(`🏆 ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode is coming soon!\n\nThis epic mode is in development and will be available in the next update. Stay tuned for elimination tournaments and championship battles!`);
     }
 
+    // 🔥 NEW: Initialize button selectors
+    function setupBotDifficultyButtons() {
+      const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+      
+      difficultyButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.stopPropagation(); // Prevent mode card click
+          
+          // Get the mode from parent container
+          const modeContainer = button.closest('.difficulty-buttons');
+          const mode = modeContainer.dataset.mode;
+          
+          // Remove selected class from siblings
+          const siblings = modeContainer.querySelectorAll('.difficulty-btn');
+          siblings.forEach(sibling => sibling.classList.remove('selected'));
+          
+          // Add selected class to clicked button
+          button.classList.add('selected');
+          
+          // Visual feedback
+          button.style.transform = 'translateY(-4px) scale(1.05)';
+          setTimeout(() => {
+            button.style.transform = '';
+          }, 150);
+          
+          const difficulty = button.dataset.difficulty;
+          console.log(`🤖 ${mode} AI set to: ${difficulty}`);
+        });
+      });
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       createParticles();
+      setupBotDifficultyButtons(); // 🔥 ADD THIS LINE
       
       // Add some interactive effects
       const modeCards = document.querySelectorAll('.mode-card');

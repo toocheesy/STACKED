@@ -158,6 +158,11 @@ function handleResetPlayArea() {
   ui.smartMessages.updateMessage('turn_start');
 }
 
+/* 
+ * 🔧 PLAYER CARD PLACEMENT FIX
+ * Replace handleBoardDrop() in main.js to match bot logic
+ */
+
 function handleBoardDrop(e) {
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
@@ -183,33 +188,66 @@ function handleBoardDrop(e) {
     return;
   }
 
-  // Case 2: Placing card from hand to end turn
+  // Case 2: Placing card from hand to end turn - FIXED VERSION
   if (game.state.draggedCard.source !== 'hand') return;
 
   const handCard = game.state.draggedCard.card;
   const handIndex = game.state.draggedCard.index;
 
-  console.log(`🎴 PLAYER: Placing ${handCard.value}${handCard.suit} on board to end turn`);
+  console.log(`🎴 PLAYER: PLACING ${handCard.value}${handCard.suit} on board`);
 
-  // CRITICAL FIX: Clear ALL combo areas when ending turn
-  console.log(`🧹 CLEARING: All combo areas before ending turn`);
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-
-  // Place card on board and remove from hand
-  game.state.board.push(handCard);
-  game.state.hands[0] = game.state.hands[0].filter((_, i) => i !== handIndex);
-  
-  // End turn
-  game.state.currentPlayer = 1;
-  game.state.draggedCard = null;
-  
-  console.log(`🔄 TURN ENDED: Switching to Bot 1`);
-  
-  checkGameEnd();
-  ui.render();
-  
-  if (game.state.currentPlayer !== 0) {
-    setTimeout(async () => await scheduleNextBotTurn(), 100);
+  // 🔥 BULLETPROOF CARD PLACEMENT
+  try {
+    // STEP 1: Remove card from player hand FIRST
+    const actualCard = game.state.hands[0][handIndex];
+    if (!actualCard || actualCard.id !== handCard.id) {
+      console.error(`🚨 CRITICAL: Card mismatch at index ${handIndex}!`);
+      game.state.draggedCard = null;
+      ui.render();
+      return;
+    }
+    
+    // Remove from hand
+    game.state.hands[0].splice(handIndex, 1);
+    console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from player hand (${game.state.hands[0].length} cards left)`);
+    
+    // STEP 2: Add to board IMMEDIATELY  
+    game.state.board.push(handCard);
+    console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${game.state.board.length} cards total)`);
+    
+    // STEP 3: Clear combo areas
+    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    console.log(`✅ CLEARED: All combo areas`);
+    
+    // STEP 4: Clean up drag state
+    game.state.draggedCard = null;
+    
+    // STEP 5: Handle turn switching
+    const playerCards = game.state.hands[0].length;
+    if (playerCards > 0) {
+      // Player still has cards, switch to next bot
+      game.nextPlayer();
+      console.log(`🔄 PLAYER placed card, switching to Bot ${game.state.currentPlayer}`);
+    } else {
+      // Player is out of cards
+      console.log(`🏁 PLAYER is out of cards`);
+      game.nextPlayer();
+    }
+    
+    // STEP 6: Update UI
+    ui.render();
+    
+    // STEP 7: Check game end and continue
+    checkGameEnd();
+    
+    if (game.state.currentPlayer !== 0) {
+      setTimeout(async () => await scheduleNextBotTurn(), 100);
+    }
+    
+  } catch (error) {
+    console.error(`🚨 CRITICAL ERROR in handleBoardDrop:`, error);
+    game.state.draggedCard = null;
+    ui.render();
   }
 }
 
