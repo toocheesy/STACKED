@@ -1155,3 +1155,106 @@ dialog h2 {
     width: 25px;
   }
 }
+
+/* 
+ * Bot Difficulty Selector Styles - ADD to styles.css
+ * Beautiful woody theme integration
+ */
+
+.bot-difficulty-selector {
+  margin: 15px 0 20px 0;
+  text-align: center;
+  background: rgba(74, 43, 23, 0.2);
+  border: 1px solid #4A2B17;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.bot-difficulty-selector:hover {
+  background: rgba(74, 43, 23, 0.3);
+  border-color: #8B5A2B;
+}
+
+.bot-difficulty-selector label {
+  display: block;
+  color: #D2A679;
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.bot-difficulty-selector select {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 2px solid #4A2B17;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #331E0F;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  width: 100%;
+  max-width: 180px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bot-difficulty-selector select:hover {
+  border-color: #8B5A2B;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.bot-difficulty-selector select:focus {
+  outline: none;
+  border-color: #D2A679;
+  box-shadow: 0 0 8px rgba(210, 166, 121, 0.5);
+}
+
+.bot-difficulty-selector select:disabled {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23cccccc" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.3" /></svg>');
+  color: #888;
+  cursor: not-allowed;
+  border-color: #999;
+}
+
+/* Option styling (limited browser support but adds polish) */
+.bot-difficulty-selector select option {
+  background: #F5E8C7;
+  color: #331E0F;
+  padding: 5px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .bot-difficulty-selector {
+    margin: 12px 0 15px 0;
+    padding: 10px;
+  }
+  
+  .bot-difficulty-selector label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+  }
+  
+  .bot-difficulty-selector select {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+    max-width: 160px;
+  }
+}
+
+@media (max-width: 550px) {
+  .bot-difficulty-selector {
+    margin: 10px 0 12px 0;
+    padding: 8px;
+  }
+  
+  .bot-difficulty-selector select {
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    max-width: 140px;
+  }
+}

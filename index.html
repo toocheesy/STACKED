@@ -313,6 +313,17 @@
           <span class="feature-tag">🎪 Multi-Capture</span>
           <span class="feature-tag">💡 Hints Available</span>
         </div>
+        
+        <!-- NEW: Bot Difficulty Selector -->
+        <div class="bot-difficulty-selector">
+          <label>🤖 AI Opponent:</label>
+          <select id="classic-bot-difficulty" onclick="event.stopPropagation();">
+            <option value="beginner">🟢 Beginner Bot</option>
+            <option value="intermediate" selected>🟡 Intermediate Bot</option>
+            <option value="legendary">🔴 Legendary Bot</option>
+          </select>
+        </div>
+        
         <button class="play-button">Play Classic</button>
       </div>
 
@@ -329,6 +340,17 @@
           <span class="feature-tag">🎯 Target: 300 pts</span>
           <span class="feature-tag">🏁 Best of 3</span>
         </div>
+        
+        <!-- NEW: Bot Difficulty Selector -->
+        <div class="bot-difficulty-selector">
+          <label>🤖 AI Opponent:</label>
+          <select id="speed-bot-difficulty" onclick="event.stopPropagation();">
+            <option value="beginner">🟢 Beginner Bot</option>
+            <option value="intermediate" selected>🟡 Intermediate Bot</option>
+            <option value="legendary">🔴 Legendary Bot</option>
+          </select>
+        </div>
+        
         <button class="play-button">Play Speed</button>
       </div>
 
@@ -345,6 +367,15 @@
           <span class="feature-tag">🎖️ Leaderboards</span>
           <span class="feature-tag">🔥 Coming Soon</span>
         </div>
+        
+        <!-- NEW: Bot Difficulty Selector (Disabled for Coming Soon) -->
+        <div class="bot-difficulty-selector">
+          <label>🤖 AI Opponent:</label>
+          <select id="tournament-bot-difficulty" disabled onclick="event.stopPropagation();">
+            <option value="champion">👑 Champion AI</option>
+          </select>
+        </div>
+        
         <button class="play-button">Coming Soon</button>
       </div>
     </div>
