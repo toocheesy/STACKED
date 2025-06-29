@@ -285,6 +285,129 @@
         opacity: 0;
       }
     }
+  /* 🔧 ADD THIS CSS TO YOUR index.html FILE INSIDE THE <style> TAG */
+
+/* Find the <style> section in your index.html and add this at the VERY END */
+
+/* 🤖 BOT DIFFICULTY BUTTONS - ENHANCED VISIBILITY */
+.difficulty-btn {
+  background: linear-gradient(145deg, rgba(51, 30, 15, 0.8), rgba(74, 43, 23, 0.6)) !important;
+  border: 2px solid #4A2B17 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  color: #B88A5A !important;
+  font-weight: bold !important;
+  font-size: 0.8rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-width: 70px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(0) !important;
+  margin: 0 4px !important;
+}
+
+.difficulty-btn:hover {
+  border-color: #8B5A2B !important;
+  color: #D2A679 !important;
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 🔥 GOLDEN SELECTED STATE */
+.difficulty-btn.selected {
+  background: linear-gradient(145deg, #D2A679, #B88A5A) !important;
+  border: 3px solid #F5E8C7 !important;
+  color: #331E0F !important;
+  transform: translateY(-4px) scale(1.1) !important;
+  box-shadow: 
+    0 8px 20px rgba(210, 166, 121, 0.8),
+    0 0 0 2px #8B5A2B,
+    inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+  animation: selectedPulse 2s ease-in-out infinite !important;
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* ✨ GREEN CHECKMARK for selected state */
+.difficulty-btn.selected::after {
+  content: '✓' !important;
+  position: absolute !important;
+  top: -8px !important;
+  right: -8px !important;
+  background: linear-gradient(45deg, #4CAF50, #45a049) !important;
+  color: white !important;
+  border: 2px solid #F5E8C7 !important;
+  border-radius: 50% !important;
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 12px !important;
+  font-weight: bold !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.5) !important;
+  animation: checkmarkPop 0.4s ease-out !important;
+}
+
+.difficulty-btn.selected:hover {
+  background: linear-gradient(145deg, #B88A5A, #8B5A2B) !important;
+  transform: translateY(-5px) scale(1.15) !important;
+  box-shadow: 
+    0 10px 25px rgba(210, 166, 121, 1),
+    0 0 0 3px #8B5A2B,
+    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
+}
+
+.difficulty-icon {
+  font-size: 1.2rem !important;
+  line-height: 1 !important;
+  margin-bottom: 2px !important;
+}
+
+.difficulty-name {
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  line-height: 1 !important;
+  font-weight: bold !important;
+}
+
+/* 🎯 ANIMATIONS */
+@keyframes selectedPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 8px 20px rgba(210, 166, 121, 0.8),
+      0 0 0 2px #8B5A2B,
+      inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
+  }
+  50% { 
+    box-shadow: 
+      0 12px 30px rgba(210, 166, 121, 1),
+      0 0 0 3px #D2A679,
+      inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
+  }
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0) rotate(-180deg) !important;
+    opacity: 0 !important;
+  }
+  50% {
+    transform: scale(1.3) rotate(0deg) !important;
+    opacity: 1 !important;
+  }
+  100% {
+    transform: scale(1) rotate(0deg) !important;
+    opacity: 1 !important;
+  }
+}
   </style>
 </head>
 <body>
