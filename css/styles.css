@@ -1322,3 +1322,70 @@ button[data-difficulty] .difficulty-name {
   font-weight: bold;
   color: #D2A679;
 }
+
+/* 🎯 GLOBAL AI DIFFICULTY SELECTOR */
+.global-difficulty-btn {
+  background: linear-gradient(145deg, rgba(51, 30, 15, 0.9), rgba(74, 43, 23, 0.7)) !important;
+  border: 3px solid #4A2B17 !important;
+  border-radius: 12px !important;
+  padding: 15px 25px !important;
+  color: #B88A5A !important;
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+  cursor: pointer !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-width: 120px !important;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4) !important;
+  transform: translateY(0) !important;
+}
+
+.global-difficulty-btn:hover {
+  border-color: #8B5A2B !important;
+  color: #D2A679 !important;
+  transform: translateY(-5px) scale(1.05) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+.global-difficulty-btn.selected {
+  background: linear-gradient(145deg, #D2A679, #B88A5A) !important;
+  border: 4px solid #F5E8C7 !important;
+  color: #331E0F !important;
+  transform: translateY(-6px) scale(1.1) !important;
+  box-shadow: 
+    0 12px 30px rgba(210, 166, 121, 0.8),
+    0 0 0 3px #8B5A2B !important;
+  animation: selectedGlow 2s ease-in-out infinite !important;
+}
+
+.global-difficulty-btn.selected:hover {
+  transform: translateY(-8px) scale(1.15) !important;
+}
+
+.global-difficulty-btn .difficulty-icon {
+  font-size: 1.8rem !important;
+  line-height: 1 !important;
+}
+
+.global-difficulty-btn .difficulty-name {
+  font-size: 1rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  font-weight: bold !important;
+}
+
+@keyframes selectedGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 12px 30px rgba(210, 166, 121, 0.8),
+      0 0 0 3px #8B5A2B !important;
+  }
+  50% { 
+    box-shadow: 
+      0 15px 40px rgba(210, 166, 121, 1),
+      0 0 0 4px #D2A679 !important;
+  }
+}
