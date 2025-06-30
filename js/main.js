@@ -56,6 +56,12 @@ function startGame(modeName = 'classic', settings = {}) {
 
 // Main initialization
 function initGame() {
+  // 🧠 RESET AI BRAIN FOR NEW GAME
+  if (window.cardIntelligence) {
+    window.cardIntelligence.reset();
+    console.log('🧠 AI BRAIN RESET FOR NEW GAME');
+  }
+  
   initGameSystems();
   
   // 🔥 CRITICAL FIX: Read bot difficulty from localStorage FIRST
@@ -141,7 +147,10 @@ function handleSubmit() {
   }
 
   // Execute capture through game engine
-  game.executeCapture(baseCard, validCaptures, allCapturedCards);
+game.executeCapture(baseCard, validCaptures, allCapturedCards);
+
+// 🧠 TRACK CAPTURED CARDS FOR AI INTELLIGENCE
+window.cardIntelligence.updateCardsSeen(allCapturedCards);
   
   // Notify mode of capture
   if (game.currentMode.onCapture) {
@@ -236,7 +245,10 @@ function handleBoardDrop(e) {
     console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from player hand (${game.state.hands[0].length} cards left)`);
     
     // STEP 2: Add to board IMMEDIATELY  
-    game.state.board.push(handCard);
+game.state.board.push(handCard);
+
+// 🧠 TRACK PLACED CARD FOR AI INTELLIGENCE
+window.cardIntelligence.updateCardsSeen([handCard]);
     console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${game.state.board.length} cards total)`);
     
     // STEP 3: Clear combo areas

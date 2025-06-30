@@ -182,7 +182,10 @@ class BotModalInterface {
     console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
     // Execute capture through game engine
-    this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
+this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
+
+// 🧠 TRACK BOT CAPTURED CARDS FOR AI INTELLIGENCE
+window.cardIntelligence.updateCardsSeen(allCapturedCards);
 
     // Notify mode of capture
     if (this.game.currentMode.onCapture) {
@@ -264,7 +267,10 @@ async placeCard(handCard, playerIndex) {
     console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
     
     // STEP 2: Add card to board IMMEDIATELY
-    this.game.state.board.push(handCard);
+this.game.state.board.push(handCard);
+
+// 🧠 TRACK BOT PLACED CARD FOR AI INTELLIGENCE
+window.cardIntelligence.updateCardsSeen([handCard]);
     console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${this.game.state.board.length} cards total)`);
     
     // STEP 3: Clear combo areas

@@ -1,132 +1,140 @@
 // REPLACE your aiMove function in ai.js with this fixed version:
 
-function aiMove(hand, board, difficulty = 'intermediate') {
-  console.log(`🎯 AI MOVE CALLED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
-  
-  // BEGINNER: 80% chance to just place a random card
-  if (difficulty === 'beginner') {
-    if (Math.random() < 0.8 || hand.length === 0) {
-      const handCard = hand[Math.floor(Math.random() * hand.length)];
-      console.log(`🎯 BEGINNER: Placing random card ${handCard?.value}${handCard?.suit}`);
-      return { action: 'place', handCard };
-    }
-  }
-  
-  // INTERMEDIATE: 50% chance to try captures
-  if (difficulty === 'intermediate') {
-    if (Math.random() < 0.5 || hand.length === 0) {
-      const handCard = hand[Math.floor(Math.random() * hand.length)];
-      console.log(`🎯 INTERMEDIATE: 50/50 - Placing card ${handCard?.value}${handCard?.suit}`);
-      return { action: 'place', handCard };
-    }
-  }
+// 🤖 LEGENDARY AI MOVE FUNCTION - Strategic Genius Level
+// REPLACE your entire aiMove() function in ai.js with this:
 
-  // Look for captures (INTERMEDIATE and LEGENDARY)
-  const possibleCaptures = [];
+function aiMove(hand, board, difficulty = 'intermediate') {
+  console.log(`🤖 LEGENDARY AI ACTIVATED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
   
+  // 🧠 USE CARD INTELLIGENCE FOR STRATEGIC DECISIONS
+  if (!window.cardIntelligence) {
+    console.warn('⚠️ Card Intelligence not loaded - falling back to basic AI');
+    return basicAiMove(hand, board, difficulty);
+  }
+  
+  // 🎯 DETERMINE BOT PERSONALITY BASED ON DIFFICULTY
+  let personality = 'calculator';
+  if (difficulty === 'beginner') {
+    // Beginner: 70% chance to just place random card (keep it simple)
+    if (Math.random() < 0.7) {
+      const randomCard = hand[Math.floor(Math.random() * hand.length)];
+      console.log(`🟢 BEGINNER: Random placement ${randomCard.value}${randomCard.suit}`);
+      return { action: 'place', handCard: randomCard };
+    }
+    personality = 'calculator'; // Simple when they do try
+  } else if (difficulty === 'intermediate') {
+    // Intermediate: Mix of personalities
+    const personalities = ['calculator', 'strategist'];
+    personality = personalities[Math.floor(Math.random() * personalities.length)];
+  } else if (difficulty === 'legendary') {
+    // Legendary: Adaptive intelligence that changes based on game state
+    personality = 'adaptive';
+  }
+  
+  console.log(`🧠 AI PERSONALITY: ${personality.toUpperCase()}`);
+  
+  // 🎯 PHASE 1: LOOK FOR CAPTURES (Strategic Analysis)
+  const bestCapture = window.cardIntelligence.findBestCapture(hand, board, personality);
+  
+  if (bestCapture) {
+    console.log(`🎯 CAPTURE FOUND: ${bestCapture.handCard.value}${bestCapture.handCard.suit} → ${bestCapture.evaluation.totalScore} pts`);
+    
+    // 🧠 STRATEGIC DECISION: Should we take this capture?
+    const shouldCapture = evaluateCaptureDecision(bestCapture, personality, difficulty);
+    
+    if (shouldCapture) {
+      console.log(`✅ TAKING CAPTURE: ${bestCapture.evaluation.reasoning}`);
+      return {
+        action: 'capture',
+        handCard: bestCapture.handCard,
+        capture: {
+          type: bestCapture.capture.type,
+          cards: bestCapture.capture.cards,
+          targets: bestCapture.capture.targets || bestCapture.capture.cards.map(idx => board[idx])
+        }
+      };
+    } else {
+      console.log(`🤔 DECLINING CAPTURE: Strategic reasons`);
+    }
+  }
+  
+  // 🎯 PHASE 2: NO GOOD CAPTURES - STRATEGIC PLACEMENT
+  const safestPlacement = window.cardIntelligence.findSafestCardToPlace(hand, board, personality);
+  
+  if (safestPlacement) {
+    console.log(`🛡️ STRATEGIC PLACEMENT: ${safestPlacement.handCard.value}${safestPlacement.handCard.suit}`);
+    console.log(`   Risk: ${safestPlacement.riskAnalysis.riskScore.toFixed(1)}% | Recommendation: ${safestPlacement.riskAnalysis.recommendation}`);
+    
+    return { action: 'place', handCard: safestPlacement.handCard };
+  }
+  
+  // 🚨 FALLBACK: Should never reach here, but safety first
+  console.warn('🚨 AI FALLBACK: Using random card');
+  const fallbackCard = hand[Math.floor(Math.random() * hand.length)];
+  return { action: 'place', handCard: fallbackCard };
+}
+
+// 🧠 STRATEGIC CAPTURE EVALUATION
+function evaluateCaptureDecision(captureOption, personality, difficulty) {
+  const evaluation = captureOption.evaluation;
+  
+  // Base threshold: Always take high-value captures
+  if (evaluation.basePoints >= 25) {
+    console.log(`💎 HIGH VALUE CAPTURE: ${evaluation.basePoints} pts - TAKING IT!`);
+    return true;
+  }
+  
+  // Personality-based decisions
+  if (personality === 'calculator') {
+    // Pure math: Take anything worth 10+ points
+    return evaluation.basePoints >= 10;
+  } else if (personality === 'strategist') {
+    // Board control: Consider strategic value beyond points
+    const hasStrategicValue = evaluation.totalScore > evaluation.basePoints; // Has bonus
+    return evaluation.basePoints >= 8 || hasStrategicValue;
+  } else if (personality === 'adaptive') {
+    // Context-based: Adapt to game situation
+    const gamePhase = window.cardIntelligence.gamePhase;
+    
+    if (gamePhase === 'endgame') {
+      return evaluation.basePoints >= 5; // More aggressive in endgame
+    } else if (gamePhase === 'early') {
+      return evaluation.basePoints >= 15; // More selective early
+    } else {
+      return evaluation.basePoints >= 10; // Standard mid-game
+    }
+  }
+  
+  return evaluation.basePoints >= 12; // Default threshold
+}
+
+// 🚨 FALLBACK FUNCTION (in case Card Intelligence fails)
+function basicAiMove(hand, board, difficulty) {
+  console.log(`🚨 BASIC AI FALLBACK: ${difficulty}`);
+  
+  // Simple capture logic
   for (const handCard of hand) {
     const captures = canCapture(handCard, board);
-    
-    // FIXED: Only face cards can do pair captures
-    const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
-    if (isFaceCard) {
-      const matchingIndices = board
-        .map((card, idx) => ({ card, idx }))
-        .filter(({ card }) => card.value === handCard.value)
-        .map(({ idx }) => idx);
-        
-      if (matchingIndices.length > 0) {
-        possibleCaptures.push({ 
-          handCard, 
-          capture: { 
-            type: 'pair', 
-            cards: matchingIndices, 
-            targets: matchingIndices.map(idx => board[idx]) 
-          },
-          score: matchingIndices.length * 10 // Face cards worth more
-        });
-      }
-    } else {
-      // FIXED: Number cards and Aces can do both pair and sum captures
-      for (const capture of captures) {
-        if (capture.type === 'pair') {
-          // Simple pair for number cards
-          possibleCaptures.push({
-            handCard,
-            capture: {
-              type: 'pair',
-              cards: capture.cards,
-              targets: capture.cards.map(idx => board[idx])
-            },
-            score: capture.cards.length * 5
-          });
+    if (captures && captures.length > 0) {
+      const firstCapture = captures[0];
+      return {
+        action: 'capture',
+        handCard: handCard,
+        capture: {
+          type: firstCapture.type,
+          cards: firstCapture.cards,
+          targets: firstCapture.targets || firstCapture.cards.map(idx => board[idx])
         }
-      }
-      
-      // FIXED: Add sum captures for number cards only
-      const handValue = handCard.value === 'A' ? 1 : parseInt(handCard.value);
-      if (!isNaN(handValue)) {
-        // Find combinations that sum to handValue
-        const boardValues = board.map((card, idx) => ({
-          value: card.value === 'A' ? 1 : (isNaN(parseInt(card.value)) ? null : parseInt(card.value)),
-          idx: idx,
-          card: card
-        })).filter(item => item.value !== null); // Only number cards and Aces
-        
-        // Simple sum capture - find single board card that matches
-        const singleMatch = boardValues.find(item => item.value === handValue);
-        if (singleMatch) {
-          possibleCaptures.push({
-            handCard,
-            capture: {
-              type: 'sum',
-              cards: [singleMatch.idx],
-              targets: [singleMatch.card]
-            },
-            score: 2 * 5 // Base + target
-          });
-        }
-      }
+      };
     }
-  }
-
-  if (possibleCaptures.length > 0) {
-    let selectedCapture;
-    
-    if (difficulty === 'legendary') {
-      // LEGENDARY: Always pick the best scoring capture
-      possibleCaptures.sort((a, b) => b.score - a.score);
-      selectedCapture = possibleCaptures[0];
-      console.log(`🎯 LEGENDARY: Best capture ${selectedCapture.handCard.value}${selectedCapture.handCard.suit} (${selectedCapture.score} pts)`);
-    } else {
-      // INTERMEDIATE: Random capture
-      selectedCapture = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
-      console.log(`🎯 INTERMEDIATE: Random capture ${selectedCapture.handCard.value}${selectedCapture.handCard.suit}`);
-    }
-    
-    return { 
-      action: 'capture', 
-      handCard: selectedCapture.handCard, 
-      capture: selectedCapture.capture 
-    };
-  }
-
-  // No captures available - place a card
-  let handCard;
-  if (difficulty === 'legendary') {
-    // LEGENDARY: Place lowest value card
-    hand.sort((a, b) => {
-      const aVal = parseInt(a.value) || (a.value === 'A' ? 1 : 10);
-      const bVal = parseInt(b.value) || (b.value === 'A' ? 1 : 10);
-      return aVal - bVal;
-    });
-    handCard = hand[0];
-    console.log(`🎯 LEGENDARY: Placing lowest card ${handCard.value}${handCard.suit}`);
-  } else {
-    // BEGINNER/INTERMEDIATE: Random card
-    handCard = hand[Math.floor(Math.random() * hand.length)];
-    console.log(`🎯 ${difficulty.toUpperCase()}: Placing random card ${handCard.value}${handCard.suit}`);
   }
   
-  return { action: 'place', handCard };
+  // No captures - place lowest value card
+  const sortedHand = [...hand].sort((a, b) => {
+    const aVal = a.value === 'A' ? 1 : (parseInt(a.value) || 10);
+    const bVal = b.value === 'A' ? 1 : (parseInt(b.value) || 10);
+    return aVal - bVal;
+  });
+  
+  return { action: 'place', handCard: sortedHand[0] };
 }
