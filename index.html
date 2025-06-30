@@ -492,6 +492,7 @@
         
         <button class="play-button">Coming Soon</button>
       </div>
+    </div>
         
     <!-- Stats Bar -->
     <div class="stats-bar">
@@ -537,10 +538,9 @@
 
     // Navigation functions
     function playMode(mode) {
-      // 🔥 NEW: Get bot difficulty from selected button
-      const modeCard = event.currentTarget;
-      const selectedButton = modeCard.querySelector('.difficulty-btn.selected');
-      const botDifficulty = selectedButton ? selectedButton.dataset.difficulty : 'intermediate';
+      // 🔥 Get difficulty from GLOBAL selector
+      const selectedGlobalButton = document.querySelector('.global-difficulty-btn.selected');
+      const botDifficulty = selectedGlobalButton ? selectedGlobalButton.dataset.difficulty : 'beginner';
       
       // 🎯 Store selected mode and difficulty
       localStorage.setItem('selectedMode', mode);
@@ -549,6 +549,7 @@
       console.log(`🎮 Selected: ${mode} mode with ${botDifficulty} AI`);
       
       // ✨ Enhanced visual feedback
+      const modeCard = event.currentTarget;
       if (modeCard) {
         modeCard.style.transform = 'scale(0.95)';
         modeCard.style.transition = 'transform 0.1s ease';
