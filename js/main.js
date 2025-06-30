@@ -39,13 +39,19 @@ function startGame(modeName = 'classic', settings = {}) {
   const modeSettings = modeSelector.getSelectedModeSettings();
   Object.assign(settings, modeSettings);
   
+  // 🔥 CRITICAL FIX: Apply homepage settings directly - NO MODAL!
   game.initGame(selectedMode, settings);
+  
+  // 🔥 NEW: Initialize mode immediately with settings
+  if (game.currentMode && game.currentMode.init) {
+    game.currentMode.init(game);
+  }
+  
   ui.render();
   
-  // Show settings modal for initial setup
-  showSettingsModal();
-  
-  console.log(`🎮 Started ${selectedMode.name}`);
+  // 🚨 REMOVED: showSettingsModal() - we use homepage selections only!
+  console.log(`🎮 Started ${selectedMode.name} with difficulty: ${settings.botDifficulty}`);
+  console.log(`⚙️ Settings applied directly from homepage - NO MODAL OVERRIDE!`);
 }
 
 // Main initialization
@@ -73,6 +79,7 @@ function initGame() {
   };
   
   console.log(`🎯 APPLYING BOT DIFFICULTY: ${selectedDifficulty}`);
+  console.log(`🚨 BYPASSING SETTINGS MODAL - USING HOMEPAGE SELECTIONS ONLY!`);
   
   // Clear localStorage after reading
   localStorage.removeItem('selectedDifficulty');
