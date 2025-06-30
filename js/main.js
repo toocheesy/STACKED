@@ -52,15 +52,32 @@ function startGame(modeName = 'classic', settings = {}) {
 function initGame() {
   initGameSystems();
   
-  // Check if mode was selected from homepage
+  // 🔥 CRITICAL FIX: Read bot difficulty from localStorage FIRST
+  const selectedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
   const selectedMode = localStorage.getItem('selectedMode');
+  
+  console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
+  
   if (selectedMode && modeSelector.availableModes[selectedMode]) {
     modeSelector.currentMode = selectedMode;
     localStorage.removeItem('selectedMode'); // Clear it
-    console.log(`🎮 Homepage selected: ${selectedMode}`);
+    console.log(`🎮 Homepage selected mode: ${selectedMode}`);
   }
   
-  startGame(modeSelector.currentMode || 'classic'); // Use selected or default
+  // 🔥 NEW: Apply difficulty settings immediately 
+  const gameSettings = {
+    botDifficulty: selectedDifficulty,
+    cardSpeed: 'fast',
+    soundEffects: 'off', 
+    targetScore: 500
+  };
+  
+  console.log(`🎯 APPLYING BOT DIFFICULTY: ${selectedDifficulty}`);
+  
+  // Clear localStorage after reading
+  localStorage.removeItem('selectedDifficulty');
+  
+  startGame(modeSelector.currentMode || 'classic', gameSettings);
 }
 
 // Event Handlers - Now work with any game mode
