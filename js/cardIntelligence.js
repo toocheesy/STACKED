@@ -6,9 +6,11 @@
 
 class CardIntelligenceSystem {
   constructor() {
-    this.reset();
+    // 🔥 FIX: Define constants BEFORE calling reset()
     this.CARD_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
     this.TOTAL_CARDS_PER_VALUE = 4; // 4 suits per value
+    
+    this.reset();
     
     console.log('🧠 CARD INTELLIGENCE SYSTEM INITIALIZED - AI BRAIN ONLINE!');
   }
@@ -16,9 +18,11 @@ class CardIntelligenceSystem {
   reset() {
     // Track what cards have been played/seen
     this.playedCards = {};
-    this.CARD_VALUES.forEach(value => {
-      this.playedCards[value] = 0;
-    });
+    if (this.CARD_VALUES) {
+      this.CARD_VALUES.forEach(value => {
+        this.playedCards[value] = 0;
+      });
+    }
     
     // Game state tracking
     this.totalCardsDealt = 0;
