@@ -437,24 +437,23 @@
           <span class="feature-tag">💡 Hints Available</span>
         </div>
         
-        <!-- NEW: Beautiful 3-Button Bot Difficulty Selector -->
         <div class="bot-difficulty-selector">
-          <label>🤖 AI Opponent:</label>
-          <div class="difficulty-buttons" data-mode="classic">
-            <button class="difficulty-btn" data-difficulty="beginner">
-              <span class="difficulty-icon">🟢</span>
-              <span class="difficulty-name">Beginner</span>
-            </button>
-            <button class="difficulty-btn selected" data-difficulty="intermediate">
-              <span class="difficulty-icon">🟡</span>
-              <span class="difficulty-name">Intermediate</span>
-            </button>
-            <button class="difficulty-btn" data-difficulty="legendary">
-              <span class="difficulty-icon">🔴</span>
-              <span class="difficulty-name">Legendary</span>
-            </button>
-          </div>
-        </div>
+  <label>🤖 AI Opponent:</label>
+  <div class="difficulty-buttons" style="position: relative; height: 200px;">
+    <button data-difficulty="beginner" class="difficulty-btn selected" style="position: absolute; top: 0; left: 50%; transform: translateX(-50%);">
+      <span class="difficulty-icon">🟢</span>
+      <span class="difficulty-name">Beginner</span>
+    </button>
+    <button data-difficulty="intermediate" class="difficulty-btn" style="position: absolute; top: 100px; left: 25%; transform: translateX(-50%);">
+      <span class="difficulty-icon">🟡</span>
+      <span class="difficulty-name">Intermediate</span>
+    </button>
+    <button data-difficulty="legendary" class="difficulty-btn" style="position: absolute; top: 100px; right: 25%; transform: translateX(50%);">
+      <span class="difficulty-icon">🔴</span>
+      <span class="difficulty-name">Legendary</span>
+    </button>
+  </div>
+</div>
         
         <button class="play-button">Play Classic</button>
       </div>

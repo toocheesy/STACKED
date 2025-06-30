@@ -1187,9 +1187,8 @@ dialog h2 {
 
 .difficulty-buttons {
   display: flex;
-  gap: 12px;
   justify-content: center;
-  flex-wrap: wrap;
+  gap: 20px; /* Space between plaques */
 }
 
 .difficulty-btn {
@@ -1255,14 +1254,14 @@ dialog h2 {
 }
 
 @media (max-width: 768px) {
-  .difficulty-buttons { gap: 10px; }
+  .difficulty-buttons { gap: 15px; }
   .difficulty-btn { min-width: 80px; padding: 10px 12px; font-size: 0.85rem; }
   .difficulty-icon { font-size: 1.3rem; }
   .difficulty-name { font-size: 0.8rem; }
 }
 
 @media (max-width: 550px) {
-  .difficulty-buttons { gap: 8px; }
+  .difficulty-buttons { gap: 12px; }
   .difficulty-btn { min-width: 70px; padding: 8px 10px; font-size: 0.8rem; }
   .difficulty-icon { font-size: 1.2rem; }
   .difficulty-name { font-size: 0.75rem; }
