@@ -563,15 +563,17 @@
 
     // Navigation functions
     function playMode(mode) {
-      // 🔥 Get difficulty from GLOBAL selector
-      const selectedGlobalButton = document.querySelector('.global-difficulty-btn.selected');
-      const botDifficulty = selectedGlobalButton ? selectedGlobalButton.dataset.difficulty : 'beginner';
+      // 🔥 Get difficulty from AI card selection
+      const selectedAICard = document.querySelector('.ai-card.selected');
+      const botDifficulty = selectedAICard ? selectedAICard.dataset.difficulty : 'beginner';
+      
+      console.log(`🎮 PLAY MODE: ${mode} with AI difficulty: ${botDifficulty}`);
       
       // 🎯 Store selected mode and difficulty
       localStorage.setItem('selectedMode', mode);
       localStorage.setItem('selectedDifficulty', botDifficulty);
       
-      console.log(`🎮 Selected: ${mode} mode with ${botDifficulty} AI`);
+      console.log(`✅ STORED IN LOCALSTORAGE: Mode=${mode}, Difficulty=${botDifficulty}`);
       
       // ✨ Enhanced visual feedback
       const modeCard = event.currentTarget;
