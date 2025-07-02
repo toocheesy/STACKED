@@ -64,7 +64,7 @@ function initGame() {
   
   initGameSystems();
   
-  // 🔥 CRITICAL FIX: Read settings from localStorage FIRST (no duplicate declarations)
+  // 🔥 CRITICAL FIX: Read settings from localStorage FIRST 
   const storedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
   const storedMode = localStorage.getItem('selectedMode');
   
@@ -91,58 +91,6 @@ function initGame() {
   // 🔥 Clear localStorage AFTER game is started
   localStorage.removeItem('selectedDifficulty');
   localStorage.removeItem('selectedMode');
-}
-  
-  console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
-  
-  // 🔥 CRITICAL FIX: Read bot difficulty from localStorage FIRST
-  const selectedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
-  const selectedMode = localStorage.getItem('selectedMode');
-  
-  console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
-  
-  if (selectedMode && modeSelector.availableModes[selectedMode]) {
-    modeSelector.currentMode = selectedMode;
-    console.log(`🎮 Homepage selected mode: ${selectedMode}`);
-  }
-  
-  // 🔥 NEW: Apply difficulty settings immediately 
-  const gameSettings = {
-    botDifficulty: selectedDifficulty,
-    cardSpeed: 'fast',
-    soundEffects: 'off', 
-    targetScore: 500
-  };
-  
-  console.log(`🎯 APPLYING BOT DIFFICULTY: ${selectedDifficulty}`);
-  console.log(`🚨 USING HOMEPAGE SELECTIONS ONLY!`);
-  
-  // 🔥 CRITICAL: Clear localStorage AFTER we've applied the settings to the game
-  // This happens at the END of initGame, not here
-  
-  startGame(modeSelector.currentMode || 'classic', gameSettings);
-  
-  // 🔥 NOW clear localStorage after game is started
-  localStorage.removeItem('selectedDifficulty');
-  localStorage.removeItem('selectedMode');
-    console.log(`🎮 Homepage selected mode: ${selectedMode}`);
-  }
-  
-  // 🔥 NEW: Apply difficulty settings immediately 
-  const gameSettings = {
-    botDifficulty: selectedDifficulty,
-    cardSpeed: 'fast',
-    soundEffects: 'off', 
-    targetScore: 500
-  };
-  
-  console.log(`🎯 APPLYING BOT DIFFICULTY: ${selectedDifficulty}`);
-  console.log(`🚨 BYPASSING SETTINGS MODAL - USING HOMEPAGE SELECTIONS ONLY!`);
-  
-  // Clear localStorage after reading
-  localStorage.removeItem('selectedDifficulty');
-  
-  startGame(modeSelector.currentMode || 'classic', gameSettings);
 }
 
 // Event Handlers - Now work with any game mode
@@ -199,11 +147,11 @@ function handleSubmit() {
   }
 
   // Execute capture through game engine
-game.executeCapture(baseCard, validCaptures, allCapturedCards);
+  game.executeCapture(baseCard, validCaptures, allCapturedCards);
 
-// 🧠 TRACK CAPTURED CARDS FOR AI INTELLIGENCE
-window.cardIntelligence.updateCardsSeen(allCapturedCards);
-  
+  // 🧠 TRACK CAPTURED CARDS FOR AI INTELLIGENCE
+  window.cardIntelligence.updateCardsSeen(allCapturedCards);
+    
   // Notify mode of capture
   if (game.currentMode.onCapture) {
     game.currentMode.onCapture(game, allCapturedCards);
@@ -242,11 +190,6 @@ function handleResetPlayArea() {
   ui.render();
   ui.smartMessages.updateMessage('turn_start');
 }
-
-/* 
- * 🔧 PLAYER CARD PLACEMENT FIX
- * Replace handleBoardDrop() in main.js to match bot logic
- */
 
 function handleBoardDrop(e) {
   e.preventDefault();
@@ -297,10 +240,10 @@ function handleBoardDrop(e) {
     console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from player hand (${game.state.hands[0].length} cards left)`);
     
     // STEP 2: Add to board IMMEDIATELY  
-game.state.board.push(handCard);
+    game.state.board.push(handCard);
 
-// 🧠 TRACK PLACED CARD FOR AI INTELLIGENCE
-window.cardIntelligence.updateCardsSeen([handCard]);
+    // 🧠 TRACK PLACED CARD FOR AI INTELLIGENCE
+    window.cardIntelligence.updateCardsSeen([handCard]);
     console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${game.state.board.length} cards total)`);
     
     // STEP 3: Clear combo areas
@@ -467,84 +410,6 @@ async function scheduleNextBotTurn() {
       game.botTurnInProgress = false;
       await aiTurn();
     }, 1000);
-  }
-}
-
-/* 
- * 🎫 TICKET #2 FIXES for main.js
- * Fix mode settings application and speed timer early start
- */
-
-// REPLACE the showSettingsModal() function in main.js with this FIXED version:
-
-function showSettingsModal() {
-  const modal = document.getElementById('settings-modal');
-  if (!modal) return;
-
-  // 🔥 FIX 1: Apply mode settings BEFORE showing modal
-  const currentMode = game.currentMode;
-  if (currentMode && currentMode.config) {
-    // Update target score dropdown to reflect mode default
-    const targetScoreSelect = document.getElementById('target-score');
-    if (targetScoreSelect && currentMode.config.targetScore) {
-      targetScoreSelect.value = currentMode.config.targetScore;
-      game.state.settings.targetScore = currentMode.config.targetScore;
-    }
-    
-    // Add mode indicator to modal
-    const modalContent = modal.querySelector('.modal-content');
-    let modeIndicator = modal.querySelector('.current-mode-indicator');
-    if (!modeIndicator) {
-      modeIndicator = document.createElement('div');
-      modeIndicator.className = 'current-mode-indicator';
-      modeIndicator.style.cssText = `
-        background: rgba(74, 112, 67, 0.3);
-        border: 2px solid #4A7043;
-        border-radius: 8px;
-        padding: 10px;
-        margin-bottom: 15px;
-        text-align: center;
-        font-weight: bold;
-        color: #D2A679;
-      `;
-      modalContent.insertBefore(modeIndicator, modalContent.firstChild);
-    }
-    modeIndicator.innerHTML = `
-      🎮 <strong>${currentMode.name}</strong><br>
-      <small>Target: ${currentMode.config.targetScore || 500} pts</small>
-    `;
-  }
-
-  modal.showModal();
-
-  const startGameBtn = document.getElementById('start-game-btn');
-  const tutorialBtn = document.getElementById('tutorial-btn');
-  const tutorialModal = document.getElementById('tutorial-modal');
-
-  if (startGameBtn) {
-    startGameBtn.addEventListener('click', () => {
-      // Apply settings
-      game.state.settings.cardSpeed = document.getElementById('card-speed')?.value || 'fast';
-      game.state.settings.soundEffects = document.getElementById('sound-effects')?.value || 'off';
-      game.state.settings.targetScore = parseInt(document.getElementById('target-score')?.value || 500);
-      game.state.settings.botDifficulty = document.getElementById('bot-difficulty')?.value || 'intermediate';
-      
-      // 🔥 FIX 2: Initialize mode AFTER settings are confirmed
-      if (game.currentMode && game.currentMode.init) {
-        game.currentMode.init(game);
-      }
-      
-      modal.close();
-      ui.render();
-      
-      console.log(`⚙️ Settings applied and ${game.currentMode?.name || 'Classic'} mode started`);
-    });
-  }
-
-  if (tutorialBtn && tutorialModal) {
-    tutorialBtn.addEventListener('click', () => {
-      tutorialModal.showModal();
-    });
   }
 }
 
