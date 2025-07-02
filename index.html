@@ -416,147 +416,133 @@
   }
 }
 
-    /* AI CARD STYLING - PROPER CARD APPEARANCE */
-    .ai-selector-section {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    /* 🎯 SLIM HORIZONTAL AI CARDS - REPLACE YOUR EXISTING AI CARD CSS */
+.ai-selector-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-    .ai-selector-label {
-      display: block;
-      margin-bottom: 20px;
-      color: #D2A679;
-      font-weight: bold;
-      font-size: 1.3rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
+.ai-selector-label {
+  display: block;
+  margin-bottom: 15px;
+  color: #D2A679;
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
 
-    .ai-difficulty-cards {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
+.ai-difficulty-cards {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 
-    .ai-card {
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
-      border: 3px solid #4A2B17;
-      border-radius: 12px;
-      padding: 15px 12px;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-      position: relative;
-      overflow: hidden;
-      min-width: 140px;
-      max-width: 160px;
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      color: #4A2B17;
-    }
+.ai-card {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+  border: 2px solid #4A2B17;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  /* 🔥 SLIM HORIZONTAL DIMENSIONS */
+  min-width: 120px;
+  max-width: 140px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4A2B17;
+}
 
-    .ai-card:hover {
-      border-color: #D2A679;
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 10px 30px rgba(139, 90, 43, 0.6);
-    }
+.ai-card:hover {
+  border-color: #D2A679;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 18px rgba(139, 90, 43, 0.4);
+}
 
-    .ai-card.selected {
-      border: 4px solid #D2A679;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
-      transform: translateY(-6px) scale(1.05);
-      box-shadow: 
-        0 12px 35px rgba(210, 166, 121, 0.8),
-        0 0 0 3px #8B5A2B;
-      animation: aiCardGlow 2s ease-in-out infinite;
-    }
+.ai-card.selected {
+  border: 3px solid #D2A679;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 
+    0 8px 20px rgba(210, 166, 121, 0.8),
+    0 0 0 2px #8B5A2B;
+  animation: slimCardGlow 2s ease-in-out infinite;
+}
 
-    .ai-card.selected::after {
-      content: '✓';
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: linear-gradient(45deg, #4CAF50, #45a049);
-      color: white;
-      border: 2px solid #F5E8C7;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 3px 8px rgba(76, 175, 80, 0.5);
-      animation: checkmarkPop 0.4s ease-out;
-    }
+.ai-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  border: 2px solid #F5E8C7;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.5);
+  animation: checkmarkPop 0.4s ease-out;
+}
 
-    .ai-card.selected:hover {
-      transform: translateY(-8px) scale(1.08);
-    }
+.ai-card.selected:hover {
+  transform: translateY(-4px) scale(1.08);
+}
 
-    .ai-icon {
-      font-size: 2.5rem;
-      display: block;
-      margin-bottom: 8px;
-    }
+/* 🔥 SIMPLIFIED CONTENT - NO ICONS, JUST CLEAN TEXT */
+.ai-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #4A2B17;
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-    .ai-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #4A2B17;
-      margin: 8px 0;
-      text-align: center;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    }
+/* 🔥 HIDE FEATURES AND ICONS FOR SLIM DESIGN */
+.ai-icon,
+.ai-features {
+  display: none;
+}
 
-    .ai-features {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      width: 100%;
-    }
+@keyframes slimCardGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 8px 20px rgba(210, 166, 121, 0.8),
+      0 0 0 2px #8B5A2B;
+  }
+  50% { 
+    box-shadow: 
+      0 12px 30px rgba(210, 166, 121, 1),
+      0 0 0 3px #D2A679;
+  }
+}
 
-    .ai-tag {
-      background: rgba(74, 43, 23, 0.3);
-      border: 1px solid #4A2B17;
-      border-radius: 8px;
-      padding: 3px 6px;
-      font-size: 0.7rem;
-      color: #4A2B17;
-      text-align: center;
-    }
-
-    @keyframes aiCardGlow {
-      0%, 100% { 
-        box-shadow: 
-          0 12px 35px rgba(210, 166, 121, 0.8),
-          0 0 0 3px #8B5A2B;
-      }
-      50% { 
-        box-shadow: 
-          0 15px 45px rgba(210, 166, 121, 1),
-          0 0 0 4px #D2A679;
-      }
-    }
-
-    @keyframes checkmarkPop {
-      0% {
-        transform: scale(0) rotate(-180deg);
-        opacity: 0;
-      }
-      50% {
-        transform: scale(1.3) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-      }
-    }
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
 
     /* 🎯 THEN REPLACE THE HTML SECTION WITH THIS CLEAN VERSION: */
   </style>
