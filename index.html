@@ -626,7 +626,8 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       createParticles();
-      setupBotDifficultyButtons(); // 🔥 ADD THIS LINE
+      setupBotDifficultyButtons();
+      setupAICardSelection(); // 🔥 ADD THIS LINE
       
       // Add some interactive effects
       const modeCards = document.querySelectorAll('.mode-card');
@@ -640,6 +641,29 @@
         });
       });
     });
+  // 🔥 Setup AI Card Selection
+    function setupAICardSelection() {
+      const aiCards = document.querySelectorAll('.ai-card');
+      
+      aiCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          // Remove selected from all cards
+          aiCards.forEach(c => c.classList.remove('selected'));
+          
+          // Add selected to clicked card
+          card.classList.add('selected');
+          
+          // Visual feedback
+          card.style.transform = 'translateY(-8px) scale(1.1)';
+          setTimeout(() => {
+            card.style.transform = '';
+          }, 200);
+          
+          const difficulty = card.dataset.difficulty;
+          console.log(`🤖 AI Difficulty selected: ${difficulty}`);
+        });
+      });
+    }
   </script>
 </body>
 </html>

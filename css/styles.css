@@ -1419,3 +1419,96 @@ button[data-difficulty] .difficulty-name {
   margin: 20px 0 10px 0;
   flex-wrap: wrap;
 }
+
+/* 🎯 AI DIFFICULTY CARDS */
+.ai-card {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  border: 3px solid #8B5A2B;
+  border-radius: 12px;
+  padding: 20px 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  min-width: 180px;
+  max-width: 200px;
+}
+
+.ai-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(210, 166, 121, 0.1), transparent);
+  transition: left 0.8s;
+}
+
+.ai-card:hover::before {
+  left: 100%;
+}
+
+.ai-card:hover {
+  border-color: #D2A679;
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(139, 90, 43, 0.6);
+}
+
+.ai-card.selected {
+  border: 4px solid #D2A679;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 
+    0 12px 35px rgba(210, 166, 121, 0.8),
+    0 0 0 3px #8B5A2B;
+  animation: aiCardGlow 2s ease-in-out infinite;
+}
+
+.ai-card.selected:hover {
+  transform: translateY(-8px) scale(1.08);
+}
+
+.ai-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.ai-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #D2A679;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.ai-features {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-tag {
+  background: rgba(74, 43, 23, 0.6);
+  border: 1px solid #4A2B17;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  color: #D2A679;
+  text-align: center;
+}
+
+@keyframes aiCardGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 12px 35px rgba(210, 166, 121, 0.8),
+      0 0 0 3px #8B5A2B;
+  }
+  50% { 
+    box-shadow: 
+      0 15px 45px rgba(210, 166, 121, 1),
+      0 0 0 4px #D2A679;
+  }
+}
