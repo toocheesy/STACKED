@@ -70,9 +70,36 @@ function initGame() {
   
   console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
   
+  // 🔥 CRITICAL FIX: Read bot difficulty from localStorage FIRST
+  const selectedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
+  const selectedMode = localStorage.getItem('selectedMode');
+  
+  console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
+  
   if (selectedMode && modeSelector.availableModes[selectedMode]) {
     modeSelector.currentMode = selectedMode;
-    localStorage.removeItem('selectedMode'); // Clear it
+    console.log(`🎮 Homepage selected mode: ${selectedMode}`);
+  }
+  
+  // 🔥 NEW: Apply difficulty settings immediately 
+  const gameSettings = {
+    botDifficulty: selectedDifficulty,
+    cardSpeed: 'fast',
+    soundEffects: 'off', 
+    targetScore: 500
+  };
+  
+  console.log(`🎯 APPLYING BOT DIFFICULTY: ${selectedDifficulty}`);
+  console.log(`🚨 USING HOMEPAGE SELECTIONS ONLY!`);
+  
+  // 🔥 CRITICAL: Clear localStorage AFTER we've applied the settings to the game
+  // This happens at the END of initGame, not here
+  
+  startGame(modeSelector.currentMode || 'classic', gameSettings);
+  
+  // 🔥 NOW clear localStorage after game is started
+  localStorage.removeItem('selectedDifficulty');
+  localStorage.removeItem('selectedMode');
     console.log(`🎮 Homepage selected mode: ${selectedMode}`);
   }
   
