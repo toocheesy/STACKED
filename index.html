@@ -641,17 +641,23 @@
         });
       });
     });
-  // 🔥 Setup AI Card Selection
+  // 🔥 Setup AI Card Selection - FIXED VERSION
     function setupAICardSelection() {
       const aiCards = document.querySelectorAll('.ai-card');
       
       aiCards.forEach(card => {
         card.addEventListener('click', (e) => {
+          console.log(`🤖 AI Card clicked: ${card.dataset.difficulty}`);
+          
           // Remove selected from all cards
           aiCards.forEach(c => c.classList.remove('selected'));
           
           // Add selected to clicked card
           card.classList.add('selected');
+          
+          // 🔥 CRITICAL: Store selection immediately in localStorage
+          const difficulty = card.dataset.difficulty;
+          localStorage.setItem('selectedDifficulty', difficulty);
           
           // Visual feedback
           card.style.transform = 'translateY(-8px) scale(1.1)';
@@ -659,10 +665,20 @@
             card.style.transform = '';
           }, 200);
           
-          const difficulty = card.dataset.difficulty;
-          console.log(`🤖 AI Difficulty selected: ${difficulty}`);
+          console.log(`✅ AI Difficulty stored: ${difficulty}`);
         });
       });
+      
+      // 🔥 RESTORE SELECTION on page load
+      const savedDifficulty = localStorage.getItem('selectedDifficulty') || 'beginner';
+      const savedCard = document.querySelector(`[data-difficulty="${savedDifficulty}"]`);
+      if (savedCard) {
+        // Remove selected from all
+        aiCards.forEach(c => c.classList.remove('selected'));
+        // Add to saved selection
+        savedCard.classList.add('selected');
+        console.log(`🎯 Restored AI selection: ${savedDifficulty}`);
+      }
     }
   </script>
 </body>
