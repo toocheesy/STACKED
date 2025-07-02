@@ -64,9 +64,34 @@ function initGame() {
   
   initGameSystems();
   
-  // 🔥 CRITICAL FIX: Read bot difficulty from localStorage FIRST
-  const selectedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
-  const selectedMode = localStorage.getItem('selectedMode');
+  // 🔥 CRITICAL FIX: Read settings from localStorage FIRST (no duplicate declarations)
+  const storedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
+  const storedMode = localStorage.getItem('selectedMode');
+  
+  console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${storedMode}, Difficulty=${storedDifficulty}`);
+  
+  if (storedMode && modeSelector.availableModes[storedMode]) {
+    modeSelector.currentMode = storedMode;
+    console.log(`🎮 Homepage selected mode: ${storedMode}`);
+  }
+  
+  // 🔥 Apply settings immediately 
+  const gameSettings = {
+    botDifficulty: storedDifficulty,
+    cardSpeed: 'fast',
+    soundEffects: 'off', 
+    targetScore: 500
+  };
+  
+  console.log(`🎯 APPLYING BOT DIFFICULTY: ${storedDifficulty}`);
+  console.log(`🚨 USING HOMEPAGE SELECTIONS ONLY!`);
+  
+  startGame(modeSelector.currentMode || 'classic', gameSettings);
+  
+  // 🔥 Clear localStorage AFTER game is started
+  localStorage.removeItem('selectedDifficulty');
+  localStorage.removeItem('selectedMode');
+}
   
   console.log(`🎯 HOMEPAGE SELECTIONS: Mode=${selectedMode}, Difficulty=${selectedDifficulty}`);
   
