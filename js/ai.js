@@ -1,10 +1,20 @@
-// REPLACE your aiMove function in ai.js with this fixed version:
-
 // 🤖 LEGENDARY AI MOVE FUNCTION - Strategic Genius Level
-// REPLACE your entire aiMove() function in ai.js with this:
+// BULLETPROOF VERSION with Empty Hand Safety Guards
 
 function aiMove(hand, board, difficulty = 'intermediate') {
   console.log(`🤖 LEGENDARY AI ACTIVATED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
+  
+  // 🔥 CRITICAL SAFETY CHECK: Don't try to move with empty hand!
+  if (!hand || hand.length === 0) {
+    console.log('🚨 AI SAFETY: Bot has no cards - cannot make move');
+    return null;
+  }
+  
+  // 🔥 ADDITIONAL SAFETY: Validate board exists
+  if (!board) {
+    console.log('🚨 AI SAFETY: Invalid board state');
+    return null;
+  }
   
   // 🧠 USE CARD INTELLIGENCE FOR STRATEGIC DECISIONS
   if (!window.cardIntelligence) {
@@ -61,21 +71,36 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   // 🎯 PHASE 2: NO GOOD CAPTURES - STRATEGIC PLACEMENT
   const safestPlacement = window.cardIntelligence.findSafestCardToPlace(hand, board, personality);
   
-  if (safestPlacement) {
+  if (safestPlacement && safestPlacement.handCard) {
     console.log(`🛡️ STRATEGIC PLACEMENT: ${safestPlacement.handCard.value}${safestPlacement.handCard.suit}`);
     console.log(`   Risk: ${safestPlacement.riskAnalysis.riskScore.toFixed(1)}% | Recommendation: ${safestPlacement.riskAnalysis.recommendation}`);
     
     return { action: 'place', handCard: safestPlacement.handCard };
   }
   
-  // 🚨 FALLBACK: Should never reach here, but safety first
-  console.warn('🚨 AI FALLBACK: Using random card');
-  const fallbackCard = hand[Math.floor(Math.random() * hand.length)];
-  return { action: 'place', handCard: fallbackCard };
+  // 🚨 FALLBACK: Emergency placement if card intelligence fails
+  console.warn('🚨 AI FALLBACK: Card Intelligence failed, using emergency placement');
+  
+  // 🔥 SAFETY FALLBACK: Make sure we still have cards before emergency placement
+  if (hand && hand.length > 0) {
+    const emergencyCard = hand[0]; // Just take the first card
+    console.log(`🚨 EMERGENCY PLACEMENT: ${emergencyCard.value}${emergencyCard.suit}`);
+    return { action: 'place', handCard: emergencyCard };
+  }
+  
+  // 🚨 ULTIMATE SAFETY: If we somehow get here, return null
+  console.error('🚨 CRITICAL AI ERROR: No valid moves possible');
+  return null;
 }
 
 // 🧠 STRATEGIC CAPTURE EVALUATION
 function evaluateCaptureDecision(captureOption, personality, difficulty) {
+  // 🔥 SAFETY CHECK: Make sure we have a valid capture option
+  if (!captureOption || !captureOption.evaluation) {
+    console.log('🚨 AI SAFETY: Invalid capture option');
+    return false;
+  }
+  
   const evaluation = captureOption.evaluation;
   
   // Base threshold: Always take high-value captures
@@ -112,29 +137,65 @@ function evaluateCaptureDecision(captureOption, personality, difficulty) {
 function basicAiMove(hand, board, difficulty) {
   console.log(`🚨 BASIC AI FALLBACK: ${difficulty}`);
   
+  // 🔥 SAFETY CHECK: Validate inputs for basic AI too
+  if (!hand || hand.length === 0) {
+    console.log('🚨 BASIC AI SAFETY: No cards in hand');
+    return null;
+  }
+  
+  if (!board) {
+    console.log('🚨 BASIC AI SAFETY: Invalid board');
+    board = []; // Use empty board for basic AI
+  }
+  
   // Simple capture logic
   for (const handCard of hand) {
-    const captures = canCapture(handCard, board);
-    if (captures && captures.length > 0) {
-      const firstCapture = captures[0];
-      return {
-        action: 'capture',
-        handCard: handCard,
-        capture: {
-          type: firstCapture.type,
-          cards: firstCapture.cards,
-          targets: firstCapture.targets || firstCapture.cards.map(idx => board[idx])
-        }
-      };
+    // 🔥 SAFETY: Make sure canCapture function exists and card is valid
+    if (!handCard || typeof canCapture !== 'function') {
+      continue;
+    }
+    
+    try {
+      const captures = canCapture(handCard, board);
+      if (captures && captures.length > 0) {
+        const firstCapture = captures[0];
+        return {
+          action: 'capture',
+          handCard: handCard,
+          capture: {
+            type: firstCapture.type,
+            cards: firstCapture.cards,
+            targets: firstCapture.targets || firstCapture.cards.map(idx => board[idx])
+          }
+        };
+      }
+    } catch (error) {
+      console.error('🚨 Error in basic AI capture logic:', error);
+      continue; // Try next card
     }
   }
   
   // No captures - place lowest value card
-  const sortedHand = [...hand].sort((a, b) => {
-    const aVal = a.value === 'A' ? 1 : (parseInt(a.value) || 10);
-    const bVal = b.value === 'A' ? 1 : (parseInt(b.value) || 10);
-    return aVal - bVal;
-  });
+  try {
+    const sortedHand = [...hand].sort((a, b) => {
+      const aVal = a.value === 'A' ? 1 : (parseInt(a.value) || 10);
+      const bVal = b.value === 'A' ? 1 : (parseInt(b.value) || 10);
+      return aVal - bVal;
+    });
+    
+    if (sortedHand.length > 0) {
+      return { action: 'place', handCard: sortedHand[0] };
+    }
+  } catch (error) {
+    console.error('🚨 Error in basic AI placement logic:', error);
+  }
   
-  return { action: 'place', handCard: sortedHand[0] };
+  // 🚨 ULTIMATE FALLBACK: If everything fails, just place first card
+  if (hand && hand.length > 0) {
+    console.log('🚨 ULTIMATE FALLBACK: Placing first card');
+    return { action: 'place', handCard: hand[0] };
+  }
+  
+  console.error('🚨 CRITICAL: Basic AI cannot make any move');
+  return null;
 }

@@ -129,6 +129,12 @@ class CardIntelligenceSystem {
   
   // 🎯 STRATEGIC: Find best capture from available options
   findBestCapture(handCards, boardCards, personality = 'calculator') {
+    // 🔥 SAFETY CHECK: Don't try to capture if hand is empty
+    if (!handCards || handCards.length === 0) {
+      console.log('🚨 AI SAFETY: No cards in hand for captures');
+      return null;
+    }
+    
     const allCaptures = [];
     
     // Find all possible captures
@@ -198,10 +204,23 @@ class CardIntelligenceSystem {
   
   // 🎯 STRATEGIC: Find safest card to place when no captures available
   findSafestCardToPlace(handCards, boardCards, personality = 'calculator') {
+    // 🔥 CRITICAL SAFETY CHECK: Don't try to place cards if hand is empty!
+    if (!handCards || handCards.length === 0) {
+      console.log('🚨 AI SAFETY: No cards in hand to place');
+      return null;
+    }
+    
     const placements = [];
     
     for (let i = 0; i < handCards.length; i++) {
       const handCard = handCards[i];
+      
+      // 🔥 ADDITIONAL SAFETY: Make sure the card exists
+      if (!handCard) {
+        console.log(`🚨 AI SAFETY: Invalid card at index ${i}`);
+        continue;
+      }
+      
       const riskAnalysis = this.calculateCaptureRisk(handCard, boardCards);
       const valueScore = this.getCardStrategicValue(handCard);
       
@@ -215,6 +234,12 @@ class CardIntelligenceSystem {
         valueScore: valueScore,
         placementScore: placementScore
       });
+    }
+    
+    // 🔥 SAFETY CHECK: Make sure we have valid placements
+    if (placements.length === 0) {
+      console.log('🚨 AI SAFETY: No valid placements found');
+      return null;
     }
     
     // Sort by placement score (safest first)
