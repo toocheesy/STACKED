@@ -244,60 +244,46 @@ class UISystem {
   
   if (bot1HandEl) {
     bot1HandEl.innerHTML = '';
-    const bot1HandSize = this.game.state.hands[1]?.length || 0;
+    const bot1Cards = this.game.state.hands[1] || [];
     
-    // Create only the cards that exist, but in FIXED positions
+    // Create 4 fixed card slots, but only show the ones with cards
     for (let i = 0; i < 4; i++) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'card back bot-card-slot';
-      cardEl.dataset.slotIndex = i;
       
-      if (i < bot1HandSize) {
-        // Card exists - show it
+      if (i < bot1Cards.length) {
+        // Show actual card
+        cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
-        cardEl.style.opacity = '1';
       } else {
-        // Card played - hide it but keep the space
+        // Empty slot - invisible but takes up space
+        cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
-        cardEl.style.opacity = '0';
       }
       
       bot1HandEl.appendChild(cardEl);
     }
-    
-    // 🎯 SHRINK THE CONTAINER based on visible cards
-    const cardWidth = 55; // Card width + gap
-    const containerWidth = Math.max(bot1HandSize * cardWidth, cardWidth);
-    bot1HandEl.style.width = `${containerWidth}px`;
   }
 
   if (bot2HandEl) {
     bot2HandEl.innerHTML = '';
-    const bot2HandSize = this.game.state.hands[2]?.length || 0;
+    const bot2Cards = this.game.state.hands[2] || [];
     
-    // Create only the cards that exist, but in FIXED positions
+    // Create 4 fixed card slots, but only show the ones with cards
     for (let i = 0; i < 4; i++) {
       const cardEl = document.createElement('div');
-      cardEl.className = 'card back bot-card-slot';
-      cardEl.dataset.slotIndex = i;
       
-      if (i < bot2HandSize) {
-        // Card exists - show it
+      if (i < bot2Cards.length) {
+        // Show actual card
+        cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
-        cardEl.style.opacity = '1';
       } else {
-        // Card played - hide it but keep the space
+        // Empty slot - invisible but takes up space
+        cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
-        cardEl.style.opacity = '0';
       }
       
       bot2HandEl.appendChild(cardEl);
     }
-    
-    // 🎯 SHRINK THE CONTAINER based on visible cards
-    const cardWidth = 55; // Card width + gap
-    const containerWidth = Math.max(bot2HandSize * cardWidth, cardWidth);
-    bot2HandEl.style.width = `${containerWidth}px`;
   }
 }
 
