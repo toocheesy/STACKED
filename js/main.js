@@ -372,6 +372,8 @@ function handleDragEnd(e) {
   game.state.draggedCard = null;
 }
 
+// 🎓 REPLACE THE handleDrop() FUNCTION IN main.js WITH THIS ENHANCED VERSION:
+
 function handleDrop(e, slot) {
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
@@ -394,6 +396,10 @@ function handleDrop(e, slot) {
     }
   }
 
+  // 🎓 CAPTURE CARD INFO BEFORE ADDING TO COMBO
+  const cardBeingDropped = game.state.draggedCard.card;
+  const sourceType = game.state.draggedCard.source;
+
   game.state.combination[slot].push({
     source: game.state.draggedCard.source,
     index: game.state.draggedCard.index,
@@ -401,6 +407,20 @@ function handleDrop(e, slot) {
   });
 
   game.state.draggedCard = null;
+
+  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
+  if (window.messageController && window.messageController.educationalMode) {
+    const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
+    const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
+    
+    window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
+      slot: slot,
+      cardName: cardName,
+      card: cardBeingDropped,
+      source: sourceType
+    });
+  }
+
   ui.render();
 }
 

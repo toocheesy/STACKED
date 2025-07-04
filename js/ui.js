@@ -11,36 +11,42 @@ class UISystem {
     this.draggableCombo = new DraggableModal('combination-area');
   }
 
-  // 🎯 UPDATED render() FUNCTION - WITH MESSAGE CONTROLLER INTEGRATION
-  render() {
-    const state = this.game.getState();
-    
-    // Connect message controller if not already connected
-    if (window.messageController && !window.messageController.gameEngine) {
-      this.initMessageController();
-    }
-    
-    this.renderDeckCount();
-    this.renderTable();
-    this.renderComboArea();
-    this.renderBoard();
-    this.renderHands();
-    this.renderBotHands();
-    this.renderScores();
-    this.renderDealerIndicator();
-    this.updateSubmitButton();
-    
-    // 🎯 NEW: CHECK FOR MESSAGE EVENTS AND SEND TO CONTROLLER
-    const comboStatus = this.getComboAreaStatus();
-    
-    if (comboStatus.hasCards) {
-      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
-    } else if (state.currentPlayer === 0) {
-      this.sendMessageEvent('TURN_START');
-    } else {
-      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-    }
+  // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
+render() {
+  const state = this.game.getState();
+  
+  // Connect message controller if not already connected
+  if (window.messageController && !window.messageController.gameEngine) {
+    this.initMessageController();
   }
+  
+  this.renderDeckCount();
+  this.renderTable();
+  this.renderComboArea();
+  this.renderBoard();
+  this.renderHands();
+  this.renderBotHands();
+  this.renderScores();
+  this.renderDealerIndicator();
+  this.updateSubmitButton();
+  
+  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+  const comboStatus = this.getComboAreaStatus();
+  
+  if (comboStatus.hasCards) {
+    // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS
+    if (window.messageController.educationalMode) {
+      this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+    } else {
+      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    }
+  } else if (state.currentPlayer === 0) {
+    this.sendMessageEvent('TURN_START');
+  } else {
+    this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+  }
+}
+
 
   renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
@@ -367,17 +373,27 @@ class UISystem {
     }
   }
 
-  // 🎯 HELPER FUNCTION FOR COMBO STATUS
-  getComboAreaStatus() {
-    const combo = this.game.state.combination;
-    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
-    
-    return {
-      hasCards: totalCards > 0,
-      cardCount: totalCards,
-      hasBase: combo.base.length > 0
-    };
-  }
+  // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
+getComboAreaStatus() {
+  const combo = this.game.state.combination;
+  const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
+  
+  return {
+    hasCards: totalCards > 0,
+    cardCount: totalCards,
+    hasBase: combo.base.length > 0,
+    baseCard: combo.base.length > 0 ? combo.base[0].card : null,
+    sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
+    matchCards: combo.match.length,
+    comboData: {
+      base: combo.base,
+      sum1: combo.sum1,
+      sum2: combo.sum2, 
+      sum3: combo.sum3,
+      match: combo.match
+    }
+  };
+}
 
   // Helper methods
   isCardInPlayArea(index, source) {
