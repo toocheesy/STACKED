@@ -251,11 +251,9 @@ class UISystem {
       const cardEl = document.createElement('div');
       
       if (i < bot1Cards.length) {
-        // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
       } else {
-        // Empty slot - invisible but takes up space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
       }
@@ -263,9 +261,12 @@ class UISystem {
       bot1HandEl.appendChild(cardEl);
     }
     
-    // 🎯 COMPRESS THE GAP as cards are played
+    // 🎯 FORCE THE GAP with !important
     const gap = Math.max(5 - (4 - bot1Cards.length), 1);
-    bot1HandEl.style.gap = `${gap}px`;
+    bot1HandEl.style.setProperty('gap', `${gap}px`, 'important');
+    
+    // 🎯 DEBUG: Log the gap value
+    console.log(`Bot1 cards: ${bot1Cards.length}, gap: ${gap}px`);
   }
 
   if (bot2HandEl) {
@@ -277,11 +278,9 @@ class UISystem {
       const cardEl = document.createElement('div');
       
       if (i < bot2Cards.length) {
-        // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
       } else {
-        // Empty slot - invisible but takes up space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
       }
@@ -289,9 +288,12 @@ class UISystem {
       bot2HandEl.appendChild(cardEl);
     }
     
-    // 🎯 COMPRESS THE GAP as cards are played
+    // 🎯 FORCE THE GAP with !important
     const gap = Math.max(5 - (4 - bot2Cards.length), 1);
-    bot2HandEl.style.gap = `${gap}px`;
+    bot2HandEl.style.setProperty('gap', `${gap}px`, 'important');
+    
+    // 🎯 DEBUG: Log the gap value
+    console.log(`Bot2 cards: ${bot2Cards.length}, gap: ${gap}px`);
   }
 }
 
