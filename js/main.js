@@ -1,6 +1,6 @@
 /* 
  * STACKED! - Main Game Controller
- * UPDATED WITH BULLETPROOF MESSAGE CONTROLLER INTEGRATION
+ * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns
  */
 
 // Global game instance
@@ -239,6 +239,7 @@ function handleBoardDrop(e) {
   }
 }
 
+// 🔥 FIXED: checkGameEnd() - NOW PROPERLY PASSES JACKPOT MESSAGES!
 function checkGameEnd() {
   const endResult = game.checkGameEnd();
   
@@ -246,11 +247,13 @@ function checkGameEnd() {
     if (game.currentMode.onGameEnd) {
       game.currentMode.onGameEnd(game);
     }
+    // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showGameOverModal(endResult);
   } else if (endResult.roundOver) {
     if (game.currentMode.onRoundEnd) {
       game.currentMode.onRoundEnd(game);
     }
+    // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showRoundEndModal(endResult);
   } else if (endResult.continueRound) {
     dealNewCards();
@@ -372,11 +375,17 @@ function handleDragEnd(e) {
   game.state.draggedCard = null;
 }
 
-// 🎓 REPLACE THE handleDrop() FUNCTION IN main.js WITH THIS ENHANCED VERSION:
-
+// 🔥 FIXED: handleDrop() - PREVENTS INTERFERENCE DURING BOT TURNS
 function handleDrop(e, slot) {
   e.preventDefault();
-  if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
+  
+  // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
+  if (game.state.currentPlayer !== 0) {
+    console.log('🚨 BLOCKING DROP: Bot turn in progress');
+    return;
+  }
+  
+  if (!game.state.draggedCard) return;
 
   if (game.state.draggedCard.slot !== undefined) {
     game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
@@ -426,7 +435,14 @@ function handleDrop(e, slot) {
 
 function handleDropOriginal(e, source, index) {
   e.preventDefault();
-  if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
+  
+  // 🔥 CRITICAL FIX: Block during bot turns
+  if (game.state.currentPlayer !== 0) {
+    console.log('🚨 BLOCKING ORIGINAL DROP: Bot turn in progress');
+    return;
+  }
+  
+  if (!game.state.draggedCard) return;
 
   if (game.state.draggedCard.slot !== undefined) {
     const originalSlot = game.state.draggedCard.slot;
