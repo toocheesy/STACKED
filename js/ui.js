@@ -11,8 +11,7 @@ class UISystem {
     this.draggableCombo = new DraggableModal('combination-area');
   }
 
-  // Main render function
-  render() {// 🎯 UPDATED render() FUNCTION - WITH MESSAGE CONTROLLER INTEGRATION
+  // 🎯 UPDATED render() FUNCTION - WITH MESSAGE CONTROLLER INTEGRATION
   render() {
     const state = this.game.getState();
     
@@ -40,27 +39,6 @@ class UISystem {
       this.sendMessageEvent('TURN_START');
     } else {
       this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-    }
-  }
-    const state = this.game.getState();
-    
-    this.renderDeckCount();
-    this.renderTable();
-    this.renderComboArea();
-    this.renderBoard();
-    this.renderHands();
-    this.renderBotHands();
-    this.renderScores();
-    this.renderDealerIndicator();
-    this.updateSubmitButton();
-    this.updateMessage();
-    
-    // Update smart messages
-    const hasCardsInAreas = Object.values(state.combination).some(area => area.length > 0);
-    if (hasCardsInAreas) {
-      this.smartMessages.updateMessage('cards_in_areas');
-    } else if (state.currentPlayer === 0) {
-      this.smartMessages.updateMessage('turn_start');
     }
   }
 
@@ -267,53 +245,53 @@ class UISystem {
   }
 
   renderBotHands() {
-  const bot1HandEl = document.getElementById('bot1-hand');
-  const bot2HandEl = document.getElementById('bot2-hand');
-  
-  if (bot1HandEl) {
-    bot1HandEl.innerHTML = '';
-    const bot1Cards = this.game.state.hands[1] || [];
+    const bot1HandEl = document.getElementById('bot1-hand');
+    const bot2HandEl = document.getElementById('bot2-hand');
     
-    // Create 4 fixed card slots
-    for (let i = 0; i < 4; i++) {
-      const cardEl = document.createElement('div');
+    if (bot1HandEl) {
+      bot1HandEl.innerHTML = '';
+      const bot1Cards = this.game.state.hands[1] || [];
       
-      if (i < bot1Cards.length) {
-        // Show actual card
-        cardEl.className = 'card back';
-        cardEl.style.visibility = 'visible';
-      } else {
-        // Empty slot - invisible but takes up space
-        cardEl.className = 'card back';
-        cardEl.style.visibility = 'hidden';
+      // Create 4 fixed card slots
+      for (let i = 0; i < 4; i++) {
+        const cardEl = document.createElement('div');
+        
+        if (i < bot1Cards.length) {
+          // Show actual card
+          cardEl.className = 'card back';
+          cardEl.style.visibility = 'visible';
+        } else {
+          // Empty slot - invisible but takes up space
+          cardEl.className = 'card back';
+          cardEl.style.visibility = 'hidden';
+        }
+        
+        bot1HandEl.appendChild(cardEl);
       }
-      
-      bot1HandEl.appendChild(cardEl);
     }
-  }
 
-  if (bot2HandEl) {
-    bot2HandEl.innerHTML = '';
-    const bot2Cards = this.game.state.hands[2] || [];
-    
-    // Create 4 fixed card slots
-    for (let i = 0; i < 4; i++) {
-      const cardEl = document.createElement('div');
+    if (bot2HandEl) {
+      bot2HandEl.innerHTML = '';
+      const bot2Cards = this.game.state.hands[2] || [];
       
-      if (i < bot2Cards.length) {
-        // Show actual card
-        cardEl.className = 'card back';
-        cardEl.style.visibility = 'visible';
-      } else {
-        // Empty slot - invisible but takes up space
-        cardEl.className = 'card back';
-        cardEl.style.visibility = 'hidden';
+      // Create 4 fixed card slots
+      for (let i = 0; i < 4; i++) {
+        const cardEl = document.createElement('div');
+        
+        if (i < bot2Cards.length) {
+          // Show actual card
+          cardEl.className = 'card back';
+          cardEl.style.visibility = 'visible';
+        } else {
+          // Empty slot - invisible but takes up space
+          cardEl.className = 'card back';
+          cardEl.style.visibility = 'hidden';
+        }
+        
+        bot2HandEl.appendChild(cardEl);
       }
-      
-      bot2HandEl.appendChild(cardEl);
     }
   }
-}
 
   renderScores() {
     const playerScoreEl = document.getElementById('player-score');
@@ -374,8 +352,6 @@ class UISystem {
     }
   }
 
-  // 🎯 NEW FUNCTIONS - ADD THESE AFTER updateMessage()
-  
   // 🎯 INTEGRATE WITH MESSAGE CONTROLLER
   initMessageController() {
     if (window.messageController && this.game) {
