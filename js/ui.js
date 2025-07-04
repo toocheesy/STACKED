@@ -245,7 +245,6 @@ class UISystem {
   if (bot1HandEl) {
     bot1HandEl.innerHTML = '';
     const bot1Cards = this.game.state.hands[1] || [];
-    const visibleCards = bot1Cards.length;
     
     // Create 4 fixed card slots
     for (let i = 0; i < 4; i++) {
@@ -264,21 +263,14 @@ class UISystem {
       bot1HandEl.appendChild(cardEl);
     }
     
-    // 🎯 HYBRID SHRINKING: Compress gaps + shrink container
-    const baseGap = 5;
-    const reducedGap = Math.max(baseGap - (4 - visibleCards), 2);
-    bot1HandEl.style.gap = `${reducedGap}px`;
-    
-    const cardWidth = 50;
-    const handPadding = 20;
-    const newWidth = (visibleCards * cardWidth) + ((visibleCards - 1) * reducedGap) + handPadding;
-    bot1HandEl.style.width = `${Math.max(newWidth, 70)}px`;
+    // 🎯 COMPRESS THE GAP as cards are played
+    const gap = Math.max(5 - (4 - bot1Cards.length), 1);
+    bot1HandEl.style.gap = `${gap}px`;
   }
 
   if (bot2HandEl) {
     bot2HandEl.innerHTML = '';
     const bot2Cards = this.game.state.hands[2] || [];
-    const visibleCards = bot2Cards.length;
     
     // Create 4 fixed card slots
     for (let i = 0; i < 4; i++) {
@@ -297,15 +289,9 @@ class UISystem {
       bot2HandEl.appendChild(cardEl);
     }
     
-    // 🎯 HYBRID SHRINKING: Compress gaps + shrink container
-    const baseGap = 5;
-    const reducedGap = Math.max(baseGap - (4 - visibleCards), 2);
-    bot2HandEl.style.gap = `${reducedGap}px`;
-    
-    const cardWidth = 50;
-    const handPadding = 20;
-    const newWidth = (visibleCards * cardWidth) + ((visibleCards - 1) * reducedGap) + handPadding;
-    bot2HandEl.style.width = `${Math.max(newWidth, 70)}px`;
+    // 🎯 COMPRESS THE GAP as cards are played
+    const gap = Math.max(5 - (4 - bot2Cards.length), 1);
+    bot2HandEl.style.gap = `${gap}px`;
   }
 }
 
