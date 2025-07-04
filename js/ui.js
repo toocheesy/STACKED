@@ -265,13 +265,13 @@ class UISystem {
       bot1HandEl.appendChild(cardEl);
     }
     
-    // 🎯 SHRINK THE CONTAINER BORDER (height for rotated hands)
+    // 🎯 SHRINK THE CONTAINER WIDTH (since it's rotated, width = visual height)
     const cardWidth = 50;
     const cardGap = 5;
     const padding = 20;
-    const containerHeight = (bot1Cards.length * cardWidth) + ((bot1Cards.length - 1) * cardGap) + padding;
+    const containerWidth = (bot1Cards.length * cardWidth) + ((bot1Cards.length - 1) * cardGap) + padding;
     
-    bot1HandEl.style.setProperty('height', `${Math.max(containerHeight, 80)}px`, 'important');
+    bot1HandEl.style.setProperty('width', `${Math.max(containerWidth, 80)}px`, 'important');
   }
 
   if (bot2HandEl) {
@@ -297,13 +297,13 @@ class UISystem {
       bot2HandEl.appendChild(cardEl);
     }
     
-    // 🎯 SHRINK THE CONTAINER BORDER (height for rotated hands)
+    // 🎯 SHRINK THE CONTAINER WIDTH (since it's rotated, width = visual height)
     const cardWidth = 50;
     const cardGap = 5;
     const padding = 20;
-    const containerHeight = (bot2Cards.length * cardWidth) + ((bot2Cards.length - 1) * cardGap) + padding;
+    const containerWidth = (bot2Cards.length * cardWidth) + ((bot2Cards.length - 1) * cardGap) + padding;
     
-    bot2HandEl.style.setProperty('height', `${Math.max(containerHeight, 80)}px`, 'important');
+    bot2HandEl.style.setProperty('width', `${Math.max(containerWidth, 80)}px`, 'important');
   }
 }
 
