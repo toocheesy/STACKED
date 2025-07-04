@@ -261,11 +261,10 @@ class UISystem {
       bot1HandEl.appendChild(cardEl);
     }
     
-    // 🎯 FORCE THE GAP with !important
-    const gap = Math.max(5 - (4 - bot1Cards.length), 1);
+    // 🎯 MORE DRAMATIC GAP COMPRESSION (bigger difference)
+    const gap = Math.max(15 - (4 - bot1Cards.length) * 3, 3);
     bot1HandEl.style.setProperty('gap', `${gap}px`, 'important');
     
-    // 🎯 DEBUG: Log the gap value
     console.log(`Bot1 cards: ${bot1Cards.length}, gap: ${gap}px`);
   }
 
@@ -288,11 +287,10 @@ class UISystem {
       bot2HandEl.appendChild(cardEl);
     }
     
-    // 🎯 FORCE THE GAP with !important
-    const gap = Math.max(5 - (4 - bot2Cards.length), 1);
+    // 🎯 MORE DRAMATIC GAP COMPRESSION (bigger difference)
+    const gap = Math.max(15 - (4 - bot2Cards.length) * 3, 3);
     bot2HandEl.style.setProperty('gap', `${gap}px`, 'important');
     
-    // 🎯 DEBUG: Log the gap value
     console.log(`Bot2 cards: ${bot2Cards.length}, gap: ${gap}px`);
   }
 }
