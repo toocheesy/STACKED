@@ -333,6 +333,23 @@ class MessageController {
     }
   }
 
+  // 🎓 NEW: REAL-TIME COMBO ANALYSIS
+handleComboAnalysis(data) {
+  if (!this.educationalMode) return;
+  
+  // Don't interrupt if we're already guiding
+  if (this.comboGuidanceActive && this.currentTimeout) {
+    return;
+  }
+  
+  this.comboGuidanceActive = true;
+  
+  // Short delay before analyzing
+  this.currentTimeout = setTimeout(() => {
+    this.analyzeCurrentCombo();
+  }, 500);
+}
+
   // 🎯 ENHANCED VALID COMBO - CELEBRATE SUCCESS
   handleValidCombo(data) {
     const currentPlayer = this.getCurrentPlayer();
