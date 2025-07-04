@@ -8,12 +8,40 @@ class UISystem {
   constructor(gameEngine) {
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-    this.smartMessages = new SmartMessageSystem();
     this.draggableCombo = new DraggableModal('combination-area');
   }
 
   // Main render function
+  render() {// 🎯 UPDATED render() FUNCTION - WITH MESSAGE CONTROLLER INTEGRATION
   render() {
+    const state = this.game.getState();
+    
+    // Connect message controller if not already connected
+    if (window.messageController && !window.messageController.gameEngine) {
+      this.initMessageController();
+    }
+    
+    this.renderDeckCount();
+    this.renderTable();
+    this.renderComboArea();
+    this.renderBoard();
+    this.renderHands();
+    this.renderBotHands();
+    this.renderScores();
+    this.renderDealerIndicator();
+    this.updateSubmitButton();
+    
+    // 🎯 NEW: CHECK FOR MESSAGE EVENTS AND SEND TO CONTROLLER
+    const comboStatus = this.getComboAreaStatus();
+    
+    if (comboStatus.hasCards) {
+      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    } else if (state.currentPlayer === 0) {
+      this.sendMessageEvent('TURN_START');
+    } else {
+      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+    }
+  }
     const state = this.game.getState();
     
     this.renderDeckCount();
@@ -335,30 +363,45 @@ class UISystem {
     }
   }
 
+  // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
   updateMessage() {
-  const messageEl = document.getElementById('message');
-  if (!messageEl) return;
-
-  if (this.game.state.currentPlayer === 0) {
-    // 🚨 CRITICAL FIX: Check if player is out of cards BUT DON'T TRIGGER BOTS
-    if (this.game.state.hands[0].length === 0) {
-      messageEl.textContent = "You're out of cards! Bots will finish the round.";
-      this.smartMessages.showMessage("You're out of cards! Bots will finish the round.");
-      // 🔥 REMOVED: The automatic bot scheduling that was causing the loop!
-      return;
-    } else if (this.game.state.combination.base.length === 0) {
-      messageEl.textContent = "Drag or tap cards to the play areas to capture, or place a card on the board to end your turn.";
-      this.smartMessages.updateMessage('turn_start');
-    } else {
-      messageEl.textContent = "Click 'Submit Move' to capture, or place a card to end your turn.";
-      this.smartMessages.updateMessage('cards_in_areas');
+    // 🔥 MESSAGE CONTROLLER HANDLES EVERYTHING NOW!
+    // The MessageController will handle all message updates through events
+    
+    // Only keep this for backwards compatibility - but it should rarely be called
+    if (window.messageController) {
+      window.messageController.forceRefresh();
     }
-  } else {
-    const botMessage = `Bot ${this.game.state.currentPlayer}'s turn...`;
-    messageEl.textContent = botMessage;
-    this.smartMessages.showMessage(botMessage);
   }
-}
+
+  // 🎯 NEW FUNCTIONS - ADD THESE AFTER updateMessage()
+  
+  // 🎯 INTEGRATE WITH MESSAGE CONTROLLER
+  initMessageController() {
+    if (window.messageController && this.game) {
+      window.messageController.connect(this.game);
+      console.log('🎯 UI: Message Controller connected!');
+    }
+  }
+
+  // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
+  sendMessageEvent(eventType, data = {}) {
+    if (window.messageController) {
+      window.messageController.handleGameEvent(eventType, data);
+    }
+  }
+
+  // 🎯 HELPER FUNCTION FOR COMBO STATUS
+  getComboAreaStatus() {
+    const combo = this.game.state.combination;
+    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
+    
+    return {
+      hasCards: totalCards > 0,
+      cardCount: totalCards,
+      hasBase: combo.base.length > 0
+    };
+  }
 
   // Helper methods
   isCardInPlayArea(index, source) {

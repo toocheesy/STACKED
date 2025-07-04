@@ -1,74 +1,12 @@
 /* 
- * Missing Utility Systems for STACKED!
- * Smart Messages, Draggable Modals, and Sound System
+ * Updated Utility Systems for STACKED!
+ * 🔥 OLD SmartMessageSystem REMOVED - NOW USING CENTRALIZED MESSAGE CONTROLLER
+ * Draggable Modals, Sound System, and Game Over Modals
  */
 
-// Smart Contextual Error Detection System
-class SmartMessageSystem {
-  constructor() {
-    this.messageElement = document.getElementById('smart-message');
-    this.defaultMessage = "Drag cards to build captures or place one on board to end turn • Score 500 to win!";
-    this.currentTimeout = null;
-  }
+// 🚨 OLD SmartMessageSystem REMOVED - REPLACED WITH MessageController!
 
-  updateMessage(gameState = 'default') {
-    let message = this.getContextualMessage(gameState);
-    this.showMessage(message);
-  }
-
-  getContextualMessage(context) {
-    switch(context) {
-      case 'turn_start':
-        return "Drag cards to build captures or place one on board to end turn";
-      case 'cards_in_areas':
-        return "Submit your capture or reset to try again";
-      case 'game_over_player':
-        return "🎉 Game Over! You win! 🎉";
-      case 'game_over_bot':
-        return "Game Over! Bot wins this round - try again!";
-      case 'valid_combo':
-        return "✅ Valid combo! Click Submit Move to capture";
-      default:
-        return this.defaultMessage;
-    }
-  }
-
-  showErrorMessage(errorText) {
-    this.showMessage(`❌ ${errorText}`, 'error');
-    if (typeof playSound === 'function') {
-      playSound('invalid');
-    }
-  }
-
-  showSuccessMessage(successText) {
-    this.showMessage(`✅ ${successText}`, 'success');
-  }
-
-  showMessage(text, type = 'normal') {
-    if (!this.messageElement) return;
-    
-    if (this.currentTimeout) {
-      clearTimeout(this.currentTimeout);
-    }
-
-    this.messageElement.textContent = text;
-    this.messageElement.className = 'smart-message';
-    if (type === 'error') {
-      this.messageElement.classList.add('error-message');
-    } else if (type === 'success') {
-      this.messageElement.classList.add('success-message');
-    }
-
-    if (type !== 'normal') {
-      this.currentTimeout = setTimeout(() => {
-        this.updateMessage('default');
-        this.messageElement.className = 'smart-message';
-      }, 3000);
-    }
-  }
-}
-
-// Draggable Modal System
+// Draggable Modal System (KEPT)
 class DraggableModal {
   constructor(elementId) {
     this.modal = document.getElementById(elementId);
@@ -134,7 +72,7 @@ class DraggableModal {
   }
 }
 
-// Sound System - Updated to match your actual audio files
+// Sound System (KEPT)
 const sounds = {
   capture: new Audio('./audio/capture.mp3'),
   invalid: new Audio('./audio/invalid.mp3'),
@@ -142,17 +80,15 @@ const sounds = {
   jackpot: new Audio('./audio/jackpot.mp3')
 };
 
-// Initialize sound system
 function initSounds() {
-  // Preload all sounds for better performance
   Object.values(sounds).forEach(audio => {
     audio.preload = 'auto';
-    audio.volume = 0.7; // Set reasonable volume
+    audio.volume = 0.7;
   });
   console.log('🔊 Sound system initialized');
 }
 
-// Modal Systems for Round End and Game Over
+// Modal Systems (UPDATED WITH MESSAGE CONTROLLER INTEGRATION)
 function rankPlayers(gameEngine) {
   return gameEngine.getRankedPlayers();
 }
@@ -173,6 +109,12 @@ function createConfetti() {
 function showRoundEndModal(endResult) {
   const modal = document.getElementById('scoreboard-modal');
   if (!modal) return;
+
+  // 🎯 SEND ROUND END EVENT TO MESSAGE CONTROLLER
+  window.messageController.handleGameEvent('ROUND_END', {
+    message: endResult.message,
+    roundNumber: game.currentRound
+  });
 
   const jackpotEl = document.getElementById('jackpot-message');
   const titleEl = document.getElementById('scoreboard-title');
@@ -216,6 +158,14 @@ function showGameOverModal(endResult) {
   const modal = document.getElementById('scoreboard-modal');
   if (!modal) return;
 
+  // 🎯 SEND GAME OVER EVENT TO MESSAGE CONTROLLER
+  const rankedPlayers = rankPlayers(game);
+  const winner = rankedPlayers[0];
+  window.messageController.handleGameEvent('GAME_OVER', {
+    winner: winner.name,
+    message: endResult.message
+  });
+
   const jackpotEl = document.getElementById('jackpot-message');
   const titleEl = document.getElementById('scoreboard-title');
   const listEl = document.getElementById('scoreboard-list');
@@ -229,7 +179,6 @@ function showGameOverModal(endResult) {
     createConfetti();
     confettiEl.classList.add('active');
 
-    const rankedPlayers = rankPlayers(game);
     listEl.innerHTML = rankedPlayers.map((player, index) => `
       <div class="scoreboard-item ${index === 0 ? 'leader' : ''}">
         <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
@@ -267,16 +216,24 @@ function dealNewRound() {
     game.state.deck = dealResult.remainingDeck;
     game.state.currentPlayer = 0;
     game.state.lastCapturer = null;
-    ui.smartMessages.updateMessage('turn_start');
+    
+    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('NEW_ROUND', {
+      roundNumber: game.currentRound
+    });
+    
     ui.render();
   } catch (e) {
     console.error('Error dealing new round:', e);
-    ui.smartMessages.showErrorMessage('Error dealing cards! Restart the game.');
+    
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: 'Error dealing cards! Restart the game.'
+    });
   }
 }
 
-// Export all utility classes
-window.SmartMessageSystem = SmartMessageSystem;
+// Export utility classes (REMOVED SmartMessageSystem)
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
 window.showRoundEndModal = showRoundEndModal;
