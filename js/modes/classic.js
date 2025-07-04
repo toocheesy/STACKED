@@ -1,6 +1,6 @@
 /* 
- * Classic STACKED Mode - Clean Version
- * Minimal console output
+ * Classic STACKED Mode - FIXED VERSION WITH PROPER JACKPOT MESSAGES!
+ * 🏆 Now passes jackpot messages correctly to modals
  */
 
 const ClassicMode = {
@@ -42,12 +42,14 @@ const ClassicMode = {
     return cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
   },
 
+  // 🔥 FIXED: checkEndCondition() - NOW PROPERLY RETURNS JACKPOT MESSAGES!
   checkEndCondition(gameEngine) {
     const playersWithCards = gameEngine.state.hands.filter(hand => hand.length > 0).length;
     
     if (playersWithCards === 0) {
       if (gameEngine.state.deck.length === 0) {
-        this.applyLastComboTakesAll(gameEngine);
+        // 🏆 APPLY JACKPOT AND GET THE MESSAGE
+        const jackpotResult = this.applyLastComboTakesAll(gameEngine);
         
         const maxScore = Math.max(
           gameEngine.state.scores.player, 
@@ -59,13 +61,15 @@ const ClassicMode = {
           return { 
             gameOver: true, 
             winner: this.getWinner(gameEngine),
-            reason: 'target_score_reached'
+            reason: 'target_score_reached',
+            message: jackpotResult ? jackpotResult.message : null  // 🔥 PASS THE MESSAGE!
           };
         } else {
           return { 
             roundOver: true, 
             gameOver: false,
-            reason: 'round_complete'
+            reason: 'round_complete',
+            message: jackpotResult ? jackpotResult.message : null  // 🔥 PASS THE MESSAGE!
           };
         }
       } else {
@@ -76,20 +80,29 @@ const ClassicMode = {
     return { continue: true };
   },
 
+  // 🔥 FIXED: applyLastComboTakesAll() - NOW CALCULATES CARD COUNT BEFORE CLEARING!
   applyLastComboTakesAll(gameEngine) {
     if (gameEngine.state.lastCapturer !== null && gameEngine.state.board.length > 0) {
+      // 🔥 CRITICAL FIX: Store card count BEFORE clearing the board!
+      const cardsCount = gameEngine.state.board.length;
       const bonusPoints = this.calculateScore(gameEngine.state.board);
+      
       gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
       
       const playerNames = ['Player', 'Bot 1', 'Bot 2'];
       const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
       
+      console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`);
+      
+      // Clear the board AFTER we have the message data
       gameEngine.state.board = [];
       
+      // 🔥 FIXED: Use cardsCount instead of gameEngine.state.board.length
       return {
-        message: `${lastCapturerName} sweeps ${gameEngine.state.board.length} cards! +${bonusPoints} pts`,
+        message: `🏆 ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`,
         points: bonusPoints,
-        player: lastCapturerName
+        player: lastCapturerName,
+        cardsCount: cardsCount
       };
     }
     return null;
