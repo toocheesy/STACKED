@@ -144,6 +144,10 @@ function showRoundEndModal(endResult) {
   const modal = document.getElementById('scoreboard-modal');
   if (!modal) return;
 
+  // 🏆 PARSE JACKPOT INFORMATION
+  const jackpotInfo = parseJackpotMessage(endResult.message);
+  const rankedPlayers = rankPlayers(game);
+
   // 🎯 SEND ROUND END EVENT TO MESSAGE CONTROLLER
   window.messageController.handleGameEvent('ROUND_END', {
     message: endResult.message,
@@ -157,19 +161,41 @@ function showRoundEndModal(endResult) {
   const confettiEl = document.getElementById('confetti-container');
 
   if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
-    jackpotEl.textContent = endResult.message || '';
-    jackpotEl.classList.toggle('visible', !!endResult.message);
+    // 🏆 DISPLAY EPIC JACKPOT MESSAGE
+    if (jackpotInfo) {
+      jackpotEl.innerHTML = `
+        <div class="jackpot-announcement">
+          🏆 <strong>${jackpotInfo.winner}</strong> swept the board! 
+          <span class="jackpot-bonus">+${jackpotInfo.bonusPoints} pts</span> 
+          from ${jackpotInfo.cardsCount} remaining cards! 🎰
+        </div>
+      `;
+      jackpotEl.classList.add('visible', 'jackpot-highlight');
+    } else {
+      jackpotEl.textContent = endResult.message || '';
+      jackpotEl.classList.toggle('visible', !!endResult.message);
+      jackpotEl.classList.remove('jackpot-highlight');
+    }
+
     titleEl.textContent = `Round ${game.currentRound} Scores`;
     confettiEl.classList.remove('active');
 
-    const rankedPlayers = rankPlayers(game);
-    listEl.innerHTML = rankedPlayers.map((player, index) => `
-      <div class="scoreboard-item ${index === 0 ? 'leader' : ''}">
-        <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
-        <span class="scoreboard-name">${player.name}</span>
-        <span class="scoreboard-score">${player.score} pts</span>
-      </div>
-    `).join('');
+    // 🎯 EPIC SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
+    listEl.innerHTML = rankedPlayers.map((player, index) => {
+      const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
+      const scoreBreakdown = createScoreBreakdown(player, jackpotInfo);
+      
+      return `
+        <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner' : ''}">
+          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
+          <span class="scoreboard-name">
+            ${player.name}
+            ${isJackpotWinner ? '<span class="jackpot-crown">👑</span>' : ''}
+          </span>
+          ${scoreBreakdown}
+        </div>
+      `;
+    }).join('');
 
     buttonsEl.innerHTML = `
       <button id="next-round-btn">Next Round</button>
