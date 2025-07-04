@@ -251,21 +251,27 @@ class UISystem {
       const cardEl = document.createElement('div');
       
       if (i < bot1Cards.length) {
+        // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
+        cardEl.style.opacity = '1';
       } else {
+        // Hidden card - invisible but keeps space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
+        cardEl.style.opacity = '0';
       }
       
       bot1HandEl.appendChild(cardEl);
     }
     
-    // 🎯 MORE DRAMATIC GAP COMPRESSION (bigger difference)
-    const gap = Math.max(15 - (4 - bot1Cards.length) * 3, 3);
-    bot1HandEl.style.setProperty('gap', `${gap}px`, 'important');
+    // 🎯 SHRINK THE CONTAINER BORDER (height for rotated hands)
+    const cardWidth = 50;
+    const cardGap = 5;
+    const padding = 20;
+    const containerHeight = (bot1Cards.length * cardWidth) + ((bot1Cards.length - 1) * cardGap) + padding;
     
-    console.log(`Bot1 cards: ${bot1Cards.length}, gap: ${gap}px`);
+    bot1HandEl.style.setProperty('height', `${Math.max(containerHeight, 80)}px`, 'important');
   }
 
   if (bot2HandEl) {
@@ -277,21 +283,27 @@ class UISystem {
       const cardEl = document.createElement('div');
       
       if (i < bot2Cards.length) {
+        // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
+        cardEl.style.opacity = '1';
       } else {
+        // Hidden card - invisible but keeps space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
+        cardEl.style.opacity = '0';
       }
       
       bot2HandEl.appendChild(cardEl);
     }
     
-    // 🎯 MORE DRAMATIC GAP COMPRESSION (bigger difference)
-    const gap = Math.max(15 - (4 - bot2Cards.length) * 3, 3);
-    bot2HandEl.style.setProperty('gap', `${gap}px`, 'important');
+    // 🎯 SHRINK THE CONTAINER BORDER (height for rotated hands)
+    const cardWidth = 50;
+    const cardGap = 5;
+    const padding = 20;
+    const containerHeight = (bot2Cards.length * cardWidth) + ((bot2Cards.length - 1) * cardGap) + padding;
     
-    console.log(`Bot2 cards: ${bot2Cards.length}, gap: ${gap}px`);
+    bot2HandEl.style.setProperty('height', `${Math.max(containerHeight, 80)}px`, 'important');
   }
 }
 
