@@ -221,25 +221,24 @@ class MessageController {
     }, 2000);
   }
 
-  // 🎯 CORE MESSAGE DISPLAY FUNCTION
-  showMessage(text, type = 'normal') {
-    console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
-    
-    // Update main smart message
-    if (this.messageElement) {
-      this.messageElement.textContent = text;
-      this.messageElement.className = `smart-message ${type}`;
-    }
-    
-    // Update regular message element for compatibility
-    if (this.regularMessageElement) {
-      this.regularMessageElement.textContent = text;
-      this.regularMessageElement.style.display = 'block';
-    }
-    
-    // Add sound effects
-    this.playMessageSound(type);
+  // 🎯 CORE MESSAGE DISPLAY FUNCTION - FIXED TO PREVENT DUPLICATES
+showMessage(text, type = 'normal') {
+  console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
+  
+  // Update main smart message
+  if (this.messageElement) {
+    this.messageElement.textContent = text;
+    this.messageElement.className = `smart-message ${type}`;
   }
+  
+  // 🔥 HIDE REGULAR MESSAGE ELEMENT TO PREVENT DUPLICATES
+  if (this.regularMessageElement) {
+    this.regularMessageElement.style.display = 'none';
+  }
+  
+  // Add sound effects
+  this.playMessageSound(type);
+}
 
   // 🎯 PLAY SOUND FOR MESSAGE TYPE
   playMessageSound(type) {
