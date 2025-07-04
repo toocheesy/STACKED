@@ -242,22 +242,59 @@ class UISystem {
     const bot1HandEl = document.getElementById('bot1-hand');
     const bot2HandEl = document.getElementById('bot2-hand');
     
+    // 🎯 FIXED: Create 4 fixed slots for each bot, show/hide cards instead of removing elements
     if (bot1HandEl) {
-      bot1HandEl.innerHTML = '';
-      this.game.state.hands[1]?.forEach(() => {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card back';
-        bot1HandEl.appendChild(cardEl);
-      });
+      // Only create slots if they don't exist
+      if (bot1HandEl.children.length === 0) {
+        for (let i = 0; i < 4; i++) {
+          const cardSlot = document.createElement('div');
+          cardSlot.className = 'card back bot-card-slot';
+          cardSlot.dataset.slotIndex = i;
+          bot1HandEl.appendChild(cardSlot);
+        }
+      }
+      
+      // Show/hide cards based on current hand size
+      const bot1HandSize = this.game.state.hands[1]?.length || 0;
+      for (let i = 0; i < 4; i++) {
+        const slot = bot1HandEl.children[i];
+        if (slot) {
+          if (i < bot1HandSize) {
+            slot.style.visibility = 'visible';
+            slot.style.opacity = '1';
+          } else {
+            slot.style.visibility = 'hidden';
+            slot.style.opacity = '0';
+          }
+        }
+      }
     }
 
     if (bot2HandEl) {
-      bot2HandEl.innerHTML = '';
-      this.game.state.hands[2]?.forEach(() => {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'card back';
-        bot2HandEl.appendChild(cardEl);
-      });
+      // Only create slots if they don't exist
+      if (bot2HandEl.children.length === 0) {
+        for (let i = 0; i < 4; i++) {
+          const cardSlot = document.createElement('div');
+          cardSlot.className = 'card back bot-card-slot';
+          cardSlot.dataset.slotIndex = i;
+          bot2HandEl.appendChild(cardSlot);
+        }
+      }
+      
+      // Show/hide cards based on current hand size
+      const bot2HandSize = this.game.state.hands[2]?.length || 0;
+      for (let i = 0; i < 4; i++) {
+        const slot = bot2HandEl.children[i];
+        if (slot) {
+          if (i < bot2HandSize) {
+            slot.style.visibility = 'visible';
+            slot.style.opacity = '1';
+          } else {
+            slot.style.visibility = 'hidden';
+            slot.style.opacity = '0';
+          }
+        }
+      }
     }
   }
 
