@@ -594,24 +594,49 @@ class MessageController {
     }
   }
 
-  handleBotThinking(data) {
-    const botNumber = data.botNumber || this.getCurrentPlayer();
-    const difficulty = this.getBotDifficulty();
-    
-    if (difficulty === 'beginner' || this.educationalMode) {
-      const thinkingMessages = [
-        `🤖📚 Bot ${botNumber} is checking for simple pairs...`,
-        `🤖📚 Bot ${botNumber} is doing the math for sums...`,
-        `🤖📚 Bot ${botNumber} is being careful with valuable cards...`
-      ];
-      const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
-      this.showMessage(randomMessage, 'bot-turn');
-    } else if (difficulty === 'legendary') {
-      this.showMessage(`🧠⚡ Bot ${botNumber} (Legendary) is calculating optimal strategy...`, 'bot-turn');
-    } else {
-      this.showMessage(`🤖 Bot ${botNumber} is thinking...`, 'bot-turn');
-    }
+  // 🔥 REPLACE THE handleBotThinking() FUNCTION IN MessageController.js WITH THIS FASTER VERSION:
+
+handleBotThinking(data) {
+  const botNumber = data.botNumber || this.getCurrentPlayer();
+  const difficulty = this.getBotDifficulty();
+  
+  // 🔥 CRITICAL FIX: MUCH SHORTER TIMEOUT FOR BOT MESSAGES
+  if (this.currentTimeout) {
+    clearTimeout(this.currentTimeout);
+    this.currentTimeout = null;
   }
+  
+  if (difficulty === 'beginner' || this.educationalMode) {
+    const thinkingMessages = [
+      `🤖📚 Bot ${botNumber} is checking for simple pairs...`,
+      `🤖📚 Bot ${botNumber} is doing the math for sums...`,
+      `🤖📚 Bot ${botNumber} is being careful with valuable cards...`
+    ];
+    const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+    this.showMessage(randomMessage, 'bot-turn');
+    
+    // 🔥 MUCH SHORTER TIMEOUT - UPDATE FASTER
+    this.currentTimeout = setTimeout(() => {
+      this.forceRefresh();
+    }, 500); // Only 500ms instead of longer delays
+    
+  } else if (difficulty === 'legendary') {
+    this.showMessage(`🧠⚡ Bot ${botNumber} (Legendary) is calculating optimal strategy...`, 'bot-turn');
+    
+    // 🔥 SHORTER TIMEOUT FOR LEGENDARY TOO
+    this.currentTimeout = setTimeout(() => {
+      this.forceRefresh();
+    }, 800);
+    
+  } else {
+    this.showMessage(`🤖 Bot ${botNumber} is thinking...`, 'bot-turn');
+    
+    // 🔥 SHORTER TIMEOUT FOR INTERMEDIATE
+    this.currentTimeout = setTimeout(() => {
+      this.forceRefresh();
+    }, 600);
+  }
+}
 
   handlePlayerOutOfCards(data) {
     if (this.educationalMode) {
