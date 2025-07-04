@@ -254,24 +254,14 @@ class UISystem {
         // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
-        cardEl.style.opacity = '1';
       } else {
-        // Hidden card - invisible but keeps space
+        // Empty slot - invisible but takes up space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
-        cardEl.style.opacity = '0';
       }
       
       bot1HandEl.appendChild(cardEl);
     }
-    
-    // 🎯 SHRINK THE CONTAINER WIDTH (since it's rotated, width = visual height)
-    const cardWidth = 50;
-    const cardGap = 5;
-    const padding = 20;
-    const containerWidth = (bot1Cards.length * cardWidth) + ((bot1Cards.length - 1) * cardGap) + padding;
-    
-    bot1HandEl.style.setProperty('width', `${Math.max(containerWidth, 80)}px`, 'important');
   }
 
   if (bot2HandEl) {
@@ -286,24 +276,14 @@ class UISystem {
         // Show actual card
         cardEl.className = 'card back';
         cardEl.style.visibility = 'visible';
-        cardEl.style.opacity = '1';
       } else {
-        // Hidden card - invisible but keeps space
+        // Empty slot - invisible but takes up space
         cardEl.className = 'card back';
         cardEl.style.visibility = 'hidden';
-        cardEl.style.opacity = '0';
       }
       
       bot2HandEl.appendChild(cardEl);
     }
-    
-    // 🎯 SHRINK THE CONTAINER WIDTH (since it's rotated, width = visual height)
-    const cardWidth = 50;
-    const cardGap = 5;
-    const padding = 20;
-    const containerWidth = (bot2Cards.length * cardWidth) + ((bot2Cards.length - 1) * cardGap) + padding;
-    
-    bot2HandEl.style.setProperty('width', `${Math.max(containerWidth, 80)}px`, 'important');
   }
 }
 
