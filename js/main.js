@@ -466,32 +466,20 @@ function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
 }
 
-// 🎯 UPDATED provideHint() WITH MESSAGE EVENTS
+// 🎯 ENHANCED HINT FUNCTION - Replace the existing one
 function provideHint() {
-  if (game.state.currentPlayer !== 0) return;
-  
-  const possibleCaptures = [];
-  for (const [index, card] of game.state.hands[0].entries()) {
-    const captures = canCapture(card, game.state.board);
-    captures.forEach(capture => {
-      possibleCaptures.push({ handIndex: index, capture });
-    });
-  }
-
-  if (possibleCaptures.length === 0) {
-    // 🎯 SEND HINT EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('HINT_REQUESTED', {
-      hintText: "No valid captures available. Place a card to end your turn."
-    });
+  if (game.state.currentPlayer !== 0) {
+    console.log('🚫 HINT: Not player turn');
     return;
   }
-
-  const hint = possibleCaptures[Math.floor(Math.random() * possibleCaptures.length)];
   
-  // 🎯 SEND HINT EVENT TO MESSAGE CONTROLLER
-  window.messageController.handleGameEvent('HINT_REQUESTED', {
-    hintText: "Try combining the highlighted cards!"
-  });
+  // Initialize hint system if not exists
+  if (!window.hintSystem) {
+    window.hintSystem = new HintSystem(game, ui);
+  }
+  
+  // Show intelligent hint
+  window.hintSystem.showHint();
 }
 
 // Event listeners
