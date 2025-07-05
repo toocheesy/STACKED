@@ -15,6 +15,8 @@ STACKED! is a strategic card game platform where players compete to capture card
 - **📱 Cross-Platform**: Touch and desktop support with intuitive drag-and-drop interface
 - **🎨 Dynamic UI**: Beautiful homepage, draggable combo builder, and real-time validation
 - **🏅 Professional Presentation**: Animated celebrations, confetti effects, and mode-specific theming
+- **🧠 Intelligent Hint System**: Smart suggestions powered by Card Intelligence
+- **🎓 Educational Mode**: Combo assistance and step-by-step guidance for beginners
 
 ## 🎮 Game Modes
 
@@ -80,7 +82,8 @@ STACKED!/
     ├── core/
     │   ├── game.js     # GameEngine - Core game logic
     │   ├── utils.js    # Utilities, modals, and sound system
-    │   └── modeSelector.js # Mode selection and UI management
+    │   ├── modeSelector.js # Mode selection and UI management
+    │   └── MessageController.js # Smart message system with combo assistance
     ├── ui.js           # Rendering system and DOM manipulation
     ├── botModal.js     # AI interface for combo interactions
     ├── modes/
@@ -88,7 +91,8 @@ STACKED!/
     │   └── speed.js    # Speed mode with timer and bonuses
     ├── ai.js           # Bot intelligence system
     ├── deck.js         # Card creation and shuffling
-    └── gameLogic.js    # Capture validation and scoring
+    ├── gameLogic.js    # Capture validation and scoring
+    └── cardIntelligence.js # Advanced AI brain for strategic decisions
 ```
 
 ### Core Systems
@@ -97,10 +101,42 @@ STACKED!/
 **🎨 UISystem**: Pure rendering system that works with any mode  
 **🤖 BotModalInterface**: AI that interacts through the same UI as humans  
 **🎯 ModeSelector**: Beautiful mode selection with dynamic settings  
-**⚙️ InterchangeableSlots**: Revolutionary validation supporting pairs and sums in any area
+**⚙️ InterchangeableSlots**: Revolutionary validation supporting pairs and sums in any area  
+**🧠 CardIntelligence**: Advanced AI brain for strategic gameplay and hints  
+**🎓 MessageController**: Smart combo assistance and educational guidance  
+
+### Script Loading Order
+**CRITICAL: Scripts must load in this exact order in game.html:**
+
+```html
+<!-- Core Dependencies -->
+<script src="js/deck.js"></script>
+<script src="js/gameLogic.js"></script>
+<script src="js/cardIntelligence.js"></script>
+
+<!-- Core Systems -->
+<script src="js/core/game.js"></script>
+<script src="js/core/utils.js"></script>
+<script src="js/core/modeSelector.js"></script>
+<script src="js/core/MessageController.js"></script>
+
+<!-- Game Modes -->
+<script src="js/modes/classic.js"></script>
+<script src="js/modes/speed.js"></script>
+
+<!-- AI Systems -->
+<script src="js/ai.js"></script>
+<script src="js/botModal.js"></script>
+
+<!-- UI System -->
+<script src="js/ui.js"></script>
+
+<!-- Main Controller (MUST BE LAST!) -->
+<script src="js/main.js"></script>
+```
 
 ### AI Intelligence Levels
-- **Beginner**: 80% random placement, 20% simple captures - perfect for learning
+- **Beginner**: 80% random placement, 20% simple captures - perfect for learning with educational mode
 - **Intermediate**: 50/50 strategic balance with random capture selection
 - **Legendary**: Optimal play with best capture prioritization and strategic placement
 
@@ -169,10 +205,16 @@ modeSelector.registerMode('newmode', NewMode);
 
 ### Professional UI/UX
 - **Homepage**: Animated mode cards with particle effects
-- **Draggable Modals**: Move combo builder anywhere on screen
+- **Draggable Modals**: Move combo builder anywhere on screen (powered by DraggableModal in utils.js)
 - **Real-time Validation**: Instant visual feedback with green glow
-- **Smart Messages**: Contextual hints and error detection
+- **Smart Messages**: Contextual hints and error detection via MessageController
 - **Cross-platform Events**: Unified touch and mouse interaction
+
+### Intelligence Systems
+- **Card Intelligence**: Advanced AI brain that tracks cards, calculates risks, and makes strategic decisions
+- **Hint System**: Powered by Card Intelligence to provide smart, contextual suggestions
+- **Educational Mode**: Auto-enabled for beginner difficulty with step-by-step combo guidance
+- **Bot Personalities**: Different AI personalities (calculator, strategist, adaptive) based on difficulty
 
 ### Performance Optimizations
 - **Efficient State Management**: Complex game state handled smoothly
@@ -188,38 +230,48 @@ modeSelector.registerMode('newmode', NewMode);
 - **Real-time Multi-Area Validation** across simultaneous capture zones
 - **Dynamic Mode System** with hot-swappable game rules
 - **Professional Game Engine** architecture rivaling commercial games
+- **Revolutionary Hint System** powered by AI card intelligence
+- **Educational Combo Assistant** for seamless learning experience
 
 ### Development Milestones
 - **Modular Restructure**: Transformed 1500+ line monolith into clean architecture
 - **Multi-Mode Platform**: Seamless mode switching with persistent settings
 - **Advanced AI**: Three-tier intelligence system with capture optimization
 - **Cross-Platform Support**: Touch, mouse, and keyboard unified system
+- **Card Intelligence System**: AI brain for strategic gameplay and hints
+- **Message Controller**: Smart assistance and educational guidance
 
 ## 🚨 Current Development Status
 
-### 🎯 Active Bug Fixes
-- **CRITICAL**: Card disappearing during bot turns (affects gameplay)
-- **HIGH**: Board card overflow layout issues (visual quality)
-- **MEDIUM**: Bot strategy optimization investigation
-
 ### ✅ Recently Completed
+- **Script Loading Order**: Fixed all module dependencies and loading sequence
+- **Draggable Modal System**: Bulletproof combo builder movement via utils.js
+- **Card Intelligence Integration**: AI-powered hints and strategic decisions
+- **Message Controller**: Smart combo assistance and educational mode
 - **Bot Card Animation**: Fixed visual positioning issues
-- **Smart Message System**: Resolved turn display confusion
 - **AI Safety Guards**: Bulletproofed empty hand scenarios
 
+### 🎯 Active Features
+- **LEGENDARY HINT SYSTEM**: AI-powered suggestions with Card Intelligence
+- **Educational Mode**: Step-by-step combo guidance for beginners
+- **Draggable Combo Builder**: Move combo areas anywhere on screen
+- **Multi-Area Captures**: Complex combos across all 5 areas simultaneously
+- **Smart Message System**: Contextual feedback and guidance
+
 ### 🔧 Upcoming Enhancements
-- **Jackpot Display**: Enhanced scoreboard with winner highlights
-- **Hint System**: Rebuilt interactive capture suggestions
-- **Mode Display**: Real-time game info during play
-- **UI Polish**: Combo builder text cleanup and styling
+- **Tournament Mode**: Elite competition with elimination brackets
+- **Achievement System**: Unlock titles and rewards
+- **Advanced Statistics**: Detailed performance tracking
+- **Custom Themes**: Personalized visual experiences
 
 ## 🎉 Credits & Recognition
 
 **Game Design**: Revolutionary 5-area capture system with interchangeable mechanics  
-**AI Development**: Sophisticated bot intelligence with three distinct personality levels  
+**AI Development**: Sophisticated bot intelligence with Card Intelligence system  
 **Technical Architecture**: Professional JavaScript game engine with modular expansion  
 **UI/UX Design**: Beautiful animations, responsive design, and accessibility features  
-**Audio Integration**: Professional sound system with mode-specific audio cues
+**Audio Integration**: Professional sound system with mode-specific audio cues  
+**Educational Systems**: Combo assistance and intelligent tutoring integration
 
 ---
 
@@ -228,9 +280,10 @@ modeSelector.registerMode('newmode', NewMode);
 **STACKED!** represents the pinnacle of browser-based card game development. With its innovative capture mechanics, intelligent AI opponents, beautiful presentation, and infinitely expandable architecture, it delivers an experience that rivals commercial card game platforms.
 
 ### 🎯 Quick Links
-- **Play Classic Mode**: Traditional strategic gameplay
+- **Play Classic Mode**: Traditional strategic gameplay with AI hints
 - **Try Speed Mode**: Fast-paced action with time pressure  
-- **Explore Legendary AI**: Challenge the ultimate opponents
+- **Explore Legendary AI**: Challenge the ultimate opponents powered by Card Intelligence
+- **Learn with Educational Mode**: Master combos with step-by-step guidance
 - **Create Custom Modes**: Extend the platform with your own rules
 
 **Start your journey to becoming a STACKED! legend today!** 🎴✨
@@ -242,7 +295,9 @@ modeSelector.registerMode('newmode', NewMode);
 - **AI Vanquisher**: Defeat Legendary difficulty bots
 - **Mode Explorer**: Play all available game modes
 - **Tournament Champion**: Win your first elimination bracket
+- **Hint Master**: Use the hint system to discover advanced combos
+- **Educational Graduate**: Complete tutorial mode with perfect scores
 
 ---
 
-*Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, and every capture writes legend.* 🎮⚡
+*Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, every capture writes legend, and every combo is powered by intelligence.* 🎮⚡
