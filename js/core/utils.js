@@ -1,11 +1,8 @@
 /* 
- * Updated Utility Systems for STACKED!
- * 🔥 OLD SmartMessageSystem REMOVED - NOW USING CENTRALIZED MESSAGE CONTROLLER
- * Draggable Modals, Sound System, and Game Over Modals
- * 🏆 ENHANCED WITH EPIC JACKPOT WINNER DISPLAY!
+ * 🔥 ENHANCED UTILITY SYSTEMS FOR STACKED! - EPIC JACKPOT WINNER EDITION!
+ * 🏆 NOW WITH LEGENDARY JACKPOT WINNER DISPLAY AND SCORE BREAKDOWNS!
+ * Draggable Modals, Sound System, and EPIC Game Over Modals
  */
-
-// 🚨 OLD SmartMessageSystem REMOVED - REPLACED WITH MessageController!
 
 // Draggable Modal System (KEPT)
 class DraggableModal {
@@ -89,7 +86,7 @@ function initSounds() {
   console.log('🔊 Sound system initialized');
 }
 
-// Modal Systems (UPDATED WITH EPIC JACKPOT DISPLAY!)
+// Modal Systems (🏆 ENHANCED WITH EPIC JACKPOT DISPLAY!)
 function rankPlayers(gameEngine) {
   return gameEngine.getRankedPlayers();
 }
@@ -111,38 +108,75 @@ function createConfetti() {
 function parseJackpotMessage(message) {
   if (!message) return null;
   
+  console.log(`🏆 PARSING JACKPOT MESSAGE: "${message}"`);
+  
   // Parse messages like "🏆 Player sweeps 3 remaining cards! +45 pts"
   const jackpotMatch = message.match(/🏆\s+(\w+(?:\s+\d+)?)\s+sweeps\s+(\d+)\s+remaining\s+cards!\s+\+(\d+)\s+pts/);
   
   if (jackpotMatch) {
-    return {
+    const result = {
       winner: jackpotMatch[1],
       cardsCount: parseInt(jackpotMatch[2]),
       bonusPoints: parseInt(jackpotMatch[3])
     };
+    console.log(`✅ JACKPOT PARSED:`, result);
+    return result;
   }
   
+  console.log(`❌ NO JACKPOT PATTERN FOUND`);
   return null;
 }
 
-// 🎯 EPIC SCORE BREAKDOWN - Shows base + jackpot bonus
+// 🎯 EPIC SCORE BREAKDOWN - Shows base + jackpot bonus with golden styling
 function createScoreBreakdown(player, jackpotInfo) {
-  if (!jackpotInfo || jackpotInfo.winner !== player.name) {
+  const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
+  
+  if (!isJackpotWinner) {
     return `<span class="scoreboard-score">${player.score} pts</span>`;
   }
   
   const baseScore = player.score - jackpotInfo.bonusPoints;
   return `
-    <span class="scoreboard-score jackpot-winner-score">
-      ${player.score} pts
-      <span class="score-breakdown">(Base: ${baseScore} + Jackpot: ${jackpotInfo.bonusPoints})</span>
-    </span>
+    <div class="jackpot-winner-score">
+      <span class="final-score">${player.score} pts</span>
+      <div class="score-breakdown">
+        <span class="base-score">Base: ${baseScore}</span>
+        <span class="jackpot-bonus">🏆 Jackpot: +${jackpotInfo.bonusPoints}</span>
+      </div>
+    </div>
   `;
 }
 
+// 🎉 CREATE EPIC JACKPOT ANNOUNCEMENT
+function createJackpotAnnouncement(jackpotInfo) {
+  if (!jackpotInfo) return '';
+  
+  return `
+    <div class="jackpot-announcement">
+      <div class="jackpot-header">
+        <span class="jackpot-icon">🏆</span>
+        <span class="jackpot-title">JACKPOT WINNER!</span>
+        <span class="jackpot-icon">🏆</span>
+      </div>
+      <div class="jackpot-details">
+        <strong>${jackpotInfo.winner}</strong> swept the board clean!
+      </div>
+      <div class="jackpot-bonus-display">
+        <span class="bonus-cards">${jackpotInfo.cardsCount} cards</span>
+        <span class="bonus-arrow">→</span>
+        <span class="bonus-points">+${jackpotInfo.bonusPoints} pts</span>
+      </div>
+      <div class="jackpot-celebration">🎰 LAST COMBO TAKES ALL! 🎰</div>
+    </div>
+  `;
+}
+
+// 🏆 ENHANCED ROUND END MODAL - Now with jackpot celebration
 function showRoundEndModal(endResult) {
   const modal = document.getElementById('scoreboard-modal');
   if (!modal) return;
+
+  console.log(`🏆 SHOWING ROUND END MODAL WITH RESULT:`, endResult);
 
   // 🏆 PARSE JACKPOT INFORMATION
   const jackpotInfo = parseJackpotMessage(endResult.message);
@@ -161,23 +195,18 @@ function showRoundEndModal(endResult) {
   const confettiEl = document.getElementById('confetti-container');
 
   if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
-    // 🏆 DISPLAY EPIC JACKPOT MESSAGE
+    // 🏆 DISPLAY EPIC JACKPOT ANNOUNCEMENT
     if (jackpotInfo) {
-      jackpotEl.innerHTML = `
-        <div class="jackpot-announcement">
-          🏆 <strong>${jackpotInfo.winner}</strong> swept the board! 
-          <span class="jackpot-bonus">+${jackpotInfo.bonusPoints} pts</span> 
-          from ${jackpotInfo.cardsCount} remaining cards! 🎰
-        </div>
-      `;
-      jackpotEl.classList.add('visible', 'jackpot-highlight');
+      jackpotEl.innerHTML = createJackpotAnnouncement(jackpotInfo);
+      jackpotEl.classList.add('visible', 'jackpot-celebration');
+      console.log(`🎉 JACKPOT ANNOUNCEMENT CREATED FOR: ${jackpotInfo.winner}`);
     } else {
-      jackpotEl.textContent = endResult.message || '';
+      jackpotEl.innerHTML = endResult.message ? `<div class="round-message">${endResult.message}</div>` : '';
       jackpotEl.classList.toggle('visible', !!endResult.message);
-      jackpotEl.classList.remove('jackpot-highlight');
+      jackpotEl.classList.remove('jackpot-celebration');
     }
 
-    titleEl.textContent = `Round ${game.currentRound} Scores`;
+    titleEl.textContent = `Round ${game.currentRound} Complete!`;
     confettiEl.classList.remove('active');
 
     // 🎯 EPIC SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
@@ -187,22 +216,30 @@ function showRoundEndModal(endResult) {
       
       return `
         <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner' : ''}">
-          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
-          <span class="scoreboard-name">
-            ${player.name}
-            ${isJackpotWinner ? '<span class="jackpot-crown">👑</span>' : ''}
-          </span>
-          ${scoreBreakdown}
+          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || `#${index + 1}`}</span>
+          <div class="player-info">
+            <span class="scoreboard-name">
+              ${player.name}
+              ${isJackpotWinner ? '<span class="jackpot-crown">👑</span>' : ''}
+            </span>
+            ${scoreBreakdown}
+          </div>
         </div>
       `;
     }).join('');
 
     buttonsEl.innerHTML = `
-      <button id="next-round-btn">Next Round</button>
+      <button id="next-round-btn" class="continue-btn">Continue to Next Round</button>
     `;
 
     modal.showModal();
-    playSound('jackpot');
+    
+    // 🔊 EPIC JACKPOT SOUND
+    if (jackpotInfo) {
+      playSound('jackpot');
+    } else {
+      playSound('winner');
+    }
 
     const nextRoundBtn = document.getElementById('next-round-btn');
     if (nextRoundBtn) {
@@ -214,9 +251,12 @@ function showRoundEndModal(endResult) {
   }
 }
 
+// 🏆 ENHANCED GAME OVER MODAL - Ultimate jackpot celebration
 function showGameOverModal(endResult) {
   const modal = document.getElementById('scoreboard-modal');
   if (!modal) return;
+
+  console.log(`🏆 SHOWING GAME OVER MODAL WITH RESULT:`, endResult);
 
   // 🏆 PARSE JACKPOT INFORMATION
   const jackpotInfo = parseJackpotMessage(endResult.message);
@@ -236,55 +276,75 @@ function showGameOverModal(endResult) {
   const confettiEl = document.getElementById('confetti-container');
 
   if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
-    // 🏆 DISPLAY EPIC JACKPOT MESSAGE
+    // 🏆 DISPLAY EPIC JACKPOT ANNOUNCEMENT
     if (jackpotInfo) {
-      jackpotEl.innerHTML = `
-        <div class="jackpot-announcement">
-          🏆 <strong>${jackpotInfo.winner}</strong> swept the board! 
-          <span class="jackpot-bonus">+${jackpotInfo.bonusPoints} pts</span> 
-          from ${jackpotInfo.cardsCount} remaining cards! 🎰
-        </div>
-      `;
-      jackpotEl.classList.add('visible', 'jackpot-highlight');
+      jackpotEl.innerHTML = createJackpotAnnouncement(jackpotInfo);
+      jackpotEl.classList.add('visible', 'jackpot-celebration');
+      console.log(`🎉 FINAL JACKPOT ANNOUNCEMENT CREATED FOR: ${jackpotInfo.winner}`);
     } else {
-      jackpotEl.textContent = endResult.message || '';
+      jackpotEl.innerHTML = endResult.message ? `<div class="game-end-message">${endResult.message}</div>` : '';
       jackpotEl.classList.toggle('visible', !!endResult.message);
-      jackpotEl.classList.remove('jackpot-highlight');
+      jackpotEl.classList.remove('jackpot-celebration');
     }
 
-    titleEl.textContent = 'Game Over!';
+    // 🏆 EPIC GAME OVER TITLE
+    const gameOverTitle = jackpotInfo ? 
+      `🏆 ${winner.name} Wins with Epic Jackpot! 🏆` : 
+      `🎉 Game Over - ${winner.name} Wins! 🎉`;
+    
+    titleEl.textContent = gameOverTitle;
     createConfetti();
     confettiEl.classList.add('active');
 
-    // 🎯 EPIC SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
+    // 🎯 ULTIMATE SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
     listEl.innerHTML = rankedPlayers.map((player, index) => {
       const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
       const scoreBreakdown = createScoreBreakdown(player, jackpotInfo);
       
       return `
-        <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner' : ''}">
-          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || ''}</span>
-          <span class="scoreboard-name">
-            ${player.name}
-            ${isJackpotWinner ? '<span class="jackpot-crown">👑</span>' : ''}
-          </span>
-          ${scoreBreakdown}
+        <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner ultimate-winner' : ''}">
+          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || `#${index + 1}`}</span>
+          <div class="player-info">
+            <span class="scoreboard-name">
+              ${player.name}
+              ${index === 0 ? '<span class="winner-crown">👑</span>' : ''}
+              ${isJackpotWinner ? '<span class="jackpot-crown">🎰</span>' : ''}
+            </span>
+            ${scoreBreakdown}
+          </div>
         </div>
       `;
     }).join('');
 
     buttonsEl.innerHTML = `
-      <button id="new-game-btn">New Game</button>
+      <button id="new-game-btn" class="new-game-btn">Start New Game</button>
+      <button id="home-btn" class="home-btn">Return to Homepage</button>
     `;
 
     modal.showModal();
-    playSound('winner');
+    
+    // 🔊 EPIC VICTORY SOUND
+    if (jackpotInfo) {
+      playSound('jackpot');
+      setTimeout(() => playSound('winner'), 1000); // Double celebration!
+    } else {
+      playSound('winner');
+    }
 
     const newGameBtn = document.getElementById('new-game-btn');
+    const homeBtn = document.getElementById('home-btn');
+    
     if (newGameBtn) {
       newGameBtn.addEventListener('click', () => {
         modal.close();
         initGame();
+      });
+    }
+    
+    if (homeBtn) {
+      homeBtn.addEventListener('click', () => {
+        modal.close();
+        window.location.href = 'index.html';
       });
     }
   }
@@ -319,7 +379,7 @@ function dealNewRound() {
   }
 }
 
-// Export utility classes (REMOVED SmartMessageSystem)
+// Export utility classes
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
 window.showRoundEndModal = showRoundEndModal;

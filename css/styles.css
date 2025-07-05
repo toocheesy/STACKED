@@ -1512,3 +1512,408 @@ button[data-difficulty] .difficulty-name {
       0 0 0 4px #D2A679;
   }
 }
+
+/* 🏆 EPIC JACKPOT WINNER STYLES - ADD TO YOUR styles.css FILE */
+
+/* 🎰 JACKPOT ANNOUNCEMENT STYLES */
+.jackpot-announcement {
+  background: linear-gradient(135deg, #FFD700, #FFA500, #FF8C00);
+  border: 3px solid #B8860B;
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  color: #8B4513;
+  font-weight: bold;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.8),
+    inset 0 2px 10px rgba(255, 255, 255, 0.3);
+  animation: jackpotPulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.jackpot-announcement::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: jackpotShine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.jackpot-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.jackpot-icon {
+  font-size: 1.5rem;
+  animation: jackpotBounce 1s ease-in-out infinite alternate;
+}
+
+.jackpot-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.jackpot-details {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.jackpot-bonus-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.bonus-cards {
+  background: rgba(139, 69, 19, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #8B4513;
+}
+
+.bonus-arrow {
+  font-size: 1.2rem;
+  color: #8B4513;
+}
+
+.bonus-points {
+  background: linear-gradient(45deg, #32CD32, #228B22);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  animation: pointsPulse 1.5s ease-in-out infinite;
+}
+
+.jackpot-celebration {
+  font-size: 0.9rem;
+  margin-top: 8px;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+/* 🏆 JACKPOT WINNER SCOREBOARD ITEM */
+.scoreboard-item.jackpot-winner {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.1));
+  border: 2px solid #FFD700;
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.6),
+    inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  animation: jackpotWinnerGlow 2s ease-in-out infinite;
+  position: relative;
+}
+
+.scoreboard-item.jackpot-winner::before {
+  content: '🎰';
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  animation: jackpotSlotSpin 2s linear infinite;
+}
+
+.scoreboard-item.ultimate-winner {
+  border: 3px solid #FFD700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 140, 0, 0.2));
+  box-shadow: 
+    0 0 25px rgba(255, 215, 0, 0.8),
+    inset 0 2px 8px rgba(255, 255, 255, 0.4);
+  animation: ultimateWinnerGlow 1.5s ease-in-out infinite;
+}
+
+/* 🎯 JACKPOT SCORE BREAKDOWN */
+.jackpot-winner-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.final-score {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #FFD700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.score-breakdown {
+  display: flex;
+  gap: 8px;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.base-score {
+  color: #D2A679;
+  background: rgba(210, 166, 121, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.jackpot-bonus {
+  color: #32CD32;
+  background: rgba(50, 205, 50, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  animation: bonusFlicker 1s ease-in-out infinite alternate;
+}
+
+/* 👑 CROWN STYLES */
+.jackpot-crown {
+  font-size: 1.2rem;
+  margin-left: 5px;
+  animation: crownSpin 3s linear infinite;
+}
+
+.winner-crown {
+  font-size: 1.3rem;
+  margin-left: 5px;
+  animation: crownBounce 2s ease-in-out infinite;
+}
+
+/* 🎭 PLAYER INFO LAYOUT */
+.player-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.scoreboard-name {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+/* 🎨 ENHANCED JACKPOT MESSAGE CONTAINER */
+.jackpot-message.jackpot-celebration {
+  animation: jackpotReveal 1s ease-out;
+}
+
+/* 🎯 BUTTON ENHANCEMENTS */
+.continue-btn {
+  background: linear-gradient(45deg, #4CAF50, #45a049);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.continue-btn:hover {
+  background: linear-gradient(45deg, #45a049, #3d8b40);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.5);
+}
+
+.new-game-btn {
+  background: linear-gradient(45deg, #2196F3, #1976D2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+}
+
+.new-game-btn:hover {
+  background: linear-gradient(45deg, #1976D2, #1565C0);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(33, 150, 243, 0.5);
+}
+
+.home-btn {
+  background: linear-gradient(45deg, #FF5722, #E64A19);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(255, 87, 34, 0.3);
+}
+
+.home-btn:hover {
+  background: linear-gradient(45deg, #E64A19, #D84315);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(255, 87, 34, 0.5);
+}
+
+/* 🎪 ANIMATIONS */
+@keyframes jackpotPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(255, 215, 0, 0.8),
+      inset 0 2px 10px rgba(255, 255, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(255, 215, 0, 1),
+      inset 0 2px 15px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes jackpotShine {
+  0% { transform: translateX(-200%) translateY(-200%) rotate(45deg); }
+  100% { transform: translateX(200%) translateY(200%) rotate(45deg); }
+}
+
+@keyframes jackpotBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-5px); }
+}
+
+@keyframes pointsPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes jackpotWinnerGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 0 15px rgba(255, 215, 0, 0.6),
+      inset 0 2px 5px rgba(255, 255, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 
+      0 0 25px rgba(255, 215, 0, 0.8),
+      inset 0 2px 8px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes ultimateWinnerGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 0 25px rgba(255, 215, 0, 0.8),
+      inset 0 2px 8px rgba(255, 255, 255, 0.4);
+  }
+  50% { 
+    box-shadow: 
+      0 0 35px rgba(255, 215, 0, 1),
+      inset 0 2px 12px rgba(255, 255, 255, 0.6);
+  }
+}
+
+@keyframes jackpotSlotSpin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes bonusFlicker {
+  0% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+@keyframes crownSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes crownBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes jackpotReveal {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.8) translateY(-20px); 
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
+}
+
+/* 📱 MOBILE RESPONSIVE JACKPOT STYLES */
+@media (max-width: 700px) {
+  .jackpot-announcement {
+    padding: 15px;
+  }
+  
+  .jackpot-title {
+    font-size: 1.1rem;
+  }
+  
+  .jackpot-details {
+    font-size: 1rem;
+  }
+  
+  .jackpot-bonus-display {
+    font-size: 0.9rem;
+    gap: 6px;
+  }
+  
+  .score-breakdown {
+    font-size: 0.7rem;
+    gap: 6px;
+  }
+  
+  .jackpot-winner-score .final-score {
+    font-size: 1.1rem;
+  }
+  
+  .jackpot-crown, .winner-crown {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 550px) {
+  .jackpot-announcement {
+    padding: 12px;
+  }
+  
+  .jackpot-title {
+    font-size: 1rem;
+  }
+  
+  .jackpot-details {
+    font-size: 0.9rem;
+  }
+  
+  .player-info {
+    gap: 2px;
+  }
+  
+  .scoreboard-name {
+    font-size: 0.9rem;
+  }
+  
+  .final-score {
+    font-size: 1rem;
+  }
+  
+  .score-breakdown {
+    font-size: 0.65rem;
+    gap: 4px;
+  }
+}
