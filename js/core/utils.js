@@ -147,26 +147,36 @@ function createScoreBreakdown(player, jackpotInfo) {
   `;
 }
 
-// 🎉 CREATE EPIC JACKPOT ANNOUNCEMENT
+// 🎉 CLEAN & PROFESSIONAL JACKPOT ANNOUNCEMENT
 function createJackpotAnnouncement(jackpotInfo) {
   if (!jackpotInfo) return '';
   
   return `
-    <div class="jackpot-announcement">
-      <div class="jackpot-header">
-        <span class="jackpot-icon">🏆</span>
-        <span class="jackpot-title">JACKPOT WINNER!</span>
-        <span class="jackpot-icon">🏆</span>
-      </div>
-      <div class="jackpot-details">
-        <strong>${jackpotInfo.winner}</strong> swept the board clean!
-      </div>
-      <div class="jackpot-bonus-display">
-        <span class="bonus-cards">${jackpotInfo.cardsCount} cards</span>
-        <span class="bonus-arrow">→</span>
-        <span class="bonus-points">+${jackpotInfo.bonusPoints} pts</span>
-      </div>
-      <div class="jackpot-celebration">🎰 LAST COMBO TAKES ALL! 🎰</div>
+    <div class="jackpot-announcement-clean">
+      <span class="jackpot-icon-small">🏆</span>
+      <span class="jackpot-text">
+        <strong>${jackpotInfo.winner}</strong> swept ${jackpotInfo.cardsCount} remaining cards! 
+        <span class="jackpot-bonus-clean">+${jackpotInfo.bonusPoints} pts</span>
+      </span>
+    </div>
+  `;
+}
+
+// 🎯 CLEAN SCORE BREAKDOWN - Much more subtle
+function createScoreBreakdown(player, jackpotInfo) {
+  const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
+  
+  if (!isJackpotWinner) {
+    return `<span class="scoreboard-score">${player.score} pts</span>`;
+  }
+  
+  const baseScore = player.score - jackpotInfo.bonusPoints;
+  return `
+    <div class="jackpot-winner-score-clean">
+      <span class="final-score-clean">${player.score} pts</span>
+      <span class="score-breakdown-clean">
+        (${baseScore} + <span class="jackpot-bonus-small">🏆${jackpotInfo.bonusPoints}</span>)
+      </span>
     </div>
   `;
 }
