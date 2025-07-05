@@ -2,9 +2,10 @@
  * STACKED! - Main Game Controller
  * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns
  * 🔥 FIXED: messageController undefined & educationalMode check (TICKET #1)
+ * 🎯 ENHANCED: LEGENDARY HINT SYSTEM ADDED (TICKET #11)
  */
 
-// 🎯 LEGENDARY HINT SYSTEM CLASS - ADD THIS TO TOP OF YOUR ORIGINAL MAIN.JS
+// 🎯 LEGENDARY HINT SYSTEM CLASS - INTEGRATED WITH YOUR ORIGINAL CODE
 class HintSystem {
   constructor(gameEngine, uiSystem) {
     this.game = gameEngine;
@@ -42,10 +43,12 @@ class HintSystem {
     // If no captures found, check all cards for any possible captures
     const allCaptures = [];
     playerHand.forEach((handCard, handIndex) => {
-      const captures = canCapture(handCard, board); // Use existing gameLogic function
-      captures.forEach(capture => {
-        allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
-      });
+      if (typeof canCapture === 'function') {
+        const captures = canCapture(handCard, board); // Use existing gameLogic function
+        captures.forEach(capture => {
+          allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+        });
+      }
     });
 
     return this.prioritizeHints(allCaptures);
@@ -280,6 +283,7 @@ class HintSystem {
     console.log(`🧹 HINTS CLEARED`);
   }
 }
+
 // Global game instance
 let game = null;
 let ui = null;
