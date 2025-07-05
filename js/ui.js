@@ -40,10 +40,14 @@ if (comboStatus.hasCards) {
   } else if (window.messageController) {
     this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
   }
+} else if (state.currentPlayer === 0) {
+  this.sendMessageEvent('TURN_START');
+} else {
+  this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
 }
+}  // 🔥 PROPER CLOSING BRACE FOR render() FUNCTION
 
-
-  renderDeckCount() {
+renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
       deckCountEl.textContent = `Deck: ${this.game.state.deck.length || 0} cards`;
