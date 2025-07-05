@@ -1,217 +1,52 @@
 /* 
- * Draggable Modal Class - Simple Version
- */
-class DraggableModal {
-  constructor(elementId) {
-    this.element = document.getElementById(elementId);
-    this.isDragging = false;
-    this.currentX = 0;
-    this.currentY = 0;
-    this.initialX = 0;
-    this.initialY = 0;
-    this.xOffset = 0;
-    this.yOffset = 0;
-    
-    if (this.element) {
-      // Make the modal title draggable
-      const title = this.element.querySelector('.modal-title');
-      if (title) {
-        title.style.cursor = 'move';
-        title.addEventListener('mousedown', this.dragStart.bind(this));
-      }
-      
-      document.addEventListener('mousemove', this.dragMove.bind(this));
-      document.addEventListener('mouseup', this.dragEnd.bind(this));
-    }
-  }
-  
-  dragStart(e) {
-    // Don't drag if clicking on buttons or combo areas
-    if (e.target.classList.contains('modal-btn') || 
-        e.target.classList.contains('combo-slot') ||
-        e.target.classList.contains('card')) {
-      return;
-    }
-    
-    this.initialX = e.clientX - this.xOffset;
-    this.initialY = e.clientY - this.yOffset;
-    this.isDragging = true;
-  }
-  
-  dragMove(e) {
-    if (!this.isDragging) return;
-    
-    e.preventDefault();
-    this.currentX = e.clientX - this.initialX;
-    this.currentY = e.clientY - this.initialY;
-    this.xOffset = this.currentX;
-    this.yOffset = this.currentY;
-    
-    this.element.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
-  }
-  
-  dragEnd() {
-    this.isDragging = false;
-  }
-}
-
-/* 
  * UI Rendering System for STACKED!
  * Handles all DOM manipulation and rendering
  * Works with any game mode
- * 🔥 FIXED: educationalMode check (TICKET #2)
- * 🔥 FIXED: Undefined 'length' error in validateAndStyleComboArea (TICKET #3)
- * 🔥 FIXED: Non-passive touchstart event listener warning
- * 🎯 ENHANCED: Hint System Support Added (TICKET #11)
  */
+
 class UISystem {
   constructor(gameEngine) {
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
-    this.initHintStyles();
-  }
-
-  // 🎯 INITIALIZE HINT SYSTEM STYLES
-  initHintStyles() {
-    // Add hint CSS styles if not already present
-    if (!document.getElementById('hint-styles')) {
-      const styleSheet = document.createElement('style');
-      styleSheet.id = 'hint-styles';
-      styleSheet.textContent = `
-        /* 🎯 HINT SYSTEM STYLES */
-        .hint-popup {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          background: linear-gradient(135deg, #8B4513, #A0522D);
-          border: 3px solid #D2691E;
-          border-radius: 15px;
-          padding: 20px;
-          z-index: 10000;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-          font-family: 'Georgia', serif;
-          max-width: 400px;
-          opacity: 0;
-          transition: all 0.3s ease;
-        }
-        
-        .hint-popup.show {
-          opacity: 1;
-        }
-        
-        .hint-content {
-          color: #F5DEB3;
-          text-align: center;
-        }
-        
-        .hint-header {
-          font-size: 1.4em;
-          font-weight: bold;
-          color: #FFD700;
-          margin-bottom: 15px;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .hint-suggestion {
-          font-size: 1.1em;
-          line-height: 1.4;
-          margin-bottom: 20px;
-        }
-        
-        .hint-suggestion strong {
-          color: #FFD700;
-        }
-        
-        .highlight-card {
-          background: rgba(255, 215, 0, 0.3);
-          padding: 2px 5px;
-          border-radius: 4px;
-          font-weight: bold;
-          color: #FFD700;
-        }
-        
-        .hint-close {
-          background: linear-gradient(135deg, #228B22, #32CD32);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-weight: bold;
-          cursor: pointer;
-          font-size: 1em;
-          transition: transform 0.2s ease;
-        }
-        
-        .hint-close:hover {
-          transform: translateY(-2px);
-          background: linear-gradient(135deg, #32CD32, #228B22);
-        }
-        
-        /* 🎯 HINT GLOW EFFECTS */
-        .hint-glow {
-          animation: hintPulse 2s infinite;
-          box-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700, 0 0 60px #FFD700;
-          border: 2px solid #FFD700 !important;
-        }
-        
-        .hint-hand-card {
-          background: linear-gradient(135deg, #FFD700, #FFA500) !important;
-          color: #8B4513 !important;
-          font-weight: bold;
-        }
-        
-        .hint-target-card {
-          background: linear-gradient(135deg, #32CD32, #228B22) !important;
-          color: white !important;
-          font-weight: bold;
-        }
-        
-        @keyframes hintPulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-      `;
-      document.head.appendChild(styleSheet);
-    }
   }
 
   // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
-  render() {
-    const state = this.game.getState();
-    
-    // Connect message controller if not already connected
-    if (window.messageController && !window.messageController.gameEngine) {
-      this.initMessageController();
-    }
-    
-    this.renderDeckCount();
-    this.renderTable();
-    this.renderComboArea();
-    this.renderBoard();
-    this.renderHands();
-    this.renderBotHands();
-    this.renderScores();
-    this.renderDealerIndicator();
-    this.updateSubmitButton();
-    
-    // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-    const comboStatus = this.getComboAreaStatus();
-    
-    if (comboStatus.hasCards) {
-      // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS WITH SAFETY CHECK
-      if (window.messageController && window.messageController.educationalMode) {
-        this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
-      } else {
-        this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
-      }
-    } else if (state.currentPlayer === 0) {
-      this.sendMessageEvent('TURN_START');
-    } else {
-      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-    }
+render() {
+  const state = this.game.getState();
+  
+  // Connect message controller if not already connected
+  if (window.messageController && !window.messageController.gameEngine) {
+    this.initMessageController();
   }
+  
+  this.renderDeckCount();
+  this.renderTable();
+  this.renderComboArea();
+  this.renderBoard();
+  this.renderHands();
+  this.renderBotHands();
+  this.renderScores();
+  this.renderDealerIndicator();
+  this.updateSubmitButton();
+  
+  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+  const comboStatus = this.getComboAreaStatus();
+  
+  if (comboStatus.hasCards) {
+    // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS
+    if (window.messageController.educationalMode) {
+      this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+    } else {
+      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    }
+  } else if (state.currentPlayer === 0) {
+    this.sendMessageEvent('TURN_START');
+  } else {
+    this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+  }
+}
+
 
   renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
@@ -362,7 +197,7 @@ class UISystem {
         cardEl.setAttribute('data-combo-index', comboIndex);
         cardEl.addEventListener('dragstart', (e) => window.handleDragStartCombo(e, slotName, comboIndex));
         cardEl.addEventListener('dragend', window.handleDragEnd);
-        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }), { passive: true });
+        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }));
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
@@ -539,26 +374,26 @@ class UISystem {
   }
 
   // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
-  getComboAreaStatus() {
-    const combo = this.game.state.combination;
-    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
-    
-    return {
-      hasCards: totalCards > 0,
-      cardCount: totalCards,
-      hasBase: combo.base.length > 0,
-      baseCard: combo.base.length > 0 ? combo.base[0].card : null,
-      sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
-      matchCards: combo.match.length,
-      comboData: {
-        base: combo.base,
-        sum1: combo.sum1,
-        sum2: combo.sum2, 
-        sum3: combo.sum3,
-        match: combo.match
-      }
-    };
-  }
+getComboAreaStatus() {
+  const combo = this.game.state.combination;
+  const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
+  
+  return {
+    hasCards: totalCards > 0,
+    cardCount: totalCards,
+    hasBase: combo.base.length > 0,
+    baseCard: combo.base.length > 0 ? combo.base[0].card : null,
+    sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
+    matchCards: combo.match.length,
+    comboData: {
+      base: combo.base,
+      sum1: combo.sum1,
+      sum2: combo.sum2, 
+      sum3: combo.sum3,
+      match: combo.match
+    }
+  };
+}
 
   // Helper methods
   isCardInPlayArea(index, source) {
@@ -578,7 +413,7 @@ class UISystem {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: true });
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
     cardEl.addEventListener('touchend', window.handleTouchEnd);
     return cardEl;
   }
@@ -605,7 +440,7 @@ class UISystem {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: true });
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
     cardEl.addEventListener('touchend', window.handleTouchEnd);
   }
 }

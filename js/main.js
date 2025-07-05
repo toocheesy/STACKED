@@ -1,11 +1,51 @@
 /* 
- * STACKED! - Main Game Controller
- * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns
- * 🔥 FIXED: messageController undefined & educationalMode check (TICKET #1)
- * 🎯 ENHANCED: LEGENDARY HINT SYSTEM ADDED (TICKET #11)
+ * STACKED! - Main Game Controller with LEGENDARY HINT SYSTEM
+ * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns + HINT SYSTEM + DRAGGABLE MODAL
  */
 
-// 🎯 LEGENDARY HINT SYSTEM CLASS - INTEGRATED WITH YOUR ORIGINAL CODE
+// 🎯 DRAGGABLE MODAL CLASS - SIMPLE VERSION
+class DraggableModal {
+  constructor(elementId) {
+    this.element = document.getElementById(elementId);
+    this.isDragging = false;
+    this.currentX = 0;
+    this.currentY = 0;
+    this.initialX = 0;
+    this.initialY = 0;
+    this.xOffset = 0;
+    this.yOffset = 0;
+    
+    if (this.element) {
+      this.element.addEventListener('mousedown', this.dragStart.bind(this));
+      document.addEventListener('mousemove', this.dragMove.bind(this));
+      document.addEventListener('mouseup', this.dragEnd.bind(this));
+    }
+  }
+  
+  dragStart(e) {
+    this.initialX = e.clientX - this.xOffset;
+    this.initialY = e.clientY - this.yOffset;
+    this.isDragging = true;
+  }
+  
+  dragMove(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    this.currentX = e.clientX - this.initialX;
+    this.currentY = e.clientY - this.initialY;
+    this.xOffset = this.currentX;
+    this.yOffset = this.currentY;
+    
+    this.element.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
+  }
+  
+  dragEnd() {
+    this.isDragging = false;
+  }
+}
+
+// 🎯 LEGENDARY HINT SYSTEM CLASS
 class HintSystem {
   constructor(gameEngine, uiSystem) {
     this.game = gameEngine;
@@ -16,96 +56,93 @@ class HintSystem {
   }
 
   // 🧠 ENHANCED: Use CardIntelligence for hint detection
-  analyzeAllPossibleCaptures() {
-    if (this.game.state.currentPlayer !== 0) {
-      return [];
+analyzeAllPossibleCaptures() {
+  if (this.game.state.currentPlayer !== 0) {
+    return [];
+  }
+
+  const playerHand = this.game.state.hands[0];
+  const board = this.game.state.board;
+
+  console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
+
+  // 🔥 USE CARD INTELLIGENCE SYSTEM!
+  if (!window.cardIntelligence) {
+    console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
+    return this.basicHintDetection(playerHand, board);
+  }
+
+  // Get the best capture from Card Intelligence
+  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+  
+  if (bestCapture) {
+    console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
+    return [this.convertToHintFormat(bestCapture)];
+  }
+
+  // If no captures found, check all cards for any possible captures
+  const allCaptures = [];
+  playerHand.forEach((handCard, handIndex) => {
+    const captures = canCapture(handCard, board); // Use existing gameLogic function
+    captures.forEach(capture => {
+      allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+    });
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
+// 🔄 CONVERT Card Intelligence capture to hint format
+convertToHintFormat(bestCapture) {
+  const handCard = bestCapture.handCard;
+  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+  
+  // Convert target cards to hint format
+  const targetCards = bestCapture.capture.targets.map(targetCard => {
+    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+    return { card: targetCard, index: boardIndex };
+  });
+
+  return {
+    type: bestCapture.capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+    score: bestCapture.evaluation.totalScore,
+    description: bestCapture.evaluation.reasoning
+  };
+}
+
+// 🔄 CONVERT gameLogic capture to hint format
+convertGameLogicToHint(handCard, handIndex, capture) {
+  const targetCards = capture.cards.map(cardIndex => {
+    return { card: this.game.state.board[cardIndex], index: cardIndex };
+  });
+
+  return {
+    type: capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: capture.type === 'pair' ? 'match' : 'sum1',
+    score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
+    description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
+  };
+}
+
+// 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
+basicHintDetection(playerHand, board) {
+  const allCaptures = [];
+  
+  playerHand.forEach((handCard, handIndex) => {
+    if (typeof canCapture === 'function') {
+      const captures = canCapture(handCard, board);
+      captures.forEach(capture => {
+        allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+      });
     }
+  });
 
-    const playerHand = this.game.state.hands[0];
-    const board = this.game.state.board;
-
-    console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
-
-    // 🔥 USE CARD INTELLIGENCE SYSTEM!
-    if (!window.cardIntelligence) {
-      console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
-      return this.basicHintDetection(playerHand, board);
-    }
-
-    // Get the best capture from Card Intelligence
-    const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
-    
-    if (bestCapture) {
-      console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
-      return [this.convertToHintFormat(bestCapture)];
-    }
-
-    // If no captures found, check all cards for any possible captures
-    const allCaptures = [];
-    playerHand.forEach((handCard, handIndex) => {
-      if (typeof canCapture === 'function') {
-        const captures = canCapture(handCard, board); // Use existing gameLogic function
-        captures.forEach(capture => {
-          allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
-        });
-      }
-    });
-
-    return this.prioritizeHints(allCaptures);
-  }
-
-  // 🔄 CONVERT Card Intelligence capture to hint format
-  convertToHintFormat(bestCapture) {
-    const handCard = bestCapture.handCard;
-    const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
-    
-    // Convert target cards to hint format
-    const targetCards = bestCapture.capture.targets.map(targetCard => {
-      const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
-      return { card: targetCard, index: boardIndex };
-    });
-
-    return {
-      type: bestCapture.capture.type,
-      handCard: { card: handCard, index: handIndex },
-      targetCards: targetCards,
-      area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
-      score: bestCapture.evaluation.totalScore,
-      description: bestCapture.evaluation.reasoning
-    };
-  }
-
-  // 🔄 CONVERT gameLogic capture to hint format
-  convertGameLogicToHint(handCard, handIndex, capture) {
-    const targetCards = capture.cards.map(cardIndex => {
-      return { card: this.game.state.board[cardIndex], index: cardIndex };
-    });
-
-    return {
-      type: capture.type,
-      handCard: { card: handCard, index: handIndex },
-      targetCards: targetCards,
-      area: capture.type === 'pair' ? 'match' : 'sum1',
-      score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
-      description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
-    };
-  }
-
-  // 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
-  basicHintDetection(playerHand, board) {
-    const allCaptures = [];
-    
-    playerHand.forEach((handCard, handIndex) => {
-      if (typeof canCapture === 'function') {
-        const captures = canCapture(handCard, board);
-        captures.forEach(capture => {
-          allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
-        });
-      }
-    });
-
-    return this.prioritizeHints(allCaptures);
-  }
+  return this.prioritizeHints(allCaptures);
+}
 
   // 🏆 HINT PRIORITIZATION SYSTEM
   prioritizeHints(captures) {
@@ -136,6 +173,13 @@ class HintSystem {
       '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
     };
     return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
+  }
+
+  // 🎮 GET CARD NUMERIC VALUE
+  getCardValue(card) {
+    if (card.value === 'A') return 1;
+    if (['J', 'Q', 'K'].includes(card.value)) return 10;
+    return parseInt(card.value) || 0;
   }
 
   // 🎯 MAIN HINT DISPLAY FUNCTION
@@ -282,6 +326,16 @@ class HintSystem {
     
     console.log(`🧹 HINTS CLEARED`);
   }
+
+  // 🔧 DEBUG: Show all possible captures
+  debugAllCaptures() {
+    const captures = this.analyzeAllPossibleCaptures();
+    console.log(`🔍 DEBUG: Found ${captures.length} possible captures:`);
+    captures.forEach((capture, index) => {
+      console.log(`${index + 1}. ${capture.description} (${capture.score} pts)`);
+    });
+    return captures;
+  }
 }
 
 // Global game instance
@@ -343,19 +397,17 @@ function initGame() {
   localStorage.removeItem('selectedMode');
 }
 
-// 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS AND SAFETY CHECKS
+// 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
 function handleSubmit() {
   if (game.state.currentPlayer !== 0) return;
 
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('CAPTURE_ERROR', {
-        message: "Base Card area must have exactly one card!"
-      });
-    }
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "Base Card area must have exactly one card!"
+    });
     playSound('invalid');
     return;
   }
@@ -387,12 +439,10 @@ function handleSubmit() {
           'sum3': 'Sum Area 3',
           'match': 'Match Area'
         };
-        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-        if (window.messageController) {
-          window.messageController.handleGameEvent('CAPTURE_ERROR', {
-            message: `${areaNames[area.name]}: ${result.details}`
-          });
-        }
+        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+        window.messageController.handleGameEvent('CAPTURE_ERROR', {
+          message: `${areaNames[area.name]}: ${result.details}`
+        });
         playSound('invalid');
         return;
       }
@@ -400,12 +450,10 @@ function handleSubmit() {
   }
 
   if (validCaptures.length === 0) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('CAPTURE_ERROR', {
-        message: "No valid captures found - check your combinations!"
-      });
-    }
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "No valid captures found - check your combinations!"
+    });
     playSound('invalid');
     return;
   }
@@ -417,29 +465,23 @@ function handleSubmit() {
     game.currentMode.onCapture(game, allCapturedCards);
   }
   
-  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
   const points = game.calculateScore(allCapturedCards);
-  if (window.messageController) {
-    window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
-      points: points,
-      cardsCount: allCapturedCards.length
-    });
-  }
+  window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+    points: points,
+    cardsCount: allCapturedCards.length
+  });
   
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
   if (game.state.hands[0].length > 0) {
     game.state.currentPlayer = 0;
-    // 🎯 SEND TURN START EVENT WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('TURN_START');
-    }
+    // 🎯 SEND TURN START EVENT
+    window.messageController.handleGameEvent('TURN_START');
   } else {
     game.state.currentPlayer = 1;
-    // 🎯 SEND PLAYER OUT OF CARDS EVENT WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
-    }
+    // 🎯 SEND PLAYER OUT OF CARDS EVENT
+    window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
     setTimeout(async () => await aiTurn(), 1000);
   }
   
@@ -448,7 +490,7 @@ function handleSubmit() {
   checkGameEnd();
 }
 
-// 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS AND SAFETY CHECK
+// 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS
 function handleResetPlayArea() {
   if (game.state.currentPlayer !== 0) return;
 
@@ -462,15 +504,13 @@ function handleResetPlayArea() {
 
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   
-  // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-  if (window.messageController) {
-    window.messageController.handleGameEvent('RESET_COMBO');
-  }
+  // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER
+  window.messageController.handleGameEvent('RESET_COMBO');
   
   ui.render();
 }
 
-// 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT AND SAFETY CHECK
+// 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT
 function handleBoardDrop(e) {
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
@@ -484,10 +524,8 @@ function handleBoardDrop(e) {
     
     game.state.draggedCard = null;
     ui.render();
-    // 🎯 SEND CARD RETURNED EVENT WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('RESET_COMBO');
-    }
+    // 🎯 SEND CARD RETURNED EVENT
+    window.messageController.handleGameEvent('RESET_COMBO');
     return;
   }
 
@@ -510,12 +548,10 @@ function handleBoardDrop(e) {
     game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     game.state.draggedCard = null;
     
-    // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('CARD_PLACED', {
-        cardName: `${handCard.value}${handCard.suit}`
-      });
-    }
+    // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CARD_PLACED', {
+      cardName: `${handCard.value}${handCard.suit}`
+    });
     
     const playerCards = game.state.hands[0].length;
     if (playerCards > 0) {
@@ -573,23 +609,19 @@ function dealNewCards() {
     game.state.currentPlayer = 0;
     game.state.lastCapturer = null;
     
-    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('NEW_ROUND', {
-        roundNumber: game.currentRound
-      });
-    }
+    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('NEW_ROUND', {
+      roundNumber: game.currentRound
+    });
     
     ui.render();
   } catch (e) {
     console.error('Error dealing cards:', e);
     
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
-    if (window.messageController) {
-      window.messageController.handleGameEvent('CAPTURE_ERROR', {
-        message: 'Error dealing cards! Restart the game.'
-      });
-    }
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: 'Error dealing cards! Restart the game.'
+    });
   }
 }
 
@@ -720,7 +752,7 @@ function handleDrop(e, slot) {
 
   game.state.draggedCard = null;
 
-  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS WITH SAFETY CHECK
+  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
   if (window.messageController && window.messageController.educationalMode) {
     const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
@@ -769,7 +801,7 @@ function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
 }
 
-// 🎯 ENHANCED HINT FUNCTION - Replace the existing one
+// 🎯 LEGENDARY HINT FUNCTION
 function provideHint() {
   if (game.state.currentPlayer !== 0) {
     console.log('🚫 HINT: Not player turn');
@@ -808,6 +840,10 @@ window.handleBoardDrop = handleBoardDrop;
 window.handleTouchStart = handleTouchStart;
 window.handleTouchEnd = handleTouchEnd;
 window.handleTouchDrop = handleTouchDrop;
+
+// Make classes globally available
+window.DraggableModal = DraggableModal;
+window.HintSystem = HintSystem;
 
 // Initialize the game
 initGame();
