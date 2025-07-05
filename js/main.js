@@ -1,7 +1,9 @@
 /* 
  * STACKED! - Main Game Controller
  * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns
+ * 🔥 FIXED: messageController undefined & educationalMode check (TICKET #1)
  */
+
 // 🎯 LEGENDARY HINT SYSTEM CLASS - ADD THIS TO TOP OF YOUR ORIGINAL MAIN.JS
 class HintSystem {
   constructor(gameEngine, uiSystem) {
@@ -337,17 +339,19 @@ function initGame() {
   localStorage.removeItem('selectedMode');
 }
 
-// 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
+// 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS AND SAFETY CHECKS
 function handleSubmit() {
   if (game.state.currentPlayer !== 0) return;
 
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Base Card area must have exactly one card!"
-    });
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('CAPTURE_ERROR', {
+        message: "Base Card area must have exactly one card!"
+      });
+    }
     playSound('invalid');
     return;
   }
@@ -379,10 +383,12 @@ function handleSubmit() {
           'sum3': 'Sum Area 3',
           'match': 'Match Area'
         };
-        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-        window.messageController.handleGameEvent('CAPTURE_ERROR', {
-          message: `${areaNames[area.name]}: ${result.details}`
-        });
+        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+        if (window.messageController) {
+          window.messageController.handleGameEvent('CAPTURE_ERROR', {
+            message: `${areaNames[area.name]}: ${result.details}`
+          });
+        }
         playSound('invalid');
         return;
       }
@@ -390,10 +396,12 @@ function handleSubmit() {
   }
 
   if (validCaptures.length === 0) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "No valid captures found - check your combinations!"
-    });
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('CAPTURE_ERROR', {
+        message: "No valid captures found - check your combinations!"
+      });
+    }
     playSound('invalid');
     return;
   }
@@ -405,23 +413,29 @@ function handleSubmit() {
     game.currentMode.onCapture(game, allCapturedCards);
   }
   
-  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
+  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
   const points = game.calculateScore(allCapturedCards);
-  window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
-    points: points,
-    cardsCount: allCapturedCards.length
-  });
+  if (window.messageController) {
+    window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+      points: points,
+      cardsCount: allCapturedCards.length
+    });
+  }
   
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
   if (game.state.hands[0].length > 0) {
     game.state.currentPlayer = 0;
-    // 🎯 SEND TURN START EVENT
-    window.messageController.handleGameEvent('TURN_START');
+    // 🎯 SEND TURN START EVENT WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('TURN_START');
+    }
   } else {
     game.state.currentPlayer = 1;
-    // 🎯 SEND PLAYER OUT OF CARDS EVENT
-    window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
+    // 🎯 SEND PLAYER OUT OF CARDS EVENT WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
+    }
     setTimeout(async () => await aiTurn(), 1000);
   }
   
@@ -430,7 +444,7 @@ function handleSubmit() {
   checkGameEnd();
 }
 
-// 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS
+// 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS AND SAFETY CHECK
 function handleResetPlayArea() {
   if (game.state.currentPlayer !== 0) return;
 
@@ -444,13 +458,15 @@ function handleResetPlayArea() {
 
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   
-  // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER
-  window.messageController.handleGameEvent('RESET_COMBO');
+  // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+  if (window.messageController) {
+    window.messageController.handleGameEvent('RESET_COMBO');
+  }
   
   ui.render();
 }
 
-// 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT
+// 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT AND SAFETY CHECK
 function handleBoardDrop(e) {
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
@@ -464,8 +480,10 @@ function handleBoardDrop(e) {
     
     game.state.draggedCard = null;
     ui.render();
-    // 🎯 SEND CARD RETURNED EVENT
-    window.messageController.handleGameEvent('RESET_COMBO');
+    // 🎯 SEND CARD RETURNED EVENT WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('RESET_COMBO');
+    }
     return;
   }
 
@@ -488,10 +506,12 @@ function handleBoardDrop(e) {
     game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     game.state.draggedCard = null;
     
-    // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CARD_PLACED', {
-      cardName: `${handCard.value}${handCard.suit}`
-    });
+    // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('CARD_PLACED', {
+        cardName: `${handCard.value}${handCard.suit}`
+      });
+    }
     
     const playerCards = game.state.hands[0].length;
     if (playerCards > 0) {
@@ -549,19 +569,23 @@ function dealNewCards() {
     game.state.currentPlayer = 0;
     game.state.lastCapturer = null;
     
-    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('NEW_ROUND', {
-      roundNumber: game.currentRound
-    });
+    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('NEW_ROUND', {
+        roundNumber: game.currentRound
+      });
+    }
     
     ui.render();
   } catch (e) {
     console.error('Error dealing cards:', e);
     
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: 'Error dealing cards! Restart the game.'
-    });
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER WITH SAFETY CHECK
+    if (window.messageController) {
+      window.messageController.handleGameEvent('CAPTURE_ERROR', {
+        message: 'Error dealing cards! Restart the game.'
+      });
+    }
   }
 }
 
@@ -692,7 +716,7 @@ function handleDrop(e, slot) {
 
   game.state.draggedCard = null;
 
-  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
+  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS WITH SAFETY CHECK
   if (window.messageController && window.messageController.educationalMode) {
     const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
