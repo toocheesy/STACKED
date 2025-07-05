@@ -31,19 +31,14 @@ render() {
   this.updateSubmitButton();
   
   // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-  const comboStatus = this.getComboAreaStatus();
-  
-  if (comboStatus.hasCards) {
-    // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS
-    if (window.messageController.educationalMode) {
-      this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
-    } else {
-      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
-    }
-  } else if (state.currentPlayer === 0) {
-    this.sendMessageEvent('TURN_START');
-  } else {
-    this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+const comboStatus = this.getComboAreaStatus();
+
+if (comboStatus.hasCards) {
+  // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
+  if (window.messageController && window.messageController.educationalMode) {
+    this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+  } else if (window.messageController) {
+    this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
   }
 }
 
@@ -368,10 +363,12 @@ render() {
 
   // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
   sendMessageEvent(eventType, data = {}) {
-    if (window.messageController) {
-      window.messageController.handleGameEvent(eventType, data);
-    }
+  if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
+    window.messageController.handleGameEvent(eventType, data);
+  } else {
+    console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
   }
+}
 
   // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
 getComboAreaStatus() {
