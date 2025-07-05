@@ -1,4 +1,62 @@
 /* 
+ * Draggable Modal Class - Simple Version
+ */
+class DraggableModal {
+  constructor(elementId) {
+    this.element = document.getElementById(elementId);
+    this.isDragging = false;
+    this.currentX = 0;
+    this.currentY = 0;
+    this.initialX = 0;
+    this.initialY = 0;
+    this.xOffset = 0;
+    this.yOffset = 0;
+    
+    if (this.element) {
+      // Make the modal title draggable
+      const title = this.element.querySelector('.modal-title');
+      if (title) {
+        title.style.cursor = 'move';
+        title.addEventListener('mousedown', this.dragStart.bind(this));
+      }
+      
+      document.addEventListener('mousemove', this.dragMove.bind(this));
+      document.addEventListener('mouseup', this.dragEnd.bind(this));
+    }
+  }
+  
+  dragStart(e) {
+    // Don't drag if clicking on buttons or combo areas
+    if (e.target.classList.contains('modal-btn') || 
+        e.target.classList.contains('combo-slot') ||
+        e.target.classList.contains('card')) {
+      return;
+    }
+    
+    this.initialX = e.clientX - this.xOffset;
+    this.initialY = e.clientY - this.yOffset;
+    this.isDragging = true;
+  }
+  
+  dragMove(e) {
+    if (!this.isDragging) return;
+    
+    e.preventDefault();
+    this.currentX = e.clientX - this.initialX;
+    this.currentY = e.clientY - this.initialY;
+    this.xOffset = this.currentX;
+    this.yOffset = this.currentY;
+    
+    this.element.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
+  }
+  
+  dragEnd() {
+    this.isDragging = false;
+  }
+}
+
+
+/* 
  * UI Rendering System for STACKED!
  * Handles all DOM manipulation and rendering
  * Works with any game mode
