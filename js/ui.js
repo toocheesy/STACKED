@@ -8,7 +8,7 @@ class UISystem {
   constructor(gameEngine) {
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-    this.draggableCombo = new DraggableModal('combination-area');
+    // this.draggableCombo = new DraggableModal('combination-area'); // Commented out for now
   }
 
   // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS

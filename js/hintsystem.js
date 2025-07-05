@@ -1,5 +1,5 @@
 /* 
- * 🎯 LEGENDARY HINT SYSTEM - Complete Rebuild
+ * 🎯 LEGENDARY HINT SYSTEM - Complete Implementation
  * 🚀 FEATURES: Intelligent capture detection + Visual highlighting + Popup suggestions
  * 🎮 COACHING: Guides players through complex combo opportunities
  */
@@ -337,22 +337,5 @@ class HintSystem {
   }
 }
 
-// 🎯 ENHANCED HINT FUNCTION - Replace the one in main.js
-function provideHint() {
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚫 HINT: Not player turn');
-    return;
-  }
-  
-  // Initialize hint system if not exists
-  if (!window.hintSystem) {
-    window.hintSystem = new HintSystem(game, ui);
-  }
-  
-  // Show intelligent hint
-  window.hintSystem.showHint();
-}
-
 // Make hint system globally available
 window.HintSystem = HintSystem;
-window.provideHint = provideHint;
