@@ -2,49 +2,6 @@
  * STACKED! - Main Game Controller with LEGENDARY HINT SYSTEM
  * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns + HINT SYSTEM + DRAGGABLE MODAL
  */
-
-// 🎯 DRAGGABLE MODAL CLASS - SIMPLE VERSION
-class DraggableModal {
-  constructor(elementId) {
-    this.element = document.getElementById(elementId);
-    this.isDragging = false;
-    this.currentX = 0;
-    this.currentY = 0;
-    this.initialX = 0;
-    this.initialY = 0;
-    this.xOffset = 0;
-    this.yOffset = 0;
-    
-    if (this.element) {
-      this.element.addEventListener('mousedown', this.dragStart.bind(this));
-      document.addEventListener('mousemove', this.dragMove.bind(this));
-      document.addEventListener('mouseup', this.dragEnd.bind(this));
-    }
-  }
-  
-  dragStart(e) {
-    this.initialX = e.clientX - this.xOffset;
-    this.initialY = e.clientY - this.yOffset;
-    this.isDragging = true;
-  }
-  
-  dragMove(e) {
-    if (!this.isDragging) return;
-    
-    e.preventDefault();
-    this.currentX = e.clientX - this.initialX;
-    this.currentY = e.clientY - this.initialY;
-    this.xOffset = this.currentX;
-    this.yOffset = this.currentY;
-    
-    this.element.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
-  }
-  
-  dragEnd() {
-    this.isDragging = false;
-  }
-}
-
 // 🎯 LEGENDARY HINT SYSTEM CLASS
 class HintSystem {
   constructor(gameEngine, uiSystem) {
@@ -842,7 +799,6 @@ window.handleTouchEnd = handleTouchEnd;
 window.handleTouchDrop = handleTouchDrop;
 
 // Make classes globally available
-window.DraggableModal = DraggableModal;
 window.HintSystem = HintSystem;
 
 // Initialize the game
