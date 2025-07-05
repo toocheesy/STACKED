@@ -1,6 +1,7 @@
 /* 
- * ENHANCED GameEngine with Universal Jackpot Logic
- * 🏆 Now ALL game modes get jackpot automatically!
+ * GameEngine - Core Game Logic for STACKED!
+ * Handles game state, validation, and mode coordination
+ * Works with any game mode
  */
 
 class GameEngine {
@@ -257,112 +258,96 @@ class GameEngine {
   }
 
   // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
-  nextPlayer() {
-    let attempts = 0;
-    const maxAttempts = 3; // Prevent infinite loops
+nextPlayer() {
+  let attempts = 0;
+  const maxAttempts = 3; // Prevent infinite loops
+  
+  do {
+    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+    attempts++;
     
-    do {
-      this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-      attempts++;
-      
-      console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
-      
-      // If current player has cards, we're good!
-      if (this.state.hands[this.state.currentPlayer].length > 0) {
-        return;
-      }
-      
-      // If no one has cards, end the round
-      const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-      if (totalCards === 0) {
-        console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-        // Force check game end
-        setTimeout(() => checkGameEnd(), 100);
-        return;
-      }
-      
-    } while (attempts < maxAttempts);
+    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
     
-    // Safety fallback - if we can't find anyone with cards
-    console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-    setTimeout(() => checkGameEnd(), 100);
-  }
-
-  // 🏆 UNIVERSAL JACKPOT LOGIC - USED BY ALL MODES!
-  applyLastComboTakesAll() {
-    if (this.state.lastCapturer !== null && this.state.board.length > 0) {
-      // Store card count BEFORE clearing the board
-      const cardsCount = this.state.board.length;
-      const bonusPoints = this.calculateScore(this.state.board);
-      
-      this.addScore(this.state.lastCapturer, bonusPoints);
-      
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const lastCapturerName = playerNames[this.state.lastCapturer];
-      
-      console.log(`🏆 UNIVERSAL JACKPOT: ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`);
-      
-      // Clear the board AFTER creating the message
-      this.state.board = [];
-      
-      // Return the complete jackpot result
-      return {
-        message: `🏆 ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`,
-        points: bonusPoints,
-        player: lastCapturerName,
-        cardsCount: cardsCount
-      };
+    // If current player has cards, we're good!
+    if (this.state.hands[this.state.currentPlayer].length > 0) {
+      return;
     }
-    return null;
-  }
+    
+    // If no one has cards, end the round
+    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+    if (totalCards === 0) {
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+      // Force check game end
+      setTimeout(() => checkGameEnd(), 100);
+      return;
+    }
+    
+  } while (attempts < maxAttempts);
+  
+  // Safety fallback - if we can't find anyone with cards
+  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+  setTimeout(() => checkGameEnd(), 100);
+}
 
-  // 🔥 ENHANCED: Check if game should end with UNIVERSAL JACKPOT
+  // Check if game should end (uses current mode)
   checkGameEnd() {
-    if (this.currentMode.checkEndCondition) {
-      return this.currentMode.checkEndCondition(this);
-    }
+  if (this.currentMode.checkEndCondition) {
+    return this.currentMode.checkEndCondition(this);
+  }
+  
+  // Default end condition
+  const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
+  
+  if (playersWithCards === 0) {
+    console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
     
-    // 🏆 DEFAULT END CONDITION WITH UNIVERSAL JACKPOT
-    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
+    // 🚨 CRITICAL: Check if deck is empty FIRST
+    if (this.state.deck.length === 0) {
+      console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
       
-      if (this.state.deck.length === 0) {
-        console.log(`🏆 DECK IS EMPTY - APPLYING UNIVERSAL JACKPOT!`);
+      // Apply "Last Combo Takes All" rule
+      let jackpotMessage = null;
+      if (this.state.lastCapturer !== null && this.state.board.length > 0) {
+        const bonusPoints = this.calculateScore(this.state.board);
+        this.addScore(this.state.lastCapturer, bonusPoints);
         
-        // Apply universal jackpot
-        const jackpotResult = this.applyLastComboTakesAll();
-        const jackpotMessage = jackpotResult ? jackpotResult.message : null;
+        const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+        const lastCapturerName = playerNames[this.state.lastCapturer];
         
-        // Check if anyone reached target score
-        const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-        if (maxScore >= this.state.settings.targetScore) {
-          return { 
-            gameOver: true, 
-            reason: 'target_score_reached',
-            message: jackpotMessage 
-          };
-        } else {
-          return { 
-            roundOver: true,
-            gameOver: false,
-            reason: 'round_complete',
-            message: jackpotMessage 
-          };
-        }
-      } else {
-        // Deck has cards, deal new round
-        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+        jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
+        console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+        
+        // Clear the board after jackpot
+        this.state.board = [];
+      }
+      
+      // Check if anyone reached target score
+      const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
+      if (maxScore >= this.state.settings.targetScore) {
         return { 
-          continueRound: true, 
-          reason: 'new_round' 
+          gameOver: true, 
+          reason: 'target_score_reached',
+          message: jackpotMessage 
+        };
+      } else {
+        return { 
+          gameOver: true, 
+          reason: 'deck_empty',
+          message: jackpotMessage 
         };
       }
+    } else {
+      // Deck has cards, deal new round
+      console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+      return { 
+        continueRound: true, 
+        reason: 'new_round' 
+      };
     }
-    
-    return { continue: true };
   }
+  
+  return { continue: true };
+}
 
   // Get ranked players
   getRankedPlayers() {
