@@ -42,43 +42,11 @@ const ClassicMode = {
     return cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
   },
 
-  // 🔥 FIXED: checkEndCondition() - NOW PROPERLY RETURNS JACKPOT MESSAGES!
-  checkEndCondition(gameEngine) {
-    const playersWithCards = gameEngine.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      if (gameEngine.state.deck.length === 0) {
-        // 🏆 APPLY JACKPOT AND GET THE MESSAGE
-        const jackpotResult = this.applyLastComboTakesAll(gameEngine);
-        
-        const maxScore = Math.max(
-          gameEngine.state.scores.player, 
-          gameEngine.state.scores.bot1, 
-          gameEngine.state.scores.bot2
-        );
-        
-        if (maxScore >= this.config.targetScore) {
-          return { 
-            gameOver: true, 
-            winner: this.getWinner(gameEngine),
-            reason: 'target_score_reached',
-            message: jackpotResult ? jackpotResult.message : null  // 🔥 PASS THE MESSAGE!
-          };
-        } else {
-          return { 
-            roundOver: true, 
-            gameOver: false,
-            reason: 'round_complete',
-            message: jackpotResult ? jackpotResult.message : null  // 🔥 PASS THE MESSAGE!
-          };
-        }
-      } else {
-        return { continueRound: true };
-      }
-    }
-    
-    return { continue: true };
-  },
+  // Classic mode just needs to check its own win conditions
+checkEndCondition(gameEngine) {
+  // Let GameEngine handle the standard flow with universal jackpot
+  return null; // Use default GameEngine logic
+},
 
   // 🔥 FIXED: applyLastComboTakesAll() - NOW CALCULATES CARD COUNT BEFORE CLEARING!
   applyLastComboTakesAll(gameEngine) {
