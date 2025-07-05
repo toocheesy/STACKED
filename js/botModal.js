@@ -1,6 +1,6 @@
 /* 
  * 🔥 COMPLETELY FIXED Bot Modal Interface System
- * 🚨 CRITICAL FIX: Eliminates card disappearing bug
+ * 🚨 CRITICAL FIX: Eliminates card disappearing bug + EMPTY HAND SAFETY
  * 🎯 BULLETPROOF: Proper card tracking and array management
  */
 
@@ -262,10 +262,24 @@ class BotModalInterface {
     return true;
   }
 
-  // 🔥 ENHANCED: placeCard() with bulletproof card tracking
+  // 🔥 ENHANCED: placeCard() with bulletproof card tracking + EMPTY HAND SAFETY
   async placeCard(handCard, playerIndex) {
     if (this.isAnimating) return false;
     this.isAnimating = true;
+
+    // 🚨 CRITICAL SAFETY CHECK: Verify bot has cards before attempting to place
+    if (!this.game.state.hands[playerIndex] || this.game.state.hands[playerIndex].length === 0) {
+      console.error(`🚨 SAFETY GUARD: Bot ${playerIndex} has no cards to place!`);
+      this.isAnimating = false;
+      return false;
+    }
+
+    // 🚨 SAFETY CHECK: Verify handCard exists
+    if (!handCard || !handCard.value || !handCard.suit) {
+      console.error(`🚨 SAFETY GUARD: Invalid handCard provided to placeCard!`, handCard);
+      this.isAnimating = false;
+      return false;
+    }
 
     console.log(`🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} on board`);
     
@@ -273,7 +287,7 @@ class BotModalInterface {
       await this.delay(500);
 
       // STEP 1: Verify card exists in bot's hand
-      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === handCard.id);
+      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c && c.id === handCard.id);
       if (cardIndex === -1) {
         console.error(`🚨 CRITICAL: Card ${handCard.value}${handCard.suit} not found in Bot ${playerIndex} hand!`);
         this.isAnimating = false;
