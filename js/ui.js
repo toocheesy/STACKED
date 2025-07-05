@@ -60,6 +60,8 @@ class DraggableModal {
  * Handles all DOM manipulation and rendering
  * Works with any game mode
  * 🔥 FIXED: educationalMode check (TICKET #2)
+ * 🔥 FIXED: Undefined 'length' error in validateAndStyleComboArea (TICKET #3)
+ * 🔥 FIXED: Non-passive touchstart event listener warning
  */
 class UISystem {
   constructor(gameEngine) {
@@ -210,7 +212,7 @@ class UISystem {
       const areas = [
         { el: sum1El, cards: this.game.state.combination.sum1, name: 'Sum Area 1' },
         { el: sum2El, cards: this.game.state.combination.sum2, name: 'Sum Area 2' },
-        { el: sum3El, courts: this.game.state.combination.sum3, name: 'Sum Area 3' },
+        { el: sum3El, cards: this.game.state.combination.sum3, name: 'Sum Area 3' },
         { el: matchEl, cards: this.game.state.combination.match, name: 'Match Area' }
       ];
 
@@ -253,7 +255,7 @@ class UISystem {
         cardEl.setAttribute('data-combo-index', comboIndex);
         cardEl.addEventListener('dragstart', (e) => window.handleDragStartCombo(e, slotName, comboIndex));
         cardEl.addEventListener('dragend', window.handleDragEnd);
-        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }));
+        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }), { passive: true });
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
@@ -469,7 +471,7 @@ class UISystem {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: true });
     cardEl.addEventListener('touchend', window.handleTouchEnd);
     return cardEl;
   }
@@ -496,7 +498,7 @@ class UISystem {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: true });
     cardEl.addEventListener('touchend', window.handleTouchEnd);
   }
 }
