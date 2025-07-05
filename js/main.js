@@ -55,134 +55,94 @@ class HintSystem {
     this.highlightedCards = [];
   }
 
-  // 🔥 MASTER HINT ANALYZER - Find all possible captures
-  analyzeAllPossibleCaptures() {
-    if (this.game.state.currentPlayer !== 0) {
-      return [];
-    }
-
-    const playerHand = this.game.state.hands[0];
-    const board = this.game.state.board;
-    const allCaptures = [];
-
-    console.log(`🎯 ANALYZING HINTS: ${playerHand.length} hand cards vs ${board.length} board cards`);
-
-    // Analyze each hand card for captures
-    playerHand.forEach((handCard, handIndex) => {
-      const captures = this.findCapturesForCard(handCard, handIndex, board);
-      allCaptures.push(...captures);
-    });
-
-    // Sort by priority (multi-area > high value > simple)
-    return this.prioritizeHints(allCaptures);
+  // 🧠 ENHANCED: Use CardIntelligence for hint detection
+analyzeAllPossibleCaptures() {
+  if (this.game.state.currentPlayer !== 0) {
+    return [];
   }
 
-  // 🧠 INTELLIGENT CAPTURE DETECTION for a single card
-  findCapturesForCard(handCard, handIndex, board) {
-    const captures = [];
-    const handValue = this.getCardValue(handCard);
-    const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
+  const playerHand = this.game.state.hands[0];
+  const board = this.game.state.board;
 
-    console.log(`🔍 ANALYZING: ${handCard.value}${this.suitSymbols[handCard.suit]} (value=${handValue})`);
+  console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
 
-    // 🎯 FIND PAIR CAPTURES (works with any card)
-    board.forEach((boardCard, boardIndex) => {
-      if (boardCard.value === handCard.value) {
-        captures.push({
-          type: 'pair',
-          handCard: { card: handCard, index: handIndex },
-          targetCards: [{ card: boardCard, index: boardIndex }],
-          area: 'match', // Pairs go to match area
-          score: this.calculateCaptureScore([handCard, boardCard]),
-          description: `PAIR: ${handCard.value}${this.suitSymbols[handCard.suit]} matches ${boardCard.value}${this.suitSymbols[boardCard.suit]}`
-        });
-      }
-    });
-
-    // 🎯 FIND SUM CAPTURES (only for number cards and Aces)
-    if (!isFaceCard && !isNaN(handValue)) {
-      const sumCaptures = this.findSumCombinations(handCard, handIndex, board, handValue);
-      captures.push(...sumCaptures);
-    }
-
-    return captures;
+  // 🔥 USE CARD INTELLIGENCE SYSTEM!
+  if (!window.cardIntelligence) {
+    console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
+    return this.basicHintDetection(playerHand, board);
   }
 
-  // 🧮 ADVANCED SUM COMBINATION FINDER
-  findSumCombinations(handCard, handIndex, board, targetSum) {
-    const sumCaptures = [];
-    
-    // Filter board to only numeric cards (no face cards in sums)
-    const numericBoard = board.map((card, idx) => {
-      const cardValue = this.getCardValue(card);
-      return {
-        card: card,
-        index: idx,
-        value: ['J', 'Q', 'K'].includes(card.value) ? null : cardValue
-      };
-    }).filter(item => item.value !== null);
-
-    console.log(`🔍 SUM ANALYSIS: Target=${targetSum}, Numeric board cards=${numericBoard.length}`);
-
-    // Single card sums
-    numericBoard.forEach(boardItem => {
-      if (boardItem.value === targetSum) {
-        sumCaptures.push({
-          type: 'sum',
-          handCard: { card: handCard, index: handIndex },
-          targetCards: [{ card: boardItem.card, index: boardItem.index }],
-          area: 'sum1',
-          score: this.calculateCaptureScore([handCard, boardItem.card]),
-          description: `SUM: ${handCard.value}${this.suitSymbols[handCard.suit]} = ${boardItem.card.value}${this.suitSymbols[boardItem.card.suit]} (${targetSum})`
-        });
-      }
-    });
-
-    // Two-card sums
-    for (let i = 0; i < numericBoard.length; i++) {
-      for (let j = i + 1; j < numericBoard.length; j++) {
-        const sum = numericBoard[i].value + numericBoard[j].value;
-        if (sum === targetSum) {
-          sumCaptures.push({
-            type: 'sum',
-            handCard: { card: handCard, index: handIndex },
-            targetCards: [
-              { card: numericBoard[i].card, index: numericBoard[i].index },
-              { card: numericBoard[j].card, index: numericBoard[j].index }
-            ],
-            area: 'sum2',
-            score: this.calculateCaptureScore([handCard, numericBoard[i].card, numericBoard[j].card]),
-            description: `SUM: ${handCard.value}${this.suitSymbols[handCard.suit]} = ${numericBoard[i].card.value}${this.suitSymbols[numericBoard[i].card.suit]} + ${numericBoard[j].card.value}${this.suitSymbols[numericBoard[j].card.suit]} (${numericBoard[i].value}+${numericBoard[j].value}=${targetSum})`
-          });
-        }
-      }
-    }
-
-    // Three-card sums
-    for (let i = 0; i < numericBoard.length; i++) {
-      for (let j = i + 1; j < numericBoard.length; j++) {
-        for (let k = j + 1; k < numericBoard.length; k++) {
-          const sum = numericBoard[i].value + numericBoard[j].value + numericBoard[k].value;
-          if (sum === targetSum) {
-            sumCaptures.push({
-              type: 'sum',
-              handCard: { card: handCard, index: handIndex },
-              targetCards: [
-                { card: numericBoard[i].card, index: numericBoard[i].index },
-                { card: numericBoard[j].card, index: numericBoard[j].index },
-                { card: numericBoard[k].card, index: numericBoard[k].index }
-              ],
-              area: 'sum3',
-              score: this.calculateCaptureScore([handCard, numericBoard[i].card, numericBoard[j].card, numericBoard[k].card]),
-              description: `SUM: ${handCard.value}${this.suitSymbols[handCard.suit]} = ${numericBoard[i].card.value}${this.suitSymbols[numericBoard[i].card.suit]} + ${numericBoard[j].card.value}${this.suitSymbols[numericBoard[j].card.suit]} + ${numericBoard[k].card.value}${this.suitSymbols[numericBoard[k].card.suit]} (${sum}=${targetSum})`
-            });
-          }
-        }
-      }
-    }
-
-    return sumCaptures;
+  // Get the best capture from Card Intelligence
+  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+  
+  if (bestCapture) {
+    console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
+    return [this.convertToHintFormat(bestCapture)];
   }
+
+  // If no captures found, check all cards for any possible captures
+  const allCaptures = [];
+  playerHand.forEach((handCard, handIndex) => {
+    const captures = canCapture(handCard, board); // Use existing gameLogic function
+    captures.forEach(capture => {
+      allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+    });
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
+// 🔄 CONVERT Card Intelligence capture to hint format
+convertToHintFormat(bestCapture) {
+  const handCard = bestCapture.handCard;
+  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+  
+  // Convert target cards to hint format
+  const targetCards = bestCapture.capture.targets.map(targetCard => {
+    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+    return { card: targetCard, index: boardIndex };
+  });
+
+  return {
+    type: bestCapture.capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+    score: bestCapture.evaluation.totalScore,
+    description: bestCapture.evaluation.reasoning
+  };
+}
+
+// 🔄 CONVERT gameLogic capture to hint format
+convertGameLogicToHint(handCard, handIndex, capture) {
+  const targetCards = capture.cards.map(cardIndex => {
+    return { card: this.game.state.board[cardIndex], index: cardIndex };
+  });
+
+  return {
+    type: capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: capture.type === 'pair' ? 'match' : 'sum1',
+    score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
+    description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
+  };
+}
+
+// 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
+basicHintDetection(playerHand, board) {
+  const allCaptures = [];
+  
+  playerHand.forEach((handCard, handIndex) => {
+    if (typeof canCapture === 'function') {
+      const captures = canCapture(handCard, board);
+      captures.forEach(capture => {
+        allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+      });
+    }
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
 
   // 🏆 HINT PRIORITIZATION SYSTEM
   prioritizeHints(captures) {
