@@ -1,5 +1,6 @@
 // 🤖 LEGENDARY AI MOVE FUNCTION - Strategic Genius Level
 // BULLETPROOF VERSION with Empty Hand Safety Guards
+// 🔥 FIXED: Beginner bots now ALWAYS check captures first!
 
 function aiMove(hand, board, difficulty = 'intermediate') {
   console.log(`🤖 LEGENDARY AI ACTIVATED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
@@ -24,14 +25,12 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   
   // 🎯 DETERMINE BOT PERSONALITY BASED ON DIFFICULTY
   let personality = 'calculator';
+  let beginnerRandomChance = 0; // Will be set for beginners
+
   if (difficulty === 'beginner') {
-    // Beginner: 70% chance to just place random card (keep it simple)
-    if (Math.random() < 0.7) {
-      const randomCard = hand[Math.floor(Math.random() * hand.length)];
-      console.log(`🟢 BEGINNER: Random placement ${randomCard.value}${randomCard.suit}`);
-      return { action: 'place', handCard: randomCard };
-    }
-    personality = 'calculator'; // Simple when they do try
+    // 🔥 NEW STRATEGY: Always check captures first, then decide if we want to act "beginner-like"
+    personality = 'calculator'; // Use simple logic when they do capture
+    beginnerRandomChance = 0.4; // 40% chance to place randomly AFTER checking captures
   } else if (difficulty === 'intermediate') {
     // Intermediate: Mix of personalities
     const personalities = ['calculator', 'strategist'];
@@ -43,7 +42,7 @@ function aiMove(hand, board, difficulty = 'intermediate') {
   
   console.log(`🧠 AI PERSONALITY: ${personality.toUpperCase()}`);
   
-  // 🎯 PHASE 1: LOOK FOR CAPTURES (Strategic Analysis)
+  // 🎯 PHASE 1: LOOK FOR CAPTURES (Strategic Analysis) - NOW HAPPENS FOR ALL DIFFICULTIES!
   const bestCapture = window.cardIntelligence.findBestCapture(hand, board, personality);
   
   if (bestCapture) {
@@ -53,6 +52,13 @@ function aiMove(hand, board, difficulty = 'intermediate') {
     const shouldCapture = evaluateCaptureDecision(bestCapture, personality, difficulty);
     
     if (shouldCapture) {
+      // 🎓 BEGINNER BEHAVIOR: Even with a good capture, sometimes act "beginner-like"
+      if (difficulty === 'beginner' && Math.random() < beginnerRandomChance) {
+        console.log(`🎓 BEGINNER: Found good capture but acting beginner-like - placing random card`);
+        const randomCard = hand[Math.floor(Math.random() * hand.length)];
+        return { action: 'place', handCard: randomCard };
+      }
+      
       console.log(`✅ TAKING CAPTURE: ${bestCapture.evaluation.reasoning}`);
       return {
         action: 'capture',
