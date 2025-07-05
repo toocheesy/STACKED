@@ -1,6 +1,6 @@
 /* 
  * STACKED! - Main Game Controller with LEGENDARY HINT SYSTEM
- * 🔥 FIXED: Jackpot message bug + Card disappearing during bot turns + HINT SYSTEM + DRAGGABLE MODAL
+ * 🔥 FIXED: Centralized bot turn management + No more scheduling conflicts
  */
 
 // 🎯 LEGENDARY HINT SYSTEM CLASS
@@ -302,6 +302,9 @@ let ui = null;
 let botModal = null;
 let modeSelector = null;
 
+// 🎯 CENTRALIZED BOT TURN MANAGEMENT
+let botTurnInProgress = false;
+
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
@@ -440,7 +443,7 @@ function handleSubmit() {
     game.state.currentPlayer = 1;
     // 🎯 SEND PLAYER OUT OF CARDS EVENT
     window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
-    setTimeout(async () => await aiTurn(), 1000);
+    setTimeout(async () => await scheduleNextBotTurn(), 1000);
   }
   
   ui.render();
@@ -583,59 +586,155 @@ function dealNewCards() {
   }
 }
 
+// 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
-  if (game.state.currentPlayer === 0) return;
+  // 🛡️ SAFETY GUARD: Only one bot turn at a time
+  if (botTurnInProgress) {
+    console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
+    return;
+  }
+
+  // 🛡️ SAFETY GUARD: Only run for bot players
+  if (game.state.currentPlayer === 0) {
+    console.log('🚨 AI TURN CALLED FOR HUMAN PLAYER - SKIPPING');
+    return;
+  }
 
   const playerIndex = game.state.currentPlayer;
   
-  if (game.state.hands[playerIndex].length === 0) {
+  // 🛡️ SAFETY GUARD: Check if bot has cards
+  if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {
+    console.log(`🏁 BOT ${playerIndex}: No cards left, switching players`);
     game.nextPlayer();
     ui.render();
     
-    const remainingPlayers = game.state.hands.filter((hand, idx) => hand.length > 0);
-    const playersWithCards = remainingPlayers.length;
-    
-    if (playersWithCards === 0) {
-      checkGameEnd();
-      return;
-    } else if (game.state.currentPlayer !== 0 && game.state.hands[game.state.currentPlayer].length > 0) {
-      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    // Continue to next player if they have cards
+    if (game.state.currentPlayer !== 0 && 
+        game.state.hands[game.state.currentPlayer] && 
+        game.state.hands[game.state.currentPlayer].length > 0) {
+      setTimeout(() => scheduleNextBotTurn(), 1000);
     } else if (game.state.currentPlayer === 0 && game.state.hands[0].length === 0) {
+      // Player is also out of cards, find next bot with cards
       let nextBot = 1;
-      while (nextBot < 3 && game.state.hands[nextBot].length === 0) {
+      while (nextBot < 3 && (!game.state.hands[nextBot] || game.state.hands[nextBot].length === 0)) {
         nextBot++;
       }
       if (nextBot < 3) {
         game.state.currentPlayer = nextBot;
-        setTimeout(async () => await scheduleNextBotTurn(), 1000);
+        setTimeout(() => scheduleNextBotTurn(), 1000);
       } else {
         checkGameEnd();
       }
     }
     return;
   }
+
+  // 🎯 SET BOT TURN FLAG
+  botTurnInProgress = true;
   
-  setTimeout(() => {
+  try {
+    console.log(`🤖 BOT ${playerIndex}: Starting turn with ${game.state.hands[playerIndex].length} cards`);
+    
+    // Get AI decision
     const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
     
+    let result;
+    
     if (move && move.action === 'capture') {
-      botModal.executeCapture(move, playerIndex);
+      console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
+      result = await botModal.executeCapture(move, playerIndex);
     } else {
-      botModal.placeCard(move ? move.handCard : game.state.hands[playerIndex][0], playerIndex);
+      const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
+      console.log(`🤖 BOT ${playerIndex}: Placing card ${cardToPlace.value}${cardToPlace.suit}`);
+      result = await botModal.placeCard(cardToPlace, playerIndex);
     }
-  }, 1000);
+    
+    // 🎯 HANDLE RESULT AND MANAGE TURNS
+    if (result.success) {
+      console.log(`✅ BOT ${playerIndex}: Action succeeded - ${result.action}`);
+      
+      if (result.action === 'capture') {
+        // Bot captured, check if they can continue
+        const remainingCards = game.state.hands[playerIndex].length;
+        if (remainingCards > 0) {
+          console.log(`🔄 BOT ${playerIndex}: Has ${remainingCards} cards left, continuing turn`);
+          botTurnInProgress = false;
+          setTimeout(() => scheduleNextBotTurn(), 1500);
+        } else {
+          console.log(`🏁 BOT ${playerIndex}: Out of cards after capture`);
+          game.nextPlayer();
+          ui.render();
+          botTurnInProgress = false;
+          
+          if (game.state.currentPlayer !== 0 && 
+              game.state.hands[game.state.currentPlayer] && 
+              game.state.hands[game.state.currentPlayer].length > 0) {
+            setTimeout(() => scheduleNextBotTurn(), 1000);
+          }
+        }
+      } else if (result.action === 'place') {
+        // Bot placed card, switch to next player
+        console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
+        game.nextPlayer();
+        ui.render();
+        checkGameEnd();
+        botTurnInProgress = false;
+        
+        if (game.state.currentPlayer !== 0 && 
+            game.state.hands[game.state.currentPlayer] && 
+            game.state.hands[game.state.currentPlayer].length > 0) {
+          setTimeout(() => scheduleNextBotTurn(), 1000);
+        }
+      }
+    } else {
+      console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
+      // Fallback: place first card
+      const fallbackCard = game.state.hands[playerIndex][0];
+      if (fallbackCard) {
+        console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
+        result = await botModal.placeCard(fallbackCard, playerIndex);
+        if (result.success) {
+          game.nextPlayer();
+          ui.render();
+          checkGameEnd();
+        }
+      }
+      botTurnInProgress = false;
+    }
+    
+  } catch (error) {
+    console.error(`🚨 CRITICAL ERROR in aiTurn for Bot ${playerIndex}:`, error);
+    botTurnInProgress = false;
+    
+    // Emergency fallback: switch to next player
+    game.nextPlayer();
+    ui.render();
+  }
 }
 
+// 🔥 SIMPLIFIED: scheduleNextBotTurn() - SINGLE SCHEDULING POINT
 async function scheduleNextBotTurn() {
-  if (game.botTurnInProgress) return;
-  
-  if (game.state.currentPlayer !== 0 && game.state.hands[game.state.currentPlayer] && game.state.hands[game.state.currentPlayer].length > 0) {
-    game.botTurnInProgress = true;
-    setTimeout(async () => {
-      game.botTurnInProgress = false;
-      await aiTurn();
-    }, 1000);
+  // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
+  if (botTurnInProgress) {
+    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
+    return;
   }
+  
+  // 🛡️ SAFETY GUARD: Only for bot players
+  if (game.state.currentPlayer === 0) {
+    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
+    return;
+  }
+  
+  // 🛡️ SAFETY GUARD: Check if current bot has cards
+  if (!game.state.hands[game.state.currentPlayer] || 
+      game.state.hands[game.state.currentPlayer].length === 0) {
+    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn`);
+    return;
+  }
+  
+  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
+  setTimeout(() => aiTurn(), 1000);
 }
 
 function playSound(type) {
