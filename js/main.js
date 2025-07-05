@@ -239,49 +239,33 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 FIXED: checkGameEnd() - NOW PROPERLY PASSES JACKPOT MESSAGES + PREVENTS DOUBLE CALLS!
-let modalAlreadyShown = false; // 🛡️ Guard against double calls
-
+// 🔥 CLEAN: checkGameEnd() - NO MORE GUARD NEEDED!
 function checkGameEnd() {
   const endResult = game.checkGameEnd();
   
-  console.log(`🔍 CHECK GAME END:`, endResult, `Modal shown: ${modalAlreadyShown}`);
-  
-  if (endResult.gameOver && !modalAlreadyShown) {
-    modalAlreadyShown = true; // 🛡️ Set guard
-    
+  if (endResult.gameOver) {
     if (game.currentMode.onGameEnd) {
       game.currentMode.onGameEnd(game);
     }
-    // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showGameOverModal(endResult);
-    
-    // Reset guard after modal is shown
-    setTimeout(() => { modalAlreadyShown = false; }, 1000);
-    
-  } else if (endResult.roundOver && !modalAlreadyShown) {
-    modalAlreadyShown = true; // 🛡️ Set guard
-    
+  } else if (endResult.roundOver) {
     if (game.currentMode.onRoundEnd) {
       game.currentMode.onRoundEnd(game);
     }
-    // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showRoundEndModal(endResult);
-    
-    // Reset guard after modal is shown
-    setTimeout(() => { modalAlreadyShown = false; }, 1000);
-    
   } else if (endResult.continueRound) {
     dealNewCards();
   }
 }
 
-// 🎯 UPDATED dealNewCards() WITH MESSAGE EVENTS
+// 🎯 FIXED dealNewCards() - REMOVED EXTRA checkGameEnd() CALL
 function dealNewCards() {
   try {
+    // 🔥 CRITICAL FIX: Remove the extra checkGameEnd() call here!
+    // The game end should be handled by the calling function, not here
     if (game.state.deck.length < 12) {
-      checkGameEnd();
-      return;
+      console.log(`🎯 DECK TOO LOW: ${game.state.deck.length} cards - letting calling function handle game end`);
+      return; // Just return, don't call checkGameEnd() here!
     }
     
     const dealResult = dealCards(game.state.deck, 3, 4, 0);
