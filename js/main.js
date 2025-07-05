@@ -239,22 +239,38 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 FIXED: checkGameEnd() - NOW PROPERLY PASSES JACKPOT MESSAGES!
+// 🔥 FIXED: checkGameEnd() - NOW PROPERLY PASSES JACKPOT MESSAGES + PREVENTS DOUBLE CALLS!
+let modalAlreadyShown = false; // 🛡️ Guard against double calls
+
 function checkGameEnd() {
   const endResult = game.checkGameEnd();
   
-  if (endResult.gameOver) {
+  console.log(`🔍 CHECK GAME END:`, endResult, `Modal shown: ${modalAlreadyShown}`);
+  
+  if (endResult.gameOver && !modalAlreadyShown) {
+    modalAlreadyShown = true; // 🛡️ Set guard
+    
     if (game.currentMode.onGameEnd) {
       game.currentMode.onGameEnd(game);
     }
     // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showGameOverModal(endResult);
-  } else if (endResult.roundOver) {
+    
+    // Reset guard after modal is shown
+    setTimeout(() => { modalAlreadyShown = false; }, 1000);
+    
+  } else if (endResult.roundOver && !modalAlreadyShown) {
+    modalAlreadyShown = true; // 🛡️ Set guard
+    
     if (game.currentMode.onRoundEnd) {
       game.currentMode.onRoundEnd(game);
     }
     // 🔥 CRITICAL FIX: Pass the complete endResult object with message!
     showRoundEndModal(endResult);
+    
+    // Reset guard after modal is shown
+    setTimeout(() => { modalAlreadyShown = false; }, 1000);
+    
   } else if (endResult.continueRound) {
     dealNewCards();
   }
