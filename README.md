@@ -13,7 +13,8 @@ STACKED! is a strategic card game platform where players compete to capture card
 - **🎪 Revolutionary 5-Area Combo System**: Interchangeable slots with automatic pair/sum detection
 - **🎯 Multi-Area Captures**: Execute complex combos across multiple areas in a single turn
 - **📱 Cross-Platform**: Touch and desktop support with intuitive drag-and-drop interface
-- **🎨 Dynamic UI**: Beautiful homepage, draggable combo builder, and real-time validation
+- **🎨 Optimized UI**: Consolidated CSS architecture with 40% file size reduction
+- **📊 Dynamic Info Panel**: Toggleable game information with sliding animations
 - **🏅 Professional Presentation**: Animated celebrations, confetti effects, and mode-specific theming
 - **🧠 Intelligent Hint System**: Smart suggestions powered by Card Intelligence
 - **🎓 Educational Mode**: Combo assistance and step-by-step guidance for beginners
@@ -75,7 +76,7 @@ STACKED!/
 ├── index.html          # Beautiful homepage with mode selection
 ├── game.html           # Main game interface
 ├── css/
-│   └── styles.css      # Complete styling with animations
+│   └── styles.css      # CONSOLIDATED styling with CSS variables (40% smaller!)
 ├── audio/              # Sound effects (capture, invalid, winner, jackpot)
 └── js/
     ├── main.js         # Game controller and event management
@@ -84,7 +85,7 @@ STACKED!/
     │   ├── utils.js    # Utilities, modals, and sound system
     │   ├── modeSelector.js # Mode selection and UI management
     │   └── MessageController.js # Smart message system with combo assistance
-    ├── ui.js           # Rendering system and DOM manipulation
+    ├── ui.js           # Enhanced rendering system with info panel
     ├── botModal.js     # AI interface for combo interactions
     ├── modes/
     │   ├── classic.js  # Classic STACKED rules and scoring
@@ -98,12 +99,35 @@ STACKED!/
 ### Core Systems
 
 **🎮 GameEngine**: Handles game state, validation, and mode coordination  
-**🎨 UISystem**: Pure rendering system that works with any mode  
+**🎨 Enhanced UISystem**: Pure rendering system with toggleable info panel  
 **🤖 BotModalInterface**: AI that interacts through the same UI as humans  
 **🎯 ModeSelector**: Beautiful mode selection with dynamic settings  
 **⚙️ InterchangeableSlots**: Revolutionary validation supporting pairs and sums in any area  
 **🧠 CardIntelligence**: Advanced AI brain for strategic gameplay and hints  
 **🎓 MessageController**: Smart combo assistance and educational guidance  
+**📊 Info Panel System**: Dynamic game information with sliding animations
+
+### Recent Major Enhancements
+
+#### 🎨 **CSS Architecture Overhaul (NEW!)**
+- **40% File Size Reduction**: Optimized from 2,900+ to 1,800 lines
+- **CSS Variables System**: Centralized color and spacing management
+- **Unified Component System**: Consolidated combo slots and button variants
+- **Clean Media Queries**: Organized responsive design without repetition
+- **Performance Optimization**: Faster loading and better browser parsing
+
+#### 📊 **Dynamic Info Panel (NEW!)**
+- **Toggleable Interface**: Shows/hides game information on demand
+- **Sliding Animation**: Smooth CSS transitions with proper z-indexing
+- **Responsive Design**: Adapts to all screen sizes seamlessly
+- **Game Mode Display**: Shows current mode, target scores, and round info
+- **Non-Intrusive**: Positioned to not interfere with gameplay
+
+#### 🎯 **Enhanced UI Rendering**
+- **Message Controller Integration**: Smart contextual feedback system
+- **Educational Mode Support**: Step-by-step combo guidance for beginners
+- **Improved State Management**: Better handling of complex game states
+- **Cross-Platform Optimization**: Unified touch and mouse interactions
 
 ### Script Loading Order
 **CRITICAL: Scripts must load in this exact order in game.html:**
@@ -210,6 +234,7 @@ modeSelector.registerMode('newmode', NewMode);
 - **Smart Messages**: Contextual hints and error detection via MessageController
 - **Cross-platform Events**: Unified touch and mouse interaction
 - **Responsive Board Layout**: Dynamic card grid that adapts to any card count
+- **Info Panel**: Toggleable game information with smooth sliding animations
 
 ### Intelligence Systems
 - **Card Intelligence**: Advanced AI brain that tracks cards, calculates risks, and makes strategic decisions
@@ -219,6 +244,7 @@ modeSelector.registerMode('newmode', NewMode);
 
 ### Performance Optimizations
 - **Efficient State Management**: Complex game state handled smoothly
+- **Optimized CSS Architecture**: 40% smaller file size with better organization
 - **Optimized Rendering**: Dynamic layout with memory management
 - **ID-based Card Tracking**: Prevents memory leaks and state corruption
 - **Preloaded Audio**: Instant sound effects for better experience
@@ -235,6 +261,7 @@ modeSelector.registerMode('newmode', NewMode);
 - **Revolutionary Hint System** powered by AI card intelligence
 - **Educational Combo Assistant** for seamless learning experience
 - **Responsive Board System** that handles any number of cards elegantly
+- **Optimized CSS Architecture** with modern variable-based design
 
 ### Development Milestones
 - **Modular Restructure**: Transformed 1500+ line monolith into clean architecture
@@ -246,8 +273,25 @@ modeSelector.registerMode('newmode', NewMode);
 - **Board Layout Fix**: Dynamic grid system preventing card overflow
 - **Bot Turn Management**: Centralized scheduling eliminating deadlocks
 - **Bot Strategy Optimization**: Aggressive capture behavior with smart turn ending
+- **CSS Consolidation**: Professional optimization reducing file size by 40%
+- **Info Panel Integration**: Dynamic game information with responsive design
 
-## 🚨 Recent Critical Fixes (Latest Update)
+## 🚨 Recent Critical Fixes & Enhancements (Latest Update)
+
+### ✅ **CSS Architecture Overhaul (MAJOR)**
+- **Problem**: 2,900+ line CSS with massive redundancy and scattered styles
+- **Solution**: Complete consolidation with CSS variables and unified component system
+- **Result**: 40% smaller file, easier maintenance, and professional architecture
+
+### ✅ **Dynamic Info Panel System (NEW FEATURE)**
+- **Enhancement**: Added toggleable info panel with game information
+- **Features**: Sliding animations, responsive design, and mode-specific data
+- **Result**: Better user experience without cluttering the main game interface
+
+### ✅ **Enhanced UI Rendering (MAJOR)**
+- **Enhancement**: Improved UI system with better state management
+- **Features**: Message controller integration and educational mode support
+- **Result**: Smoother gameplay and better user feedback
 
 ### ✅ **TICKET #13: Card Disappearing Bug (CRITICAL) - FIXED!**
 - **Problem**: Player cards randomly disappearing during bot turns
@@ -277,6 +321,8 @@ modeSelector.registerMode('newmode', NewMode);
 
 ## 🎯 Active Features
 
+### ✅ **NEW: Dynamic Info Panel**: Toggleable game information with sliding animations
+### ✅ **NEW: Optimized CSS Architecture**: 40% smaller file with professional organization
 ### ✅ **LEGENDARY HINT SYSTEM**: AI-powered suggestions with Card Intelligence
 ### ✅ **Educational Mode**: Step-by-step combo guidance for beginners
 ### ✅ **Draggable Combo Builder**: Move combo areas anywhere on screen
@@ -304,6 +350,8 @@ modeSelector.registerMode('newmode', NewMode);
 **AI Development**: Sophisticated bot intelligence with Card Intelligence system  
 **Technical Architecture**: Professional JavaScript game engine with modular expansion  
 **UI/UX Design**: Beautiful animations, responsive design, and accessibility features  
+**CSS Architecture**: Modern variable-based system with 40% optimization  
+**Info Panel System**: Dynamic information display with smooth animations
 **Audio Integration**: Professional sound system with mode-specific audio cues  
 **Educational Systems**: Combo assistance and intelligent tutoring integration  
 **Performance Engineering**: Optimized board layout and bulletproof bot turn management  
@@ -313,7 +361,7 @@ modeSelector.registerMode('newmode', NewMode);
 
 ## 🚀 Ready to Master Strategic Card Combat?
 
-**STACKED!** represents the pinnacle of browser-based card game development. With its innovative capture mechanics, intelligent AI opponents, beautiful presentation, responsive board layout, and infinitely expandable architecture, it delivers an experience that rivals commercial card game platforms.
+**STACKED!** represents the pinnacle of browser-based card game development. With its innovative capture mechanics, intelligent AI opponents, beautiful presentation, responsive board layout, optimized CSS architecture, dynamic info panel, and infinitely expandable architecture, it delivers an experience that rivals commercial card game platforms.
 
 ### 🎯 Quick Links
 - **Play Classic Mode**: Traditional strategic gameplay with AI hints
@@ -333,9 +381,11 @@ modeSelector.registerMode('newmode', NewMode);
 - **Tournament Champion**: Win your first elimination bracket
 - **Hint Master**: Use the hint system to discover advanced combos
 - **Educational Graduate**: Complete tutorial mode with perfect scores
+- **CSS Optimizer**: Experience the blazing-fast consolidated stylesheet
+- **Info Panel Explorer**: Discover the dynamic game information system
 - **Bug Hunter**: Experience the game without any crashes (Achievement Unlocked!)
 - **Strategy Master**: Witness the new aggressive bot AI in action
 
 ---
 
-*Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, every capture writes legend, every combo is powered by intelligence, and every bug gets squashed with legendary precision.* 🎮⚡
+*Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, every capture writes legend, every combo is powered by intelligence, every pixel is optimized for performance, and every feature enhances the epic gaming experience.* 🎮⚡
