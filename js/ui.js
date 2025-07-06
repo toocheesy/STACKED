@@ -348,58 +348,38 @@ class UISystem {
     }
   }
 
-  // 🎯 GROK'S SMART POSITIONING with class-based toggle
+  // 🎯 SIMPLIFIED: HTML-first approach - just update content and toggle
   renderInfoPanel() {
-    let infoPanel = document.getElementById('info-panel');
-    let toggleButton = document.getElementById('info-toggle');
+    const infoPanel = document.getElementById('info-panel');
+    const toggleButton = document.getElementById('info-toggle');
     
-    // Create toggle button if it doesn't exist
-    if (!toggleButton) {
-      toggleButton = document.createElement('button');
-      toggleButton.id = 'info-toggle';
-      toggleButton.textContent = 'Scores';
-      toggleButton.className = 'header-scores-btn';
+    // Add click listener if not already added
+    if (toggleButton && !toggleButton.hasAttribute('data-listener-added')) {
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      
-      // Insert directly after h1 in game-container
-      const gameContainer = document.querySelector('.game-container');
-      const title = gameContainer.querySelector('h1');
-      if (title && title.nextSibling) {
-        gameContainer.insertBefore(toggleButton, title.nextSibling);
-      } else if (title) {
-        gameContainer.appendChild(toggleButton);
-      }
-    }
-    
-    // Create info panel if it doesn't exist
-    if (!infoPanel) {
-      infoPanel = document.createElement('div');
-      infoPanel.id = 'info-panel';
-      infoPanel.className = 'info-panel';
-      document.querySelector('.game-container').appendChild(infoPanel);
+      toggleButton.setAttribute('data-listener-added', 'true');
     }
     
     // Apply open/closed state using classes
-    if (this.infoPanelVisible) {
-      infoPanel.classList.add('open');
-    } else {
-      infoPanel.classList.remove('open');
-    }
-    
-    // Update scores content
-    infoPanel.innerHTML = `
-      <div class="info-header">Overall Scores</div>
-      <div class="info-content">
-        <ul>
+    if (infoPanel) {
+      if (this.infoPanelVisible) {
+        infoPanel.classList.add('open');
+      } else {
+        infoPanel.classList.remove('open');
+      }
+      
+      // Update scores content only
+      const contentList = infoPanel.querySelector('.info-content ul');
+      if (contentList) {
+        contentList.innerHTML = `
           <li>Player: ${this.game.state.overallScores.player} pts</li>
           <li>Bot 1: ${this.game.state.overallScores.bot1} pts</li>
           <li>Bot 2: ${this.game.state.overallScores.bot2} pts</li>
-        </ul>
-      </div>
-    `;
+        `;
+      }
+    }
   }
 
-  // 🎯 GROK'S Clean class-based toggle
+  // 🎯 SIMPLIFIED: Clean class-based toggle
   toggleInfoPanel() {
     this.infoPanelVisible = !this.infoPanelVisible;
     this.renderInfoPanel(); // Rerender to update classes and content
