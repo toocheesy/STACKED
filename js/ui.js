@@ -348,7 +348,7 @@ class UISystem {
     }
   }
 
-  // 🎯 NEW: Render toggleable info panel
+  // 🎯 NEW: Render LEFT scoreboard panel
   renderInfoPanel() {
     let infoPanel = document.getElementById('info-panel');
     let toggleButton = document.getElementById('info-toggle');
@@ -357,21 +357,14 @@ class UISystem {
     if (!toggleButton) {
       toggleButton = document.createElement('button');
       toggleButton.id = 'info-toggle';
-      toggleButton.textContent = 'Info';
+      toggleButton.textContent = 'Scores';
       toggleButton.className = 'btn-base'; // Use base button class without border
-      toggleButton.style.position = 'relative'; // Remove fixed positioning
-      toggleButton.style.margin = '10px 0'; // Space below h1
-      toggleButton.style.alignSelf = 'flex-start'; // Align left
+      toggleButton.style.position = 'fixed'; // Fixed positioning for left side
+      toggleButton.style.left = '20px'; // Left side placement
+      toggleButton.style.top = '20px'; // Top placement
+      toggleButton.style.zIndex = '999'; // Above other elements
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      const gameContainer = document.querySelector('.game-container');
-      if (gameContainer) {
-        const title = gameContainer.querySelector('h1');
-        if (title) {
-          gameContainer.insertBefore(toggleButton, title.nextSibling);
-        } else {
-          gameContainer.insertBefore(toggleButton, gameContainer.firstChild);
-        }
-      }
+      document.body.appendChild(toggleButton);
     }
 
     // Create or update info panel
@@ -380,24 +373,20 @@ class UISystem {
       infoPanel.id = 'info-panel';
       infoPanel.className = 'info-panel';
       infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
-      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(100%)';
+      infoPanel.style.transform = this.infoPanelVisible ? 'translateX(0)' : 'translateX(-100%)';
       infoPanel.style.transition = 'transform 0.5s ease-in-out';
       document.body.appendChild(infoPanel);
     }
 
-    // Render panel content
-    const modeName = this.game.currentMode ? this.game.currentMode.name : 'Classic STACKED';
-    const targetScore = this.game.state.settings.targetScore;
+    // Render panel content - SCOREBOARD FOCUSED
     infoPanel.innerHTML = `
-      <div class="info-header">${modeName} - Target: ${targetScore}</div>
+      <div class="info-header">Overall Scores</div>
       <div class="info-content">
-        <h3>Overall Scores:</h3>
         <ul>
           <li>Player: ${this.game.state.overallScores.player} pts</li>
           <li>Bot 1: ${this.game.state.overallScores.bot1} pts</li>
           <li>Bot 2: ${this.game.state.overallScores.bot2} pts</li>
         </ul>
-        <div class="info-timer-placeholder">[Timer space]</div>
       </div>
     `;
   }
