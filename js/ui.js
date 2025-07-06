@@ -348,11 +348,11 @@ class UISystem {
     }
   }
 
-  // 🎯 HYBRID: Smart positioning with class-based toggle
+  // 🎯 GROK'S SMART POSITIONING with class-based toggle
   renderInfoPanel() {
     let infoPanel = document.getElementById('info-panel');
     let toggleButton = document.getElementById('info-toggle');
-
+    
     // Create toggle button if it doesn't exist
     if (!toggleButton) {
       toggleButton = document.createElement('button');
@@ -361,29 +361,31 @@ class UISystem {
       toggleButton.className = 'header-scores-btn';
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
       
-      // Insert under h1 in game-container (your actual structure)
+      // Insert directly after h1 in game-container
       const gameContainer = document.querySelector('.game-container');
       const title = gameContainer.querySelector('h1');
-      if (title) {
+      if (title && title.nextSibling) {
         gameContainer.insertBefore(toggleButton, title.nextSibling);
+      } else if (title) {
+        gameContainer.appendChild(toggleButton);
       }
     }
-
+    
     // Create info panel if it doesn't exist
     if (!infoPanel) {
       infoPanel = document.createElement('div');
       infoPanel.id = 'info-panel';
       infoPanel.className = 'info-panel';
-      document.body.appendChild(infoPanel);
+      document.querySelector('.game-container').appendChild(infoPanel);
     }
-
-    // Apply open/closed state using classes (ChatGPT's smart idea)
+    
+    // Apply open/closed state using classes
     if (this.infoPanelVisible) {
       infoPanel.classList.add('open');
     } else {
       infoPanel.classList.remove('open');
     }
-
+    
     // Update scores content
     infoPanel.innerHTML = `
       <div class="info-header">Overall Scores</div>
@@ -397,7 +399,7 @@ class UISystem {
     `;
   }
 
-  // 🎯 HYBRID: Clean class-based toggle
+  // 🎯 GROK'S Clean class-based toggle
   toggleInfoPanel() {
     this.infoPanelVisible = !this.infoPanelVisible;
     this.renderInfoPanel(); // Rerender to update classes and content

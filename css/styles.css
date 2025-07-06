@@ -960,10 +960,10 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎯 HYBRID SCOREBOARD PANEL & BUTTON
+   🎯 GROK'S SMART SCOREBOARD PANEL & BUTTON
    =================================== */
 .header-scores-btn {
-  margin: 10px 0;
+  margin: 10px 0 10px 10px;
   background: var(--wood-button-primary);
   color: var(--wood-primary);
   border: 2px solid var(--wood-dark);
@@ -973,7 +973,8 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   font-weight: bold;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-smooth);
-  align-self: flex-start; /* Left align in flex container */
+  align-self: flex-start;
+  position: static;
 }
 
 .header-scores-btn:hover {
@@ -982,10 +983,10 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel {
-  position: fixed;
-  left: 20px; /* Close to left edge but not touching */
-  top: 50%; /* CHATGPT'S SMART IDEA - vertical center */
-  transform: translate(-100%, -50%); /* Hidden + vertically centered */
+  position: absolute;
+  left: calc((100% - 800px) / 2 - 220px); /* GROK'S BRILLIANT MATH - Position left of table */
+  top: 50%; /* Vertically centered */
+  transform: translate(-100%, -50%); /* Hidden off-screen */
   width: 200px;
   max-width: 90%;
   z-index: 1001;
@@ -998,7 +999,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel.open {
-  transform: translate(0, -50%); /* CHATGPT'S SMART IDEA - slide in but stay centered */
+  transform: translate(0, -50%); /* SLIDE IN but stay vertically centered */
 }
 
 .info-panel .info-header {
@@ -1047,7 +1048,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
    📱 CONSOLIDATED RESPONSIVE DESIGN
    =================================== */
 
-/* 🎯 TABLET BREAKPOINT (900px) */
+/* 🎯 TABLET BREAKPOINT (900px) - GROK'S RESPONSIVE UPDATES */
 @media (max-width: 900px) {
   :root {
     --card-width: 55px;
@@ -1059,6 +1060,17 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   .table {
     width: 100%;
     max-height: 65vh;
+  }
+  
+  .info-panel {
+    left: 10px;
+    width: 180px;
+  }
+  
+  .header-scores-btn {
+    margin: 8px 0 8px 8px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
   }
   
   .game-container {
@@ -1093,7 +1105,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   .jackpot-message { font-size: 1.1rem; }
 }
 
-/* 🎯 MOBILE BREAKPOINT (700px) */
+/* 🎯 MOBILE BREAKPOINT (700px) - GROK'S RESPONSIVE UPDATES */
 @media (max-width: 700px) {
   :root {
     --card-width: 50px;
@@ -1108,6 +1120,17 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     margin: -50px auto 10px auto;
     width: 100%;
     max-height: 65vh;
+  }
+  
+  .info-panel {
+    left: 5px;
+    width: 160px;
+  }
+  
+  .header-scores-btn {
+    margin: 6px 0 6px 6px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
   }
 
   .game-container {
@@ -1153,14 +1176,9 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   .difficulty-btn { min-width: 80px; padding: 10px 12px; font-size: 0.85rem; }
   .difficulty-icon { font-size: 1.3rem; }
   .difficulty-name { font-size: 0.8rem; }
-
-  .info-panel {
-    width: 280px; /* Adjusted for mobile */
-    left: 5px; /* Reduced padding for smaller screens */
-  }
 }
 
-/* 🎯 SMALL MOBILE BREAKPOINT (550px) */
+/* 🎯 SMALL MOBILE BREAKPOINT (550px) - GROK'S RESPONSIVE UPDATES */
 @media (max-width: 550px) {
   :root {
     --card-width: 45px;
@@ -1173,6 +1191,17 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     margin: 10px 0;
     width: 100%;
     max-height: 65vh;
+  }
+  
+  .info-panel {
+    left: 5px;
+    width: 140px;
+  }
+  
+  .header-scores-btn {
+    margin: 5px 0 5px 5px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
   }
 
   .board {
@@ -1222,11 +1251,6 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   .difficulty-btn { min-width: 70px; padding: 8px 10px; font-size: 0.8rem; }
   .difficulty-icon { font-size: 1.2rem; }
   .difficulty-name { font-size: 0.75rem; }
-
-  .info-panel {
-    width: 260px; /* Further adjusted for small mobile */
-    left: 5px;
-  }
 }
 
 /* ===================================
