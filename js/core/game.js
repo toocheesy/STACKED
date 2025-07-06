@@ -10,7 +10,8 @@ class GameEngine {
       deck: [],
       board: [],
       hands: [[], [], []], // Player, Bot 1, Bot 2
-      scores: { player: 0, bot1: 0, bot2: 0 },
+      scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
+      overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
       combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
       currentPlayer: 0,
       settings: {
@@ -68,7 +69,7 @@ class GameEngine {
       return hand;
     });
     
-    // Reset scores and round
+    // Reset current round scores, preserve overall scores
     this.state.scores = { player: 0, bot1: 0, bot2: 0 };
     this.state.currentPlayer = 0;
     this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
@@ -224,6 +225,7 @@ class GameEngine {
     // Calculate and apply score
     const points = this.calculateScore(allCapturedCards);
     this.addScore(currentPlayer, points);
+    this.addOverallScore(currentPlayer, points); // Update overall scores
     this.state.lastCapturer = currentPlayer;
 
     console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
@@ -243,118 +245,133 @@ class GameEngine {
     return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
-  // Add score to player
+  // Add score to current round
   addScore(playerIndex, points) {
     if (playerIndex === 0) {
       this.state.scores.player += points;
-      console.log(`🎯 PLAYER SCORED: +${points} pts (Total: ${this.state.scores.player})`);
+      console.log(`🎯 PLAYER SCORED: +${points} pts (Round Total: ${this.state.scores.player})`);
     } else if (playerIndex === 1) {
       this.state.scores.bot1 += points;
-      console.log(`🎯 BOT 1 SCORED: +${points} pts (Total: ${this.state.scores.bot1})`);
+      console.log(`🎯 BOT 1 SCORED: +${points} pts (Round Total: ${this.state.scores.bot1})`);
     } else if (playerIndex === 2) {
       this.state.scores.bot2 += points;
-      console.log(`🎯 BOT 2 SCORED: +${points} pts (Total: ${this.state.scores.bot2})`);
+      console.log(`🎯 BOT 2 SCORED: +${points} pts (Round Total: ${this.state.scores.bot2})`);
+    }
+  }
+
+  // Add score to overall total
+  addOverallScore(playerIndex, points) {
+    if (playerIndex === 0) {
+      this.state.overallScores.player += points;
+      console.log(`🎯 PLAYER OVERALL: +${points} pts (Total: ${this.state.overallScores.player})`);
+    } else if (playerIndex === 1) {
+      this.state.overallScores.bot1 += points;
+      console.log(`🎯 BOT 1 OVERALL: +${points} pts (Total: ${this.state.overallScores.bot1})`);
+    } else if (playerIndex === 2) {
+      this.state.overallScores.bot2 += points;
+      console.log(`🎯 BOT 2 OVERALL: +${points} pts (Total: ${this.state.overallScores.bot2})`);
     }
   }
 
   // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
-nextPlayer() {
-  let attempts = 0;
-  const maxAttempts = 3; // Prevent infinite loops
-  
-  do {
-    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-    attempts++;
+  nextPlayer() {
+    let attempts = 0;
+    const maxAttempts = 3; // Prevent infinite loops
     
-    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
+    do {
+      this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+      attempts++;
+      
+      console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
+      
+      // If current player has cards, we're good!
+      if (this.state.hands[this.state.currentPlayer].length > 0) {
+        return;
+      }
+      
+      // If no one has cards, end the round
+      const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+      if (totalCards === 0) {
+        console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+        // Force check game end
+        setTimeout(() => checkGameEnd(), 100);
+        return;
+      }
+      
+    } while (attempts < maxAttempts);
     
-    // If current player has cards, we're good!
-    if (this.state.hands[this.state.currentPlayer].length > 0) {
-      return;
-    }
-    
-    // If no one has cards, end the round
-    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-    if (totalCards === 0) {
-      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-      // Force check game end
-      setTimeout(() => checkGameEnd(), 100);
-      return;
-    }
-    
-  } while (attempts < maxAttempts);
-  
-  // Safety fallback - if we can't find anyone with cards
-  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-  setTimeout(() => checkGameEnd(), 100);
-}
+    // Safety fallback - if we can't find anyone with cards
+    console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+    setTimeout(() => checkGameEnd(), 100);
+  }
 
   // Check if game should end (uses current mode)
   checkGameEnd() {
-  if (this.currentMode.checkEndCondition) {
-    return this.currentMode.checkEndCondition(this);
-  }
-  
-  // Default end condition
-  const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-  
-  if (playersWithCards === 0) {
-    console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
-    
-    // 🚨 CRITICAL: Check if deck is empty FIRST
-    if (this.state.deck.length === 0) {
-      console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
-      
-      // Apply "Last Combo Takes All" rule
-      let jackpotMessage = null;
-      if (this.state.lastCapturer !== null && this.state.board.length > 0) {
-        const bonusPoints = this.calculateScore(this.state.board);
-        this.addScore(this.state.lastCapturer, bonusPoints);
-        
-        const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-        const lastCapturerName = playerNames[this.state.lastCapturer];
-        
-        jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
-        console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
-        
-        // Clear the board after jackpot
-        this.state.board = [];
-      }
-      
-      // Check if anyone reached target score
-      const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-      if (maxScore >= this.state.settings.targetScore) {
-        return { 
-          gameOver: true, 
-          reason: 'target_score_reached',
-          message: jackpotMessage 
-        };
-      } else {
-        return { 
-          gameOver: true, 
-          reason: 'deck_empty',
-          message: jackpotMessage 
-        };
-      }
-    } else {
-      // Deck has cards, deal new round
-      console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
-      return { 
-        continueRound: true, 
-        reason: 'new_round' 
-      };
+    if (this.currentMode.checkEndCondition) {
+      return this.currentMode.checkEndCondition(this);
     }
+    
+    // Default end condition
+    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
+    
+    if (playersWithCards === 0) {
+      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
+      
+      // 🚨 CRITICAL: Check if deck is empty FIRST
+      if (this.state.deck.length === 0) {
+        console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
+        
+        // Apply "Last Combo Takes All" rule
+        let jackpotMessage = null;
+        if (this.state.lastCapturer !== null && this.state.board.length > 0) {
+          const bonusPoints = this.calculateScore(this.state.board);
+          this.addScore(this.state.lastCapturer, bonusPoints);
+          this.addOverallScore(this.state.lastCapturer, bonusPoints);
+          
+          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+          const lastCapturerName = playerNames[this.state.lastCapturer];
+          
+          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
+          console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+          
+          // Clear the board after jackpot
+          this.state.board = [];
+        }
+        
+        // Check if anyone reached target score
+        const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
+        if (maxScore >= this.state.settings.targetScore) {
+          return { 
+            gameOver: true, 
+            reason: 'target_score_reached',
+            message: jackpotMessage 
+          };
+        } else {
+          return { 
+            gameOver: true, 
+            reason: 'deck_empty',
+            message: jackpotMessage 
+          };
+        }
+      } else {
+        // Deck has cards, deal new round
+        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+        return { 
+          continueRound: true, 
+          reason: 'new_round' 
+        };
+      }
+    }
+    
+    return { continue: true };
   }
-  
-  return { continue: true };
-}
 
   // Get ranked players
   getRankedPlayers() {
     const players = [
-      { name: 'Player', score: this.state.scores.player, index: 0 },
-      { name: 'Bot 1', score: this.state.scores.bot1, index: 1 },
-      { name: 'Bot 2', score: this.state.scores.bot2, index: 2 }
+      { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
+      { name: 'Bot 1', score: this.state.scores.bot1, index: 1, overall: this.state.overallScores.bot1 },
+      { name: 'Bot 2', score: this.state.scores.bot2, index: 2, overall: this.state.overallScores.bot2 }
     ];
     return players.sort((a, b) => b.score - a.score);
   }

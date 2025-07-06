@@ -9,45 +9,47 @@ class UISystem {
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
+    this.infoPanelVisible = false;
   }
 
   // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
-render() {
-  const state = this.game.getState();
-  
-  // Connect message controller if not already connected
-  if (window.messageController && !window.messageController.gameEngine) {
-    this.initMessageController();
-  }
-  
-  this.renderDeckCount();
-  this.renderTable();
-  this.renderComboArea();
-  this.renderBoard();
-  this.renderHands();
-  this.renderBotHands();
-  this.renderScores();
-  this.renderDealerIndicator();
-  this.updateSubmitButton();
-  
-  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-const comboStatus = this.getComboAreaStatus();
+  render() {
+    const state = this.game.getState();
+    
+    // Connect message controller if not already connected
+    if (window.messageController && !window.messageController.gameEngine) {
+      this.initMessageController();
+    }
+    
+    this.renderDeckCount();
+    this.renderTable();
+    this.renderComboArea();
+    this.renderBoard();
+    this.renderHands();
+    this.renderBotHands();
+    this.renderScores();
+    this.renderDealerIndicator();
+    this.updateSubmitButton();
+    this.renderInfoPanel();
+    
+    // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+    const comboStatus = this.getComboAreaStatus();
 
-if (comboStatus.hasCards) {
-  // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
-  if (window.messageController && window.messageController.educationalMode) {
-    this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
-  } else if (window.messageController) {
-    this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    if (comboStatus.hasCards) {
+      // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
+      if (window.messageController && window.messageController.educationalMode) {
+        this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+      } else if (window.messageController) {
+        this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+      }
+    } else if (state.currentPlayer === 0) {
+      this.sendMessageEvent('TURN_START');
+    } else {
+      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+    }
   }
-} else if (state.currentPlayer === 0) {
-  this.sendMessageEvent('TURN_START');
-} else {
-  this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-}
-}  // 🔥 PROPER CLOSING BRACE FOR render() FUNCTION
 
-renderDeckCount() {
+  renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
       deckCountEl.textContent = `Deck: ${this.game.state.deck.length || 0} cards`;
@@ -346,6 +348,62 @@ renderDeckCount() {
     }
   }
 
+  // 🎯 NEW: Render toggleable info panel
+  renderInfoPanel() {
+    let infoPanel = document.getElementById('info-panel');
+    let toggleButton = document.getElementById('info-toggle');
+
+    // Create toggle button if it doesn't exist
+    if (!toggleButton) {
+      toggleButton = document.createElement('button');
+      toggleButton.id = 'info-toggle';
+      toggleButton.textContent = 'Info';
+      toggleButton.className = 'modal-btn primary';
+      toggleButton.style.position = 'fixed';
+      toggleButton.style.top = '10px';
+      toggleButton.style.left = '10px';
+      toggleButton.style.zIndex = '1001';
+      toggleButton.addEventListener('click', () => this.toggleInfoPanel());
+      document.body.appendChild(toggleButton);
+    }
+
+    // Create or update info panel
+    if (!infoPanel) {
+      infoPanel = document.createElement('div');
+      infoPanel.id = 'info-panel';
+      infoPanel.className = 'info-panel';
+      infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
+      document.body.appendChild(infoPanel);
+    }
+
+    // Render panel content
+    const modeName = this.game.currentMode ? this.game.currentMode.name : 'Classic STACKED';
+    const targetScore = this.game.state.settings.targetScore;
+    infoPanel.innerHTML = `
+      <div class="info-header">${modeName} - Target: ${targetScore}</div>
+      <div class="info-content">
+        <h3>Overall Scores:</h3>
+        <ul>
+          <li>Player: ${this.game.state.overallScores.player} pts</li>
+          <li>Bot 1: ${this.game.state.overallScores.bot1} pts</li>
+          <li>Bot 2: ${this.game.state.overallScores.bot2} pts</li>
+        </ul>
+        <div class="info-timer-placeholder">[Timer space]</div>
+      </div>
+    `;
+  }
+
+  // 🎯 NEW: Toggle info panel visibility
+  toggleInfoPanel() {
+    this.infoPanelVisible = !this.infoPanelVisible;
+    const infoPanel = document.getElementById('info-panel');
+    if (infoPanel) {
+      infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
+      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(-100%)';
+      infoPanel.style.transition = 'transform 0.5s ease-in-out';
+    }
+  }
+
   // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
   updateMessage() {
     // 🔥 MESSAGE CONTROLLER HANDLES EVERYTHING NOW!
@@ -367,34 +425,34 @@ renderDeckCount() {
 
   // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
   sendMessageEvent(eventType, data = {}) {
-  if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
-    window.messageController.handleGameEvent(eventType, data);
-  } else {
-    console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
+    if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
+      window.messageController.handleGameEvent(eventType, data);
+    } else {
+      console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
+    }
   }
-}
 
   // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
-getComboAreaStatus() {
-  const combo = this.game.state.combination;
-  const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
-  
-  return {
-    hasCards: totalCards > 0,
-    cardCount: totalCards,
-    hasBase: combo.base.length > 0,
-    baseCard: combo.base.length > 0 ? combo.base[0].card : null,
-    sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
-    matchCards: combo.match.length,
-    comboData: {
-      base: combo.base,
-      sum1: combo.sum1,
-      sum2: combo.sum2, 
-      sum3: combo.sum3,
-      match: combo.match
-    }
-  };
-}
+  getComboAreaStatus() {
+    const combo = this.game.state.combination;
+    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
+    
+    return {
+      hasCards: totalCards > 0,
+      cardCount: totalCards,
+      hasBase: combo.base.length > 0,
+      baseCard: combo.base.length > 0 ? combo.base[0].card : null,
+      sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
+      matchCards: combo.match.length,
+      comboData: {
+        base: combo.base,
+        sum1: combo.sum1,
+        sum2: combo.sum2, 
+        sum3: combo.sum3,
+        match: combo.match
+      }
+    };
+  }
 
   // Helper methods
   isCardInPlayArea(index, source) {
