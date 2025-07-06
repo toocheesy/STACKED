@@ -962,8 +962,25 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 /* ===================================
    🎯 FIXED SCORES PANEL & BUTTON SYSTEM
    =================================== */
+/* 🎯 HEADER SECTION - TITLE AND SCORES BUTTON */
+.header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 15px;
+  padding: 10px;
+}
+
+.header-section h1 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--wood-secondary);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* 🎯 SCORES BUTTON - DIRECTLY UNDER TITLE */
 .header-scores-btn {
-  margin: 10px 0 10px 10px;
   background: var(--wood-button-primary);
   color: var(--wood-primary);
   border: 2px solid var(--wood-dark);
@@ -973,20 +990,22 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   font-weight: bold;
   box-shadow: var(--shadow-md);
   transition: all var(--transition-smooth);
-  align-self: flex-start;
-  position: static;
+  font-size: 1rem;
+  margin-top: 5px;
 }
 
 .header-scores-btn:hover {
   background: var(--wood-button-secondary);
   transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(74, 112, 67, 0.4);
 }
 
+/* 🎯 INFO PANEL - SLIDES FROM TOP LEFT */
 .info-panel {
-  position: fixed; /* FIXED: Use fixed instead of absolute */
-  top: 70px; /* FIXED: Position below header */
-  left: 20px; /* FIXED: Simple left positioning */
-  transform: translateX(-250px); /* FIXED: Hide to the left */
+  position: fixed;
+  top: 120px; /* Below header section */
+  left: 20px;
+  transform: translateX(-250px); /* Hidden to the left */
   width: 200px;
   max-width: 90%;
   z-index: 1001;
@@ -999,7 +1018,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel.open {
-  transform: translateX(0); /* FIXED: Slide in from left */
+  transform: translateX(0); /* Slide in from left */
 }
 
 .info-panel .info-header {
@@ -1037,6 +1056,61 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   font-style: italic;
   color: var(--wood-muted);
   text-align: center;
+}
+
+/* 🎯 RESPONSIVE DESIGN FOR HEADER */
+@media (max-width: 900px) {
+  .header-section h1 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+  }
+  
+  .header-scores-btn {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+  
+  .info-panel {
+    top: 100px;
+    left: 10px;
+    width: 180px;
+  }
+}
+
+@media (max-width: 700px) {
+  .header-section h1 {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+  }
+  
+  .header-scores-btn {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+  
+  .info-panel {
+    top: 90px;
+    left: 5px;
+    width: 160px;
+  }
+}
+
+@media (max-width: 550px) {
+  .header-section h1 {
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+  }
+  
+  .header-scores-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+  
+  .info-panel {
+    top: 80px;
+    left: 5px;
+    width: 140px;
+  }
 }
 
 /* ===================================
