@@ -358,20 +358,13 @@ class UISystem {
       toggleButton = document.createElement('button');
       toggleButton.id = 'info-toggle';
       toggleButton.textContent = 'Scores';
-      toggleButton.className = 'btn-base'; // Use base button class without border
-      toggleButton.style.position = 'relative'; // Back to relative positioning
-      toggleButton.style.margin = '10px 0'; // Space below h1
-      toggleButton.style.alignSelf = 'flex-start'; // Align left under Welcome
+      toggleButton.className = 'btn-base';
+      toggleButton.style.position = 'fixed';
+      toggleButton.style.top = '80px'; // Right under Welcome title
+      toggleButton.style.left = '20px'; // Left side positioning
+      toggleButton.style.zIndex = '999';
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      const gameContainer = document.querySelector('.game-container');
-      if (gameContainer) {
-        const title = gameContainer.querySelector('h1');
-        if (title) {
-          gameContainer.insertBefore(toggleButton, title.nextSibling);
-        } else {
-          gameContainer.insertBefore(toggleButton, gameContainer.firstChild);
-        }
-      }
+      document.body.appendChild(toggleButton);
     }
 
     // Create or update info panel
