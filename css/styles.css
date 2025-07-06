@@ -1000,12 +1000,12 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   box-shadow: 0 6px 12px rgba(74, 112, 67, 0.4);
 }
 
-/* 🎯 INFO PANEL - SLIDES FROM TOP LEFT */
+/* 🎯 INFO PANEL - POSITIONED IN RED BOX AREA */
 .info-panel {
   position: fixed;
-  top: 120px; /* Below header section */
-  left: 20px;
-  transform: translateX(-250px); /* Hidden to the left */
+  top: 130px; /* Below header, in the red box area */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -100%); /* Hidden above, centered */
   width: 200px;
   max-width: 90%;
   z-index: 1001;
@@ -1018,7 +1018,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel.open {
-  transform: translateX(0); /* Slide in from left */
+  transform: translate(-50%, 0); /* Slide down into red box area */
 }
 
 .info-panel .info-header {
