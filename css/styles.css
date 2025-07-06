@@ -960,41 +960,45 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎯 LEFT SCOREBOARD PANEL & TOGGLE BUTTON
+   🎯 HYBRID SCOREBOARD PANEL & BUTTON
    =================================== */
-#info-toggle {
-  /* Button under Welcome title */
-  border: 2px solid var(--wood-dark);
-  padding: 8px 16px;
+.header-scores-btn {
+  margin: 10px 0;
   background: var(--wood-button-primary);
   color: var(--wood-primary);
+  border: 2px solid var(--wood-dark);
   border-radius: var(--radius-md);
-  font-weight: bold;
+  padding: 8px 16px;
   cursor: pointer;
-  transition: all var(--transition-smooth);
+  font-weight: bold;
   box-shadow: var(--shadow-md);
+  transition: all var(--transition-smooth);
+  align-self: flex-start; /* Left align in flex container */
 }
 
-#info-toggle:hover {
+.header-scores-btn:hover {
   background: var(--wood-button-secondary);
   transform: translateY(-2px);
 }
 
 .info-panel {
   position: fixed;
-  left: 120px; /* CLOSER to game table - right next to the wooden border */
-  top: 200px; /* LOWER - position above Bot 1 score but in the right spot */
-  width: 180px;
+  left: 20px; /* Close to left edge but not touching */
+  top: 50%; /* CHATGPT'S SMART IDEA - vertical center */
+  transform: translate(-100%, -50%); /* Hidden + vertically centered */
+  width: 200px;
   max-width: 90%;
   z-index: 1001;
   background: var(--wood-bg-md);
   border: 2px solid var(--wood-accent);
   border-radius: var(--radius-md);
-  padding: 10px;
-  box-shadow: var(--shadow-md);
-  display: none;
-  transform: translateX(-100%);
+  padding: 12px;
+  box-shadow: var(--shadow-lg);
   transition: transform 0.5s ease-in-out;
+}
+
+.info-panel.open {
+  transform: translate(0, -50%); /* CHATGPT'S SMART IDEA - slide in but stay centered */
 }
 
 .info-panel .info-header {

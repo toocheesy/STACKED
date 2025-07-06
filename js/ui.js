@@ -348,7 +348,7 @@ class UISystem {
     }
   }
 
-  // 🎯 NEW: Render LEFT scoreboard panel
+  // 🎯 HYBRID: Smart positioning with class-based toggle
   renderInfoPanel() {
     let infoPanel = document.getElementById('info-panel');
     let toggleButton = document.getElementById('info-toggle');
@@ -358,27 +358,33 @@ class UISystem {
       toggleButton = document.createElement('button');
       toggleButton.id = 'info-toggle';
       toggleButton.textContent = 'Scores';
-      toggleButton.className = 'btn-base';
-      toggleButton.style.position = 'fixed';
-      toggleButton.style.top = '80px'; // Right under Welcome title
-      toggleButton.style.left = '20px'; // Left side positioning
-      toggleButton.style.zIndex = '999';
+      toggleButton.className = 'header-scores-btn';
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      document.body.appendChild(toggleButton);
+      
+      // Insert under h1 in game-container (your actual structure)
+      const gameContainer = document.querySelector('.game-container');
+      const title = gameContainer.querySelector('h1');
+      if (title) {
+        gameContainer.insertBefore(toggleButton, title.nextSibling);
+      }
     }
 
-    // Create or update info panel
+    // Create info panel if it doesn't exist
     if (!infoPanel) {
       infoPanel = document.createElement('div');
       infoPanel.id = 'info-panel';
       infoPanel.className = 'info-panel';
-      infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
-      infoPanel.style.transform = this.infoPanelVisible ? 'translateX(0)' : 'translateX(-100%)';
-      infoPanel.style.transition = 'transform 0.5s ease-in-out';
       document.body.appendChild(infoPanel);
     }
 
-    // Render panel content - SCOREBOARD FOCUSED
+    // Apply open/closed state using classes (ChatGPT's smart idea)
+    if (this.infoPanelVisible) {
+      infoPanel.classList.add('open');
+    } else {
+      infoPanel.classList.remove('open');
+    }
+
+    // Update scores content
     infoPanel.innerHTML = `
       <div class="info-header">Overall Scores</div>
       <div class="info-content">
@@ -391,14 +397,10 @@ class UISystem {
     `;
   }
 
-  // 🎯 NEW: Toggle info panel visibility
+  // 🎯 HYBRID: Clean class-based toggle
   toggleInfoPanel() {
     this.infoPanelVisible = !this.infoPanelVisible;
-    const infoPanel = document.getElementById('info-panel');
-    if (infoPanel) {
-      infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
-      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(100%)';
-    }
+    this.renderInfoPanel(); // Rerender to update classes and content
   }
 
   // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
