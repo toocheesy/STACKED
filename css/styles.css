@@ -960,7 +960,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎯 GROK'S SMART SCOREBOARD PANEL & BUTTON
+   🎯 FIXED SCORES PANEL & BUTTON SYSTEM
    =================================== */
 .header-scores-btn {
   margin: 10px 0 10px 10px;
@@ -983,10 +983,10 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel {
-  position: absolute;
-  left: calc((100% - 800px) / 2 - 220px); /* GROK'S BRILLIANT MATH - Position left of table */
-  top: 50%; /* Vertically centered */
-  transform: translate(-100%, -50%); /* Hidden off-screen */
+  position: fixed; /* FIXED: Use fixed instead of absolute */
+  top: 70px; /* FIXED: Position below header */
+  left: 20px; /* FIXED: Simple left positioning */
+  transform: translateX(-250px); /* FIXED: Hide to the left */
   width: 200px;
   max-width: 90%;
   z-index: 1001;
@@ -999,7 +999,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel.open {
-  transform: translate(0, -50%); /* SLIDE IN but stay vertically centered */
+  transform: translateX(0); /* FIXED: Slide in from left */
 }
 
 .info-panel .info-header {
