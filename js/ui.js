@@ -358,13 +358,20 @@ class UISystem {
       toggleButton = document.createElement('button');
       toggleButton.id = 'info-toggle';
       toggleButton.textContent = 'Info';
-      toggleButton.className = 'modal-btn primary';
-      toggleButton.style.position = 'fixed';
-      toggleButton.style.top = '10px';
-      toggleButton.style.left = '10px';
-      toggleButton.style.zIndex = '1001';
+      toggleButton.className = 'btn-base'; // Use base button class without border
+      toggleButton.style.position = 'relative'; // Remove fixed positioning
+      toggleButton.style.margin = '10px 0'; // Space below h1
+      toggleButton.style.alignSelf = 'flex-start'; // Align left
       toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      document.body.appendChild(toggleButton);
+      const gameContainer = document.querySelector('.game-container');
+      if (gameContainer) {
+        const title = gameContainer.querySelector('h1');
+        if (title) {
+          gameContainer.insertBefore(toggleButton, title.nextSibling);
+        } else {
+          gameContainer.insertBefore(toggleButton, gameContainer.firstChild);
+        }
+      }
     }
 
     // Create or update info panel
@@ -373,6 +380,8 @@ class UISystem {
       infoPanel.id = 'info-panel';
       infoPanel.className = 'info-panel';
       infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
+      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(100%)';
+      infoPanel.style.transition = 'transform 0.5s ease-in-out';
       document.body.appendChild(infoPanel);
     }
 
@@ -399,8 +408,7 @@ class UISystem {
     const infoPanel = document.getElementById('info-panel');
     if (infoPanel) {
       infoPanel.style.display = this.infoPanelVisible ? 'block' : 'none';
-      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(-100%)';
-      infoPanel.style.transition = 'transform 0.5s ease-in-out';
+      infoPanel.style.transform = this.infoPanelVisible ? 'translateY(0)' : 'translateY(100%)';
     }
   }
 
