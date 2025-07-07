@@ -1001,15 +1001,16 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎯 CLEAN OVERALL SCOREBOARD (LEFT PANEL)
+   🎯 REPOSITIONED SCOREBOARD & MODE INFO
    =================================== */
 
+/* 🎯 SCOREBOARD - SLIDES DOWN FROM TOP ABOVE BOT 1 */
 .info-panel {
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  transform: translateX(-100%);
-  width: 160px;                 /* 🔥 EVEN SMALLER - just scores! */
+  position: absolute;               /* 🔥 CHANGED: absolute instead of fixed */
+  top: -120px;                     /* 🔥 HIDDEN ABOVE - slides down from top */
+  left: 15px;                      /* 🔥 POSITIONED ABOVE BOT 1 AREA */
+  transform: translateY(0);        /* 🔥 NO TRANSFORM NEEDED */
+  width: 160px;
   max-width: 160px;
   z-index: 998;
   background: var(--wood-bg-md);
@@ -1017,12 +1018,12 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   border-radius: var(--radius-md);
   padding: 10px;
   box-shadow: var(--shadow-lg);
-  transition: transform 0.4s ease-in-out;
+  transition: top 0.4s ease-in-out; /* 🔥 ANIMATE TOP PROPERTY */
   font-size: 0.9rem;
 }
 
 .info-panel.open {
-  transform: translateX(0);
+  top: -50px;                      /* 🔥 SLIDES DOWN TO VISIBLE POSITION */
 }
 
 /* 🎯 SIMPLIFIED HEADER - JUST "OVERALL SCORES" */
@@ -1067,15 +1068,15 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎮 GAME MODE INFO ON BOARD BORDER
+   🎮 MODE INFO - REPOSITIONED ABOVE BOT 2
    =================================== */
 
-/* 🎯 MODE INFO DISPLAY - TOP OF BOARD */
+/* 🎯 MODE INFO DISPLAY - MOVED TO ABOVE BOT 2 */
 .game-mode-info {
   position: absolute;
-  top: -45px;                   /* Above the board border */
-  left: 50%;
-  transform: translateX(-50%);
+  top: -45px;                      /* Above the board border */
+  right: 15px;                     /* 🔥 MOVED TO RIGHT SIDE - ABOVE BOT 2 */
+  transform: translateX(0);        /* 🔥 NO CENTERING TRANSFORM */
   background: var(--wood-button-primary);
   color: var(--wood-primary);
   padding: 8px 16px;
@@ -1096,12 +1097,27 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   to { box-shadow: 0 5px 12px rgba(139, 90, 43, 0.8); }
 }
 
+/* ===================================
+   🎯 RESPONSIVE POSITIONING
+   =================================== */
+
 /* 🎯 RESPONSIVE MODE INFO */
 @media (max-width: 700px) {
   .game-mode-info {
     font-size: 0.8rem;
     padding: 6px 12px;
     top: -40px;
+    right: 10px;                   /* Closer to edge on mobile */
+  }
+  
+  .info-panel {
+    top: -110px;                   /* Adjust hidden position */
+    left: 10px;
+    width: 140px;
+  }
+  
+  .info-panel.open {
+    top: -45px;                    /* Adjust visible position */
   }
 }
 
@@ -1110,6 +1126,17 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     font-size: 0.75rem;
     padding: 5px 10px;
     top: -35px;
+    right: 5px;
+  }
+  
+  .info-panel {
+    top: -100px;
+    left: 5px;
+    width: 130px;
+  }
+  
+  .info-panel.open {
+    top: -40px;
   }
 }
 
@@ -1120,8 +1147,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 @media (max-width: 900px) {
   .info-panel {
     width: 150px;
-    top: 70px;
-    left: 15px;
+    left: 12px;
     font-size: 0.85rem;
   }
 }
@@ -1129,7 +1155,6 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 @media (max-width: 700px) {
   .info-panel {
     width: 140px;
-    top: 60px;
     left: 10px;
     font-size: 0.8rem;
     padding: 8px;
@@ -1148,7 +1173,6 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 @media (max-width: 550px) {
   .info-panel {
     width: 130px;
-    top: 50px;
     left: 5px;
     font-size: 0.75rem;
     padding: 6px;
