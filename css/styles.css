@@ -1000,15 +1000,15 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   box-shadow: 0 6px 12px rgba(74, 112, 67, 0.4);
 }
 
-/* 🎯 FIXED INFO PANEL POSITIONING - OVER BOT 1 AREA */
+/* 🎯 PERFECT INFO PANEL POSITIONING - ABOVE BOT 1, OUTSIDE BORDER */
 .info-panel {
   position: fixed;
-  top: 160px; /* Below header, above bot 1 area */
-  left: 20px; /* Over bot 1 position, outside game border */
-  transform: translateY(-150px); /* Hidden above */
+  top: calc(50vh - 150px); /* Positioned relative to Bot 1 area */
+  left: 20px; /* Outside game border, aligned with Bot 1 */
+  transform: translateY(-100px); /* Hidden above */
   width: 180px;
   max-width: 180px;
-  z-index: 999; /* FIXED: Lower than combo area */
+  z-index: 999; /* Below combo area */
   background: var(--wood-bg-md);
   border: 2px solid var(--wood-accent);
   border-radius: var(--radius-md);
@@ -1018,7 +1018,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 .info-panel.open {
-  transform: translateY(0); /* Slide down over bot 1 area */
+  transform: translateY(0); /* Slide down above Bot 1 */
 }
 
 .info-panel .info-header {
@@ -1053,10 +1053,10 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   font-size: 0.9rem;
 }
 
-/* 🎯 RESPONSIVE POSITIONING - NO MORE CONFLICTS */
+/* 🎯 RESPONSIVE POSITIONING - MAINTAINS RELATIVE POSITION TO BOT 1 */
 @media (max-width: 900px) {
   .info-panel {
-    top: 140px;
+    top: calc(50vh - 130px);
     left: 15px;
     width: 160px;
   }
@@ -1064,7 +1064,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 
 @media (max-width: 700px) {
   .info-panel {
-    top: 120px;
+    top: calc(50vh - 110px);
     left: 10px;
     width: 150px;
   }
@@ -1072,7 +1072,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 
 @media (max-width: 550px) {
   .info-panel {
-    top: 100px;
+    top: calc(50vh - 90px);
     left: 5px;
     width: 140px;
   }
