@@ -1003,9 +1003,9 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 /* 🎯 PERFECT INFO PANEL POSITIONING - ABOVE BOT 1, OUTSIDE BORDER */
 .info-panel {
   position: fixed;
-  top: calc(50vh - 150px); /* Positioned relative to Bot 1 area */
-  left: 20px; /* Outside game border, aligned with Bot 1 */
-  transform: translateY(-100px); /* Hidden above */
+  top: 250px; /* Much lower - above Bot 1 score inside game */
+  left: 120px; /* Much more to the right - above Bot 1 area */
+  transform: translateY(-80px); /* Hidden above */
   width: 180px;
   max-width: 180px;
   z-index: 999; /* Below combo area */
@@ -1056,24 +1056,24 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 /* 🎯 RESPONSIVE POSITIONING - MAINTAINS RELATIVE POSITION TO BOT 1 */
 @media (max-width: 900px) {
   .info-panel {
-    top: calc(50vh - 130px);
-    left: 15px;
+    top: 220px;
+    left: 100px;
     width: 160px;
   }
 }
 
 @media (max-width: 700px) {
   .info-panel {
-    top: calc(50vh - 110px);
-    left: 10px;
+    top: 200px;
+    left: 80px;
     width: 150px;
   }
 }
 
 @media (max-width: 550px) {
   .info-panel {
-    top: calc(50vh - 90px);
-    left: 5px;
+    top: 180px;
+    left: 60px;
     width: 140px;
   }
 }
