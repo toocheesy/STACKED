@@ -400,6 +400,11 @@ renderGameModeInfo() {
   gameModeInfo.textContent = `${mode} - Target: ${targetScore}`;
 }
 
+toggleInfoPanel() {
+  this.infoPanelVisible = !this.infoPanelVisible;
+  this.renderInfoPanel(); // Rerender to update classes and content
+}
+
   // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
   updateMessage() {
     // 🔥 MESSAGE CONTROLLER HANDLES EVERYTHING NOW!
