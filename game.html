@@ -18,8 +18,25 @@
       <button id="info-toggle" class="header-scores-btn">📊 Scores</button>
     </div>
 
-    <!-- 🎯 GAME TABLE -->
+    <!-- 🎯 SIMPLIFIED INFO PANEL - JUST SCORES -->
+    <div id="info-panel" class="info-panel">
+      <div class="info-header">Overall Scores</div>
+      <div class="info-content">
+        <ul>
+          <li>Player: 0 pts</li>
+          <li>Bot 1: 0 pts</li>
+          <li>Bot 2: 0 pts</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 🎯 GAME TABLE WITH MODE INFO -->
     <div class="table">
+      <!-- 🎮 NEW: MODE INFO ON BOARD BORDER -->
+      <div id="game-mode-info" class="game-mode-info">
+        Classic - Target: 500
+      </div>
+      
       <!-- Game board -->
       <div id="board" class="board"></div>
       
@@ -36,34 +53,23 @@
       <div id="bot2-score" class="score bot2-score">Bot 2: 0 pts</div>
     </div>
 
-    <!-- 🎯 INFO PANEL (SLIDES DOWN INTO RED BOX AREA) -->
-    <div id="info-panel" class="info-panel">
-  <div class="info-header">Classic - Target: 500</div>
-  <div class="info-content">
-    <h3>Overall Scores:</h3>
-    <ul>
-      <li>Player: 0 pts</li>
-      <li>Bot 1: 0 pts</li>
-      <li>Bot 2: 0 pts</li>
-    </ul>
-  </div>
-</div>
-
-    <!-- 🎯 COMBINATION AREA (DRAGGABLE MODAL) -->
+    <!-- 🎯 COMBINATION AREA (DRAGGABLE MODAL) - FIXED LAYOUT -->
     <div id="combination-area" class="combination-area">
       <div class="modal-title">Build Your Combo</div>
       
+      <!-- 🔥 BASE CARD ALONE -->
       <div class="capture-row">
         <div data-slot="base" class="combo-slot base-area">Base Card</div>
       </div>
       
+      <!-- 🔥 SUM AREAS - ONLY 2 PER ROW -->
       <div class="capture-row">
         <div data-slot="sum1" class="combo-slot sum-area">Sum Cards</div>
         <div data-slot="sum2" class="combo-slot sum-area">Sum Cards</div>
-        <div data-slot="sum3" class="combo-slot sum-area">Sum Cards</div>
       </div>
       
       <div class="capture-row">
+        <div data-slot="sum3" class="combo-slot sum-area">Sum Cards</div>
         <div data-slot="match" class="combo-slot match-area">Matching Cards</div>
       </div>
       

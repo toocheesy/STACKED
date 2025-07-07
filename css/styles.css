@@ -1000,72 +1000,166 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   box-shadow: 0 6px 12px rgba(74, 112, 67, 0.4);
 }
 
-/* 🎯 PERFECT INFO PANEL POSITIONING - ABOVE BOT 1, OUTSIDE BORDER */
+/* ===================================
+   🎯 CLEAN OVERALL SCOREBOARD (LEFT PANEL)
+   =================================== */
+
 .info-panel {
   position: fixed;
-  top: 80px;           /* Start visible */
-  left: 20px;          /* Simple left positioning */
-  transform: translateX(-100%);  /* Hide to the LEFT instead */
+  top: 80px;
+  left: 20px;
+  transform: translateX(-100%);
+  width: 160px;                 /* 🔥 EVEN SMALLER - just scores! */
+  max-width: 160px;
+  z-index: 998;
+  background: var(--wood-bg-md);
+  border: 2px solid var(--wood-accent);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.4s ease-in-out;
+  font-size: 0.9rem;
 }
 
 .info-panel.open {
-  transform: translateX(0);      /* Slide in from left */
+  transform: translateX(0);
 }
 
+/* 🎯 SIMPLIFIED HEADER - JUST "OVERALL SCORES" */
 .info-panel .info-header {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: bold;
   margin-bottom: 8px;
   color: var(--wood-secondary);
   text-align: center;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--wood-accent);
+  padding-bottom: 4px;
 }
 
+/* 🎯 COMPACT CONTENT - NO EXTRA HEADERS */
 .info-panel .info-content {
-  padding: 8px;
+  padding: 4px;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(245,232,199,0.1)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
   border-radius: var(--radius-md);
 }
 
+/* 🔥 HIDE THE H3 - WE DON'T NEED "Overall Scores:" TWICE */
 .info-panel h3 {
-  margin-bottom: 6px;
-  color: var(--wood-secondary);
-  font-size: 1rem;
+  display: none;
 }
 
 .info-panel ul {
   list-style-type: none;
   padding-left: 0;
+  margin: 0;
 }
 
 .info-panel ul li {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   color: var(--wood-secondary);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  padding: 3px 6px;
+  background: rgba(51, 30, 15, 0.3);
+  border-radius: 3px;
+  text-align: center;
+  font-weight: bold;
 }
 
-/* 🎯 RESPONSIVE POSITIONING - MAINTAINS RELATIVE POSITION TO BOT 1 */
+/* ===================================
+   🎮 GAME MODE INFO ON BOARD BORDER
+   =================================== */
+
+/* 🎯 MODE INFO DISPLAY - TOP OF BOARD */
+.game-mode-info {
+  position: absolute;
+  top: -45px;                   /* Above the board border */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--wood-button-primary);
+  color: var(--wood-primary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  z-index: 20;
+  box-shadow: 0 3px 8px rgba(139, 90, 43, 0.5);
+  border: 2px solid var(--wood-accent);
+  animation: modeGlow 3s ease-in-out infinite alternate;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.5px;
+}
+
+/* 🎯 SUBTLE GLOW ANIMATION FOR MODE INFO */
+@keyframes modeGlow {
+  from { box-shadow: 0 3px 8px rgba(139, 90, 43, 0.5); }
+  to { box-shadow: 0 5px 12px rgba(139, 90, 43, 0.8); }
+}
+
+/* 🎯 RESPONSIVE MODE INFO */
+@media (max-width: 700px) {
+  .game-mode-info {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    top: -40px;
+  }
+}
+
+@media (max-width: 550px) {
+  .game-mode-info {
+    font-size: 0.75rem;
+    padding: 5px 10px;
+    top: -35px;
+  }
+}
+
+/* ===================================
+   🎯 RESPONSIVE SCOREBOARD ADJUSTMENTS
+   =================================== */
+
 @media (max-width: 900px) {
   .info-panel {
-    top: 220px;
-    left: 100px;
-    width: 160px;
+    width: 150px;
+    top: 70px;
+    left: 15px;
+    font-size: 0.85rem;
   }
 }
 
 @media (max-width: 700px) {
   .info-panel {
-    top: 200px;
-    left: 80px;
-    width: 150px;
+    width: 140px;
+    top: 60px;
+    left: 10px;
+    font-size: 0.8rem;
+    padding: 8px;
+  }
+  
+  .info-panel .info-header {
+    font-size: 0.85rem;
+  }
+  
+  .info-panel ul li {
+    font-size: 0.75rem;
+    padding: 2px 4px;
   }
 }
 
 @media (max-width: 550px) {
   .info-panel {
-    top: 180px;
-    left: 60px;
-    width: 140px;
+    width: 130px;
+    top: 50px;
+    left: 5px;
+    font-size: 0.75rem;
+    padding: 6px;
+  }
+  
+  .info-panel .info-header {
+    font-size: 0.8rem;
+  }
+  
+  .info-panel ul li {
+    font-size: 0.7rem;
   }
 }
 

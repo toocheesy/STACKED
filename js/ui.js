@@ -348,42 +348,57 @@ class UISystem {
     }
   }
 
-  // 🎯 SIMPLIFIED: HTML-first approach - just update content and toggle
-  renderInfoPanel() {
-    const infoPanel = document.getElementById('info-panel');
-    const toggleButton = document.getElementById('info-toggle');
-    
-    // Add click listener if not already added
-    if (toggleButton && !toggleButton.hasAttribute('data-listener-added')) {
-      toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-      toggleButton.setAttribute('data-listener-added', 'true');
-    }
-    
-    // Apply open/closed state using classes
-    if (infoPanel) {
-      if (this.infoPanelVisible) {
-        infoPanel.classList.add('open');
-      } else {
-        infoPanel.classList.remove('open');
-      }
-      
-      // Update scores content only
-      const contentList = infoPanel.querySelector('.info-content ul');
-      if (contentList) {
-        contentList.innerHTML = `
-          <li>Player: ${this.game.state.overallScores.player} pts</li>
-          <li>Bot 1: ${this.game.state.overallScores.bot1} pts</li>
-          <li>Bot 2: ${this.game.state.overallScores.bot2} pts</li>
-        `;
-      }
-    }
-  }
+  // ===================================
+// 🎯 UPDATED renderInfoPanel() FUNCTION
+// ===================================
 
-  // 🎯 SIMPLIFIED: Clean class-based toggle
-  toggleInfoPanel() {
-    this.infoPanelVisible = !this.infoPanelVisible;
-    this.renderInfoPanel(); // Rerender to update classes and content
+renderInfoPanel() {
+  const infoPanel = document.getElementById('info-panel');
+  const toggleButton = document.getElementById('info-toggle');
+  
+  // Add click listener if not already added
+  if (toggleButton && !toggleButton.hasAttribute('data-listener-added')) {
+    toggleButton.addEventListener('click', () => this.toggleInfoPanel());
+    toggleButton.setAttribute('data-listener-added', 'true');
   }
+  
+  // Apply open/closed state using classes
+  if (infoPanel) {
+    if (this.infoPanelVisible) {
+      infoPanel.classList.add('open');
+    } else {
+      infoPanel.classList.remove('open');
+    }
+    
+    // 🔥 SIMPLIFIED: Update ONLY the scores list
+    const contentList = infoPanel.querySelector('.info-content ul');
+    if (contentList) {
+      contentList.innerHTML = `
+        <li>Player: ${this.game.state.overallScores.player} pts</li>
+        <li>Bot 1: ${this.game.state.overallScores.bot1} pts</li>
+        <li>Bot 2: ${this.game.state.overallScores.bot2} pts</li>
+      `;
+    }
+  }
+  
+  // 🎮 NEW: Update game mode info on board
+  this.renderGameModeInfo();
+}
+
+// ===================================
+// 🎮 NEW FUNCTION: renderGameModeInfo()
+// ===================================
+
+renderGameModeInfo() {
+  const gameModeInfo = document.getElementById('game-mode-info');
+  if (!gameModeInfo) return;
+  
+  // Get current mode and target score
+  const mode = this.game.currentMode ? this.game.currentMode.name : 'Classic';
+  const targetScore = this.game.state.settings.targetScore || 500;
+  
+  gameModeInfo.textContent = `${mode} - Target: ${targetScore}`;
+}
 
   // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
   updateMessage() {
