@@ -1001,14 +1001,14 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎯 SIMPLE LEFT SIDE SCOREBOARD - NO ANIMATION
+   🎯 FIXED SCOREBOARD - VISIBLE ON LEFT BORDER
    =================================== */
 
-/* 🎯 SCOREBOARD - FIXED POSITION ON LEFT BORDER */
+/* 🎯 SCOREBOARD - VISIBLE POSITION ON LEFT BORDER */
 .info-panel {
   position: absolute;              /* Relative to table */
   top: 20px;                      /* Down from top of table */
-  left: -180px;                   /* OUTSIDE the left border */
+  left: -170px;                   /* 🔥 FIXED: Visible on the left side */
   width: 160px;
   max-width: 160px;
   z-index: 998;
@@ -1018,10 +1018,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   padding: 10px;
   box-shadow: var(--shadow-lg);
   font-size: 0.9rem;
-  /* 🔥 NO TRANSITIONS - ALWAYS VISIBLE */
 }
-
-/* 🔥 REMOVED EMPTY .info-panel.open RULE */
 
 /* 🎯 SIMPLIFIED HEADER */
 .info-panel .info-header {
@@ -1064,34 +1061,12 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 }
 
 /* ===================================
-   🎮 KEEP MODE INFO ON RIGHT SIDE
-   =================================== */
-
-.game-mode-info {
-  position: absolute;
-  top: -45px;                     
-  right: 15px;                    /* Keep on right side */
-  background: var(--wood-button-primary);
-  color: var(--wood-primary);
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  z-index: 20;
-  box-shadow: 0 3px 8px rgba(139, 90, 43, 0.5);
-  border: 2px solid var(--wood-accent);
-  animation: modeGlow 3s ease-in-out infinite alternate;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  letter-spacing: 0.5px;
-}
-
-/* ===================================
-   🎯 RESPONSIVE ADJUSTMENTS
+   🎯 RESPONSIVE ADJUSTMENTS - FIXED
    =================================== */
 
 @media (max-width: 900px) {
   .info-panel {
-    left: -170px;                  /* Adjust for smaller screens */
+    left: -160px;                  /* Adjust for smaller screens */
     width: 150px;
     font-size: 0.85rem;
   }
@@ -1099,7 +1074,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 
 @media (max-width: 700px) {
   .info-panel {
-    left: -160px;
+    left: -150px;
     width: 140px;
     font-size: 0.8rem;
     padding: 8px;
@@ -1117,7 +1092,7 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 
 @media (max-width: 550px) {
   .info-panel {
-    left: -150px;
+    left: -140px;
     width: 130px;
     font-size: 0.75rem;
     padding: 6px;
