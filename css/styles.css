@@ -1003,22 +1003,13 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 /* 🎯 PERFECT INFO PANEL POSITIONING - ABOVE BOT 1, OUTSIDE BORDER */
 .info-panel {
   position: fixed;
-  top: 250px; /* Much lower - above Bot 1 score inside game */
-  left: 120px; /* Much more to the right - above Bot 1 area */
-  transform: translateY(-80px); /* Hidden above */
-  width: 180px;
-  max-width: 180px;
-  z-index: 999; /* Below combo area */
-  background: var(--wood-bg-md);
-  border: 2px solid var(--wood-accent);
-  border-radius: var(--radius-md);
-  padding: 12px;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.5s ease-in-out;
+  top: 80px;           /* Start visible */
+  left: 20px;          /* Simple left positioning */
+  transform: translateX(-100%);  /* Hide to the LEFT instead */
 }
 
 .info-panel.open {
-  transform: translateY(0); /* Slide down above Bot 1 */
+  transform: translateX(0);      /* Slide in from left */
 }
 
 .info-panel .info-header {
