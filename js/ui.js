@@ -349,28 +349,16 @@ class UISystem {
   }
 
   // ===================================
-// 🎯 UPDATED renderInfoPanel() FUNCTION
+// 🎯 SIMPLIFIED renderInfoPanel() - NO TOGGLE NEEDED
 // ===================================
 
 renderInfoPanel() {
   const infoPanel = document.getElementById('info-panel');
-  const toggleButton = document.getElementById('info-toggle');
   
-  // Add click listener if not already added
-  if (toggleButton && !toggleButton.hasAttribute('data-listener-added')) {
-    toggleButton.addEventListener('click', () => this.toggleInfoPanel());
-    toggleButton.setAttribute('data-listener-added', 'true');
-  }
+  // 🔥 NO TOGGLE BUTTON LOGIC - ALWAYS VISIBLE
   
-  // Apply open/closed state using classes
+  // 🔥 SIMPLIFIED: Just update the scores content
   if (infoPanel) {
-    if (this.infoPanelVisible) {
-      infoPanel.classList.add('open');
-    } else {
-      infoPanel.classList.remove('open');
-    }
-    
-    // 🔥 SIMPLIFIED: Update ONLY the scores list
     const contentList = infoPanel.querySelector('.info-content ul');
     if (contentList) {
       contentList.innerHTML = `
@@ -381,7 +369,7 @@ renderInfoPanel() {
     }
   }
   
-  // 🎮 NEW: Update game mode info on board
+  // 🎮 Update game mode info on board
   this.renderGameModeInfo();
 }
 
@@ -398,11 +386,6 @@ renderGameModeInfo() {
   const targetScore = this.game.state.settings.targetScore || 500;
   
   gameModeInfo.textContent = `${mode} - Target: ${targetScore}`;
-}
-
-toggleInfoPanel() {
-  this.infoPanelVisible = !this.infoPanelVisible;
-  this.renderInfoPanel(); // Rerender to update classes and content
 }
 
   // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
