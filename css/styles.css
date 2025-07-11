@@ -1011,9 +1011,9 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 
 /* 🎯 SCOREBOARD - FIXED POSITION ON LEFT BORDER */
 .info-panel {
-  position: absolute;              
-  top: 15px;                      
-  left: -180px;                     
+  position: absolute;
+  top: 10px;                    /* Adjusted for vertical alignment above bot name */
+  left: -200px;                 /* Pushed further left to appear outside border, aligned with Bot 1 */
   width: 160px;
   max-width: 160px;
   z-index: 998;
@@ -1023,9 +1023,9 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
   padding: 10px;
   box-shadow: var(--shadow-lg);
   font-size: 0.9rem;
-  visibility: visible !important;  /* 🔥 FORCE VISIBLE */
-  display: block !important;       /* 🔥 FORCE VISIBLE */
-  opacity: 1 !important;           /* 🔥 FORCE VISIBLE */
+  visibility: visible !important;
+  display: block !important;
+  opacity: 1 !important;
 }
 
 /* 🎯 SIMPLIFIED HEADER */
@@ -1071,13 +1071,12 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
 /* ===================================
    🎮 KEEP MODE INFO ON RIGHT SIDE
    =================================== */
-
 .game-mode-info {
   position: absolute;
-  top: 15px;                     
-  right: -180px;                    
-  left: auto !important;                     
-  transform: none !important;                
+  top: 10px;                    /* Adjusted for vertical alignment above bot name */
+  right: -200px;                /* Pushed further right to appear outside border, aligned with Bot 2 */
+  left: auto !important;
+  transform: none !important;
   background: var(--wood-button-primary);
   color: var(--wood-primary);
   padding: 8px 16px;
@@ -1110,10 +1109,8 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     max-height: 65vh;
   }
   
-  .info-panel {
-    left: -150px;
-    width: 180px;
-  }
+  .info-panel { left: -220px; }
+.game-mode-info { right: -220px; }
 
   .game-mode-info {
     right: -150px;
@@ -1174,10 +1171,8 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     max-height: 65vh;
   }
   
-  .info-panel {
-    left: -120px;
-    width: 160px;
-  }
+  .info-panel { left: -180px; }
+.game-mode-info { right: -180px; }
 
   .game-mode-info {
     right: -120px;
@@ -1249,10 +1244,8 @@ dialog h2 { color: var(--wood-secondary); margin-bottom: 15px; }
     max-height: 65vh;
   }
   
-  .info-panel {
-    left: -100px;
-    width: 140px;
-  }
+  .info-panel { left: -140px; }
+.game-mode-info { right: -140px; }
 
   .game-mode-info {
     right: -100px;
