@@ -1,391 +1,165 @@
-# 🎴 STACKED! - Strategic Card Combat Engine
+# STACKED! - Strategic Card Combat
 
-**A revolutionary multi-mode card game featuring intelligent AI, modular architecture, and epic gameplay experiences.**
+**An innovative web-based card game featuring advanced AI opponents, revolutionary multi-area capture mechanics, and professional-grade architecture.**
 
-## 🎯 Game Overview
+## Overview
 
-STACKED! is a strategic card game platform where players compete to capture cards from a shared board using revolutionary multi-area combination mechanics. Choose your battle mode, face intelligent AI opponents, and master the art of strategic card combat!
+STACKED! is a strategic card game that revolutionizes traditional card gaming through its unique 5-area combo system. Players compete against intelligent AI opponents to capture cards using innovative pair and sum mechanics across multiple play areas.
 
-### 🏆 Core Features
+### Key Features
 
-- **🎮 Multi-Mode Platform**: Choose from Classic, Speed, and upcoming Tournament modes
-- **🤖 Advanced AI System**: Three difficulty levels with sophisticated capture strategies
-- **🎪 Revolutionary 5-Area Combo System**: Interchangeable slots with automatic pair/sum detection
-- **🎯 Multi-Area Captures**: Execute complex combos across multiple areas in a single turn
-- **📱 Cross-Platform**: Touch and desktop support with intuitive drag-and-drop interface
-- **🎨 Optimized UI**: Consolidated CSS architecture with 40% file size reduction
-- **📊 Dynamic Info Panel**: Toggleable game information with sliding animations
-- **🏅 Professional Presentation**: Animated celebrations, confetti effects, and mode-specific theming
-- **🧠 Intelligent Hint System**: Smart suggestions powered by Card Intelligence
-- **🎓 Educational Mode**: Combo assistance and step-by-step guidance for beginners
+- **Revolutionary 5-Area Combo System** - Execute complex multi-capture strategies
+- **Advanced AI Intelligence** - Three difficulty levels with distinct personalities
+- **Educational Mode** - Real-time guidance for skill development
+- **Cross-Platform Design** - Seamless web and mobile experience
+- **Professional UI/UX** - Consistent design with smooth animations
 
-## 🎮 Game Modes
+## Game Modes
 
-### 🏛️ Classic STACKED
-*The original strategic experience*
+### Classic STACKED
+The core strategic experience featuring:
+- 500-point target score
+- Multi-area capture combinations
+- Three AI difficulty levels
+- Educational assistance for beginners
 
-- **Target Score**: 500 points
-- **Unlimited Rounds**: Play until someone reaches the target
-- **Multi-Area Captures**: Use all 5 combo areas simultaneously
-- **Strategic Depth**: Hints available, complex scoring system
-- **Last Combo Takes All**: Final capturer gets remaining board cards
+### Speed STACKED
+Fast-paced gameplay with:
+- 60-second time limits
+- Speed bonus scoring
+- 300-point target for quicker games
+- Best-of-three format
 
-### ⚡ Speed STACKED
-*Fast-paced action with time pressure*
+### Tournament Mode *(Coming Soon)*
+Competitive play featuring:
+- Elimination bracket system
+- Ranked matchmaking
+- Championship challenges
+- Global leaderboards
 
-- **Time Limit**: 60 seconds per round
-- **Target Score**: 300 points (lower for faster games)
-- **Speed Bonuses**: More points for quick captures
-- **Best of 3**: Shorter match format
-- **Time Penalties**: Lose points for cards in hand when time expires
+## How to Play
 
-### 🏆 Tournament Mode
-*Coming Soon - Elite Competition*
-
-- **Elimination Brackets**: Climb the championship ladder
-- **Champion AI**: Face the ultimate challenge
-- **Leaderboards**: Track your legendary status
-- **Special Rewards**: Unlock achievements and titles
-
-## 🎯 How to Play
-
-### Basic Rules
+### Basic Gameplay
 1. **Setup**: Each player receives 4 cards, 4 cards are placed on the board
-2. **Goal**: Be first to reach the target score (varies by mode)
+2. **Goal**: Be the first to reach the target score
 3. **Turns**: Make captures or place a card to end your turn
 
-### Revolutionary Capture System
-- **Base Card Area**: The target card for your combo
-- **4 Capture Areas**: Sum1, Sum2, Sum3, and Match areas
-- **Smart Detection**: Each area automatically detects pair OR sum captures
-- **Pair Captures**: Match cards of the same value (works with any card)
-- **Sum Captures**: Use number cards (2-10, A) to create mathematical equations
-- **Multi-Area Combos**: Combine multiple capture types in a single turn!
+### Capture System
+- **Base Card Area**: Set your target card for the combo
+- **Four Capture Areas**: Build pairs or mathematical sums
+- **Multi-Area Combos**: Use multiple areas in a single turn
+- **Strategic Depth**: Endless combination possibilities
 
-### Advanced Strategies
-- **Multi-Area Planning**: Set up captures across multiple areas for maximum points
-- **Face Card Priority**: Secure J, Q, K matches quickly (can't be used in sums)
-- **Board Control**: Strategic placement to limit opponent options
-- **Mode Mastery**: Adapt strategies for different game modes
+### Scoring
+- **Aces**: 15 points
+- **Face Cards (10, J, Q, K)**: 10 points  
+- **Number Cards (2-9)**: 5 points
+- **Bonus**: "Last Combo Takes All" - final capturer gets remaining board cards
 
-## 🛠️ Technical Architecture
+## AI System
 
-### Modern Modular Design
-```
-STACKED!/
-├── index.html          # Beautiful homepage with mode selection
-├── game.html           # Main game interface
-├── css/
-│   └── styles.css      # CONSOLIDATED styling with CSS variables (40% smaller!)
-├── audio/              # Sound effects (capture, invalid, winner, jackpot)
-└── js/
-    ├── main.js         # Game controller and event management
-    ├── core/
-    │   ├── game.js     # GameEngine - Core game logic
-    │   ├── utils.js    # Utilities, modals, and sound system
-    │   ├── modeSelector.js # Mode selection and UI management
-    │   └── MessageController.js # Smart message system with combo assistance
-    ├── ui.js           # Enhanced rendering system with info panel
-    ├── botModal.js     # AI interface for combo interactions
-    ├── modes/
-    │   ├── classic.js  # Classic STACKED rules and scoring
-    │   └── speed.js    # Speed mode with timer and bonuses
-    ├── ai.js           # Bot intelligence system
-    ├── deck.js         # Card creation and shuffling
-    ├── gameLogic.js    # Capture validation and scoring
-    └── cardIntelligence.js # Advanced AI brain for strategic decisions
-```
+### Intelligence Levels
 
-### Core Systems
+**Beginner AI**
+- Learning-focused behavior
+- Makes strategic mistakes intentionally
+- Provides educational explanations
 
-**🎮 GameEngine**: Handles game state, validation, and mode coordination  
-**🎨 Enhanced UISystem**: Pure rendering system with toggleable info panel  
-**🤖 BotModalInterface**: AI that interacts through the same UI as humans  
-**🎯 ModeSelector**: Beautiful mode selection with dynamic settings  
-**⚙️ InterchangeableSlots**: Revolutionary validation supporting pairs and sums in any area  
-**🧠 CardIntelligence**: Advanced AI brain for strategic gameplay and hints  
-**🎓 MessageController**: Smart combo assistance and educational guidance  
-**📊 Info Panel System**: Dynamic game information with sliding animations
+**Intermediate AI**
+- Balanced risk assessment
+- Mixed aggressive and conservative strategies
+- Engaging challenge level
 
-### Recent Major Enhancements
+**Legendary AI**
+- Advanced strategic planning
+- Card counting and probability analysis
+- Expert-level gameplay
 
-#### 🎨 **CSS Architecture Overhaul (NEW!)**
-- **40% File Size Reduction**: Optimized from 2,900+ to 1,800 lines
-- **CSS Variables System**: Centralized color and spacing management
-- **Unified Component System**: Consolidated combo slots and button variants
-- **Clean Media Queries**: Organized responsive design without repetition
-- **Performance Optimization**: Faster loading and better browser parsing
+## Technical Features
 
-#### 📊 **Dynamic Info Panel (NEW!)**
-- **Toggleable Interface**: Shows/hides game information on demand
-- **Sliding Animation**: Smooth CSS transitions with proper z-indexing
-- **Responsive Design**: Adapts to all screen sizes seamlessly
-- **Game Mode Display**: Shows current mode, target scores, and round info
-- **Non-Intrusive**: Positioned to not interfere with gameplay
+### Modern Architecture
+- **Modular JavaScript Design**: Clean, maintainable code structure
+- **Responsive Layout**: Works perfectly on all device sizes
+- **Progressive Web App**: Mobile installation capability
+- **Optimized Performance**: Fast loading and smooth gameplay
 
-#### 🎯 **Enhanced UI Rendering**
-- **Message Controller Integration**: Smart contextual feedback system
-- **Educational Mode Support**: Step-by-step combo guidance for beginners
-- **Improved State Management**: Better handling of complex game states
-- **Cross-Platform Optimization**: Unified touch and mouse interactions
+### Professional Polish
+- **Cross-Platform Input**: Unified touch and mouse controls
+- **Dynamic Board Layout**: Scales from 4 to 20+ cards seamlessly
+- **Educational System**: Real-time combo assistance
+- **Visual Excellence**: Consistent design language throughout
 
-### Script Loading Order
-**CRITICAL: Scripts must load in this exact order in game.html:**
+## Getting Started
 
-```html
-<!-- Core Dependencies -->
-<script src="js/deck.js"></script>
-<script src="js/gameLogic.js"></script>
-<script src="js/cardIntelligence.js"></script>
+### Play Online
+Visit the live game at: **[Insert Your Domain Here]**
 
-<!-- Core Systems -->
-<script src="js/core/game.js"></script>
-<script src="js/core/utils.js"></script>
-<script src="js/core/modeSelector.js"></script>
-<script src="js/core/MessageController.js"></script>
-
-<!-- Game Modes -->
-<script src="js/modes/classic.js"></script>
-<script src="js/modes/speed.js"></script>
-
-<!-- AI Systems -->
-<script src="js/ai.js"></script>
-<script src="js/botModal.js"></script>
-
-<!-- UI System -->
-<script src="js/ui.js"></script>
-
-<!-- Main Controller (MUST BE LAST!) -->
-<script src="js/main.js"></script>
-```
-
-### AI Intelligence Levels
-- **Beginner**: 100% capture awareness, 60% capture rate - smart but still makes beginner mistakes
-- **Intermediate**: Mixed personality strategic AI with balanced risk assessment
-- **Legendary**: Adaptive optimal play with context-based capture prioritization and strategic placement
-
-## 🚀 Installation & Setup
+### System Requirements
+- **Desktop**: Any modern web browser
+- **Mobile**: iOS 12+ or Android 8+ for optimal experience
+- **Internet**: Required for initial load, offline play available
 
 ### Quick Start
-1. **Download** all files maintaining the folder structure
-2. **Open `index.html`** in any modern browser
-3. **Choose your mode** on the beautiful homepage
-4. **Configure settings** and begin your legendary journey!
+1. Choose your preferred game mode
+2. Select AI difficulty level
+3. Follow the built-in tutorial
+4. Use hints to learn advanced strategies
 
-### Browser Compatibility
-- **Chrome/Edge**: Full support with all features ✅
-- **Firefox**: Full support with all features ✅  
-- **Safari**: Full support with all features ✅
-- **Mobile**: Responsive design with touch controls ✅
+## Development
 
-## 🎯 Scoring System
+### Technology Stack
+- **Frontend**: Vanilla JavaScript ES6+, CSS3
+- **Architecture**: Event-driven modular design
+- **AI Engine**: Custom strategic intelligence algorithms
+- **Responsive**: CSS Grid and Flexbox
 
-### Point Values
-- **Aces**: 15 points each (highest value)
-- **Face Cards (10, J, Q, K)**: 10 points each
-- **Number Cards (2-9)**: 5 points each
+### Project Structure
+- Clean modular architecture
+- Comprehensive AI system
+- Professional UI components
+- Cross-platform compatibility
 
-### Special Bonuses
-- **Speed Mode**: Time bonuses for quick captures
-- **Multi-Area Captures**: Bonus points for complex combos
-- **Last Combo Takes All**: Final capturer gets all remaining board cards
+## Roadmap
 
-## 🎮 Adding New Game Modes
+### Current Phase - Polish & Launch
+- Core gameplay optimization
+- UI/UX refinements
+- Performance enhancements
+- Mobile experience improvements
 
-The modular architecture makes adding new modes incredibly easy:
+### Next Phase - Feature Expansion
+- Tournament mode completion
+- Advanced statistics
+- Achievement system
+- Multiplayer functionality
 
-```javascript
-const NewMode = {
-  name: "New Mode Name",
-  description: "Mode description for homepage",
-  config: { 
-    targetScore: 400,
-    timeLimit: null,
-    specialRules: true 
-  },
-  
-  init(gameEngine) {
-    // Mode initialization
-  },
-  
-  calculateScore(cards) {
-    // Custom scoring logic
-  },
-  
-  checkEndCondition(gameEngine) {
-    // Win/lose conditions
-  },
-  
-  getSettings() {
-    // Dynamic settings for mode selector
-  }
-};
+### Future - Platform Growth
+- Mobile app store deployment
+- Educational partnerships
+- Advanced AI personalities
+- Custom themes and content
 
-// Register the mode
-modeSelector.registerMode('newmode', NewMode);
-```
+## Educational Value
 
-## 🏆 Advanced Features
+STACKED! develops critical thinking skills through:
+- **Strategic Planning**: Multi-turn decision making
+- **Mathematical Reasoning**: Arithmetic and pattern recognition
+- **Problem Solving**: Creative solution discovery
+- **Logical Thinking**: Cause and effect analysis
 
-### Professional UI/UX
-- **Homepage**: Animated mode cards with particle effects
-- **Draggable Modals**: Move combo builder anywhere on screen (powered by DraggableModal in utils.js)
-- **Real-time Validation**: Instant visual feedback with green glow
-- **Smart Messages**: Contextual hints and error detection via MessageController
-- **Cross-platform Events**: Unified touch and mouse interaction
-- **Responsive Board Layout**: Dynamic card grid that adapts to any card count
-- **Info Panel**: Toggleable game information with smooth sliding animations
+Perfect for:
+- Students learning strategy concepts
+- Adults seeking mental challenges
+- Families enjoying screen time together
+- Educators teaching logical reasoning
 
-### Intelligence Systems
-- **Card Intelligence**: Advanced AI brain that tracks cards, calculates risks, and makes strategic decisions
-- **Hint System**: Powered by Card Intelligence to provide smart, contextual suggestions
-- **Educational Mode**: Auto-enabled for beginner difficulty with step-by-step combo guidance
-- **Bot Personalities**: Different AI personalities (calculator, strategist, adaptive) based on difficulty
+## Contact
 
-### Performance Optimizations
-- **Efficient State Management**: Complex game state handled smoothly
-- **Optimized CSS Architecture**: 40% smaller file size with better organization
-- **Optimized Rendering**: Dynamic layout with memory management
-- **ID-based Card Tracking**: Prevents memory leaks and state corruption
-- **Preloaded Audio**: Instant sound effects for better experience
-- **Centralized Bot Turn Management**: Bulletproof turn scheduling without deadlocks
-
-## 🎪 Technical Achievements
-
-### Innovation Highlights
-- **First Card Game** with truly interchangeable capture mechanics
-- **Advanced Bot AI** using the same interface as human players
-- **Real-time Multi-Area Validation** across simultaneous capture zones
-- **Dynamic Mode System** with hot-swappable game rules
-- **Professional Game Engine** architecture rivaling commercial games
-- **Revolutionary Hint System** powered by AI card intelligence
-- **Educational Combo Assistant** for seamless learning experience
-- **Responsive Board System** that handles any number of cards elegantly
-- **Optimized CSS Architecture** with modern variable-based design
-
-### Development Milestones
-- **Modular Restructure**: Transformed 1500+ line monolith into clean architecture
-- **Multi-Mode Platform**: Seamless mode switching with persistent settings
-- **Advanced AI**: Three-tier intelligence system with capture optimization
-- **Cross-Platform Support**: Touch, mouse, and keyboard unified system
-- **Card Intelligence System**: AI brain for strategic gameplay and hints
-- **Message Controller**: Smart assistance and educational guidance
-- **Board Layout Fix**: Dynamic grid system preventing card overflow
-- **Bot Turn Management**: Centralized scheduling eliminating deadlocks
-- **Bot Strategy Optimization**: Aggressive capture behavior with smart turn ending
-- **CSS Consolidation**: Professional optimization reducing file size by 40%
-- **Info Panel Integration**: Dynamic game information with responsive design
-
-## 🚨 Recent Critical Fixes & Enhancements (Latest Update)
-
-### ✅ **CSS Architecture Overhaul (MAJOR)**
-- **Problem**: 2,900+ line CSS with massive redundancy and scattered styles
-- **Solution**: Complete consolidation with CSS variables and unified component system
-- **Result**: 40% smaller file, easier maintenance, and professional architecture
-
-### ✅ **Dynamic Info Panel System (NEW FEATURE)**
-- **Enhancement**: Added toggleable info panel with game information
-- **Features**: Sliding animations, responsive design, and mode-specific data
-- **Result**: Better user experience without cluttering the main game interface
-
-### ✅ **Enhanced UI Rendering (MAJOR)**
-- **Enhancement**: Improved UI system with better state management
-- **Features**: Message controller integration and educational mode support
-- **Result**: Smoother gameplay and better user feedback
-
-### ✅ **TICKET #13: Card Disappearing Bug (CRITICAL) - FIXED!**
-- **Problem**: Player cards randomly disappearing during bot turns
-- **Solution**: Added proper safety checks and bot turn blocking in drag/drop handlers
-- **Result**: Bulletproof card tracking, no more disappearing cards
-
-### ✅ **TICKET #11: Hint System Rebuild (HIGH) - FIXED!**
-- **Problem**: Hint button provided no helpful feedback
-- **Solution**: LEGENDARY HintSystem class with Card Intelligence integration
-- **Result**: Smart suggestions with glow effects and popup guidance
-
-### ✅ **TICKET #14: Board Card Overflow (HIGH) - FIXED!**
-- **Problem**: Cards spilling outside wooden border on board
-- **Solution**: Dynamic CSS grid with `repeat(auto-fit, minmax(50px, 54px))`
-- **Result**: All cards properly contained within game area, responsive scaling
-
-### ✅ **TICKET #15: Bot Strategy Investigation (MEDIUM) - FIXED!**
-- **Problem**: Bots artificially holding back cards instead of capturing aggressively
-- **Solution**: Optimized bot behavior for maximum capture efficiency with smart turn ending
-- **Result**: Bots now play optimally aggressive while maintaining proper game flow
-
-### 🔧 Additional Technical Improvements
-- **Pure UI Simulator**: `botModal.js` now only handles visual actions, reports results
-- **Centralized Control**: All turn logic consolidated in `main.js` with proper guards
-- **Better Error Recovery**: Fallback systems for bot action failures
-- **Enhanced Logging**: Detailed console output for debugging bot behavior
-
-## 🎯 Active Features
-
-### ✅ **NEW: Dynamic Info Panel**: Toggleable game information with sliding animations
-### ✅ **NEW: Optimized CSS Architecture**: 40% smaller file with professional organization
-### ✅ **LEGENDARY HINT SYSTEM**: AI-powered suggestions with Card Intelligence
-### ✅ **Educational Mode**: Step-by-step combo guidance for beginners
-### ✅ **Draggable Combo Builder**: Move combo areas anywhere on screen
-### ✅ **Multi-Area Captures**: Complex combos across all 5 areas simultaneously
-### ✅ **Smart Message System**: Contextual feedback and guidance
-### ✅ **Responsive Board Layout**: Dynamic grid handling any card count
-### ✅ **Bulletproof Bot AI**: Centralized turn management with error recovery
-### ✅ **Optimized Bot Strategy**: Aggressive capture behavior with intelligent personalities
-
-### 🔧 Remaining Enhancement Queue
-- **TICKET #6: Mode Display Enhancement (MEDIUM)** - Real-time game info during play
-- **TICKET #8: Combo Text Cleanup (LOW)** - Polish combo builder text and styling
-- **TICKET #9: Logo Creation (LOW)** - Professional branding and visual identity
-- **TICKET #10: User Login System (FUTURE MAJOR)** - User persistence and progression
-
-### 🔮 Future Major Features
-- **Tournament Mode**: Elite competition with elimination brackets
-- **Achievement System**: Unlock titles and rewards
-- **Advanced Statistics**: Detailed performance tracking
-- **Custom Themes**: Personalized visual experiences
-
-## 🎉 Credits & Recognition
-
-**Game Design**: Revolutionary 5-area capture system with interchangeable mechanics  
-**AI Development**: Sophisticated bot intelligence with Card Intelligence system  
-**Technical Architecture**: Professional JavaScript game engine with modular expansion  
-**UI/UX Design**: Beautiful animations, responsive design, and accessibility features  
-**CSS Architecture**: Modern variable-based system with 40% optimization  
-**Info Panel System**: Dynamic information display with smooth animations
-**Audio Integration**: Professional sound system with mode-specific audio cues  
-**Educational Systems**: Combo assistance and intelligent tutoring integration  
-**Performance Engineering**: Optimized board layout and bulletproof bot turn management  
-**Strategic AI**: Advanced bot personalities with aggressive capture optimization
+For questions, feedback, or collaboration opportunities:
+- **Game Design**: Strategic mechanics and educational integration
+- **Technical Development**: Modern web game architecture
+- **Business Inquiries**: Licensing and partnership opportunities
 
 ---
 
-## 🚀 Ready to Master Strategic Card Combat?
-
-**STACKED!** represents the pinnacle of browser-based card game development. With its innovative capture mechanics, intelligent AI opponents, beautiful presentation, responsive board layout, optimized CSS architecture, dynamic info panel, and infinitely expandable architecture, it delivers an experience that rivals commercial card game platforms.
-
-### 🎯 Quick Links
-- **Play Classic Mode**: Traditional strategic gameplay with AI hints
-- **Try Speed Mode**: Fast-paced action with time pressure  
-- **Explore Legendary AI**: Challenge the ultimate opponents powered by Card Intelligence
-- **Learn with Educational Mode**: Master combos with step-by-step guidance
-- **Create Custom Modes**: Extend the platform with your own rules
-
-**Start your journey to becoming a STACKED! legend today!** 🎴✨
-
-### 🏆 Achievement System (Coming Soon)
-- **First Capture**: Complete your first successful combo
-- **Speed Demon**: Win a Speed Mode game with 30+ seconds remaining
-- **Combo Master**: Execute a 4-area capture in a single turn
-- **AI Vanquisher**: Defeat Legendary difficulty bots
-- **Mode Explorer**: Play all available game modes
-- **Tournament Champion**: Win your first elimination bracket
-- **Hint Master**: Use the hint system to discover advanced combos
-- **Educational Graduate**: Complete tutorial mode with perfect scores
-- **CSS Optimizer**: Experience the blazing-fast consolidated stylesheet
-- **Info Panel Explorer**: Discover the dynamic game information system
-- **Bug Hunter**: Experience the game without any crashes (Achievement Unlocked!)
-- **Strategy Master**: Witness the new aggressive bot AI in action
-
----
-
-*Built with passion for strategic gaming and technical excellence. STACKED! - Where every card tells a story, every capture writes legend, every combo is powered by intelligence, every pixel is optimized for performance, and every feature enhances the epic gaming experience.* 🎮⚡
+*STACKED! represents the evolution of digital card gaming - combining traditional strategy with modern technology to create an engaging, educational, and entertaining experience.*
