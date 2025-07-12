@@ -55,6 +55,126 @@
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
     }
 
+    /* AI Selector Section */
+    .ai-selector-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .ai-selector-label {
+      display: block;
+      margin-bottom: 15px;
+      color: #D2A679;
+      font-weight: bold;
+      font-size: 1.2rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .ai-difficulty-cards {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .ai-card {
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
+      border: 2px solid #4A2B17;
+      border-radius: 8px;
+      padding: 8px 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      min-width: 120px;
+      max-width: 140px;
+      height: 45px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #4A2B17;
+    }
+
+    .ai-card:hover {
+      border-color: #D2A679;
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 18px rgba(139, 90, 43, 0.4);
+    }
+
+    .ai-card.selected {
+      border: 3px solid #D2A679;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 
+        0 8px 20px rgba(210, 166, 121, 0.8),
+        0 0 0 2px #8B5A2B;
+      animation: aiCardGlow 2s ease-in-out infinite;
+    }
+
+    .ai-card.selected::after {
+      content: '✓';
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border: 2px solid #F5E8C7;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.5);
+      animation: checkmarkPop 0.4s ease-out;
+    }
+
+    .ai-card.selected:hover {
+      transform: translateY(-4px) scale(1.08);
+    }
+
+    .ai-title {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #4A2B17;
+      margin: 0;
+      text-align: center;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes aiCardGlow {
+      0%, 100% { 
+        box-shadow: 
+          0 8px 20px rgba(210, 166, 121, 0.8),
+          0 0 0 2px #8B5A2B;
+      }
+      50% { 
+        box-shadow: 
+          0 12px 30px rgba(210, 166, 121, 1),
+          0 0 0 3px #D2A679;
+      }
+    }
+
+    @keyframes checkmarkPop {
+      0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1.3) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
     /* Game Mode Cards */
     .game-modes {
       flex: 1;
@@ -191,6 +311,56 @@
       box-shadow: 0 16px 48px rgba(243, 156, 18, 0.4);
     }
 
+    /* 🔥 COMING SOON BANNER STYLES */
+    .coming-soon-banner {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: linear-gradient(135deg, #f39c12, #e67e22);
+      color: #331E0F;
+      font-weight: bold;
+      font-size: 0.8rem;
+      padding: 8px 16px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 
+        0 4px 12px rgba(243, 156, 18, 0.6),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      animation: comingSoonGlow 2s ease-in-out infinite;
+      z-index: 10;
+    }
+
+    @keyframes comingSoonGlow {
+      0%, 100% { 
+        box-shadow: 
+          0 4px 12px rgba(243, 156, 18, 0.6),
+          inset 0 1px 2px rgba(255, 255, 255, 0.3);
+      }
+      50% { 
+        box-shadow: 
+          0 6px 20px rgba(243, 156, 18, 0.9),
+          inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      }
+    }
+
+    /* Disabled state for coming soon modes */
+    .mode-card.coming-soon {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+
+    .mode-card.coming-soon .play-button {
+      background: linear-gradient(45deg, #8B5A2B, #6B4A2B);
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+
+    .mode-card.coming-soon .play-button:hover {
+      transform: none;
+      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.3);
+    }
+
     /* Footer */
     .homepage-footer {
       margin-top: 40px;
@@ -253,6 +423,13 @@
       .stat-number {
         font-size: 1.5rem;
       }
+
+      .coming-soon-banner {
+        top: 10px;
+        right: 10px;
+        font-size: 0.7rem;
+        padding: 6px 12px;
+      }
     }
 
     /* Particles Background Effect */
@@ -292,259 +469,6 @@
         opacity: 0;
       }
     }
-  /* 🔧 ADD THIS CSS TO YOUR index.html FILE INSIDE THE <style> TAG */
-
-/* Find the <style> section in your index.html and add this at the VERY END */
-
-/* 🤖 BOT DIFFICULTY BUTTONS - ENHANCED VISIBILITY */
-.difficulty-btn {
-  background: linear-gradient(145deg, rgba(51, 30, 15, 0.8), rgba(74, 43, 23, 0.6)) !important;
-  border: 2px solid #4A2B17 !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  color: #B88A5A !important;
-  font-weight: bold !important;
-  font-size: 0.8rem !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 4px !important;
-  min-width: 70px !important;
-  position: relative !important;
-  overflow: hidden !important;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3) !important;
-  transform: translateY(0) !important;
-  margin: 0 4px !important;
-}
-
-.difficulty-btn:hover {
-  border-color: #8B5A2B !important;
-  color: #D2A679 !important;
-  transform: translateY(-3px) scale(1.02) !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* 🔥 GOLDEN SELECTED STATE */
-.difficulty-btn.selected {
-  background: linear-gradient(145deg, #D2A679, #B88A5A) !important;
-  border: 3px solid #F5E8C7 !important;
-  color: #331E0F !important;
-  transform: translateY(-4px) scale(1.1) !important;
-  box-shadow: 
-    0 8px 20px rgba(210, 166, 121, 0.8),
-    0 0 0 2px #8B5A2B,
-    inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
-  animation: selectedPulse 2s ease-in-out infinite !important;
-  position: relative !important;
-  z-index: 10 !important;
-}
-
-/* ✨ GREEN CHECKMARK for selected state */
-.difficulty-btn.selected::after {
-  content: '✓' !important;
-  position: absolute !important;
-  top: -8px !important;
-  right: -8px !important;
-  background: linear-gradient(45deg, #4CAF50, #45a049) !important;
-  color: white !important;
-  border: 2px solid #F5E8C7 !important;
-  border-radius: 50% !important;
-  width: 20px !important;
-  height: 20px !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: 0 3px 8px rgba(76, 175, 80, 0.5) !important;
-  animation: checkmarkPop 0.4s ease-out !important;
-}
-
-.difficulty-btn.selected:hover {
-  background: linear-gradient(145deg, #B88A5A, #8B5A2B) !important;
-  transform: translateY(-5px) scale(1.15) !important;
-  box-shadow: 
-    0 10px 25px rgba(210, 166, 121, 1),
-    0 0 0 3px #8B5A2B,
-    inset 0 2px 4px rgba(255, 255, 255, 0.4) !important;
-}
-
-.difficulty-icon {
-  font-size: 1.2rem !important;
-  line-height: 1 !important;
-  margin-bottom: 2px !important;
-}
-
-.difficulty-name {
-  font-size: 0.75rem !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  line-height: 1 !important;
-  font-weight: bold !important;
-}
-
-/* 🎯 ANIMATIONS */
-@keyframes selectedPulse {
-  0%, 100% { 
-    box-shadow: 
-      0 8px 20px rgba(210, 166, 121, 0.8),
-      0 0 0 2px #8B5A2B,
-      inset 0 2px 4px rgba(255, 255, 255, 0.3) !important;
-  }
-  50% { 
-    box-shadow: 
-      0 12px 30px rgba(210, 166, 121, 1),
-      0 0 0 3px #D2A679,
-      inset 0 2px 4px rgba(255, 255, 255, 0.5) !important;
-  }
-}
-
-@keyframes checkmarkPop {
-  0% {
-    transform: scale(0) rotate(-180deg) !important;
-    opacity: 0 !important;
-  }
-  50% {
-    transform: scale(1.3) rotate(0deg) !important;
-    opacity: 1 !important;
-  }
-  100% {
-    transform: scale(1) rotate(0deg) !important;
-    opacity: 1 !important;
-  }
-}
-
-    /* 🎯 SLIM HORIZONTAL AI CARDS - REPLACE YOUR EXISTING AI CARD CSS */
-.ai-selector-section {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.ai-selector-label {
-  display: block;
-  margin-bottom: 15px;
-  color: #D2A679;
-  font-weight: bold;
-  font-size: 1.2rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.ai-difficulty-cards {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.ai-card {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
-  border: 2px solid #4A2B17;
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-  /* 🔥 SLIM HORIZONTAL DIMENSIONS */
-  min-width: 120px;
-  max-width: 140px;
-  height: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #4A2B17;
-}
-
-.ai-card:hover {
-  border-color: #D2A679;
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 18px rgba(139, 90, 43, 0.4);
-}
-
-.ai-card.selected {
-  border: 3px solid #D2A679;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 
-    0 8px 20px rgba(210, 166, 121, 0.8),
-    0 0 0 2px #8B5A2B;
-  animation: slimCardGlow 2s ease-in-out infinite;
-}
-
-.ai-card.selected::after {
-  content: '✓';
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: linear-gradient(45deg, #4CAF50, #45a049);
-  color: white;
-  border: 2px solid #F5E8C7;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  font-size: 11px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.5);
-  animation: checkmarkPop 0.4s ease-out;
-}
-
-.ai-card.selected:hover {
-  transform: translateY(-4px) scale(1.08);
-}
-
-/* 🔥 SIMPLIFIED CONTENT - NO ICONS, JUST CLEAN TEXT */
-.ai-title {
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #4A2B17;
-  margin: 0;
-  text-align: center;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* 🔥 HIDE FEATURES AND ICONS FOR SLIM DESIGN */
-.ai-icon,
-.ai-features {
-  display: none;
-}
-
-@keyframes slimCardGlow {
-  0%, 100% { 
-    box-shadow: 
-      0 8px 20px rgba(210, 166, 121, 0.8),
-      0 0 0 2px #8B5A2B;
-  }
-  50% { 
-    box-shadow: 
-      0 12px 30px rgba(210, 166, 121, 1),
-      0 0 0 3px #D2A679;
-  }
-}
-
-@keyframes checkmarkPop {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.3) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-    /* 🎯 THEN REPLACE THE HTML SECTION WITH THIS CLEAN VERSION: */
   </style>
 </head>
 <body>
@@ -558,39 +482,24 @@
       <p class="game-subtitle">Strategic Card Combat • Master the Art of Capture</p>
     </div>
 
-    <!-- AI Opponent Cards - CLEAN VERSION -->
+    <!-- AI Opponent Cards -->
     <div class="ai-selector-section">
       <label class="ai-selector-label">🤖 Choose Your AI Opponent:</label>
       
       <div class="ai-difficulty-cards">
         <!-- Beginner AI Card -->
         <div class="ai-card selected" data-difficulty="beginner">
-          <span class="ai-icon">🟢</span>
           <h3 class="ai-title">Beginner</h3>
-          <div class="ai-features">
-            <span class="ai-tag">😊 Friendly</span>
-            <span class="ai-tag">🎓 Learning</span>
-          </div>
         </div>
 
         <!-- Intermediate AI Card -->
         <div class="ai-card" data-difficulty="intermediate">
-          <span class="ai-icon">🟡</span>
           <h3 class="ai-title">Intermediate</h3>
-          <div class="ai-features">
-            <span class="ai-tag">⚖️ Balanced</span>
-            <span class="ai-tag">🎯 Strategic</span>
-          </div>
         </div>
 
         <!-- Legendary AI Card -->
         <div class="ai-card" data-difficulty="legendary">
-          <span class="ai-icon">🔴</span>
           <h3 class="ai-title">Legendary</h3>
-          <div class="ai-features">
-            <span class="ai-tag">🧠 Genius</span>
-            <span class="ai-tag">🔥 Ruthless</span>
-          </div>
         </div>
       </div>
     </div>
@@ -614,8 +523,9 @@
         <button class="play-button">Play Classic</button>
       </div>
 
-      <!-- Speed Mode -->
-      <div class="mode-card speed-mode" onclick="playMode('speed')">
+      <!-- Speed Mode with Coming Soon Banner -->
+      <div class="mode-card speed-mode coming-soon" onclick="showComingSoon('speed')">
+        <div class="coming-soon-banner">Coming Soon</div>
         <span class="mode-icon">⚡</span>
         <h2 class="mode-title">Speed STACKED</h2>
         <p class="mode-description">
@@ -628,11 +538,12 @@
           <span class="feature-tag">🏁 Best of 3</span>
         </div>
         
-        <button class="play-button">Play Speed</button>
+        <button class="play-button">Coming Soon</button>
       </div>
 
-      <!-- Tournament Mode (Coming Soon) -->
-      <div class="mode-card tournament-mode" onclick="showComingSoon('tournament')">
+      <!-- Tournament Mode with Coming Soon Banner -->
+      <div class="mode-card tournament-mode coming-soon" onclick="showComingSoon('tournament')">
+        <div class="coming-soon-banner">Coming Soon</div>
         <span class="mode-icon">🏆</span>
         <h2 class="mode-title">Tournament Mode</h2>
         <p class="mode-description">
@@ -693,19 +604,19 @@
 
     // Navigation functions
     function playMode(mode) {
-      // 🔥 Get difficulty from AI card selection
+      // Get difficulty from AI card selection
       const selectedAICard = document.querySelector('.ai-card.selected');
       const botDifficulty = selectedAICard ? selectedAICard.dataset.difficulty : 'beginner';
       
       console.log(`🎮 PLAY MODE: ${mode} with AI difficulty: ${botDifficulty}`);
       
-      // 🎯 Store selected mode and difficulty
+      // Store selected mode and difficulty
       localStorage.setItem('selectedMode', mode);
       localStorage.setItem('selectedDifficulty', botDifficulty);
       
       console.log(`✅ STORED IN LOCALSTORAGE: Mode=${mode}, Difficulty=${botDifficulty}`);
       
-      // ✨ Enhanced visual feedback
+      // Enhanced visual feedback
       const modeCard = event.currentTarget;
       if (modeCard) {
         modeCard.style.transform = 'scale(0.95)';
@@ -721,59 +632,16 @@
     }
 
     function showComingSoon(mode) {
-      alert(`🏆 ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode is coming soon!\n\nThis epic mode is in development and will be available in the next update. Stay tuned for elimination tournaments and championship battles!`);
+      const modeNames = {
+        'speed': 'Speed Mode',
+        'tournament': 'Tournament Mode'
+      };
+      
+      const modeName = modeNames[mode] || mode;
+      alert(`🚀 ${modeName} is coming soon!\n\nThis epic mode is in development and will be available in the next update. Stay tuned for amazing new features!`);
     }
 
-    // 🔥 NEW: Initialize button selectors
-    function setupBotDifficultyButtons() {
-      const difficultyButtons = document.querySelectorAll('.difficulty-btn');
-      
-      difficultyButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-          e.stopPropagation(); // Prevent mode card click
-          
-          // Get the mode from parent container
-          const modeContainer = button.closest('.difficulty-buttons');
-          const mode = modeContainer.dataset.mode;
-          
-          // Remove selected class from siblings
-          const siblings = modeContainer.querySelectorAll('.difficulty-btn');
-          siblings.forEach(sibling => sibling.classList.remove('selected'));
-          
-          // Add selected class to clicked button
-          button.classList.add('selected');
-          
-          // Visual feedback
-          button.style.transform = 'translateY(-4px) scale(1.05)';
-          setTimeout(() => {
-            button.style.transform = '';
-          }, 150);
-          
-          const difficulty = button.dataset.difficulty;
-          console.log(`🤖 ${mode} AI set to: ${difficulty}`);
-        });
-      });
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      createParticles();
-      setupBotDifficultyButtons();
-      setupAICardSelection(); // 🔥 ADD THIS LINE
-      
-      // Add some interactive effects
-      const modeCards = document.querySelectorAll('.mode-card');
-      modeCards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-          card.style.transform = 'translateY(-8px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-          card.style.transform = '';
-        });
-      });
-    });
-  // 🔥 Setup AI Card Selection - FIXED VERSION
+    // Setup AI Card Selection
     function setupAICardSelection() {
       const aiCards = document.querySelectorAll('.ai-card');
       
@@ -787,7 +655,7 @@
           // Add selected to clicked card
           card.classList.add('selected');
           
-          // 🔥 CRITICAL: Store selection immediately in localStorage
+          // Store selection immediately in localStorage
           const difficulty = card.dataset.difficulty;
           localStorage.setItem('selectedDifficulty', difficulty);
           
@@ -801,7 +669,7 @@
         });
       });
       
-      // 🔥 RESTORE SELECTION on page load
+      // Restore selection on page load
       const savedDifficulty = localStorage.getItem('selectedDifficulty') || 'beginner';
       const savedCard = document.querySelector(`[data-difficulty="${savedDifficulty}"]`);
       if (savedCard) {
@@ -812,6 +680,27 @@
         console.log(`🎯 Restored AI selection: ${savedDifficulty}`);
       }
     }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      createParticles();
+      setupAICardSelection();
+      
+      // Add interactive effects to mode cards
+      const modeCards = document.querySelectorAll('.mode-card');
+      modeCards.forEach(card => {
+        // Skip hover effects for coming soon cards
+        if (!card.classList.contains('coming-soon')) {
+          card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-8px) scale(1.02)';
+          });
+          
+          card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>

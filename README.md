@@ -92,7 +92,7 @@ Competitive play featuring:
 ## Getting Started
 
 ### Play Online
-Visit the live game at: **[Insert Your Domain Here]**
+Visit the live game at: {(https://stack-delta-taupe.vercel.app/)}
 
 ### System Requirements
 - **Desktop**: Any modern web browser
