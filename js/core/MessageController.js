@@ -549,15 +549,16 @@ handleComboAnalysis(data) {
     
     this.comboGuidanceActive = false;
     
-    // 🍞 SHOW MODAL TOAST NOTIFICATION
-    if (currentPlayer === 0) {
-      if (points >= 50) {
-        this.showModalToast(`🎉 +${points} pts!`, 'jackpot');
-      } else if (points >= 25) {
-        this.showModalToast(`⚡ +${points} pts!`, 'success');
-      } else {
-        this.showModalToast(`+${points} pts`, 'success');
-      }
+    // 🍞 SHOW MODAL TOAST NOTIFICATION FOR ALL PLAYERS
+    const playerNames = ['You', 'Bot 1', 'Bot 2'];
+    const playerName = playerNames[currentPlayer];
+    
+    if (points >= 50) {
+      this.showModalToast(`🎉 ${playerName}: +${points} pts!`, 'jackpot');
+    } else if (points >= 25) {
+      this.showModalToast(`⚡ ${playerName}: +${points} pts!`, 'success');
+    } else {
+      this.showModalToast(`${playerName}: +${points} pts`, 'success');
     }
     
     if (currentPlayer === 0) {
