@@ -1976,49 +1976,47 @@ button[data-difficulty] .difficulty-name {
   }
 }
 
-/* 🍞 TOAST NOTIFICATIONS - WOODY AESTHETIC */
-.toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* 🍞 MODAL TOAST NOTIFICATIONS - WOODY AESTHETIC */
+.modal-toast-container {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  z-index: 1001;
   pointer-events: none;
 }
 
-.toast {
+.modal-toast {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   border: 2px solid #8B5A2B;
-  border-radius: 8px;
-  padding: 12px 20px;
+  border-radius: 6px;
+  padding: 8px 16px;
   color: #D2A679;
   font-weight: bold;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  font-size: 1rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
   transform: translateX(100%);
   opacity: 0;
-  animation: toastSlideIn 0.3s ease-out forwards;
+  animation: modalToastSlideIn 0.3s ease-out forwards;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  min-width: 120px;
+  min-width: 100px;
   text-align: center;
+  white-space: nowrap;
 }
 
-.toast.success {
+.modal-toast.success {
   border-color: #4A7043;
   color: #90EE90;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /><rect width="100%" height="100%" fill="rgba(74,112,67,0.2)" /></svg>');
 }
 
-.toast.jackpot {
+.modal-toast.jackpot {
   border-color: #DAA520;
   color: #FFD700;
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /><rect width="100%" height="100%" fill="rgba(218,165,32,0.2)" /></svg>');
-  animation: toastSlideIn 0.3s ease-out forwards, jackpotGlow 2s ease-in-out infinite;
+  animation: modalToastSlideIn 0.3s ease-out forwards, modalJackpotGlow 2s ease-in-out infinite;
 }
 
-@keyframes toastSlideIn {
+@keyframes modalToastSlideIn {
   0% {
     transform: translateX(100%);
     opacity: 0;
@@ -2029,7 +2027,7 @@ button[data-difficulty] .difficulty-name {
   }
 }
 
-@keyframes toastSlideOut {
+@keyframes modalToastSlideOut {
   0% {
     transform: translateX(0);
     opacity: 1;
@@ -2040,20 +2038,20 @@ button[data-difficulty] .difficulty-name {
   }
 }
 
-@keyframes jackpotGlow {
-  0%, 100% { box-shadow: 0 4px 12px rgba(218, 165, 32, 0.4); }
-  50% { box-shadow: 0 6px 20px rgba(218, 165, 32, 0.8); }
+@keyframes modalJackpotGlow {
+  0%, 100% { box-shadow: 0 3px 8px rgba(218, 165, 32, 0.4); }
+  50% { box-shadow: 0 5px 12px rgba(218, 165, 32, 0.8); }
 }
 
 @media (max-width: 768px) {
-  .toast-container {
-    top: 15px;
-    right: 15px;
+  .modal-toast-container {
+    top: 8px;
+    right: 12px;
   }
   
-  .toast {
-    font-size: 1rem;
-    padding: 10px 16px;
-    min-width: 100px;
+  .modal-toast {
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    min-width: 80px;
   }
 }

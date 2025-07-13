@@ -549,14 +549,14 @@ handleComboAnalysis(data) {
     
     this.comboGuidanceActive = false;
     
-    // 🍞 SHOW TOAST NOTIFICATION
+    // 🍞 SHOW MODAL TOAST NOTIFICATION
     if (currentPlayer === 0) {
       if (points >= 50) {
-        this.showToast(`🎉 +${points} pts!`, 'jackpot');
+        this.showModalToast(`🎉 +${points} pts!`, 'jackpot');
       } else if (points >= 25) {
-        this.showToast(`⚡ +${points} pts!`, 'success');
+        this.showModalToast(`⚡ +${points} pts!`, 'success');
       } else {
-        this.showToast(`+${points} pts`, 'success');
+        this.showModalToast(`+${points} pts`, 'success');
       }
     }
     
@@ -762,20 +762,23 @@ handleBotThinking(data) {
     console.log('  Hand Sizes:', [this.getHandSize(0), this.getHandSize(1), this.getHandSize(2)]);
   }
 
-  // 🍞 TOAST NOTIFICATION SYSTEM
-  showToast(message, type = 'normal', duration = 3000) {
-    const container = document.getElementById('toast-container');
+  // 🍞 MODAL TOAST NOTIFICATION SYSTEM
+  showModalToast(message, type = 'normal', duration = 4500) {
+    const container = document.getElementById('modal-toast-container');
     if (!container) return;
 
+    // Clear any existing toast
+    container.innerHTML = '';
+
     const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
+    toast.className = `modal-toast ${type}`;
     toast.textContent = message;
     
     container.appendChild(toast);
 
     // Auto-remove after duration
     setTimeout(() => {
-      toast.style.animation = 'toastSlideOut 0.3s ease-in forwards';
+      toast.style.animation = 'modalToastSlideOut 0.3s ease-in forwards';
       setTimeout(() => {
         if (container.contains(toast)) {
           container.removeChild(toast);
@@ -783,7 +786,7 @@ handleBotThinking(data) {
       }, 300);
     }, duration);
 
-    console.log(`🍞 TOAST: ${message} (${type})`);
+    console.log(`🍞 MODAL TOAST: ${message} (${type})`);
   }
 }
 
