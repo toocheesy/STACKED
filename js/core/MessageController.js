@@ -549,6 +549,17 @@ handleComboAnalysis(data) {
     
     this.comboGuidanceActive = false;
     
+    // 🍞 SHOW TOAST NOTIFICATION
+    if (currentPlayer === 0) {
+      if (points >= 50) {
+        this.showToast(`🎉 +${points} pts!`, 'jackpot');
+      } else if (points >= 25) {
+        this.showToast(`⚡ +${points} pts!`, 'success');
+      } else {
+        this.showToast(`+${points} pts`, 'success');
+      }
+    }
+    
     if (currentPlayer === 0) {
       if (this.educationalMode) {
         this.showMessage(`🎉 AMAZING! You scored ${points} points with ${cardsCount} cards! Keep building combos like that!`, 'success');
@@ -749,6 +760,30 @@ handleBotThinking(data) {
     console.log('  Educational Mode:', this.educationalMode);
     console.log('  Combo Guidance Active:', this.comboGuidanceActive);
     console.log('  Hand Sizes:', [this.getHandSize(0), this.getHandSize(1), this.getHandSize(2)]);
+  }
+
+  // 🍞 TOAST NOTIFICATION SYSTEM
+  showToast(message, type = 'normal', duration = 3000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    
+    container.appendChild(toast);
+
+    // Auto-remove after duration
+    setTimeout(() => {
+      toast.style.animation = 'toastSlideOut 0.3s ease-in forwards';
+      setTimeout(() => {
+        if (container.contains(toast)) {
+          container.removeChild(toast);
+        }
+      }, 300);
+    }, duration);
+
+    console.log(`🍞 TOAST: ${message} (${type})`);
   }
 }
 
