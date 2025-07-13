@@ -149,6 +149,30 @@ class BotModalInterface {
     
     if (success) {
       console.log(`🤖 BOT: Capture successful!`);
+      
+      // 🍞 TRIGGER TOAST NOTIFICATION FOR BOT CAPTURE
+      if (window.messageController) {
+        const currentPlayer = this.game.state.currentPlayer;
+        const botScoreEl = currentPlayer === 1 ? 
+          document.getElementById('bot1-score') : 
+          document.getElementById('bot2-score');
+        
+        if (botScoreEl) {
+          const scoreText = botScoreEl.textContent;
+          const scoreMatch = scoreText.match(/(\d+)\s*pts/);
+          if (scoreMatch) {
+            const currentScore = parseInt(scoreMatch[1]);
+            // Calculate points from this capture (rough estimate)
+            const estimatedPoints = Math.max(10, Math.min(50, currentScore));
+            
+            window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+              points: estimatedPoints,
+              cardsCount: 2
+            });
+          }
+        }
+      }
+      
       return { success: true, action: 'capture' };
     } else {
       console.log(`🤖 BOT: Capture failed`);
