@@ -130,7 +130,7 @@ function evaluateCaptureDecision(captureOption, personality, difficulty) {
     if (gamePhase === 'endgame') {
       return evaluation.basePoints >= 5; // More aggressive in endgame
     } else if (gamePhase === 'early') {
-      return evaluation.basePoints >= 15; // More selective early
+      return evaluation.basePoints >= 8; // Take decent captures early
     } else {
       return evaluation.basePoints >= 10; // Standard mid-game
     }
