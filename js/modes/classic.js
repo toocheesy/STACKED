@@ -1,12 +1,13 @@
 /* 
- * Classic STACKED Mode - FINAL FIXED VERSION
- * 🔥 NOW PROPERLY RETURNS JACKPOT MESSAGES TO MODALS!
+ * 🎫 TICKET #22 FIX: Classic Mode - Prevent Duplicate Jackpot Processing
+ * 🔥 SOLUTION: Add jackpot processing guard to prevent duplicate calls
  */
 
 const ClassicMode = {
   name: "Classic STACKED",
   description: "The original STACKED! experience",
   initialized: false,
+  jackpotProcessed: false, // 🔥 NEW: Prevent duplicate jackpot processing
   
   config: {
     targetScore: 500,
@@ -42,15 +43,23 @@ const ClassicMode = {
     return cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
   },
 
-  // 🔥 FINAL FIX: checkEndCondition() - NOW CAPTURES AND RETURNS JACKPOT MESSAGE!
+  // 🔥 CRITICAL FIX: Add jackpot processing guard
   checkEndCondition(gameEngine) {
     const playersWithCards = gameEngine.state.hands.filter(hand => hand.length > 0).length;
     
     if (playersWithCards === 0) {
       if (gameEngine.state.deck.length === 0) {
-        // 🔥 CRITICAL FIX: CAPTURE the jackpot result and USE its message!
-        const jackpotResult = this.applyLastComboTakesAll(gameEngine);
-        const jackpotMessage = jackpotResult ? jackpotResult.message : null;
+        // 🔥 PREVENT DUPLICATE JACKPOT PROCESSING
+        let jackpotMessage = null;
+        
+        if (!this.jackpotProcessed) {
+          console.log(`🔥 PROCESSING JACKPOT (first time)`);
+          const jackpotResult = this.applyLastComboTakesAll(gameEngine);
+          jackpotMessage = jackpotResult ? jackpotResult.message : null;
+          this.jackpotProcessed = true; // 🔥 Mark as processed
+        } else {
+          console.log(`🔥 JACKPOT ALREADY PROCESSED - SKIPPING`);
+        }
         
         console.log(`🔥 JACKPOT MESSAGE CAPTURED: "${jackpotMessage}"`);
         
@@ -83,7 +92,7 @@ const ClassicMode = {
     return { continue: true };
   },
 
-  // 🔥 JACKPOT LOGIC - WORKING CORRECTLY, JUST NEEDED TO RETURN MESSAGE
+  // 🔥 JACKPOT LOGIC - WORKING CORRECTLY
   applyLastComboTakesAll(gameEngine) {
     if (gameEngine.state.lastCapturer !== null && gameEngine.state.board.length > 0) {
       // Store card count BEFORE clearing the board
@@ -118,7 +127,7 @@ const ClassicMode = {
       { name: 'Bot 2', score: gameEngine.state.scores.bot2, index: 2 }
     ];
     
-    return scores.sort((a, b) => b.score - a.sort)[0];
+    return scores.sort((a, b) => b.score - a.score)[0]; // 🔧 FIXED: was a.sort instead of a.score
   },
 
   validateCapture(areaCards, baseValue, baseCard, areaName) {
@@ -145,11 +154,15 @@ const ClassicMode = {
 
   onRoundEnd(gameEngine) {
     gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
+    // 🔥 RESET JACKPOT FLAG FOR NEW ROUND
+    this.jackpotProcessed = false;
   },
 
   onGameEnd(gameEngine) {
     const winner = this.getWinner(gameEngine);
     console.log(`🏆 Game Complete! Winner: ${winner.name} (${winner.score} pts)`);
+    // 🔥 RESET JACKPOT FLAG FOR NEW GAME
+    this.jackpotProcessed = false;
   },
 
   getCustomUI() {
