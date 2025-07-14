@@ -549,6 +549,9 @@ handleComboAnalysis(data) {
     
     this.comboGuidanceActive = false;
     
+    // 🎆 TRIGGER SCORE ANIMATION
+    this.showScoreAnimation(currentPlayer, points);
+    
     // 🍞 SHOW MODAL TOAST NOTIFICATION FOR ALL PLAYERS
     const playerNames = ['You', 'Bot 1', 'Bot 2'];
     const playerName = playerNames[currentPlayer];
@@ -752,6 +755,36 @@ handleBotThinking(data) {
     this.educationalMode = !this.educationalMode;
     console.log(`🎓 Educational Mode: ${this.educationalMode ? 'ON' : 'OFF'}`);
     this.forceRefresh();
+  }
+
+  // 🎆 SCORE ANIMATION SYSTEM
+  showScoreAnimation(playerIndex, points) {
+    const scoreElements = [
+      document.getElementById('player-score'),
+      document.getElementById('bot1-score'), 
+      document.getElementById('bot2-score')
+    ];
+    
+    const scoreEl = scoreElements[playerIndex];
+    if (!scoreEl) return;
+    
+    const animation = document.createElement('div');
+    animation.className = `score-animation ${points >= 50 ? 'jackpot' : points >= 25 ? 'big' : 'normal'}`;
+    animation.textContent = `+${points}`;
+    
+    const rect = scoreEl.getBoundingClientRect();
+    animation.style.left = `${rect.left + rect.width / 2}px`;
+    animation.style.top = `${rect.top}px`;
+    
+    document.body.appendChild(animation);
+    
+    setTimeout(() => {
+      if (animation.parentNode) {
+        animation.parentNode.removeChild(animation);
+      }
+    }, 2000);
+    
+    console.log(`🎆 SCORE ANIMATION: +${points} pts for player ${playerIndex}`);
   }
 
   debugState() {

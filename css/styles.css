@@ -2055,3 +2055,79 @@ button[data-difficulty] .difficulty-name {
     min-width: 80px;
   }
 }
+
+/* 🎆 SCORE ANIMATION SYSTEM */
+.score-animation {
+  position: fixed;
+  z-index: 9999;
+  font-family: 'Trebuchet MS', Arial, sans-serif;
+  font-weight: bold;
+  font-size: 1.8rem;
+  color: #D2A679;
+  text-shadow: 2px 2px 4px rgba(51, 30, 15, 0.8);
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: scoreFloat 2s ease-out forwards;
+}
+
+.score-animation.big {
+  font-size: 2.2rem;
+  color: #F1C40F;
+  text-shadow: 0 0 10px rgba(241, 196, 15, 0.6);
+}
+
+.score-animation.jackpot {
+  font-size: 2.6rem;
+  color: #F1C40F;
+  text-shadow: 0 0 15px rgba(241, 196, 15, 0.8);
+  animation: scoreFloatJackpot 2s ease-out forwards;
+}
+
+@keyframes scoreFloat {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-40px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-80px) scale(0.9);
+  }
+}
+
+@keyframes scoreFloatJackpot {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+  25% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-20px) scale(1.3);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-60px) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100px) scale(1);
+  }
+}
+
+/* Mobile responsiveness for score animations */
+@media (max-width: 700px) {
+  .score-animation {
+    font-size: 1.4rem;
+  }
+  
+  .score-animation.big {
+    font-size: 1.6rem;
+  }
+  
+  .score-animation.jackpot {
+    font-size: 1.8rem;
+  }
+}
