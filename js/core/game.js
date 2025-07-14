@@ -306,65 +306,45 @@ class GameEngine {
   }
 
   // Check if game should end (uses current mode)
-  checkGameEnd() {
-    if (this.currentMode.checkEndCondition) {
-      return this.currentMode.checkEndCondition(this);
-    }
+checkGameEnd() {
+  if (this.currentMode.checkEndCondition) {
+    return this.currentMode.checkEndCondition(this);
+  }
+  
+  // Default end condition (for modes without custom logic)
+  const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
+  
+  if (playersWithCards === 0) {
+    console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
     
-    // Default end condition
-    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
+    if (this.state.deck.length === 0) {
+      console.log(`🏆 DECK IS EMPTY - ENDING GAME (no mode-specific jackpot logic)`);
       
-      // 🚨 CRITICAL: Check if deck is empty FIRST
-      if (this.state.deck.length === 0) {
-        console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
-        
-        // Apply "Last Combo Takes All" rule
-        let jackpotMessage = null;
-        if (this.state.lastCapturer !== null && this.state.board.length > 0) {
-          const bonusPoints = this.calculateScore(this.state.board);
-          this.addScore(this.state.lastCapturer, bonusPoints);
-          this.addOverallScore(this.state.lastCapturer, bonusPoints);
-          
-          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-          const lastCapturerName = playerNames[this.state.lastCapturer];
-          
-          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
-          console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
-          
-          // Clear the board after jackpot
-          this.state.board = [];
-        }
-        
-        // Check if anyone reached target score
-        const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-        if (maxScore >= this.state.settings.targetScore) {
-          return { 
-            gameOver: true, 
-            reason: 'target_score_reached',
-            message: jackpotMessage 
-          };
-        } else {
-          return { 
-            gameOver: true, 
-            reason: 'deck_empty',
-            message: jackpotMessage 
-          };
-        }
-      } else {
-        // Deck has cards, deal new round
-        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+      // Check if anyone reached target score
+      const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
+      if (maxScore >= this.state.settings.targetScore) {
         return { 
-          continueRound: true, 
-          reason: 'new_round' 
+          gameOver: true, 
+          reason: 'target_score_reached'
+        };
+      } else {
+        return { 
+          gameOver: true, 
+          reason: 'deck_empty'
         };
       }
+    } else {
+      // Deck has cards, deal new round
+      console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+      return { 
+        continueRound: true, 
+        reason: 'new_round' 
+      };
     }
-    
-    return { continue: true };
   }
+  
+  return { continue: true };
+}
 
   // Get ranked players
   getRankedPlayers() {
