@@ -273,77 +273,38 @@ class GameEngine {
     }
   }
 
-  // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
-  nextPlayer() {
-    let attempts = 0;
-    const maxAttempts = 3; // Prevent infinite loops
-    
-    do {
-      this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-      attempts++;
-      
-      console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
-      
-      // If current player has cards, we're good!
-      if (this.state.hands[this.state.currentPlayer].length > 0) {
-        return;
-      }
-      
-      // If no one has cards, end the round
-      const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-      if (totalCards === 0) {
-        console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-        // Force check game end
-        setTimeout(() => checkGameEnd(), 100);
-        return;
-      }
-      
-    } while (attempts < maxAttempts);
-    
-    // Safety fallback - if we can't find anyone with cards
-    console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-    setTimeout(() => checkGameEnd(), 100);
-  }
+  // 🔥 REPLACE THE ENTIRE nextPlayer() FUNCTION in game.js WITH THIS:
 
-  // Check if game should end (uses current mode)
-checkGameEnd() {
-  if (this.currentMode.checkEndCondition) {
-    return this.currentMode.checkEndCondition(this);
-  }
+// Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
+nextPlayer() {
+  let attempts = 0;
+  const maxAttempts = 3; // Prevent infinite loops
   
-  // Default end condition (for modes without custom logic)
-  const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-  
-  if (playersWithCards === 0) {
-    console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
+  do {
+    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+    attempts++;
     
-    if (this.state.deck.length === 0) {
-      console.log(`🏆 DECK IS EMPTY - ENDING GAME (no mode-specific jackpot logic)`);
-      
-      // Check if anyone reached target score
-      const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-      if (maxScore >= this.state.settings.targetScore) {
-        return { 
-          gameOver: true, 
-          reason: 'target_score_reached'
-        };
-      } else {
-        return { 
-          gameOver: true, 
-          reason: 'deck_empty'
-        };
-      }
-    } else {
-      // Deck has cards, deal new round
-      console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
-      return { 
-        continueRound: true, 
-        reason: 'new_round' 
-      };
+    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
+    
+    // If current player has cards, we're good!
+    if (this.state.hands[this.state.currentPlayer].length > 0) {
+      return;
     }
-  }
+    
+    // 🔥 REMOVED: checkGameEnd() calls - let main.js handle game end detection!
+    // If no one has cards, just log and let the calling code handle it
+    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+    if (totalCards === 0) {
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+      // 🔥 NO MORE setTimeout(() => checkGameEnd(), 100) HERE!
+      return;
+    }
+    
+  } while (attempts < maxAttempts);
   
-  return { continue: true };
+  // Safety fallback - if we can't find anyone with cards
+  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+  // 🔥 NO MORE setTimeout(() => checkGameEnd(), 100) HERE EITHER!
 }
 
   // Get ranked players
