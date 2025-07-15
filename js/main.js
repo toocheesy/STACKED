@@ -535,9 +535,26 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 CLEAN: checkGameEnd() - NO MORE GUARD NEEDED!
+// 🔥 FIXED: checkGameEnd() - CALLS CORRECT GAME.JS FUNCTION
 function checkGameEnd() {
-  const endResult = game.checkGameEnd();
+  // 🔥 CRITICAL FIX: Call the mode's checkEndCondition, not game.checkGameEnd
+  let endResult;
+  
+  if (game.currentMode && game.currentMode.checkEndCondition) {
+    endResult = game.currentMode.checkEndCondition(game);
+  } else {
+    // Fallback if no mode or no checkEndCondition
+    const playersWithCards = game.state.hands.filter(hand => hand.length > 0).length;
+    if (playersWithCards === 0) {
+      if (game.state.deck.length === 0) {
+        endResult = { gameOver: true, reason: 'deck_empty' };
+      } else {
+        endResult = { continueRound: true };
+      }
+    } else {
+      endResult = { continue: true };
+    }
+  }
   
   if (endResult.gameOver) {
     if (game.currentMode.onGameEnd) {
