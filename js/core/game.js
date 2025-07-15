@@ -295,10 +295,10 @@ nextPlayer() {
     // If no one has cards, just log and let the calling code handle it
     const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
     if (totalCards === 0) {
-      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-      // 🔥 NO MORE setTimeout(() => checkGameEnd(), 100) HERE!
-      return;
-    }
+  console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+  this.checkGameEnd(); // Call our new function!
+  return;
+}
     
   } while (attempts < maxAttempts);
   
@@ -320,6 +320,61 @@ nextPlayer() {
   // Reset combination area
   resetCombination() {
     this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  }
+
+  // 🔥 ADD THIS ENTIRE FUNCTION HERE:
+  // Check if round/game should end and handle jackpot
+  checkGameEnd() {
+    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+    
+    // Check if all players are out of cards
+    if (totalCards === 0) {
+      console.log(`🏁 ROUND END DETECTED - Processing jackpot`);
+      
+      // Process jackpot if there are cards on board
+      let jackpotMessage = null;
+      if (this.state.board.length > 0 && this.state.lastCapturer !== null) {
+        const jackpotCards = [...this.state.board];
+        const jackpotPoints = this.calculateScore(jackpotCards);
+        
+        // Award jackpot to last capturer
+        this.addScore(this.state.lastCapturer, jackpotPoints);
+        this.addOverallScore(this.state.lastCapturer, jackpotPoints);
+        
+        const playerNames = ['You', 'Bot 1', 'Bot 2'];
+        jackpotMessage = `🏆 ${playerNames[this.state.lastCapturer]} sweeps ${jackpotCards.length} cards! +${jackpotPoints} pts`;
+        
+        console.log(`🏆 JACKPOT: ${jackpotMessage}`);
+        
+        // Clear board after jackpot
+        this.state.board = [];
+      }
+      
+      // Prepare round end data
+      const endResult = {
+        type: 'round_end',
+        jackpotMessage: jackpotMessage,
+        roundScores: { ...this.state.scores },
+        overallScores: { ...this.state.overallScores },
+        round: this.currentRound,
+        rankedPlayers: this.getRankedPlayers()
+      };
+      
+      console.log(`🎯 CALLING showRoundEndModal with:`, endResult);
+      
+      // Call the modal function
+      if (typeof showRoundEndModal === 'function') {
+        showRoundEndModal(endResult);
+      } else if (typeof window.showRoundEndModal === 'function') {
+        window.showRoundEndModal(endResult);
+      } else {
+        console.error(`❌ showRoundEndModal function not found!`);
+      }
+      
+      return true; // Round ended
+    }
+    
+    return false; // Round continues
   }
 }
 
