@@ -544,6 +544,11 @@ function checkGameEnd() {
       game.currentMode.onGameEnd(game);
     }
     showGameOverModal(endResult);
+  } else if (endResult.roundOver) {
+    if (game.currentMode.onRoundEnd) {
+      game.currentMode.onRoundEnd(game);
+    }
+    showRoundEndModal(endResult);
   } else if (endResult.continueRound) {
     dealNewCards();
   }

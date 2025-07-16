@@ -65,14 +65,14 @@ const ClassicMode = {
             gameOver: true, 
             winner: this.getWinner(gameEngine),
             reason: 'target_score_reached',
-            message: jackpotMessage
+            message: jackpotMessage  // 🔥 PASS THE MESSAGE!
           };
         } else {
           return { 
-            gameOver: true,
-            winner: this.getWinner(gameEngine),
-            reason: 'deck_empty_round_complete',
-            message: jackpotMessage
+            roundOver: true, 
+            gameOver: false,
+            reason: 'round_complete',
+            message: jackpotMessage  // 🔥 PASS THE MESSAGE!
           };
         }
       } else {
