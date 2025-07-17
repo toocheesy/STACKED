@@ -549,7 +549,7 @@ handleComboAnalysis(data) {
     
     this.comboGuidanceActive = false;
     
-    // 🎆 TRIGGER SCORE ANIMATION
+    // 🎆 TRIGGER SCORE ANIMATION WITH CORRECT POINTS
     this.showScoreAnimation(currentPlayer, points);
     
     // 🍞 SHOW MODAL TOAST NOTIFICATION FOR ALL PLAYERS

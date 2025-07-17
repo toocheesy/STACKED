@@ -654,6 +654,15 @@ async function aiTurn() {
       console.log(`✅ BOT ${playerIndex}: Action succeeded - ${result.action}`);
       
       if (result.action === 'capture') {
+        // 🎯 TRIGGER BOT CAPTURE SUCCESS EVENT WITH REAL POINTS
+        if (window.messageController && move && move.capture) {
+          const actualPoints = game.calculateScore([move.handCard, ...move.capture.targets]);
+          window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+            points: actualPoints,
+            cardsCount: move.capture.targets.length + 1
+          });
+        }
+        
         // Bot captured, check if they can continue
         const remainingCards = game.state.hands[playerIndex].length;
         if (remainingCards > 0) {
