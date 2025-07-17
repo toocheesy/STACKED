@@ -272,14 +272,6 @@ h1 {
   transform: translateY(-2px);
 }
 
-.combo-slot[data-slot="base"]:before,
-.combo-slot[data-slot="match"]:before,
-.combo-slot[data-slot="sum1"]:before,
-.combo-slot[data-slot="sum2"]:before,
-.combo-slot[data-slot="sum3"]:before {
-  content: "";
-}
-
 .combo-slot.valid-combo,
 .base-area.valid-combo,
 .sum-area.valid-combo,
