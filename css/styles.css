@@ -262,26 +262,6 @@ h1 {
   transform: translateX(6px);
 }
 
-/* Hover and valid combo effects */
-.combo-slot:hover,
-.base-area:hover,
-.sum-area:hover,
-.match-area:hover {
-  border-color: #D2A679;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  transform: translateY(-2px);
-}
-
-.combo-slot.valid-combo,
-.base-area.valid-combo,
-.sum-area.valid-combo,
-.match-area.valid-combo {
-  border-color: #4A7043;
-  box-shadow: 0 0 15px 6px rgba(74, 112, 67, 0.7), inset 0 2px 4px rgba(74, 112, 67, 0.3);
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="75"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q25 15 50 10 T50 30 T50 50 T50 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(74,112,67,0.3)" /></svg>');
-  animation: validPulse 2s ease-in-out infinite;
-}
-
 @keyframes validPulse {
   0%, 100% { box-shadow: 0 0 15px 6px rgba(74, 112, 67, 0.7), inset 0 2px 4px rgba(74, 112, 67, 0.3); }
   50% { box-shadow: 0 0 20px 8px rgba(74, 112, 67, 0.9), inset 0 2px 4px rgba(74, 112, 67, 0.5); }
