@@ -149,6 +149,8 @@ const ClassicMode = {
   
   const playerNames = ['Player', 'Bot 1', 'Bot 2'];
   console.log(`🔄 DEALER ROTATED: ${playerNames[oldDealer]} → ${playerNames[gameEngine.currentDealer]}`);
+  
+  // 🔥 CRITICAL FIX: DON'T increment round here - it's done in checkGameEnd()
 },
 
   onGameEnd(gameEngine) {
