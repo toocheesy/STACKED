@@ -738,13 +738,17 @@ async function scheduleNextBotTurn() {
   if (!game.state.hands[game.state.currentPlayer] || 
       game.state.hands[game.state.currentPlayer].length === 0) {
     console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn`);
-    // 🔥 CRITICAL FIX: Call checkGameEnd when bot has no cards!
     checkGameEnd();
     return;
   }
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
-  setTimeout(() => aiTurn(), 1000);
+  
+  // 🔥 CRITICAL FIX: Make sure aiTurn actually gets called!
+  setTimeout(async () => {
+    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
+    await aiTurn();
+  }, 1000);
 }
 
 function playSound(type) {
