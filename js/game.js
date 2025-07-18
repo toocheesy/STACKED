@@ -308,8 +308,18 @@ this.setStartingPlayer();
     setTimeout(() => window.checkGameEnd(), 100);
   }
 
-  // 🔥 NEW: Rotate dealer clockwise for new round
-  rotateDealerClockwise() {
+  // 🔥 NEW: Set starting player based on current dealer
+setStartingPlayer() {
+  // Starting player is to the left of dealer (next clockwise)
+  this.state.currentPlayer = (this.currentDealer + 1) % 3;
+  
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+  console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);
+  console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
+}
+
+// 🔥 NEW: Rotate dealer clockwise for new round
+rotateDealerClockwise() {
     this.currentDealer = (this.currentDealer + 1) % 3;
     console.log(`🔄 DEALER ROTATED: Now dealer is ${['Player', 'Bot 1', 'Bot 2'][this.currentDealer]}`);
     
