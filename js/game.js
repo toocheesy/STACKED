@@ -86,17 +86,6 @@ if (this.currentMode.init) {
 }
 
 console.log(`🎮 ${gameMode.name} initialized successfully`);
-
-// 🔥 CRITICAL FIX: Start bot turn if bot goes first
-if (this.state.currentPlayer !== 0) {
-  console.log(`🤖 GAME STARTS WITH BOT ${this.state.currentPlayer} - SCHEDULING FIRST TURN`);
-  // Use setTimeout to ensure UI is ready
-  setTimeout(() => {
-    if (window.scheduleNextBotTurn) {
-      window.scheduleNextBotTurn();
-    }
-  }, 500);
-}
   }
 
   // Get current game state (read-only)
