@@ -205,7 +205,6 @@ renderDeckCount() {
       areaEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
       areaEl.style.border = '2px dashed #ccc';
       areaEl.style.height = '110px';
-      areaEl.textContent = placeholderText;
     }
   }
 
