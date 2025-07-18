@@ -287,37 +287,35 @@ if (this.state.currentPlayer !== 0) {
   }
 
   // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
-  nextPlayer() {
-    let attempts = 0;
-    const maxAttempts = 3; // Prevent infinite loops
+nextPlayer() {
+  let attempts = 0;
+  const maxAttempts = 3; // Prevent infinite loops
+  
+  do {
+    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+    attempts++;
     
-    do {
-      this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-      attempts++;
-      
-      console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
-      
-      // If current player has cards, we're good!
-      if (this.state.hands[this.state.currentPlayer].length > 0) {
-        return;
-      }
-      
-      // If no one has cards, end the round
-      const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-      if (totalCards === 0) {
-        console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-        // 🔥 FIXED: Call the global checkGameEnd() function instead
-        setTimeout(() => window.checkGameEnd(), 100);
-        return;
-      }
-      
-    } while (attempts < maxAttempts);
+    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
     
-    // Safety fallback - if we can't find anyone with cards
-    console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-    // 🔥 FIXED: Call the global checkGameEnd() function instead
-    setTimeout(() => window.checkGameEnd(), 100);
-  }
+    // If current player has cards, we're good!
+    if (this.state.hands[this.state.currentPlayer].length > 0) {
+      return;
+    }
+    
+    // If no one has cards, end the round
+    const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+    if (totalCards === 0) {
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
+      // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled by main.js!
+      return;
+    }
+    
+  } while (attempts < maxAttempts);
+  
+  // Safety fallback
+  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+  // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here either!
+}
 
   // 🔥 NEW: Set starting player based on current dealer
 setStartingPlayer() {
