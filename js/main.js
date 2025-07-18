@@ -358,6 +358,16 @@ function initGame() {
   localStorage.removeItem('selectedMode');
 }
 
+// 🔥 NEW: Set starting player based on current dealer
+setStartingPlayer() {
+  // Starting player is to the left of dealer (next clockwise)
+  this.state.currentPlayer = (this.currentDealer + 1) % 3;
+  
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+  console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);
+  console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
+}
+
 // 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
 function handleSubmit() {
   if (game.state.currentPlayer !== 0) return;

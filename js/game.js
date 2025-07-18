@@ -70,13 +70,15 @@ class GameEngine {
     });
     
     // Reset current round scores, preserve overall scores
-    this.state.scores = { player: 0, bot1: 0, bot2: 0 };
-    this.state.currentPlayer = 0;
-    this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    this.state.draggedCard = null;
-    this.state.selectedCard = null;
-    this.currentRound = 1;
-    this.currentDealer = Math.floor(Math.random() * 3);
+this.state.scores = { player: 0, bot1: 0, bot2: 0 };
+this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+this.state.draggedCard = null;
+this.state.selectedCard = null;
+this.currentRound = 1;
+this.currentDealer = Math.floor(Math.random() * 3);
+
+// 🔥 FIX: Set proper starting player based on dealer
+this.setStartingPlayer();
     
     // Initialize mode
     if (this.currentMode.init) {
