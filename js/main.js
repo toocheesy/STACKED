@@ -352,10 +352,16 @@ function initGame() {
   };
   
   startGame(modeSelector.currentMode || 'classic', gameSettings);
-  
-  // Clear localStorage after game starts
-  localStorage.removeItem('selectedDifficulty');
-  localStorage.removeItem('selectedMode');
+
+// 🔥 CRITICAL FIX: Schedule bot turn if bot goes first
+if (game.state.currentPlayer !== 0) {
+  console.log(`🤖 GAME STARTS WITH BOT ${game.state.currentPlayer} - SCHEDULING FIRST TURN`);
+  setTimeout(() => scheduleNextBotTurn(), 1000);
+}
+
+// Clear localStorage after game starts
+localStorage.removeItem('selectedDifficulty');
+localStorage.removeItem('selectedMode');
 }
 
 // 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
