@@ -721,7 +721,6 @@ async function aiTurn() {
   }
 }
 
-// 🔥 SIMPLIFIED: scheduleNextBotTurn() - SINGLE SCHEDULING POINT
 async function scheduleNextBotTurn() {
   // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
   if (botTurnInProgress) {
@@ -739,6 +738,8 @@ async function scheduleNextBotTurn() {
   if (!game.state.hands[game.state.currentPlayer] || 
       game.state.hands[game.state.currentPlayer].length === 0) {
     console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn`);
+    // 🔥 CRITICAL FIX: Call checkGameEnd when bot has no cards!
+    checkGameEnd();
     return;
   }
   
