@@ -293,8 +293,8 @@ class GameEngine {
       const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
       if (totalCards === 0) {
         console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-        // Force check game end
-        setTimeout(() => checkGameEnd(), 100);
+        // 🔥 FIXED: Call this.checkGameEnd() instead of checkGameEnd()
+        setTimeout(() => this.checkGameEnd(), 100);
         return;
       }
       
@@ -302,7 +302,18 @@ class GameEngine {
     
     // Safety fallback - if we can't find anyone with cards
     console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-    setTimeout(() => checkGameEnd(), 100);
+    // 🔥 FIXED: Call this.checkGameEnd() instead of checkGameEnd()
+    setTimeout(() => this.checkGameEnd(), 100);
+  }
+
+  // 🔥 NEW: Rotate dealer clockwise for new round
+  rotateDealerClockwise() {
+    this.currentDealer = (this.currentDealer + 1) % 3;
+    console.log(`🔄 DEALER ROTATED: Now dealer is ${['Player', 'Bot 1', 'Bot 2'][this.currentDealer]}`);
+    
+    // Set starting player to left of dealer (next clockwise)
+    this.state.currentPlayer = (this.currentDealer + 1) % 3;
+    console.log(`🎯 STARTING PLAYER: ${['Player', 'Bot 1', 'Bot 2'][this.state.currentPlayer]} (left of dealer)`);
   }
 
   // Check if game should end (uses current mode)
