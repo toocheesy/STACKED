@@ -512,7 +512,6 @@ function showGameOverModal(endResult) {
 
 function dealNewRound() {
   // 🔥 FIXED: Use proper dealer rotation from game engine
-  game.rotateDealerClockwise();
   game.currentRound++;
   
   try {
