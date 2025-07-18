@@ -172,31 +172,12 @@
       <div id="message" style="display: none;"></div>
     </div>
 
-  <!-- 🎯 STACKED! Game Scripts - CORRECT FILE STRUCTURE -->
-
-<!-- Core Dependencies -->
-<script src="js/deck.js"></script>
-<script src="js/gameLogic.js"></script>
-<script src="js/cardIntelligence.js"></script>
-
-<!-- Core Systems -->
-<script src="js/core/game.js"></script>
-<script src="js/core/utils.js"></script>
-<script src="js/core/modeSelector.js"></script>
-<script src="js/core/MessageController.js"></script>
-
-<!-- Game Modes -->
-<script src="js/modes/classic.js"></script>
-<script src="js/modes/speed.js"></script>
-
-<!-- AI Systems -->
-<script src="js/ai.js"></script>
-<script src="js/botModal.js"></script>
-
-<!-- UI System -->
-<script src="js/ui.js"></script>
-
-<!-- Main Controller (MUST BE LAST!) -->
-<script src="js/main.js"></script>
+  <!-- 🎯 STACKED! Game Scripts - CONSOLIDATED FILE STRUCTURE -->
+  <script type="module" src="js/helpers.js"></script>
+  <script type="module" src="js/modes.js"></script>
+  <script type="module" src="js/aiSystem.js"></script>
+  <script type="module" src="js/education.js"></script>
+  <script type="module" src="js/ui.js"></script>
+  <script type="module" src="js/core.js"></script>
 </body>
 </html>
