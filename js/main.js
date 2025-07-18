@@ -755,10 +755,14 @@ async function scheduleNextBotTurn() {
   
   // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled elsewhere!
   if (!game.state.hands[game.state.currentPlayer] || 
-      game.state.hands[game.state.currentPlayer].length === 0) {
-    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - SKIPPING (checkGameEnd handled elsewhere)`);
-    return; // Just return, don't call checkGameEnd()!
-  }
+    game.state.hands[game.state.currentPlayer].length === 0) {
+  console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
+  setTimeout(() => {
+    console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
+    checkGameEnd();
+  }, 100);
+  return;
+}
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
   
