@@ -183,38 +183,44 @@ renderDeckCount() {
   renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.innerHTML = '';
     
-    // 🔥 NEW: Add live sum totals for sum areas
+    // 🔥 NEW: Add live sum totals for sum areas - DEBUG VERSION
     if (slotName.startsWith('sum') && cards.length > 0) {
       const sumTotal = this.calculateSumTotal(cards);
       const sumDisplay = document.createElement('div');
       sumDisplay.className = 'sum-total-display';
       sumDisplay.textContent = `[${sumTotal}]`;
       
+      console.log(`🔥 DEBUG: Creating sum display for ${slotName} with total: ${sumTotal}`);
+      
       // Make sure parent has relative positioning
       areaEl.style.position = 'relative';
+      areaEl.style.overflow = 'visible'; // Force visible overflow
       
       sumDisplay.style.cssText = `
-        position: absolute;
-        top: -25px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #8B5A2B, #A0622F);
-        color: #F5E8C7;
-        padding: 2px 8px;
-        border-radius: 6px;
-        font-weight: bold;
-        font-size: 14px;
-        font-family: 'Cabin', sans-serif;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        border: 1px solid #D2A679;
-        z-index: 1000;
-        white-space: nowrap;
+        position: absolute !important;
+        top: -40px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        background: red !important;
+        color: white !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        font-size: 18px !important;
+        font-family: Arial, sans-serif !important;
+        border: 3px solid yellow !important;
+        z-index: 9999 !important;
+        white-space: nowrap !important;
+        pointer-events: none !important;
       `;
+      
       areaEl.appendChild(sumDisplay);
+      console.log(`🔥 DEBUG: Sum display added to DOM`, sumDisplay);
     } else {
       // Ensure relative positioning is always set for sum areas
       if (slotName.startsWith('sum')) {
         areaEl.style.position = 'relative';
+        areaEl.style.overflow = 'visible';
       }
     }
     
