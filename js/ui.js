@@ -189,23 +189,33 @@ renderDeckCount() {
       const sumDisplay = document.createElement('div');
       sumDisplay.className = 'sum-total-display';
       sumDisplay.textContent = `[${sumTotal}]`;
+      
+      // Make sure parent has relative positioning
+      areaEl.style.position = 'relative';
+      
       sumDisplay.style.cssText = `
         position: absolute;
-        top: -35px;
+        top: -25px;
         left: 50%;
         transform: translateX(-50%);
         background: linear-gradient(135deg, #8B5A2B, #A0622F);
         color: #F5E8C7;
-        padding: 4px 12px;
-        border-radius: 8px;
+        padding: 2px 8px;
+        border-radius: 6px;
         font-weight: bold;
-        font-size: 16px;
+        font-size: 14px;
         font-family: 'Cabin', sans-serif;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        border: 2px solid #D2A679;
-        z-index: 10;
+        border: 1px solid #D2A679;
+        z-index: 1000;
+        white-space: nowrap;
       `;
       areaEl.appendChild(sumDisplay);
+    } else {
+      // Ensure relative positioning is always set for sum areas
+      if (slotName.startsWith('sum')) {
+        areaEl.style.position = 'relative';
+      }
     }
     
     if (cards.length > 0) {
