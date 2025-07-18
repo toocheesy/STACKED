@@ -535,7 +535,7 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 CLEAN: checkGameEnd() - NO MORE GUARD NEEDED!
+// 🔥 FIXED: checkGameEnd() - NOW PROPERLY HANDLES DEALER ROTATION!
 function checkGameEnd() {
   const endResult = game.checkGameEnd();
   
@@ -545,11 +545,29 @@ function checkGameEnd() {
     }
     showGameOverModal(endResult);
   } else if (endResult.roundOver) {
+    // 🔥 CRITICAL FIX: Call onRoundEnd BEFORE showing modal!
     if (game.currentMode.onRoundEnd) {
+      console.log(`🔄 CALLING onRoundEnd() - This should rotate dealer!`);
       game.currentMode.onRoundEnd(game);
     }
+    
+    // 🔥 CRITICAL FIX: Increment round counter and set starting player!
+    game.currentRound++;
+    game.setStartingPlayer();
+    
+    console.log(`🎯 ROUND ${game.currentRound} SETUP COMPLETE`);
+    
     showRoundEndModal(endResult);
   } else if (endResult.continueRound) {
+    // 🔥 CRITICAL FIX: Also rotate dealer for new rounds within same deal!
+    if (game.currentMode.onRoundEnd) {
+      console.log(`🔄 CALLING onRoundEnd() for new round deal`);
+      game.currentMode.onRoundEnd(game);
+    }
+    
+    game.currentRound++;
+    game.setStartingPlayer();
+    
     dealNewCards();
   }
 }
