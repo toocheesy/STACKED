@@ -144,8 +144,12 @@ const ClassicMode = {
   },
 
   onRoundEnd(gameEngine) {
-    gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
-  },
+  const oldDealer = gameEngine.currentDealer;
+  gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
+  
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+  console.log(`🔄 DEALER ROTATED: ${playerNames[oldDealer]} → ${playerNames[gameEngine.currentDealer]}`);
+},
 
   onGameEnd(gameEngine) {
     const winner = this.getWinner(gameEngine);

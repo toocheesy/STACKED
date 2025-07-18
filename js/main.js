@@ -535,7 +535,7 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 FIXED: checkGameEnd() - NOW PROPERLY HANDLES DEALER ROTATION!
+// 🔥 FIXED: checkGameEnd() - PROPER ROUND vs HAND LOGIC!
 function checkGameEnd() {
   const endResult = game.checkGameEnd();
   
@@ -545,59 +545,61 @@ function checkGameEnd() {
     }
     showGameOverModal(endResult);
   } else if (endResult.roundOver) {
-    // 🔥 CRITICAL FIX: Call onRoundEnd BEFORE showing modal!
+    // 🔥 TRUE ROUND END: Deck is empty, rotate dealer for next round
     if (game.currentMode.onRoundEnd) {
-      console.log(`🔄 CALLING onRoundEnd() - This should rotate dealer!`);
+      console.log(`🔄 TRUE ROUND END - ROTATING DEALER FOR NEW ROUND`);
       game.currentMode.onRoundEnd(game);
     }
     
-    // 🔥 CRITICAL FIX: Increment round counter and set starting player!
     game.currentRound++;
     game.setStartingPlayer();
     
-    console.log(`🎯 ROUND ${game.currentRound} SETUP COMPLETE`);
+    console.log(`🎯 NEW ROUND ${game.currentRound} SETUP COMPLETE`);
     
     showRoundEndModal(endResult);
   } else if (endResult.continueRound) {
-    // 🔥 CRITICAL FIX: Also rotate dealer for new rounds within same deal!
-    if (game.currentMode.onRoundEnd) {
-      console.log(`🔄 CALLING onRoundEnd() for new round deal`);
-      game.currentMode.onRoundEnd(game);
-    }
-    
-    game.currentRound++;
-    game.setStartingPlayer();
-    
+    // 🔥 NEW HAND: Just deal new cards, keep same dealer and starting player
+    console.log(`🎮 DEALING NEW HAND - SAME DEALER, SAME STARTING PLAYER`);
     dealNewCards();
   }
 }
 
-// 🎯 FIXED dealNewCards() - REMOVED EXTRA checkGameEnd() CALL
+// 🔥 FIXED: dealNewCards() - NEW HAND, SAME DEALER/STARTING PLAYER
 function dealNewCards() {
   try {
-    // 🔥 CRITICAL FIX: Remove the extra checkGameEnd() call here!
-    // The game end should be handled by the calling function, not here
     if (game.state.deck.length < 12) {
       console.log(`🎯 DECK TOO LOW: ${game.state.deck.length} cards - letting calling function handle game end`);
-      return; // Just return, don't call checkGameEnd() here!
+      return;
     }
     
     const dealResult = dealCards(game.state.deck, 3, 4, 0);
     game.state.hands = dealResult.players;
     game.state.deck = dealResult.remainingDeck;
-    game.state.currentPlayer = 0;
+    
+    // 🔥 CRITICAL FIX: Keep the same starting player from beginning of round!
+    const originalStartingPlayer = (game.currentDealer + 1) % 3;
+    game.state.currentPlayer = originalStartingPlayer;
+    
+    console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][originalStartingPlayer]} (same as round start)`);
+    
     game.state.lastCapturer = null;
     
-    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
+    // 🎯 SEND NEW HAND EVENT (NOT NEW ROUND!)
     window.messageController.handleGameEvent('NEW_ROUND', {
-      roundNumber: game.currentRound
+      handNumber: Math.floor((52 - game.state.deck.length) / 12)
     });
     
     ui.render();
+    
+    // 🔥 CRITICAL FIX: Start bot turn if bot should go first
+    if (game.state.currentPlayer !== 0) {
+      console.log(`🤖 NEW HAND STARTS WITH BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
+      setTimeout(() => scheduleNextBotTurn(), 1000);
+    }
+    
   } catch (e) {
     console.error('Error dealing cards:', e);
     
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: 'Error dealing cards! Restart the game.'
     });
