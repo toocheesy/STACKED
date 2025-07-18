@@ -361,7 +361,8 @@ function showGameOverModal(endResult) {
 }
 
 function dealNewRound() {
-  game.currentDealer = (game.currentDealer + 1) % 3;
+  // 🔥 FIXED: Use proper dealer rotation from game engine
+  game.rotateDealerClockwise();
   game.currentRound++;
   
   try {
@@ -370,7 +371,7 @@ function dealNewRound() {
     game.state.hands = dealResult.players;
     game.state.board = dealResult.board;
     game.state.deck = dealResult.remainingDeck;
-    game.state.currentPlayer = 0;
+    // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
     game.state.lastCapturer = null;
     
     // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER

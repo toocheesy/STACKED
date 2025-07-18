@@ -293,8 +293,8 @@ class GameEngine {
       const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
       if (totalCards === 0) {
         console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-        // 🔥 FIXED: Call this.checkGameEnd() instead of checkGameEnd()
-        setTimeout(() => this.checkGameEnd(), 100);
+        // 🔥 FIXED: Call the global checkGameEnd() function instead
+        setTimeout(() => window.checkGameEnd(), 100);
         return;
       }
       
@@ -302,8 +302,8 @@ class GameEngine {
     
     // Safety fallback - if we can't find anyone with cards
     console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-    // 🔥 FIXED: Call this.checkGameEnd() instead of checkGameEnd()
-    setTimeout(() => this.checkGameEnd(), 100);
+    // 🔥 FIXED: Call the global checkGameEnd() function instead
+    setTimeout(() => window.checkGameEnd(), 100);
   }
 
   // 🔥 NEW: Rotate dealer clockwise for new round
