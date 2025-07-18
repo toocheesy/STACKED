@@ -544,11 +544,24 @@ function dealNewRound() {
 // 🌍 GLOBAL EXPORTS - Make everything available globally
 // ============================================================================
 
-// Export utility classes
+// Make utility classes globally available
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
+window.initSounds = initSounds;
 window.showRoundEndModal = showRoundEndModal;
 window.showGameOverModal = showGameOverModal;
 window.dealNewRound = dealNewRound;
+window.parseJackpotMessage = parseJackpotMessage;
+window.createScoreBreakdown = createScoreBreakdown;
+window.createJackpotAnnouncement = createJackpotAnnouncement;
+window.rankPlayers = rankPlayers;
+window.createConfetti = createConfetti;
+
+// Make sure playSound function exists globally (referenced in main.js)
+window.playSound = function(type) {
+  if (window.sounds && window.sounds[type]) {
+    window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
+  }
+};
 
 console.log('🔥 HELPERS.JS LOADED - All utilities consolidated and ready!');
