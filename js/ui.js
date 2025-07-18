@@ -183,6 +183,31 @@ renderDeckCount() {
   renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.innerHTML = '';
     
+    // 🔥 NEW: Add live sum totals for sum areas
+    if (slotName.startsWith('sum') && cards.length > 0) {
+      const sumTotal = this.calculateSumTotal(cards);
+      const sumDisplay = document.createElement('div');
+      sumDisplay.className = 'sum-total-display';
+      sumDisplay.textContent = `[${sumTotal}]`;
+      sumDisplay.style.cssText = `
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #8B5A2B, #A0622F);
+        color: #F5E8C7;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 16px;
+        font-family: 'Cabin', sans-serif;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        border: 2px solid #D2A679;
+        z-index: 10;
+      `;
+      areaEl.appendChild(sumDisplay);
+    }
+    
     if (cards.length > 0) {
       cards.forEach((comboEntry, comboIndex) => {
         const card = comboEntry.card;
@@ -206,6 +231,24 @@ renderDeckCount() {
       areaEl.style.border = '2px dashed #ccc';
       areaEl.style.height = '110px';
     }
+  }
+
+  // 🔥 NEW: Calculate sum total for sum areas
+  calculateSumTotal(cards) {
+    return cards.reduce((total, comboEntry) => {
+      const card = comboEntry.card;
+      let value = 0;
+      
+      if (card.value === 'A') {
+        value = 1; // Aces = 1 for sum calculations
+      } else if (['J', 'Q', 'K'].includes(card.value)) {
+        value = 10; // Face cards = 10
+      } else {
+        value = parseInt(card.value) || 0;
+      }
+      
+      return total + value;
+    }, 0);
   }
 
   renderBoard() {
