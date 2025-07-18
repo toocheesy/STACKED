@@ -552,7 +552,6 @@ function checkGameEnd() {
     }
     
     game.currentRound++;
-    game.setStartingPlayer();
     
     console.log(`🎯 NEW ROUND ${game.currentRound} SETUP COMPLETE`);
     

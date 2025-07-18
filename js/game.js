@@ -327,16 +327,6 @@ setStartingPlayer() {
   console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
 }
 
-// 🔥 NEW: Rotate dealer clockwise for new round
-rotateDealerClockwise() {
-    this.currentDealer = (this.currentDealer + 1) % 3;
-    console.log(`🔄 DEALER ROTATED: Now dealer is ${['Player', 'Bot 1', 'Bot 2'][this.currentDealer]}`);
-    
-    // Set starting player to left of dealer (next clockwise)
-    this.state.currentPlayer = (this.currentDealer + 1) % 3;
-    console.log(`🎯 STARTING PLAYER: ${['Player', 'Bot 1', 'Bot 2'][this.state.currentPlayer]} (left of dealer)`);
-  }
-
   // Check if game should end (uses current mode)
   checkGameEnd() {
     if (this.currentMode.checkEndCondition) {
