@@ -94,74 +94,51 @@ class GameStateManager {
   }
 
   // 🔍 ANALYZE GAME STATE AND DETERMINE NEXT ACTION
-analyzeGameState(snapshot, gameEngine) {
-  this.log('🎯 ANALYZING GAME STATE...');
-  
-  // 🔥 NEW: Check what the last action was
-  const lastAction = gameEngine.state.lastAction || null;
-  const currentPlayer = snapshot.currentPlayer;
-  
-  this.log(`🎯 LAST ACTION: ${lastAction}, CURRENT PLAYER: ${currentPlayer}`);
-  
-  // 🔥 RULE: If last action was "place", turn MUST end (find next player)
-  if (lastAction === 'place') {
-    this.log('🎯 LAST ACTION WAS PLACE - TURN MUST END, FINDING NEXT PLAYER');
+  analyzeGameState(snapshot, gameEngine) {
+    this.log('🎯 ANALYZING GAME STATE...');
     
-    // Find next player in turn order (not the current player who just placed)
-    const nextPlayerWithCards = this.findNextPlayerWithCards(snapshot, true); // true = skip current player
+    // 🔥 NEW: Check what the last action was
+    const lastAction = gameEngine.state.lastAction || null;
+    const currentPlayer = snapshot.currentPlayer;
     
-    if (nextPlayerWithCards !== null) {
-      this.log(`✅ NEXT PLAYER ${nextPlayerWithCards} HAS CARDS - CONTINUE TURN`);
-      return this.createContinueTurnResult(nextPlayerWithCards, snapshot);
-    }
-  } 
-  // 🔥 RULE: If last action was "capture", same player can continue if they have cards
-  else if (lastAction === 'capture') {
-    this.log('🎯 LAST ACTION WAS CAPTURE - SAME PLAYER CAN CONTINUE IF THEY HAVE CARDS');
+    this.log(`🎯 LAST ACTION: ${lastAction}, CURRENT PLAYER: ${currentPlayer}`);
     
-    if (snapshot.handSizes[currentPlayer] > 0) {
-      this.log(`✅ PLAYER ${currentPlayer} HAS CARDS AFTER CAPTURE - CONTINUE TURN`);
-      return this.createContinueTurnResult(currentPlayer, snapshot);
-    } else {
-      this.log(`🎯 PLAYER ${currentPlayer} OUT OF CARDS AFTER CAPTURE - FINDING NEXT PLAYER`);
-      const nextPlayerWithCards = this.findNextPlayerWithCards(snapshot, true);
+    // 🔥 RULE: If last action was "place", turn MUST end (find next player)
+    if (lastAction === 'place') {
+      this.log('🎯 LAST ACTION WAS PLACE - TURN MUST END, FINDING NEXT PLAYER');
+      
+      // Find next player in turn order (not the current player who just placed)
+      const nextPlayerWithCards = this.findNextPlayerWithCards(snapshot, true); // true = skip current player
+      
       if (nextPlayerWithCards !== null) {
+        this.log(`✅ NEXT PLAYER ${nextPlayerWithCards} HAS CARDS - CONTINUE TURN`);
         return this.createContinueTurnResult(nextPlayerWithCards, snapshot);
       }
+    } 
+    // 🔥 RULE: If last action was "capture", same player can continue if they have cards
+    else if (lastAction === 'capture') {
+      this.log('🎯 LAST ACTION WAS CAPTURE - SAME PLAYER CAN CONTINUE IF THEY HAVE CARDS');
+      
+      if (snapshot.handSizes[currentPlayer] > 0) {
+        this.log(`✅ PLAYER ${currentPlayer} HAS CARDS AFTER CAPTURE - CONTINUE TURN`);
+        return this.createContinueTurnResult(currentPlayer, snapshot);
+      } else {
+        this.log(`🎯 PLAYER ${currentPlayer} OUT OF CARDS AFTER CAPTURE - FINDING NEXT PLAYER`);
+        const nextPlayerWithCards = this.findNextPlayerWithCards(snapshot, true);
+        if (nextPlayerWithCards !== null) {
+          return this.createContinueTurnResult(nextPlayerWithCards, snapshot);
+        }
+      }
     }
-  }
-  // 🔥 FALLBACK: No last action recorded, use original logic
-  else {
-    this.log('🎯 NO LAST ACTION RECORDED - USING ORIGINAL LOGIC');
-    const playerWithCards = this.findNextPlayerWithCards(snapshot);
-    if (playerWithCards !== null) {
-      this.log(`✅ PLAYER ${playerWithCards} HAS CARDS - CONTINUE TURN`);
-      return this.createContinueTurnResult(playerWithCards, snapshot);
+    // 🔥 FALLBACK: No last action recorded, use original logic
+    else {
+      this.log('🎯 NO LAST ACTION RECORDED - USING ORIGINAL LOGIC');
+      const playerWithCards = this.findNextPlayerWithCards(snapshot);
+      if (playerWithCards !== null) {
+        this.log(`✅ PLAYER ${playerWithCards} HAS CARDS - CONTINUE TURN`);
+        return this.createContinueTurnResult(playerWithCards, snapshot);
+      }
     }
-  }
-  
-  // STEP 2: Check if we can deal new hand (DEAL_NEW_HAND)
-  if (this.canDealNewHand(snapshot)) {
-    this.log(`✅ DECK HAS ${snapshot.deckSize} CARDS - DEAL NEW HAND`);
-    return this.createDealNewHandResult(snapshot);
-  }
-  
-  // STEP 3: Round end - apply jackpot and check scores
-  this.log('🏆 ROUND END - APPLYING JACKPOT AND CHECKING SCORES');
-  const jackpotResult = this.applyJackpot(snapshot, gameEngine);
-  const scoresAfterJackpot = this.calculateScoresAfterJackpot(snapshot, jackpotResult);
-  
-  // STEP 4: Determine if game ends or continues to new round
-  const shouldEndGame = this.shouldGameEnd(scoresAfterJackpot, snapshot.targetScore);
-  
-  if (shouldEndGame) {
-    this.log('🏆 GAME SHOULD END - TARGET SCORE REACHED');
-    return this.createEndGameResult(scoresAfterJackpot, jackpotResult, snapshot);
-  } else {
-    this.log('🔄 NEW ROUND NEEDED - NO ONE REACHED TARGET');
-    return this.createEndRoundResult(scoresAfterJackpot, jackpotResult, snapshot);
-  }
-}
     
     // STEP 2: Check if we can deal new hand (DEAL_NEW_HAND)
     if (this.canDealNewHand(snapshot)) {
@@ -187,50 +164,28 @@ analyzeGameState(snapshot, gameEngine) {
   }
 
   // 🔍 FIND NEXT PLAYER WITH CARDS (DEALER ORDER)
-findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
-  this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
-  
-  let playerOrder;
-  
-  if (skipCurrentPlayer) {
-    // 🔥 NEW: Skip current player, start with next player in turn order
-    this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}, FINDING NEXT`);
-    
-    playerOrder = [
-      (snapshot.currentPlayer + 1) % 3,
-      (snapshot.currentPlayer + 2) % 3,
-      snapshot.currentPlayer  // Check current player last as fallback
-    ];
-  } else {
-    // Original logic: Check players in dealer order starting with starting player
-    playerOrder = [
-      snapshot.startingPlayer,
-      (snapshot.startingPlayer + 1) % 3,
-      (snapshot.startingPlayer + 2) % 3
-    ];
-  }
-  
-  for (const playerIndex of playerOrder) {
-    const cardCount = snapshot.handSizes[playerIndex];
-    this.log(`   Player ${playerIndex}: ${cardCount} cards`);
-    
-    if (cardCount > 0) {
-      this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
-      return playerIndex;
-    }
-  }
-  
-  this.log('❌ NO PLAYERS HAVE CARDS');
-  return null;
-}
+  findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
     this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
     
-    // Check players in dealer order: starting player → clockwise
-    const playerOrder = [
-      snapshot.startingPlayer,
-      (snapshot.startingPlayer + 1) % 3,
-      (snapshot.startingPlayer + 2) % 3
-    ];
+    let playerOrder;
+    
+    if (skipCurrentPlayer) {
+      // 🔥 NEW: Skip current player, start with next player in turn order
+      this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}, FINDING NEXT`);
+      
+      playerOrder = [
+        (snapshot.currentPlayer + 1) % 3,
+        (snapshot.currentPlayer + 2) % 3,
+        snapshot.currentPlayer  // Check current player last as fallback
+      ];
+    } else {
+      // Original logic: Check players in dealer order starting with starting player
+      playerOrder = [
+        snapshot.startingPlayer,
+        (snapshot.startingPlayer + 1) % 3,
+        (snapshot.startingPlayer + 2) % 3
+      ];
+    }
     
     for (const playerIndex of playerOrder) {
       const cardCount = snapshot.handSizes[playerIndex];
