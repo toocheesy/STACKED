@@ -541,75 +541,51 @@ function handleBoardDrop(e) {
   }
 }
 
-// 🔥 FIXED: checkGameEnd() - PROPER ROUND vs HAND LOGIC!
+// 🔥 UPDATED: checkGameEnd() - NOW USES GAME STATE MANAGER
 function checkGameEnd() {
-  const endResult = game.checkGameEnd();
+  console.log('🎯 CHECKGAMEEND() CALLED - USING GAME STATE MANAGER');
   
-  if (endResult.gameOver) {
-    if (game.currentMode.onGameEnd) {
-      game.currentMode.onGameEnd(game);
-    }
-    showGameOverModal(endResult);
-  } else if (endResult.roundOver) {
-    // 🔥 TRUE ROUND END: Deck is empty, rotate dealer for next round
-    if (game.currentMode.onRoundEnd) {
-      console.log(`🔄 TRUE ROUND END - ROTATING DEALER FOR NEW ROUND`);
-      game.currentMode.onRoundEnd(game);
-    }
-    
-    game.currentRound++;
-    
-    console.log(`🎯 NEW ROUND ${game.currentRound} SETUP COMPLETE`);
-    
-    showRoundEndModal(endResult);
-  } else if (endResult.continueRound) {
-    // 🔥 NEW HAND: Just deal new cards, keep same dealer and starting player
-    console.log(`🎮 DEALING NEW HAND - SAME DEALER, SAME STARTING PLAYER`);
-    dealNewCards();
+  // 🔥 USE NEW GAME STATE MANAGER
+  const result = window.gameStateManager.determineGameState(game);
+  
+  console.log(`🎯 GAME STATE RESULT: ${result.state}`);
+  
+  // Handle each possible state
+  switch(result.state) {
+    case 'CONTINUE_TURN':
+      handleContinueTurn(result);
+      break;
+      
+    case 'DEAL_NEW_HAND':
+      handleDealNewHand(result);
+      break;
+      
+    case 'END_ROUND':
+      handleEndRound(result);
+      break;
+      
+    case 'END_GAME':
+      handleEndGame(result);
+      break;
+      
+    case 'ERROR':
+      handleGameStateError(result);
+      break;
+      
+    default:
+      console.error(`🚨 UNKNOWN GAME STATE: ${result.state}`);
+      handleGameStateError({
+        data: {
+          message: `Unknown game state: ${result.state}`,
+          userMessage: 'Game encountered an unknown state. Please restart.',
+          technicalDetails: JSON.stringify(result, null, 2)
+        }
+      });
   }
 }
 
-// 🔥 FIXED: dealNewCards() - NEW HAND, SAME DEALER/STARTING PLAYER
-function dealNewCards() {
-  try {
-    if (game.state.deck.length < 12) {
-      console.log(`🎯 DECK TOO LOW: ${game.state.deck.length} cards - letting calling function handle game end`);
-      return;
-    }
-    
-    const dealResult = dealCards(game.state.deck, 3, 4, 0);
-    game.state.hands = dealResult.players;
-    game.state.deck = dealResult.remainingDeck;
-    
-    // 🔥 CRITICAL FIX: Keep the same starting player from beginning of round!
-    const originalStartingPlayer = (game.currentDealer + 1) % 3;
-    game.state.currentPlayer = originalStartingPlayer;
-    
-    console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][originalStartingPlayer]} (same as round start)`);
-    
-    game.state.lastCapturer = null;
-    
-    // 🎯 SEND NEW HAND EVENT (NOT NEW ROUND!)
-    window.messageController.handleGameEvent('NEW_ROUND', {
-      handNumber: Math.floor((52 - game.state.deck.length) / 12)
-    });
-    
-    ui.render();
-    
-    // 🔥 CRITICAL FIX: Start bot turn if bot should go first
-    if (game.state.currentPlayer !== 0) {
-      console.log(`🤖 NEW HAND STARTS WITH BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
-      setTimeout(() => scheduleNextBotTurn(), 1000);
-    }
-    
-  } catch (e) {
-    console.error('Error dealing cards:', e);
-    
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: 'Error dealing cards! Restart the game.'
-    });
-  }
-}
+// 🔥 REMOVED: dealNewCards() function - Now handled by GameStateManager
+// This function has been replaced by handleDealNewHand() below
 
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
@@ -942,6 +918,173 @@ window.handleTouchDrop = handleTouchDrop;
 // Make classes globally available
 window.DraggableModal = DraggableModal;
 window.HintSystem = HintSystem;
+
+// 🎯 NEW GAME STATE HANDLER FUNCTIONS
+
+// 🎯 CONTINUE TURN - Player found with cards
+function handleContinueTurn(result) {
+  const playerIndex = result.nextPlayer;
+  console.log(`✅ CONTINUE TURN: Player ${playerIndex} has cards`);
+  
+  // Set the current player
+  game.state.currentPlayer = playerIndex;
+  
+  // Update UI
+  ui.render();
+  
+  // Send turn start event to message controller
+  window.messageController.handleGameEvent('TURN_START');
+  
+  // If it's a bot, schedule their turn
+  if (playerIndex !== 0) {
+    console.log(`🤖 SCHEDULING BOT ${playerIndex} TURN`);
+    setTimeout(() => scheduleNextBotTurn(), 1000);
+  }
+}
+
+// 🎴 DEAL NEW HAND - Same dealer, same starting player
+function handleDealNewHand(result) {
+  console.log(`✅ DEAL NEW HAND: Deck has ${result.data.deckSize} cards`);
+  
+  try {
+    // Deal new cards (existing function)
+    const dealResult = dealCards(game.state.deck, 3, 4, 0);
+    game.state.hands = dealResult.players;
+    game.state.deck = dealResult.remainingDeck;
+    
+    // Keep same starting player as beginning of round
+    game.state.currentPlayer = result.data.startingPlayer;
+    game.state.lastCapturer = null;
+    
+    console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][result.data.startingPlayer]}`);
+    
+    // Send new hand event to message controller
+    window.messageController.handleGameEvent('NEW_ROUND', {
+      handNumber: Math.floor((52 - game.state.deck.length) / 12)
+    });
+    
+    // Update UI
+    ui.render();
+    
+    // If starting player is a bot, schedule their turn
+    if (result.data.startingPlayer !== 0) {
+      console.log(`🤖 NEW HAND STARTS WITH BOT ${result.data.startingPlayer} - SCHEDULING TURN`);
+      setTimeout(() => scheduleNextBotTurn(), 1000);
+    }
+    
+  } catch (error) {
+    console.error('🚨 ERROR DEALING NEW HAND:', error);
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: 'Error dealing new hand! Please restart the game.'
+    });
+  }
+}
+
+// 🔄 END ROUND - Apply jackpot, rotate dealer, start new round
+function handleEndRound(result) {
+  console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
+  
+  // Apply jackpot to game scores if it exists
+  if (result.data.jackpot.hasJackpot) {
+    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
+    
+    // Apply jackpot to game engine scores
+    const jackpot = result.data.jackpot;
+    game.addScore(jackpot.winner, jackpot.points);
+    game.addOverallScore(jackpot.winner, jackpot.points);
+    
+    // Clear the board after jackpot
+    game.state.board = [];
+  }
+  
+  // Update dealer and round
+  game.currentDealer = result.data.newDealer;
+  game.currentRound = result.data.newRound;
+  
+  console.log(`🔄 DEALER ROTATED: ${['Player', 'Bot 1', 'Bot 2'][result.data.oldDealer]} → ${['Player', 'Bot 1', 'Bot 2'][result.data.newDealer]}`);
+  
+  // Notify current mode of round end
+  if (game.currentMode.onRoundEnd) {
+    game.currentMode.onRoundEnd(game);
+  }
+  
+  // Show round end modal with jackpot message
+  const endResult = {
+    roundOver: true,
+    message: result.data.jackpot.message,
+    newRound: result.data.newRound
+  };
+  
+  showRoundEndModal(endResult);
+}
+
+// 🏆 END GAME - Show game over modal
+function handleEndGame(result) {
+  console.log(`✅ END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
+  
+  // Apply jackpot to game scores if it exists
+  if (result.data.jackpot.hasJackpot) {
+    console.log(`🏆 FINAL JACKPOT: ${result.data.jackpot.message}`);
+    
+    // Apply jackpot to game engine scores
+    const jackpot = result.data.jackpot;
+    game.addScore(jackpot.winner, jackpot.points);
+    game.addOverallScore(jackpot.winner, jackpot.points);
+    
+    // Clear the board after jackpot
+    game.state.board = [];
+  }
+  
+  // Notify current mode of game end
+  if (game.currentMode.onGameEnd) {
+    game.currentMode.onGameEnd(game);
+  }
+  
+  // Show game over modal with jackpot message
+  const endResult = {
+    gameOver: true,
+    winner: result.data.winnerName,
+    message: result.data.jackpot.message,
+    reason: 'target_score_reached'
+  };
+  
+  showGameOverModal(endResult);
+}
+
+// 🚨 HANDLE GAME STATE ERROR
+function handleGameStateError(result) {
+  console.error(`🚨 GAME STATE ERROR: ${result.data.message}`);
+  console.error(`🔍 TECHNICAL DETAILS:`, result.data.technicalDetails);
+  
+  // Show error to user
+  const errorModal = document.createElement('div');
+  errorModal.innerHTML = `
+    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); display: flex; align-items: center; 
+                justify-content: center; z-index: 10000;">
+      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center;">
+        <h2 style="color: #d32f2f; margin-bottom: 20px;">⚠️ Game Error</h2>
+        <p style="margin-bottom: 20px;">${result.data.userMessage}</p>
+        <div style="margin-bottom: 20px;">
+          <details>
+            <summary style="cursor: pointer; color: #666;">Technical Details</summary>
+            <pre style="text-align: left; background: #f5f5f5; padding: 10px; margin-top: 10px; overflow: auto; max-height: 200px;">${result.data.technicalDetails}</pre>
+          </details>
+        </div>
+        <button onclick="location.reload()" style="background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+          Restart Game
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(errorModal);
+  
+  // Also send error to message controller
+  window.messageController.handleGameEvent('CAPTURE_ERROR', {
+    message: result.data.userMessage
+  });
+}
 
 // Initialize the game
 initGame();
