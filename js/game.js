@@ -294,10 +294,17 @@ nextPlayer() {
     // If no one has cards, end the round
     const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
     if (totalCards === 0) {
-      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ENDING ROUND`);
-      // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled by main.js!
-      return;
+  console.log(`🏁 ALL PLAYERS OUT OF CARDS - CALLING checkGameEnd()`);
+  // 🔥 FIXED: Call checkGameEnd() to let Game State Manager decide what to do
+  setTimeout(() => {
+    if (typeof checkGameEnd === 'function') {
+      checkGameEnd();
+    } else {
+      console.error('🚨 checkGameEnd function not available!');
     }
+  }, 50);
+  return;
+}
     
   } while (attempts < maxAttempts);
   

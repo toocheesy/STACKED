@@ -170,10 +170,10 @@ class GameStateManager {
     let playerOrder;
     
     if (skipCurrentPlayer) {
-  // 🔥 FIXED: For place action, the turn already switched, so check ALL players in order
-  this.log(`🔄 TURN ALREADY SWITCHED - CHECKING ALL PLAYERS IN ORDER`);
+  // 🔥 FIXED: After place action, check if current player has cards, then others
+  this.log(`🔄 CHECKING PLAYERS STARTING WITH CURRENT PLAYER`);
   
-  // Start from current player (who just got the turn) and go clockwise
+  // Check current player first (who just received turn), then others clockwise
   playerOrder = [
     snapshot.currentPlayer,
     (snapshot.currentPlayer + 1) % 3,

@@ -679,17 +679,17 @@ async function aiTurn() {
           botTurnInProgress = false;
           setTimeout(() => scheduleNextBotTurn(), 1500);
         } else {
-          console.log(`🏁 BOT ${playerIndex}: Out of cards after capture`);
-          game.nextPlayer();
-          ui.render();
-          botTurnInProgress = false;
-          
-          if (game.state.currentPlayer !== 0 && 
-              game.state.hands[game.state.currentPlayer] && 
-              game.state.hands[game.state.currentPlayer].length > 0) {
-            setTimeout(() => scheduleNextBotTurn(), 1000);
-          }
-        }
+  console.log(`🏁 BOT ${playerIndex}: Out of cards after capture`);
+  game.nextPlayer();
+  ui.render();
+  botTurnInProgress = false;
+  
+  // 🔥 FIXED: Call checkGameEnd() when bot runs out of cards after capture
+  setTimeout(() => {
+    console.log(`🎯 BOT OUT OF CARDS - CALLING checkGameEnd()`);
+    checkGameEnd();
+  }, 100);
+}
       } else if (result.action === 'place') {
   // Bot placed card, switch to next player
   console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
@@ -703,29 +703,19 @@ async function aiTurn() {
   // 🔥 CRITICAL FIX: Clear the bot turn flag BEFORE any logic
   botTurnInProgress = false;
   
-  // 🔥 ONLY call checkGameEnd() if it's NOT the human player's turn
-  if (game.state.currentPlayer !== 0) {
-    console.log(`🤖 CALLING checkGameEnd() because current player is Bot ${game.state.currentPlayer}`);
-    // 🔥 CRITICAL: Don't call checkGameEnd immediately - let the turn change settle
-    setTimeout(() => {
-      console.log(`🎯 DELAYED checkGameEnd() for Bot ${game.state.currentPlayer}`);
-      checkGameEnd();
-    }, 100);
-  } else {
-    console.log(`👤 HUMAN PLAYER'S TURN - NOT CALLING checkGameEnd()`);
-    // Send turn start event for human
-    window.messageController.handleGameEvent('TURN_START');
-  }
-  
-  // 🔥 CRITICAL: Only call checkGameEnd() if it's NOT the human player's turn
-  if (game.state.currentPlayer !== 0) {
-    console.log(`🤖 CALLING checkGameEnd() because current player is Bot ${game.state.currentPlayer}`);
+  // 🔥 FIXED: Single checkGameEnd() call with proper timing
+if (game.state.currentPlayer !== 0) {
+  console.log(`🤖 CALLING checkGameEnd() because current player is Bot ${game.state.currentPlayer}`);
+  // Small delay to let turn change settle
+  setTimeout(() => {
+    console.log(`🎯 DELAYED checkGameEnd() for Bot ${game.state.currentPlayer}`);
     checkGameEnd();
-  } else {
-    console.log(`👤 HUMAN PLAYER'S TURN - NOT CALLING checkGameEnd()`);
-    // Send turn start event for human
-    window.messageController.handleGameEvent('TURN_START');
-  }
+  }, 100);
+} else {
+  console.log(`👤 HUMAN PLAYER'S TURN - NOT CALLING checkGameEnd()`);
+  // Send turn start event for human
+  window.messageController.handleGameEvent('TURN_START');
+}
         
         if (game.state.currentPlayer !== 0 && 
             game.state.hands[game.state.currentPlayer] && 
