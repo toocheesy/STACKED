@@ -693,11 +693,29 @@ async function aiTurn() {
       } else if (result.action === 'place') {
   // Bot placed card, switch to next player
   console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
+  
+  // 🔥 CRITICAL FIX: Update current player BEFORE calling checkGameEnd
   game.nextPlayer();
   ui.render();
-  botTurnInProgress = false;
   
   console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
+  
+  // 🔥 CRITICAL FIX: Clear the bot turn flag BEFORE any logic
+  botTurnInProgress = false;
+  
+  // 🔥 ONLY call checkGameEnd() if it's NOT the human player's turn
+  if (game.state.currentPlayer !== 0) {
+    console.log(`🤖 CALLING checkGameEnd() because current player is Bot ${game.state.currentPlayer}`);
+    // 🔥 CRITICAL: Don't call checkGameEnd immediately - let the turn change settle
+    setTimeout(() => {
+      console.log(`🎯 DELAYED checkGameEnd() for Bot ${game.state.currentPlayer}`);
+      checkGameEnd();
+    }, 100);
+  } else {
+    console.log(`👤 HUMAN PLAYER'S TURN - NOT CALLING checkGameEnd()`);
+    // Send turn start event for human
+    window.messageController.handleGameEvent('TURN_START');
+  }
   
   // 🔥 CRITICAL: Only call checkGameEnd() if it's NOT the human player's turn
   if (game.state.currentPlayer !== 0) {

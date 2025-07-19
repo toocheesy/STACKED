@@ -170,15 +170,18 @@ class GameStateManager {
     let playerOrder;
     
     if (skipCurrentPlayer) {
-      // 🔥 NEW: Skip current player, start with next player in turn order
-      this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}, FINDING NEXT`);
-      
-      playerOrder = [
-        (snapshot.currentPlayer + 1) % 3,
-        (snapshot.currentPlayer + 2) % 3,
-        snapshot.currentPlayer  // Check current player last as fallback
-      ];
-    } else {
+  // 🔥 FIXED: For place action, the turn already switched, so check ALL players in order
+  this.log(`🔄 TURN ALREADY SWITCHED - CHECKING ALL PLAYERS IN ORDER`);
+  
+  // Start from current player (who just got the turn) and go clockwise
+  playerOrder = [
+    snapshot.currentPlayer,
+    (snapshot.currentPlayer + 1) % 3,
+    (snapshot.currentPlayer + 2) % 3
+  ];
+} 
+    
+    else {
       // Original logic: Check players in dealer order starting with starting player
       playerOrder = [
         snapshot.startingPlayer,
