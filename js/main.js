@@ -426,7 +426,11 @@ function handleSubmit() {
   }
 
   game.executeCapture(baseCard, validCaptures, allCapturedCards);
-  window.cardIntelligence.updateCardsSeen(allCapturedCards);
+window.cardIntelligence.updateCardsSeen(allCapturedCards);
+
+// 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
+game.state.lastAction = 'capture';
+console.log('🎯 LAST ACTION SET TO: capture');
     
   if (game.currentMode.onCapture) {
     game.currentMode.onCapture(game, allCapturedCards);
@@ -511,9 +515,13 @@ function handleBoardDrop(e) {
     
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
-    window.cardIntelligence.updateCardsSeen([handCard]);
-    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    game.state.draggedCard = null;
+window.cardIntelligence.updateCardsSeen([handCard]);
+game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+game.state.draggedCard = null;
+
+// 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER
+game.state.lastAction = 'place';
+console.log('🎯 LAST ACTION SET TO: place');
     
     // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CARD_PLACED', {

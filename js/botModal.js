@@ -203,12 +203,16 @@ class BotModalInterface {
     console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
     // 🔥 CRITICAL FIX: Use GameEngine's executeCapture() for proper card removal
-    this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
+this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
 
-    // Track captured cards for AI intelligence
-    if (window.cardIntelligence) {
-      window.cardIntelligence.updateCardsSeen(allCapturedCards);
-    }
+// 🔥 TRACK BOT LAST ACTION - CRITICAL FOR GAME STATE MANAGER
+this.game.state.lastAction = 'capture';
+console.log('🎯 BOT LAST ACTION SET TO: capture');
+
+// Track captured cards for AI intelligence
+if (window.cardIntelligence) {
+  window.cardIntelligence.updateCardsSeen(allCapturedCards);
+}
 
     // Notify mode of capture
     if (this.game.currentMode.onCapture) {
@@ -287,8 +291,12 @@ class BotModalInterface {
       }
       
       // STEP 2: Remove from bot's hand ATOMICALLY
-      this.game.state.hands[playerIndex].splice(cardIndex, 1);
-      console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
+this.game.state.hands[playerIndex].splice(cardIndex, 1);
+console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
+
+// 🔥 TRACK BOT LAST ACTION - CRITICAL FOR GAME STATE MANAGER
+this.game.state.lastAction = 'place';
+console.log('🎯 BOT LAST ACTION SET TO: place');
       
       // STEP 3: Add to board IMMEDIATELY
       this.game.state.board.push(handCard);
