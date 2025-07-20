@@ -144,14 +144,10 @@ const ClassicMode = {
   },
 
   onRoundEnd(gameEngine) {
-  const oldDealer = gameEngine.currentDealer;
-  gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
-  
-  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-  console.log(`🔄 DEALER ROTATED: ${playerNames[oldDealer]} → ${playerNames[gameEngine.currentDealer]}`);
-  
-  // 🔥 CRITICAL FIX: DON'T increment round here - it's done in checkGameEnd()
-},
+    // 🔥 FIXED: GameStateManager now handles dealer rotation
+    // This function only handles mode-specific round end logic
+    console.log(`🔄 CLASSIC MODE: Round ended, GameStateManager handling dealer rotation`);
+  },
 
   onGameEnd(gameEngine) {
     const winner = this.getWinner(gameEngine);

@@ -1027,9 +1027,9 @@ function handleEndRound(result) {
     game.state.board = [];
   }
   
-  // Update dealer and round
-  game.currentDealer = result.data.newDealer;
+  // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
   game.currentRound = result.data.newRound;
+  game.currentDealer = result.data.newDealer;
   
   console.log(`🔄 DEALER ROTATED: ${['Player', 'Bot 1', 'Bot 2'][result.data.oldDealer]} → ${['Player', 'Bot 1', 'Bot 2'][result.data.newDealer]}`);
   
