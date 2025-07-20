@@ -841,11 +841,17 @@ function handleDrop(e, slot) {
   const cardBeingDropped = game.state.draggedCard.card;
   const sourceType = game.state.draggedCard.source;
 
-  game.state.combination[slot].push({
-    source: game.state.draggedCard.source,
-    index: game.state.draggedCard.index,
-    card: game.state.draggedCard.card
-  });
+  // 🔥 NEW: Add player tracking for combo entries (same as bot system)
+const currentPlayer = game.state.currentPlayer;
+game.state.combination[slot].push({
+  source: game.state.draggedCard.source,
+  index: game.state.draggedCard.index,
+  card: game.state.draggedCard.card,
+  playerSource: currentPlayer, // 🔥 NEW: Track which player added this card
+  fromBot: currentPlayer !== 0  // 🔥 NEW: Flag for consistency with bot system
+});
+
+console.log(`👤 PLAYER CARD ENTRY: Player ${currentPlayer} adding ${game.state.draggedCard.card.value}${game.state.draggedCard.card.suit} from ${game.state.draggedCard.source}[${game.state.draggedCard.index}] to ${slot}`);
 
   game.state.draggedCard = null;
 
