@@ -684,8 +684,16 @@ async function aiTurn() {
   ui.render();
   botTurnInProgress = false;
   
-  // 🔥 REMOVED: Don't call checkGameEnd() here - it's already called by game.nextPlayer()
-  console.log(`🏁 BOT ${playerIndex}: Out of cards, game.nextPlayer() will handle state management`);
+  // 🔥 FIXED: Schedule next bot turn if current player is a bot
+  if (game.state.currentPlayer !== 0 && 
+      game.state.hands[game.state.currentPlayer] && 
+      game.state.hands[game.state.currentPlayer].length > 0) {
+    console.log(`🤖 SCHEDULING NEXT BOT ${game.state.currentPlayer} AFTER OUT-OF-CARDS`);
+    setTimeout(() => scheduleNextBotTurn(), 1000);
+  } else {
+    // All players out or it's human turn - check game state
+    setTimeout(() => checkGameEnd(), 100);
+  }
 }
       } else if (result.action === 'place') {
   // Bot placed card, switch to next player
