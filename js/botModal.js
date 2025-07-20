@@ -15,12 +15,17 @@ class BotModalInterface {
   async botDragCardToSlot(card, sourceType, sourceIndex, targetSlot) {
     console.log(`🤖 BOT: Dragging ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
 
-    // 🚨 CRITICAL FIX: Create card entry WITHOUT modifying source arrays
-    const cardEntry = {
-      source: sourceType,
-      index: sourceIndex,
-      card: card
-    };
+    // 🔥 CRITICAL FIX: Create card entry WITH PLAYER TRACKING to prevent UI conflicts
+const currentPlayer = this.game.state.currentPlayer;
+const cardEntry = {
+  source: sourceType,
+  index: sourceIndex,
+  card: card,
+  playerSource: currentPlayer, // 🔥 NEW: Track which player added this card
+  fromBot: currentPlayer !== 0  // 🔥 NEW: Flag bot-added cards
+};
+
+console.log(`🤖 BOT CARD ENTRY: Player ${currentPlayer} adding ${card.value}${card.suit} from ${sourceType}[${sourceIndex}]`);
 
     // 🔥 SAFETY CHECK: Verify card exists in source location
     if (sourceType === 'hand') {

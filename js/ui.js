@@ -297,11 +297,15 @@ renderDeckCount() {
       const card = this.game.state.hands[0] && this.game.state.hands[0][index] ? this.game.state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      if (this.isCardInPlayArea(index, 'hand', 0) || !card) {
-        this.createEmptyCardSlot(cardEl, index, 'hand');
-      } else {
-        this.setupCardElement(cardEl, card, index, 'hand');
-      }
+      const isInPlayArea = this.isCardInPlayArea(index, 'hand', 0);
+if (isInPlayArea || !card) {
+  if (isInPlayArea) {
+    console.log(`🔍 UI DEBUG: Hiding player card at position ${index} - found in combo area`);
+  }
+  this.createEmptyCardSlot(cardEl, index, 'hand');
+} else {
+  this.setupCardElement(cardEl, card, index, 'hand');
+}
       
       handEl.appendChild(cardEl);
     }
@@ -455,7 +459,7 @@ getComboAreaStatus() {
 }
 
   // Helper methods
-  // 🔥 BULLETPROOF: Player-aware card tracking
+  // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
 isCardInPlayArea(index, source, playerIndex = null) {
   return Object.values(this.game.state.combination).some(area => 
     area.some(entry => {
@@ -464,15 +468,29 @@ isCardInPlayArea(index, source, playerIndex = null) {
         return false;
       }
       
-      // 🔥 NEW: If checking hand cards, make sure we're checking the right player
-      if (source === 'hand' && playerIndex !== null) {
-        // For hand cards, we need to know WHICH player's hand
-        // Bot cards in combo should not affect player hand rendering
-        const currentPlayer = this.game.state.currentPlayer;
-        return currentPlayer !== 0; // Only match if it's NOT the player's turn
+      // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
+      if (source === 'hand') {
+        // If we're checking the player's hand (playerIndex = 0)
+        if (playerIndex === 0) {
+          // NEVER hide player cards, regardless of what's in combo areas
+          // Player cards should only be hidden if THEY put them in combo areas
+          const currentPlayer = this.game.state.currentPlayer;
+          
+          // Only hide player cards if it's the player's turn AND they put cards in combo
+          if (currentPlayer === 0) {
+            // Check if this entry has a playerSource property indicating it came from player
+            return entry.playerSource === 0;
+          }
+          
+          // If it's a bot turn, NEVER hide player cards
+          return false;
+        }
+        
+        // For bot hands, use existing logic
+        return true;
       }
       
-      // Board cards don't need player checking
+      // Board cards always check normally
       return true;
     })
   );
