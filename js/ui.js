@@ -297,7 +297,7 @@ renderDeckCount() {
       const card = this.game.state.hands[0] && this.game.state.hands[0][index] ? this.game.state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      if (this.isCardInPlayArea(index, 'hand') || !card) {
+      if (this.isCardInPlayArea(index, 'hand', 0) || !card) {
         this.createEmptyCardSlot(cardEl, index, 'hand');
       } else {
         this.setupCardElement(cardEl, card, index, 'hand');
@@ -455,11 +455,28 @@ getComboAreaStatus() {
 }
 
   // Helper methods
-  isCardInPlayArea(index, source) {
-    return Object.values(this.game.state.combination).some(area => 
-      area.some(entry => entry.source === source && entry.index === index)
-    );
-  }
+  // 🔥 BULLETPROOF: Player-aware card tracking
+isCardInPlayArea(index, source, playerIndex = null) {
+  return Object.values(this.game.state.combination).some(area => 
+    area.some(entry => {
+      // Basic source and index match
+      if (entry.source !== source || entry.index !== index) {
+        return false;
+      }
+      
+      // 🔥 NEW: If checking hand cards, make sure we're checking the right player
+      if (source === 'hand' && playerIndex !== null) {
+        // For hand cards, we need to know WHICH player's hand
+        // Bot cards in combo should not affect player hand rendering
+        const currentPlayer = this.game.state.currentPlayer;
+        return currentPlayer !== 0; // Only match if it's NOT the player's turn
+      }
+      
+      // Board cards don't need player checking
+      return true;
+    })
+  );
+}
 
   createCardElement(card, index, type) {
     const cardEl = document.createElement('div');
