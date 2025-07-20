@@ -684,11 +684,8 @@ async function aiTurn() {
   ui.render();
   botTurnInProgress = false;
   
-  // 🔥 FIXED: Call checkGameEnd() when bot runs out of cards after capture
-  setTimeout(() => {
-    console.log(`🎯 BOT OUT OF CARDS - CALLING checkGameEnd()`);
-    checkGameEnd();
-  }, 100);
+  // 🔥 REMOVED: Don't call checkGameEnd() here - it's already called by game.nextPlayer()
+  console.log(`🏁 BOT ${playerIndex}: Out of cards, game.nextPlayer() will handle state management`);
 }
       } else if (result.action === 'place') {
   // Bot placed card, switch to next player
