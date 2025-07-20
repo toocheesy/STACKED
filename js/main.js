@@ -705,14 +705,10 @@ async function aiTurn() {
   
   // 🔥 FIXED: Single checkGameEnd() call with proper timing
 if (game.state.currentPlayer !== 0) {
-  console.log(`🤖 CALLING checkGameEnd() because current player is Bot ${game.state.currentPlayer}`);
-  // Small delay to let turn change settle
-  setTimeout(() => {
-    console.log(`🎯 DELAYED checkGameEnd() for Bot ${game.state.currentPlayer}`);
-    checkGameEnd();
-  }, 100);
+  console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - NOT CALLING checkGameEnd() AFTER PLACE`);
+  // DON'T call checkGameEnd() here - let natural turn flow handle it
 } else {
-  console.log(`👤 HUMAN PLAYER'S TURN - NOT CALLING checkGameEnd()`);
+  console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
   // Send turn start event for human
   window.messageController.handleGameEvent('TURN_START');
 }
