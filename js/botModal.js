@@ -44,15 +44,17 @@ class BotModalInterface {
       this.game.state.combination.base = [];
     }
 
-    // 🔥 CRITICAL FIX: Add card to combo WITHOUT removing from source
-    // The actual removal happens only during executeCapture()
-    this.game.state.combination[targetSlot].push(cardEntry);
-    
-    // Force render to update DOM immediately
-    this.ui.render();
-    
-    // Give DOM time to update
-    await this.delay(800);
+    // Add card to combo WITHOUT removing from source
+this.game.state.combination[targetSlot].push(cardEntry);
+
+// 🔥 FIX: Don't render immediately - let animation complete first
+// this.ui.render(); // ← REMOVE THIS LINE!
+
+// Give DOM time to update
+await this.delay(800);
+
+// 🔥 FIX: Only render after animation delay
+this.ui.render();
     
     // Verify card was placed correctly
     const cardCount = this.game.state.combination[targetSlot].length;
