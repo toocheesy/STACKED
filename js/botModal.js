@@ -47,11 +47,14 @@ class BotModalInterface {
     // Add card to combo WITHOUT removing from source
 this.game.state.combination[targetSlot].push(cardEntry);
 
-// 🔥 FIX: Don't render immediately - let animation complete first
-// this.ui.render(); // ← REMOVE THIS LINE!
+// 🔥 FIX: Don't render during bot combo building - prevents card stealing
+// this.ui.render(); // ← COMMENTED OUT!
 
 // Give DOM time to update
 await this.delay(800);
+
+// 🔥 FIX: Only render once after all combo building is done
+this.ui.render();
 
 // 🔥 FIX: Only render after animation delay
 this.ui.render();
