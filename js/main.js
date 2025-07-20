@@ -988,9 +988,10 @@ function handleDealNewHand(result) {
     console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][result.data.startingPlayer]}`);
     
     // Send new hand event to message controller
-    window.messageController.handleGameEvent('NEW_ROUND', {
-      handNumber: Math.floor((52 - game.state.deck.length) / 12)
-    });
+window.messageController.handleGameEvent('NEW_HAND', {
+  handNumber: Math.floor((52 - game.state.deck.length) / 12),
+  roundNumber: game.currentRound
+});
     
     // Update UI
     ui.render();

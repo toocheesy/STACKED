@@ -71,6 +71,9 @@ class MessageController {
       case 'ROUND_END':
         this.handleRoundEnd(data);
         break;
+      case 'NEW_HAND':
+        this.handleNewHand(data);
+        break;
       case 'BOT_THINKING':
         this.handleBotThinking(data);
         break;
@@ -684,6 +687,21 @@ handleBotThinking(data) {
       this.showMessage(`🎓 Round ${roundNumber}! Remember: pairs (same values) and sums (adding up). You're getting better!`, 'info');
     } else {
       this.showMessage(`Round ${roundNumber} starting!`, 'info');
+    }
+    
+    this.currentTimeout = setTimeout(() => {
+      this.handleGameEvent('TURN_START');
+    }, this.educationalMode ? 3000 : 2000);
+  }
+
+  handleNewHand(data) {
+    const handNumber = data.handNumber || 1;
+    const roundNumber = data.roundNumber || 1;
+    
+    if (this.educationalMode) {
+      this.showMessage(`🎓 Hand ${handNumber} dealt! Still Round ${roundNumber}. Look for new capture opportunities!`, 'info');
+    } else {
+      this.showMessage(`New hand dealt! Round ${roundNumber} continues...`, 'info');
     }
     
     this.currentTimeout = setTimeout(() => {
