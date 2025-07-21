@@ -366,10 +366,9 @@ function showRoundEndModal(endResult) {
       jackpotEl.classList.remove('jackpot-celebration');
     }
 
-    // Show the COMPLETED round number (current round - 1)
-const completedRound = Math.max(1, game.currentRound - 1);
+    // Show the COMPLETED round number (current round = actual completed round)
+const completedRound = game.currentRound;
 titleEl.textContent = `Round ${completedRound} Complete!`;
-    confettiEl.classList.remove('active');
 
     // 🎯 EPIC SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
     listEl.innerHTML = rankedPlayers.map((player, index) => {
