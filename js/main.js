@@ -305,6 +305,168 @@ let modeSelector = null;
 // 🎯 CENTRALIZED BOT TURN MANAGEMENT
 let botTurnInProgress = false;
 
+/* 
+ * 🔍 CLEAN DEBUG LOGGING SYSTEM
+ * Crystal clear, structured logging for easy debugging
+ * Add these functions to main.js
+ */
+
+// 🎯 CLEAN LOGGING CONFIGURATION
+const DEBUG_CONFIG = {
+  enabled: true,
+  showGameState: true,
+  showBotTurns: true,
+  showDecisions: true,
+  showCardCounts: true
+};
+
+// 🎮 CLEAN GAME STATE LOGGER
+function logGameState(checkNumber, reason = '') {
+  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showGameState) return;
+  
+  const state = game.getState();
+  const handCounts = state.hands.map(hand => hand ? hand.length : 0);
+  const totalCards = handCounts.reduce((sum, count) => sum + count, 0);
+  const boardCount = state.board ? state.board.length : 0;
+  const deckCount = state.deck ? state.deck.length : 0;
+  const totalGameCards = totalCards + boardCount + deckCount;
+  
+  console.log(`
+🎮 GAME STATE CHECK #${checkNumber} ${reason ? `(${reason})` : ''}
+┌─ CARDS ────────────────────────────────────────────────────────
+│  Hands: [${handCounts.join(', ')}] = ${totalCards} total
+│  Board: ${boardCount} cards
+│  Deck:  ${deckCount} cards  
+│  TOTAL: ${totalGameCards}/52 cards ${totalGameCards !== 52 ? '⚠️ MISMATCH!' : '✅'}
+├─ PLAYERS ─────────────────────────────────────────────────────
+│  Current: Player ${state.currentPlayer} (${['Human', 'Bot 1', 'Bot 2'][state.currentPlayer]})
+│  Dealer: Player ${game.currentDealer} (${['Human', 'Bot 1', 'Bot 2'][game.currentDealer]})
+│  Last Action: ${state.lastAction || 'none'}
+│  Last Capturer: ${state.lastCapturer !== null ? state.lastCapturer : 'none'}
+├─ SCORES ──────────────────────────────────────────────────────
+│  Player: ${state.scores.player}  |  Bot 1: ${state.scores.bot1}  |  Bot 2: ${state.scores.bot2}
+│  Round: ${game.currentRound}  |  Target: ${state.settings.targetScore}
+└────────────────────────────────────────────────────────────────`);
+}
+
+// 🤖 BOT TURN TRACKER
+function logBotTurn(phase, botIndex, details = {}) {
+  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showBotTurns) return;
+  
+  const botName = ['Human', 'Bot 1', 'Bot 2'][botIndex];
+  const handCount = game.state.hands[botIndex] ? game.state.hands[botIndex].length : 0;
+  
+  switch(phase) {
+    case 'START':
+      console.log(`
+🤖 BOT TURN START: ${botName}
+├─ Cards Available: ${handCount}
+├─ Board Cards: ${game.state.board.length}
+├─ Turn Flag: ${botTurnInProgress ? 'IN PROGRESS' : 'FREE'}
+└─ Action: ${details.action || 'Determining...'}`);
+      break;
+      
+    case 'ACTION':
+      console.log(`
+🎯 BOT ACTION: ${botName} → ${details.action}
+├─ Card: ${details.card || 'unknown'}
+├─ Target: ${details.target || 'board'}
+└─ Remaining: ${details.remaining || handCount - 1} cards`);
+      break;
+      
+    case 'END':
+      console.log(`
+✅ BOT TURN END: ${botName}
+├─ Result: ${details.result || 'SUCCESS'}
+├─ Cards Left: ${handCount}
+├─ Next Player: ${details.nextPlayer !== undefined ? details.nextPlayer : 'TBD'}
+└─ Turn Flag: ${botTurnInProgress ? '⚠️ STILL SET' : 'CLEARED'}`);
+      break;
+      
+    case 'ERROR':
+      console.log(`
+🚨 BOT TURN ERROR: ${botName}
+├─ Error: ${details.error}
+├─ Cards: ${handCount}
+├─ Turn Flag: ${botTurnInProgress ? '⚠️ STUCK' : 'OK'}
+└─ Recovery: ${details.recovery || 'Unknown'}`);
+      break;
+  }
+}
+
+// 🎯 GAME STATE MANAGER DECISION LOGGER
+function logGSMDecision(attempt, snapshot, decision) {
+  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showDecisions) return;
+  
+  console.log(`
+🎯 GAME STATE MANAGER DECISION #${attempt}
+┌─ INPUT ────────────────────────────────────────────────────────
+│  Hands: [${snapshot.handSizes.join(', ')}] = ${snapshot.totalCardsInHands} total
+│  Deck: ${snapshot.deckSize} | Board: ${snapshot.boardSize}
+│  Current Player: ${snapshot.currentPlayer} | Last Action: ${snapshot.gameEngine.state.lastAction || 'none'}
+│  Last Capturer: ${snapshot.lastCapturer !== null ? snapshot.lastCapturer : 'none'}
+├─ ANALYSIS ────────────────────────────────────────────────────
+│  Can Deal New Hand: ${snapshot.deckSize >= 12 ? 'YES' : 'NO'} (need 12, have ${snapshot.deckSize})
+│  Players With Cards: ${snapshot.handSizes.map((size, i) => size > 0 ? i : null).filter(i => i !== null).join(', ') || 'NONE'}
+│  Highest Score: ${Math.max(snapshot.currentScores.player, snapshot.currentScores.bot1, snapshot.currentScores.bot2)}/${snapshot.targetScore}
+├─ DECISION ────────────────────────────────────────────────────
+│  STATE: ${decision.state}
+│  REASON: ${decision.data?.reason || 'Not provided'}
+│  NEXT PLAYER: ${decision.nextPlayer !== undefined ? decision.nextPlayer : 'N/A'}
+└────────────────────────────────────────────────────────────────`);
+}
+
+// 🔄 TURN MANAGEMENT LOGGER
+function logTurnChange(from, to, reason) {
+  if (!DEBUG_CONFIG.enabled) return;
+  
+  const playerNames = ['Human', 'Bot 1', 'Bot 2'];
+  console.log(`
+🔄 TURN CHANGE: ${playerNames[from]} → ${playerNames[to]}
+├─ Reason: ${reason}
+├─ Cards: [${game.state.hands.map(h => h.length).join(', ')}]
+└─ Bot Flag: ${botTurnInProgress ? '⚠️ SET' : 'CLEAR'}`);
+}
+
+// 🚨 ERROR LOGGER
+function logError(category, error, context = {}) {
+  console.log(`
+🚨 ERROR: ${category}
+├─ Message: ${error.message || error}
+├─ Context: ${JSON.stringify(context, null, 2)}
+└─ Stack: ${error.stack ? error.stack.split('\n')[0] : 'No stack'}`);
+}
+
+// 🎯 CRITICAL CHECKPOINT LOGGER
+function logCheckpoint(name, data = {}) {
+  if (!DEBUG_CONFIG.enabled) return;
+  
+  console.log(`
+🎯 CHECKPOINT: ${name}
+├─ Time: ${new Date().toLocaleTimeString()}
+├─ Data: ${JSON.stringify(data, null, 2)}
+└────────────────────────────────────────────────────────────────`);
+}
+
+// 🔧 LOGGING CONTROL FUNCTIONS
+function enableDebugLogging() {
+  DEBUG_CONFIG.enabled = true;
+  console.log('🔍 DEBUG LOGGING ENABLED');
+}
+
+function disableDebugLogging() {
+  DEBUG_CONFIG.enabled = false;
+  console.log('🔇 DEBUG LOGGING DISABLED');
+}
+
+function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCounts = true) {
+  DEBUG_CONFIG.showGameState = gameState;
+  DEBUG_CONFIG.showBotTurns = botTurns;
+  DEBUG_CONFIG.showDecisions = decisions;
+  DEBUG_CONFIG.showCardCounts = cardCounts;
+  console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
+}
+
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
@@ -333,6 +495,8 @@ function initGame() {
   if (window.cardIntelligence) {
     window.cardIntelligence.reset();
   }
+  
+  logCheckpoint('GAME INITIALIZATION', { mode: 'classic', difficulty: 'legendary' });
   
   initGameSystems();
   
@@ -551,7 +715,10 @@ console.log('🎯 LAST ACTION SET TO: place');
 
 // 🔥 UPDATED: checkGameEnd() - NOW USES GAME STATE MANAGER
 function checkGameEnd() {
-  console.log('🎯 CHECKGAMEEND() CALLED - USING GAME STATE MANAGER');
+  // OLD: console.log('🎯 CHECKGAMEEND() CALLED - USING GAME STATE MANAGER');
+// NEW:
+static let checkCount = 0;
+logGameState(++checkCount, 'checkGameEnd() called');
   
   // 🔥 USE NEW GAME STATE MANAGER
   const result = window.gameStateManager.determineGameState(game);
@@ -642,7 +809,9 @@ async function aiTurn() {
   botTurnInProgress = true;
   
   try {
-    console.log(`🤖 BOT ${playerIndex}: Starting turn with ${game.state.hands[playerIndex].length} cards`);
+    // OLD: console.log(`🤖 BOT ${playerIndex}: Starting turn with ${game.state.hands[playerIndex].length} cards`);
+// NEW:
+logBotTurn('START', playerIndex, { action: 'analyzing' });
     
     // Get AI decision
     const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
@@ -660,7 +829,9 @@ async function aiTurn() {
     
     // 🎯 HANDLE RESULT AND MANAGE TURNS
     if (result.success) {
-      console.log(`✅ BOT ${playerIndex}: Action succeeded - ${result.action}`);
+      // OLD: console.log(`✅ BOT ${playerIndex}: Action succeeded - ${result.action}`);
+// NEW:
+logBotTurn('END', playerIndex, { result: 'SUCCESS', nextPlayer: game.state.currentPlayer });
       
       if (result.action === 'capture') {
         // 🎯 TRIGGER BOT CAPTURE SUCCESS EVENT WITH REAL POINTS
