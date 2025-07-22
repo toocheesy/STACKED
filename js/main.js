@@ -495,7 +495,7 @@ function initGame() {
   if (window.cardIntelligence) {
     window.cardIntelligence.reset();
   }
-  
+
   logCheckpoint('GAME INITIALIZATION', { mode: 'classic', difficulty: 'legendary' });
   
   initGameSystems();
@@ -713,12 +713,12 @@ console.log('🎯 LAST ACTION SET TO: place');
   }
 }
 
-// 🔥 UPDATED: checkGameEnd() - NOW USES GAME STATE MANAGER
+// Add this OUTSIDE the function (around line 380, after the logging functions):
+let checkGameEndCount = 0;
+
+// Then in checkGameEnd() function:
 function checkGameEnd() {
-  // OLD: console.log('🎯 CHECKGAMEEND() CALLED - USING GAME STATE MANAGER');
-// NEW:
-static let checkCount = 0;
-logGameState(++checkCount, 'checkGameEnd() called');
+  logGameState(++checkGameEndCount, 'checkGameEnd() called');
   
   // 🔥 USE NEW GAME STATE MANAGER
   const result = window.gameStateManager.determineGameState(game);

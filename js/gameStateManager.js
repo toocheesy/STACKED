@@ -34,12 +34,8 @@ class GameStateManager {
       
       try {
         // Get current game state snapshot
-        // In gameStateManager.js, replace the verbose logging in determineGameState():
-const snapshot = this.captureGameSnapshot(gameEngine);
-const result = this.analyzeGameState(snapshot, gameEngine);
-
-// NEW: Clean decision logging
-logGSMDecision(attempts, snapshot, result);
+        const snapshot = this.captureGameSnapshot(gameEngine);
+        this.logSnapshot(snapshot);
         
         // Validate game state isn't impossible
         const validation = this.validateGameState(snapshot);
@@ -49,6 +45,9 @@ logGSMDecision(attempts, snapshot, result);
         
         // Determine what should happen next
         const result = this.analyzeGameState(snapshot, gameEngine);
+        
+        // NEW: Clean decision logging
+        logGSMDecision(attempts, snapshot, result);
         
         this.log(`✅ GAME STATE DETERMINED: ${result.state}`);
         return result;
