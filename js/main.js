@@ -1206,6 +1206,28 @@ function handleEndRound(result) {
   // 🔥 CRITICAL FIX: Create new deck for new round
 game.state.deck = createDeck();
 console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
+
+// 🔥 CRITICAL FIX: Set up new round properly
+const newStartingPlayer = (result.data.newDealer + 1) % 3;
+game.state.currentPlayer = newStartingPlayer;
+
+// 🔥 CRITICAL FIX: Deal new cards from fresh deck
+const dealResult = dealCards(game.state.deck, 3, 4, 4);
+game.state.hands = dealResult.players;
+game.state.deck = dealResult.remainingDeck;
+game.state.board = dealResult.board;
+
+console.log(`🎮 NEW ROUND SETUP: Dealer=${result.data.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
+console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
+
+// 🔥 CRITICAL FIX: Update UI
+ui.render();
+
+// 🔥 CRITICAL FIX: Schedule first turn if starting player is bot
+if (newStartingPlayer !== 0) {
+  console.log(`🤖 NEW ROUND STARTS WITH BOT ${newStartingPlayer} - SCHEDULING TURN`);
+  setTimeout(() => scheduleNextBotTurn(), 2000); // Extra delay after modal
+}
   
   // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
   game.currentRound = result.data.newRound;
