@@ -1202,6 +1202,10 @@ function handleEndRound(result) {
     // Clear the board after jackpot
     game.state.board = [];
   }
+
+  // 🔥 CRITICAL FIX: Create new deck for new round
+game.state.deck = createShuffledDeck();
+console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
   
   // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
   game.currentRound = result.data.newRound;
