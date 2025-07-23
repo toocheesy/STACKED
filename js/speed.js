@@ -1,8 +1,34 @@
 /* 
- * Speed Mode for STACKED!
- * Fast-paced gameplay with time pressure
- * Example of how easy it is to add new modes!
+ * 🧠 LEGENDARY CARD INTELLIGENCE SYSTEM
+ * The AI brain that tracks, predicts, and strategizes
+ * Makes bots feel like genius human players!
+ * 🔥 FIXED: Removed duplicate round tracking
  */
+
+class CardIntelligenceSystem {
+  constructor() {
+    // 🔥 FIX: Define constants BEFORE calling reset()
+    this.CARD_VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    this.TOTAL_CARDS_PER_VALUE = 4; // 4 suits per value
+    
+    this.reset();
+    
+    console.log('🧠 CARD INTELLIGENCE SYSTEM INITIALIZED - AI BRAIN ONLINE!');
+  }
+  
+  reset() {
+    // Track what cards have been played/seen
+    this.playedCards = {};
+    if (this.CARD_VALUES) {
+      this.CARD_VALUES.forEach(value => {
+        this.playedCards[value] = 0;
+      });
+    }
+    
+    // Game state tracking - 🔥 REMOVED: roundNumber (GameEngine tracks this)
+    this.totalCardsDealt = 0;
+    this.gamePhase = 'early'; // early, mid, late, endgame
+  }
 
 const SpeedMode = {
   name: "Speed STACKED",
@@ -182,6 +208,7 @@ const SpeedMode = {
         // Apply last combo takes all
         this.applyLastComboTakesAll(gameEngine);
         
+        // 🔥 FIXED: Don't increment round here - GameStateManager handles it
         // Check if anyone reached target score OR max rounds reached
         const maxScore = Math.max(
           gameEngine.state.scores.player, 
@@ -284,24 +311,27 @@ const SpeedMode = {
     }, 2000);
   },
 
+  // 🔥 FIXED: onRoundEnd() - Don't increment rounds, only reset timer
   onRoundEnd(gameEngine) {
+    console.log('⚡ SPEED MODE: Round ending, resetting timer');
     this.stopTimer();
     
     // Reset timer for next round
     this.timer.remaining = this.config.timeLimit;
     
-    // Rotate dealer and increment round
-    gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
-    gameEngine.currentRound++;
+    // 🔥 REMOVED: Don't touch dealer or round - GameStateManager handles it
+    // gameEngine.currentDealer = (gameEngine.currentDealer + 1) % 3;
+    // gameEngine.currentRound++;
     
-    console.log(`⚡ Speed Round ${gameEngine.currentRound} starting, ${['Player', 'Bot 1', 'Bot 2'][gameEngine.currentDealer]} deals`);
+    console.log(`⚡ Speed Mode round end handling complete`);
     
-    // Restart timer if game continues
+    // Restart timer if game continues (with delay for modal)
     setTimeout(() => {
       if (gameEngine.currentRound <= this.config.maxRounds) {
+        console.log('⚡ RESTARTING TIMER FOR NEW ROUND');
         this.startTimer(gameEngine);
       }
-    }, 1000);
+    }, 2000); // Wait for round end modal
   },
 
   onGameEnd(gameEngine) {

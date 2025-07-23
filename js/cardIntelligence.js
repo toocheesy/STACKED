@@ -2,6 +2,7 @@
  * 🧠 LEGENDARY CARD INTELLIGENCE SYSTEM
  * The AI brain that tracks, predicts, and strategizes
  * Makes bots feel like genius human players!
+ * 🔥 FIXED: Removed duplicate round tracking
  */
 
 class CardIntelligenceSystem {
@@ -24,9 +25,8 @@ class CardIntelligenceSystem {
       });
     }
     
-    // Game state tracking
+    // Game state tracking - 🔥 REMOVED: roundNumber (GameEngine tracks this)
     this.totalCardsDealt = 0;
-    this.roundNumber = 1;
     this.gamePhase = 'early'; // early, mid, late, endgame
   }
   
