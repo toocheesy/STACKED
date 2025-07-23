@@ -1204,7 +1204,7 @@ function handleEndRound(result) {
   }
 
   // 🔥 CRITICAL FIX: Create new deck for new round
-game.state.deck = createShuffledDeck();
+game.state.deck = createDeck();
 console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
   
   // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
