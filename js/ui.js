@@ -1,7 +1,7 @@
 /* 
  * UI Rendering System for STACKED!
  * Handles all DOM manipulation and rendering
- * Works with any game mode
+ * 🔥 FIXED: Centralized modal system with game pausing
  */
 
 class UISystem {
@@ -9,45 +9,296 @@ class UISystem {
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
+    
+    // 🔥 NEW: Modal management system
+    this.modalManager = {
+      isModalActive: false,
+      currentModal: null,
+      gameWasPaused: false
+    };
+  }
+
+  // 🔥 NEW: CENTRALIZED MODAL DISPLAY WITH GAME PAUSING
+  showModal(type, data = {}) {
+    console.log(`🎪 SHOWING MODAL: ${type}`);
+    
+    // 🔥 CRITICAL: Pause the game during modals
+    this.pauseGame();
+    
+    // Remove any existing modal
+    this.hideModal();
+    
+    let modalHTML = '';
+    
+    switch(type) {
+      case 'round_end':
+        modalHTML = this.createRoundEndModal(data);
+        break;
+      case 'game_over':
+        modalHTML = this.createGameOverModal(data);
+        break;
+      case 'error':
+        modalHTML = this.createErrorModal(data);
+        break;
+      default:
+        console.error(`🚨 Unknown modal type: ${type}`);
+        return;
+    }
+    
+    // Create modal container
+    const modalContainer = document.createElement('div');
+    modalContainer.id = 'game-modal-container';
+    modalContainer.className = 'game-modal-overlay';
+    modalContainer.innerHTML = modalHTML;
+    
+    // Add to DOM
+    document.body.appendChild(modalContainer);
+    
+    // Mark modal as active
+    this.modalManager.isModalActive = true;
+    this.modalManager.currentModal = type;
+    
+    // Animate in
+    setTimeout(() => {
+      modalContainer.classList.add('show');
+    }, 50);
+    
+    console.log(`✅ MODAL DISPLAYED: ${type} (Game paused: ${this.modalManager.gameWasPaused})`);
+  }
+
+  // 🔥 NEW: HIDE MODAL AND RESUME GAME
+  hideModal() {
+    const existingModal = document.getElementById('game-modal-container');
+    if (existingModal) {
+      existingModal.classList.add('hide');
+      setTimeout(() => {
+        existingModal.remove();
+      }, 300);
+    }
+    
+    // 🔥 CRITICAL: Resume the game after modal closes
+    this.resumeGame();
+    
+    this.modalManager.isModalActive = false;
+    this.modalManager.currentModal = null;
+    
+    console.log('🎪 MODAL HIDDEN - Game resumed');
+  }
+
+  // 🔥 NEW: PAUSE GAME DURING MODALS
+  pauseGame() {
+    // Set global pause flag
+    window.gameIsPaused = true;
+    
+    // Disable all game interactions
+    const gameContainer = document.querySelector('.table');
+    if (gameContainer) {
+      gameContainer.style.pointerEvents = 'none';
+      gameContainer.style.opacity = '0.7';
+    }
+    
+    // Stop any bot turn scheduling
+    if (window.botTurnInProgress) {
+      this.modalManager.gameWasPaused = true;
+    }
+    
+    console.log('⏸️ GAME PAUSED for modal');
+  }
+
+  // 🔥 NEW: RESUME GAME AFTER MODAL
+  resumeGame() {
+    // Clear global pause flag
+    window.gameIsPaused = false;
+    
+    // Re-enable game interactions
+    const gameContainer = document.querySelector('.table');
+    if (gameContainer) {
+      gameContainer.style.pointerEvents = 'auto';
+      gameContainer.style.opacity = '1';
+    }
+    
+    // Resume bot turns if they were paused
+    if (this.modalManager.gameWasPaused && game.state.currentPlayer !== 0) {
+      console.log('🤖 RESUMING BOT TURN AFTER MODAL');
+      setTimeout(() => {
+        if (typeof scheduleNextBotTurn === 'function') {
+          scheduleNextBotTurn();
+        }
+      }, 500);
+    }
+    
+    this.modalManager.gameWasPaused = false;
+    console.log('▶️ GAME RESUMED after modal');
+  }
+
+  // 🔥 NEW: CREATE ROUND END MODAL
+  createRoundEndModal(data) {
+    const { scores, jackpot, newRound, oldDealer, newDealer } = data;
+    
+    let jackpotHTML = '';
+    if (jackpot && jackpot.hasJackpot) {
+      jackpotHTML = `
+        <div class="jackpot-announcement">
+          🏆 <strong>${jackpot.winnerName}</strong> sweeps the board!<br>
+          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
+        </div>
+      `;
+    }
+    
+    const dealerNames = ['Player', 'Bot 1', 'Bot 2'];
+    
+    return `
+      <div class="game-modal round-end-modal">
+        <div class="modal-header">
+          <h2>🏁 Round ${newRound - 1} Complete!</h2>
+        </div>
+        <div class="modal-content">
+          ${jackpotHTML}
+          <div class="round-scores">
+            <h3>Round Scores:</h3>
+            <div class="score-grid">
+              <div class="score-item ${scores.player >= scores.bot1 && scores.player >= scores.bot2 ? 'winner' : ''}">
+                <span class="player-name">Player</span>
+                <span class="player-score">${scores.player} pts</span>
+              </div>
+              <div class="score-item ${scores.bot1 >= scores.player && scores.bot1 >= scores.bot2 ? 'winner' : ''}">
+                <span class="player-name">Bot 1</span>
+                <span class="player-score">${scores.bot1} pts</span>
+              </div>
+              <div class="score-item ${scores.bot2 >= scores.player && scores.bot2 >= scores.bot1 ? 'winner' : ''}">
+                <span class="player-name">Bot 2</span>
+                <span class="player-score">${scores.bot2} pts</span>
+              </div>
+            </div>
+          </div>
+          <div class="round-info">
+            <p><strong>Round ${newRound}</strong> starting...</p>
+            <p>New dealer: <strong>${dealerNames[newDealer]}</strong></p>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onclick="window.ui.hideModal()" class="continue-btn">Continue Game →</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🔥 NEW: CREATE GAME OVER MODAL
+  createGameOverModal(data) {
+    const { scores, jackpot, winner, winnerName, winnerScore } = data;
+    
+    let jackpotHTML = '';
+    if (jackpot && jackpot.hasJackpot) {
+      jackpotHTML = `
+        <div class="jackpot-announcement">
+          🏆 Final sweep by <strong>${jackpot.winnerName}</strong>!<br>
+          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
+        </div>
+      `;
+    }
+    
+    return `
+      <div class="game-modal game-over-modal">
+        <div class="modal-header">
+          <h2>🎉 Game Over!</h2>
+        </div>
+        <div class="modal-content">
+          <div class="winner-announcement">
+            <h3>🏆 ${winnerName} Wins!</h3>
+            <p class="winner-score">${winnerScore} points</p>
+          </div>
+          ${jackpotHTML}
+          <div class="final-scores">
+            <h3>Final Scores:</h3>
+            <div class="score-grid">
+              <div class="score-item ${winner === 0 ? 'winner' : ''}">
+                <span class="player-name">Player</span>
+                <span class="player-score">${scores.player} pts</span>
+              </div>
+              <div class="score-item ${winner === 1 ? 'winner' : ''}">
+                <span class="player-name">Bot 1</span>
+                <span class="player-score">${scores.bot1} pts</span>
+              </div>
+              <div class="score-item ${winner === 2 ? 'winner' : ''}">
+                <span class="player-name">Bot 2</span>
+                <span class="player-score">${scores.bot2} pts</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button onclick="initGame()" class="restart-btn">Play Again</button>
+          <button onclick="window.location.href='index.html'" class="home-btn">Home</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // 🔥 NEW: CREATE ERROR MODAL
+  createErrorModal(data) {
+    return `
+      <div class="game-modal error-modal">
+        <div class="modal-header">
+          <h2>⚠️ Game Error</h2>
+        </div>
+        <div class="modal-content">
+          <p>${data.userMessage || 'An error occurred during gameplay.'}</p>
+          <details>
+            <summary>Technical Details</summary>
+            <pre>${data.technicalDetails || 'No details available'}</pre>
+          </details>
+        </div>
+        <div class="modal-actions">
+          <button onclick="initGame()" class="restart-btn">Restart Game</button>
+        </div>
+      </div>
+    `;
   }
 
   // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
-render() {
-  const state = this.game.getState();
-  
-  // Connect message controller if not already connected
-  if (window.messageController && !window.messageController.gameEngine) {
-    this.initMessageController();
-  }
-  
-  this.renderDeckCount();
-  this.renderTable();
-  this.renderComboArea();
-  this.renderBoard();
-  this.renderHands();
-  this.renderBotHands();
-  this.renderScores();
-  this.renderDealerIndicator();
-  this.updateSubmitButton();
-  
-  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-const comboStatus = this.getComboAreaStatus();
+  render() {
+    // 🔥 NEW: Don't render if modal is active
+    if (this.modalManager.isModalActive) {
+      console.log('🎪 SKIPPING RENDER: Modal is active');
+      return;
+    }
+    
+    const state = this.game.getState();
+    
+    // Connect message controller if not already connected
+    if (window.messageController && !window.messageController.gameEngine) {
+      this.initMessageController();
+    }
+    
+    this.renderDeckCount();
+    this.renderTable();
+    this.renderComboArea();
+    this.renderBoard();
+    this.renderHands();
+    this.renderBotHands();
+    this.renderScores();
+    this.renderDealerIndicator();
+    this.updateSubmitButton();
+    
+    // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+    const comboStatus = this.getComboAreaStatus();
 
-if (comboStatus.hasCards) {
-  // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
-  if (window.messageController && window.messageController.educationalMode) {
-    this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
-  } else if (window.messageController) {
-    this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    if (comboStatus.hasCards) {
+      // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
+      if (window.messageController && window.messageController.educationalMode) {
+        this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+      } else if (window.messageController) {
+        this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+      }
+    } else if (state.currentPlayer === 0) {
+      this.sendMessageEvent('TURN_START');
+    } else {
+      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+    }
   }
-} else if (state.currentPlayer === 0) {
-  this.sendMessageEvent('TURN_START');
-} else {
-  this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-}
-}  // 🔥 PROPER CLOSING BRACE FOR render() FUNCTION
 
-renderDeckCount() {
+  // Rest of the UISystem methods remain the same...
+  renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
       deckCountEl.textContent = `Deck: ${this.game.state.deck.length || 0} cards`;
@@ -101,6 +352,9 @@ renderDeckCount() {
     }
   }
 
+  // ... [Continue with all the other existing methods] ...
+  // [The rest of the UISystem class methods remain exactly the same]
+  
   renderComboArea() {
     const comboAreaEl = document.getElementById('combination-area');
     let captureTypeMessage = "No cards in play areas.";
@@ -298,14 +552,14 @@ renderDeckCount() {
       const cardEl = document.createElement('div');
       
       const isInPlayArea = this.isCardInPlayArea(index, 'hand', 0);
-if (isInPlayArea || !card) {
-  if (isInPlayArea) {
-    console.log(`🔍 UI DEBUG: Hiding player card at position ${index} - found in combo area`);
-  }
-  this.createEmptyCardSlot(cardEl, index, 'hand');
-} else {
-  this.setupCardElement(cardEl, card, index, 'hand');
-}
+      if (isInPlayArea || !card) {
+        if (isInPlayArea) {
+          console.log(`🔍 UI DEBUG: Hiding player card at position ${index} - found in combo area`);
+        }
+        this.createEmptyCardSlot(cardEl, index, 'hand');
+      } else {
+        this.setupCardElement(cardEl, card, index, 'hand');
+      }
       
       handEl.appendChild(cardEl);
     }
@@ -429,72 +683,72 @@ if (isInPlayArea || !card) {
 
   // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
   sendMessageEvent(eventType, data = {}) {
-  if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
-    window.messageController.handleGameEvent(eventType, data);
-  } else {
-    console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
+    if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
+      window.messageController.handleGameEvent(eventType, data);
+    } else {
+      console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
+    }
   }
-}
 
   // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
-getComboAreaStatus() {
-  const combo = this.game.state.combination;
-  const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
-  
-  return {
-    hasCards: totalCards > 0,
-    cardCount: totalCards,
-    hasBase: combo.base.length > 0,
-    baseCard: combo.base.length > 0 ? combo.base[0].card : null,
-    sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
-    matchCards: combo.match.length,
-    comboData: {
-      base: combo.base,
-      sum1: combo.sum1,
-      sum2: combo.sum2, 
-      sum3: combo.sum3,
-      match: combo.match
-    }
-  };
-}
+  getComboAreaStatus() {
+    const combo = this.game.state.combination;
+    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
+    
+    return {
+      hasCards: totalCards > 0,
+      cardCount: totalCards,
+      hasBase: combo.base.length > 0,
+      baseCard: combo.base.length > 0 ? combo.base[0].card : null,
+      sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
+      matchCards: combo.match.length,
+      comboData: {
+        base: combo.base,
+        sum1: combo.sum1,
+        sum2: combo.sum2,
+        sum3: combo.sum3,
+        match: combo.match
+      }
+    };
+  }
 
   // Helper methods
   // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
-isCardInPlayArea(index, source, playerIndex = null) {
-  return Object.values(this.game.state.combination).some(area => 
-    area.some(entry => {
-      // Basic source and index match
-      if (entry.source !== source || entry.index !== index) {
-        return false;
-      }
-      
-      // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
-      if (source === 'hand') {
-        // If we're checking the player's hand (playerIndex = 0)
-        if (playerIndex === 0) {
-          // NEVER hide player cards, regardless of what's in combo areas
-          // Player cards should only be hidden if THEY put them in combo areas
-          const currentPlayer = this.game.state.currentPlayer;
-          
-          // Only hide player cards if it's the player's turn AND they put cards in combo
-          if (currentPlayer === 0) {
-            // Check if this entry has a playerSource property indicating it came from player
-            return entry.playerSource === 0;
-          }
-          
-          // If it's a bot turn, NEVER hide player cards
+  isCardInPlayArea(index, source, playerIndex = null) {
+    return Object.values(this.game.state.combination).some(area => 
+      area.some(entry => {
+        // Basic source and index match
+        if (entry.source !== source || entry.index !== index) {
           return false;
         }
         
-        // For bot hands, use existing logic
+        // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
+        if (source === 'hand') {
+          // If we're checking the player's hand (playerIndex = 0)
+          if (playerIndex === 0) {
+            // NEVER hide player cards, regardless of what's in combo areas
+            // Player cards should only be hidden if THEY put them in combo areas
+            const currentPlayer = this.game.state.currentPlayer;
+            
+            // Only hide player cards if it's the player's turn AND they put cards in combo
+            if (currentPlayer === 0) {
+              // Check if this entry has a playerSource property indicating it came from player
+              return entry.playerSource === 0;
+            }
+            
+            // If it's a bot turn, NEVER hide player cards
+            return false;
+          }
+          
+          // For bot hands, use existing logic
+          return true;
+        }
+        
+        // Board cards always check normally
         return true;
-      }
-      
-      // Board cards always check normally
-      return true;
-    })
-  );
-}
+      })
+    );
+  }
 
   createCardElement(card, index, type) {
     const cardEl = document.createElement('div');

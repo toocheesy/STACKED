@@ -984,6 +984,13 @@ function playSound(type) {
 
 // Drag and drop handlers
 function handleDragStart(e, source, index) {
+  // 🔥 NEW: Block all interactions during modals
+  if (window.gameIsPaused || (ui && ui.modalManager.isModalActive)) {
+    e.preventDefault();
+    console.log('🚨 BLOCKING DRAG: Game is paused or modal is active');
+    return;
+  }
+  
   if (game.state.currentPlayer !== 0) return;
   game.state.draggedCard = { 
     source, 
@@ -1006,9 +1013,14 @@ function handleDragEnd(e) {
   game.state.draggedCard = null;
 }
 
-// 🔥 FIXED: handleDrop() - PREVENTS INTERFERENCE DURING BOT TURNS
 function handleDrop(e, slot) {
   e.preventDefault();
+  
+  // 🔥 NEW: Block all interactions during modals or game pause
+  if (window.gameIsPaused || (ui && ui.modalManager.isModalActive)) {
+    console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
+    return;
+  }
   
   // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
   if (game.state.currentPlayer !== 0) {
@@ -1227,31 +1239,22 @@ function handleEndRound(result) {
   }
 
   // 🔥 CRITICAL FIX: Create new deck for new round
-game.state.deck = createDeck();
-console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
+  game.state.deck = createDeck();
+  console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
 
-// 🔥 CRITICAL FIX: Set up new round properly
-const newStartingPlayer = (result.data.newDealer + 1) % 3;
-game.state.currentPlayer = newStartingPlayer;
+  // 🔥 CRITICAL FIX: Set up new round properly
+  const newStartingPlayer = (result.data.newDealer + 1) % 3;
+  game.state.currentPlayer = newStartingPlayer;
 
-// 🔥 CRITICAL FIX: Deal new cards from fresh deck
-const dealResult = dealCards(game.state.deck, 3, 4, 4);
-game.state.hands = dealResult.players;
-game.state.deck = dealResult.remainingDeck;
-game.state.board = dealResult.board;
+  // 🔥 CRITICAL FIX: Deal new cards from fresh deck
+  const dealResult = dealCards(game.state.deck, 3, 4, 4);
+  game.state.hands = dealResult.players;
+  game.state.deck = dealResult.remainingDeck;
+  game.state.board = dealResult.board;
 
-console.log(`🎮 NEW ROUND SETUP: Dealer=${result.data.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
-console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
+  console.log(`🎮 NEW ROUND SETUP: Dealer=${result.data.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
+  console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
 
-// 🔥 CRITICAL FIX: Update UI
-ui.render();
-
-// 🔥 CRITICAL FIX: Schedule first turn if starting player is bot
-if (newStartingPlayer !== 0) {
-  console.log(`🤖 NEW ROUND STARTS WITH BOT ${newStartingPlayer} - SCHEDULING TURN`);
-  setTimeout(() => scheduleNextBotTurn(), 2000); // Extra delay after modal
-}
-  
   // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
   game.currentRound = result.data.newRound;
   game.currentDealer = result.data.newDealer;
@@ -1263,14 +1266,21 @@ if (newStartingPlayer !== 0) {
     game.currentMode.onRoundEnd(game);
   }
   
-  // Show round end modal with jackpot message
-  const endResult = {
-    roundOver: true,
-    message: result.data.jackpot.message,
-    newRound: result.data.newRound
-  };
+  // 🔥 NEW: Use centralized modal system
+  ui.showModal('round_end', result.data);
   
-  showRoundEndModal(endResult);
+  // 🔥 CRITICAL FIX: Update UI BEFORE scheduling bot turn
+  ui.render();
+
+  // 🔥 CRITICAL FIX: Schedule first turn if starting player is bot (with extra delay for modal)
+  if (newStartingPlayer !== 0) {
+    console.log(`🤖 NEW ROUND STARTS WITH BOT ${newStartingPlayer} - SCHEDULING TURN AFTER MODAL`);
+    setTimeout(() => {
+      if (!ui.modalManager.isModalActive) {
+        scheduleNextBotTurn();
+      }
+    }, 3000); // Wait for modal to be dismissed
+  }
 }
 
 // 🏆 END GAME - Show game over modal
@@ -1295,15 +1305,11 @@ function handleEndGame(result) {
     game.currentMode.onGameEnd(game);
   }
   
-  // Show game over modal with jackpot message
-  const endResult = {
-    gameOver: true,
-    winner: result.data.winnerName,
-    message: result.data.jackpot.message,
-    reason: 'target_score_reached'
-  };
+  // 🔥 NEW: Use centralized modal system
+  ui.showModal('game_over', result.data);
   
-  showGameOverModal(endResult);
+  // Update UI one final time
+  ui.render();
 }
 
 // 🚨 HANDLE GAME STATE ERROR
@@ -1311,29 +1317,8 @@ function handleGameStateError(result) {
   console.error(`🚨 GAME STATE ERROR: ${result.data.message}`);
   console.error(`🔍 TECHNICAL DETAILS:`, result.data.technicalDetails);
   
-  // Show error to user
-  const errorModal = document.createElement('div');
-  errorModal.innerHTML = `
-    <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                background: rgba(0,0,0,0.8); display: flex; align-items: center; 
-                justify-content: center; z-index: 10000;">
-      <div style="background: white; padding: 30px; border-radius: 10px; max-width: 500px; text-align: center;">
-        <h2 style="color: #d32f2f; margin-bottom: 20px;">⚠️ Game Error</h2>
-        <p style="margin-bottom: 20px;">${result.data.userMessage}</p>
-        <div style="margin-bottom: 20px;">
-          <details>
-            <summary style="cursor: pointer; color: #666;">Technical Details</summary>
-            <pre style="text-align: left; background: #f5f5f5; padding: 10px; margin-top: 10px; overflow: auto; max-height: 200px;">${result.data.technicalDetails}</pre>
-          </details>
-        </div>
-        <button onclick="location.reload()" style="background: #d32f2f; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-          Restart Game
-        </button>
-      </div>
-    </div>
-  `;
-  
-  document.body.appendChild(errorModal);
+  // 🔥 NEW: Use centralized modal system
+  ui.showModal('error', result.data);
   
   // Also send error to message controller
   window.messageController.handleGameEvent('CAPTURE_ERROR', {
