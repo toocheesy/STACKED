@@ -104,15 +104,34 @@
         <div class="scoreboard-title" id="scoreboard-title">Scoreboard</div>
         <div class="scoreboard-list" id="scoreboard-list"></div>
       </div>
-      <div class="scoreboard-buttons" id="scoreboard-buttons">
-  <button type="button" id="continue-game-btn" onclick="
-    console.log('Continue button clicked');
-    document.getElementById('scoreboard-modal').close();
-    document.getElementById('scoreboard-modal').style.display = 'none';
+      
+  <div class="scoreboard-buttons" id="scoreboard-buttons">
+    <button type="button" id="continue-game-btn" onclick="
+    console.log('Continue button clicked - AGGRESSIVE FIX');
+    
+    // Method 1: Force close the dialog
+    const modal = document.getElementById('scoreboard-modal');
+    modal.close();
+    modal.style.display = 'none';
+    modal.removeAttribute('open');
+    
+    // Method 2: Call ui.hideModal if it exists
     if (window.ui && window.ui.hideModal) {
       window.ui.hideModal();
     }
-    console.log('Modal should be hidden now');
+    
+    // Method 3: Force clear modal state
+    if (window.ui) {
+      window.ui.isModalActive = false;
+      window.ui.activeModal = null;
+    }
+    
+    // Method 4: Force re-render
+    if (window.ui && window.ui.renderBoard) {
+      window.ui.renderBoard();
+    }
+    
+    console.log('All modal clearing methods attempted');
   ">Continue Game</button>
 </div>
     </dialog>
