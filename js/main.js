@@ -985,7 +985,7 @@ function playSound(type) {
 // Drag and drop handlers
 function handleDragStart(e, source, index) {
   // 🔥 NEW: Block all interactions during modals
-  if (window.gameIsPaused || (ui && ui.modalManager.isModalActive)) {
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
     e.preventDefault();
     console.log('🚨 BLOCKING DRAG: Game is paused or modal is active');
     return;
@@ -1017,7 +1017,7 @@ function handleDrop(e, slot) {
   e.preventDefault();
   
   // 🔥 NEW: Block all interactions during modals or game pause
-  if (window.gameIsPaused || (ui && ui.modalManager.isModalActive)) {
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
     console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
     return;
   }
