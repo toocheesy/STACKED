@@ -107,11 +107,11 @@
       <div class="scoreboard-buttons" id="scoreboard-buttons">
   <button type="button" id="continue-game-btn" onclick="
     console.log('Continue button clicked');
+    document.getElementById('scoreboard-modal').close();
+    document.getElementById('scoreboard-modal').style.display = 'none';
     if (window.ui && window.ui.hideModal) {
       window.ui.hideModal();
     }
-    document.getElementById('scoreboard-modal').close();
-    document.getElementById('scoreboard-modal').style.display = 'none';
     console.log('Modal should be hidden now');
   ">Continue Game</button>
 </div>
