@@ -106,8 +106,8 @@
       </div>
       
   <div class="scoreboard-buttons" id="scoreboard-buttons">
-    <button type="button" id="continue-game-btn" onclick="
-    console.log('Continue button clicked - AGGRESSIVE FIX');
+  <button type="button" id="continue-game-btn" onclick="
+    console.log('Continue button clicked - SURGICAL FIX');
     
     // Method 1: Force close the dialog
     const modal = document.getElementById('scoreboard-modal');
@@ -120,20 +120,21 @@
       window.ui.hideModal();
     }
     
-    // Method 3: Force clear modal state
-    if (window.ui) {
-      window.ui.isModalActive = false;
-      window.ui.activeModal = null;
+    // 🔥 NEW: SURGICAL FIX - Clear UI modal flag
+    if (window.ui && window.ui.modalManager) {
+      window.ui.modalManager.isModalActive = false;
+      window.ui.modalManager.currentModal = null;
     }
     
-    // Method 4: Force re-render
-    if (window.ui && window.ui.renderBoard) {
-      window.ui.renderBoard();
+    // Method 3: Force re-render
+    if (window.ui && window.ui.render) {
+      window.ui.render();
     }
     
-    console.log('All modal clearing methods attempted');
+    console.log('SURGICAL FIX: Modal flag cleared and render forced');
   ">Continue Game</button>
 </div>
+
     </dialog>
 
     <div class="table">
