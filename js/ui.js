@@ -59,6 +59,17 @@ class UISystem {
     // Add to DOM
     document.body.appendChild(modalContainer);
     
+    // 🔥 NEW: Add event listeners for modal buttons
+    if (type === 'round_end') {
+      const continueBtn = modalContainer.querySelector('#continue-round-btn');
+      if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+          console.log('🎯 Continue button clicked - UI SYSTEM');
+          this.hideModal();
+        });
+      }
+    }
+    
     // Mark modal as active
     this.modalManager.isModalActive = true;
     this.modalManager.currentModal = type;
@@ -182,7 +193,7 @@ class UISystem {
           </div>
         </div>
         <div class="modal-actions">
-          <button onclick="window.ui.hideModal()" class="continue-btn">Continue Game →</button>
+          <button id="continue-round-btn" class="continue-btn">Continue Game →</button>
         </div>
       </div>
     `;
