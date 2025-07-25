@@ -20,13 +20,18 @@ class UISystem {
 
   // 🔥 NEW: CENTRALIZED MODAL DISPLAY WITH GAME PAUSING
   showModal(type, data = {}) {
-    console.log(`🎪 SHOWING MODAL: ${type}`);
-    
-    // 🔥 CRITICAL: Pause the game during modals
-    this.pauseGame();
-    
-    // Remove any existing modal
-    this.hideModal();
+  console.log(`🎪 SHOWING MODAL: ${type}`);
+  
+  // 🔥 CRITICAL: Pause the game during modals
+  this.pauseGame();
+  
+  // Remove any existing modal - BUT ONLY THE DOM ELEMENT
+  const existingModal = document.getElementById('game-modal-container');
+  if (existingModal) {
+    existingModal.remove();
+  }
+  
+  // DON'T call this.hideModal() here - it resumes the game immediately!
     
     let modalHTML = '';
     
