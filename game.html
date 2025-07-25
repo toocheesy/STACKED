@@ -104,7 +104,9 @@
         <div class="scoreboard-title" id="scoreboard-title">Scoreboard</div>
         <div class="scoreboard-list" id="scoreboard-list"></div>
       </div>
-      <div class="scoreboard-buttons" id="scoreboard-buttons"></div>
+      <div class="scoreboard-buttons" id="scoreboard-buttons">
+  <button type="button" id="continue-game-btn" onclick="window.ui && window.ui.hideModal ? window.ui.hideModal() : console.error('ui.hideModal not available')">Continue Game</button>
+</div>
     </dialog>
 
     <div class="table">
