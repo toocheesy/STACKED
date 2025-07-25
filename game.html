@@ -107,31 +107,50 @@
       
   <div class="scoreboard-buttons" id="scoreboard-buttons">
   <button type="button" id="continue-game-btn" onclick="
-    console.log('Continue button clicked - SURGICAL FIX');
+    console.log('🎯 Continue button clicked - CLEAN FIX');
     
-    // Method 1: Force close the dialog
+    // Step 1: Close the modal completely
     const modal = document.getElementById('scoreboard-modal');
-    modal.close();
-    modal.style.display = 'none';
-    modal.removeAttribute('open');
-    
-    // Method 2: Call ui.hideModal if it exists
-    if (window.ui && window.ui.hideModal) {
-      window.ui.hideModal();
+    if (modal) {
+      modal.close();
+      modal.style.display = 'none';
+      modal.removeAttribute('open');
+      console.log('✅ Modal closed');
     }
     
-    // 🔥 NEW: SURGICAL FIX - Clear UI modal flag
+    // Step 2: Resume the game
+    window.gameIsPaused = false;
+    const gameContainer = document.querySelector('.table');
+    if (gameContainer) {
+      gameContainer.style.pointerEvents = 'auto';
+      gameContainer.style.opacity = '1';
+      console.log('✅ Game interactions enabled');
+    }
+    
+    // Step 3: Clear UI modal flags if they exist
     if (window.ui && window.ui.modalManager) {
       window.ui.modalManager.isModalActive = false;
       window.ui.modalManager.currentModal = null;
+      console.log('✅ UI modal flags cleared');
     }
     
-    // Method 3: Force re-render
+    // Step 4: Resume bot turns if needed
+    if (window.game && window.game.state.currentPlayer !== 0) {
+      console.log('🤖 Resuming bot turn for player', window.game.state.currentPlayer);
+      setTimeout(() => {
+        if (typeof scheduleNextBotTurn === 'function') {
+          scheduleNextBotTurn();
+        }
+      }, 500);
+    }
+    
+    // Step 5: Force re-render
     if (window.ui && window.ui.render) {
       window.ui.render();
+      console.log('✅ UI rendered');
     }
     
-    console.log('SURGICAL FIX: Modal flag cleared and render forced');
+    console.log('🎉 Modal closed and game resumed successfully!');
   ">Continue Game</button>
 </div>
 
