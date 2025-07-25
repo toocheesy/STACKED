@@ -2166,3 +2166,140 @@ button[data-difficulty] .difficulty-name {
     font-size: 1.8rem;
   }
 }
+
+/* 🔥 MODAL SYSTEM CSS */
+.game-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.game-modal-overlay.show {
+  opacity: 1;
+}
+
+.game-modal {
+  background: linear-gradient(135deg, #f4f1e8, #e8dcc6);
+  border: 3px solid #8B5A2B;
+  border-radius: 15px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: scale(0.9);
+  transition: transform 0.3s ease;
+}
+
+.game-modal-overlay.show .game-modal {
+  transform: scale(1);
+}
+
+.modal-header h2 {
+  margin: 0 0 20px 0;
+  color: #8B5A2B;
+  font-size: 2rem;
+}
+
+.modal-content {
+  margin-bottom: 25px;
+}
+
+.jackpot-announcement {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  color: #8B4513;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.jackpot-points {
+  font-size: 1.3rem;
+  color: #8B4513;
+}
+
+.score-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.score-item {
+  background: rgba(139, 90, 43, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+}
+
+.score-item.winner {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  border-color: #8B4513;
+  color: #8B4513;
+  font-weight: bold;
+}
+
+.player-name {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 5px;
+}
+
+.player-score {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.continue-btn, .restart-btn, .home-btn {
+  background: linear-gradient(45deg, #8B5A2B, #A0622F);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.continue-btn:hover, .restart-btn:hover, .home-btn:hover {
+  background: linear-gradient(45deg, #A0622F, #8B5A2B);
+  transform: translateY(-2px);
+}
+
+.winner-announcement h3 {
+  color: #8B5A2B;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.winner-score {
+  font-size: 1.5rem;
+  color: #8B5A2B;
+  font-weight: bold;
+}
+
+.round-info {
+  background: rgba(139, 90, 43, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
