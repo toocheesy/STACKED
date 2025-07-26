@@ -83,16 +83,6 @@ class UISystem {
   }
 
   // 🔥 NEW: HIDE MODAL AND RESUME GAME
-  hideModal() {
-    const existingModal = document.getElementById('game-modal-container');
-    if (existingModal) {
-      existingModal.classList.add('hide');
-      setTimeout(() => {
-        existingModal.remove();
-      }, 300);
-    }
-    
-    // 🔥 NEW: HIDE MODAL AND RESUME GAME
 hideModal() {
   const existingModal = document.getElementById('game-modal-container');
   if (existingModal) {
