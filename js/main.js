@@ -467,31 +467,32 @@ function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCo
   console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
 }
 
-// 🔥 NEW: Card count monitoring system
+// 🔧 UPDATED: Clearer card count monitoring in main.js
+
 function startCardCountMonitoring() {
   if (window.cardCountMonitor) {
     clearInterval(window.cardCountMonitor);
   }
   
   window.cardCountMonitor = setInterval(() => {
-    const totalInPlay = game.state.hands.flat().length + 
-                        game.state.board.length + 
-                        game.state.deck.length +
-                        game.state.capturedCards.flat().length; // 🔥 INCLUDE CAPTURED!
+    const handsCount = game.state.hands.flat().length;
+    const boardCount = game.state.board.length;
+    const deckCount = game.state.deck.length;
+    const capturedCount = game.state.capturedCards.flat().length;
+    const comboCount = Object.values(game.state.combination).flat().length;
     
-    const combinationCount = Object.values(game.state.combination)
-                                   .flat().length;
-    
-    const grandTotal = totalInPlay + combinationCount;
+    const totalInPlay = handsCount + boardCount + deckCount;
+    const grandTotal = totalInPlay + capturedCount + comboCount;
     
     if (grandTotal !== 52) {
       console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
-      console.warn(`   In game: ${totalInPlay}, In combo: ${combinationCount}`);
-      console.warn(`   Captured: [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
+      console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount} = ${totalInPlay} in play`);
+      console.warn(`   Captured: ${capturedCount} cards [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
+      console.warn(`   In combo: ${comboCount} cards`);
+      console.warn(`   TOTAL: ${grandTotal} cards`);
     }
   }, 10000);
 }
-
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
