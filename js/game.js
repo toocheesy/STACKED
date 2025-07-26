@@ -294,13 +294,15 @@ nextPlayer() {
     // If no one has cards, end the round
     const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
     if (totalCards === 0) {
-  console.log(`🏁 ALL PLAYERS OUT OF CARDS - CALLING checkGameEnd()`);
+      console.log(`🏁 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
+      // 🔥 REMOVED: Don't call checkGameEnd() here - main.js already handles it!
+      return;
+    }
     
   } while (attempts < maxAttempts);
   
   // Safety fallback
   console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-  // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here either!
 }
 
   // 🔥 NEW: Set starting player based on current dealer
