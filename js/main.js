@@ -476,7 +476,8 @@ function startCardCountMonitoring() {
   window.cardCountMonitor = setInterval(() => {
     const totalInPlay = game.state.hands.flat().length + 
                         game.state.board.length + 
-                        game.state.deck.length;
+                        game.state.deck.length +
+                        game.state.capturedCards.flat().length; // 🔥 INCLUDE CAPTURED!
     
     const combinationCount = Object.values(game.state.combination)
                                    .flat().length;
@@ -485,6 +486,8 @@ function startCardCountMonitoring() {
     
     if (grandTotal !== 52) {
       console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
+      console.warn(`   In game: ${totalInPlay}, In combo: ${combinationCount}`);
+      console.warn(`   Captured: [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
     }
   }, 10000);
 }

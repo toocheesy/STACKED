@@ -7,23 +7,24 @@
 class GameEngine {
   constructor() {
     this.state = {
-      deck: [],
-      board: [],
-      hands: [[], [], []], // Player, Bot 1, Bot 2
-      scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
-      overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
-      combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
-      currentPlayer: 0,
-      settings: {
-        cardSpeed: 'fast',
-        soundEffects: 'off',
-        targetScore: 500,
-        botDifficulty: 'intermediate'
-      },
-      draggedCard: null,
-      selectedCard: null,
-      lastCapturer: null
-    };
+  deck: [],
+  board: [],
+  hands: [[], [], []], // Player, Bot 1, Bot 2
+  capturedCards: [[], [], []], // 🔥 NEW: Store captured cards for each player
+  scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
+  overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
+  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
+  currentPlayer: 0,
+  settings: {
+    cardSpeed: 'fast',
+    soundEffects: 'off',
+    targetScore: 500,
+    botDifficulty: 'intermediate'
+  },
+  draggedCard: null,
+  selectedCard: null,
+  lastCapturer: null
+};
     
     this.currentMode = null;
     this.currentRound = 1;
@@ -71,11 +72,12 @@ class GameEngine {
     
     // Reset current round scores, preserve overall scores
 this.state.scores = { player: 0, bot1: 0, bot2: 0 };
+this.state.capturedCards = [[], [], []]; // 🔥 NEW: Reset captured cards
 this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 this.state.draggedCard = null;
 this.state.selectedCard = null;
 this.currentRound = 1;
-this.currentDealer = Math.floor(Math.random() * 3);
+this.currentDealer = Math.floor(Math.random() * 3);;
 
 // 🔥 FIX: Set proper starting player based on dealer
 this.setStartingPlayer();
@@ -186,7 +188,8 @@ console.log(`🎮 ${gameMode.name} initialized successfully`);
     }
   }
 
-  // Execute capture and update scores
+  // 🔧 FIX #2: Update executeCapture() to store captured cards
+
 executeCapture(baseCard, validCaptures, allCapturedCards) {
   console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
   
@@ -224,23 +227,31 @@ executeCapture(baseCard, validCaptures, allCapturedCards) {
     this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
   }
 
+  // 🔥 NEW: Store captured cards instead of losing them!
+  this.state.capturedCards[currentPlayer].push(...allCapturedCards);
+  console.log(`✅ STORED: ${allCapturedCards.length} cards in player ${currentPlayer} captured pile`);
+
   // Calculate and apply score
   const points = this.calculateScore(allCapturedCards);
   this.addScore(currentPlayer, points);
   this.addOverallScore(currentPlayer, points);
   this.state.lastCapturer = currentPlayer;
 
-  // 🔥 NEW: Verify card count integrity after capture
+  // 🔥 NEW: Verify card count integrity including captured cards
   const totalInPlay = this.state.hands.flat().length + 
                       this.state.board.length + 
-                      this.state.deck.length;
+                      this.state.deck.length +
+                      this.state.capturedCards.flat().length; // 🔥 INCLUDE CAPTURED!
   
-  const capturedCount = allCapturedCards.length;
   const expectedTotal = 52;
   
-  if (totalInPlay + capturedCount !== expectedTotal) {
-    console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay - capturedCount} cards missing after capture`);
-    console.warn(`   In play: ${totalInPlay}, Captured: ${capturedCount}, Expected: ${expectedTotal}`);
+  if (totalInPlay !== expectedTotal) {
+    console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay} cards missing after capture`);
+    console.warn(`   In play: ${this.state.hands.flat().length + this.state.board.length + this.state.deck.length}`);
+    console.warn(`   Captured: ${this.state.capturedCards.flat().length}`);
+    console.warn(`   Total: ${totalInPlay}, Expected: ${expectedTotal}`);
+  } else {
+    console.log(`✅ CARD COUNT VERIFIED: ${totalInPlay}/52 cards accounted for`);
   }
 
   console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
