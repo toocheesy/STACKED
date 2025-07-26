@@ -80,7 +80,9 @@ class UISystem {
     }
   }, 100);
 });
-     
+      }
+    }
+    
     // Mark modal as active
     this.modalManager.isModalActive = true;
     this.modalManager.currentModal = type;
