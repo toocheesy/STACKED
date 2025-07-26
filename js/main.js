@@ -467,6 +467,28 @@ function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCo
   console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
 }
 
+// 🔥 NEW: Card count monitoring system
+function startCardCountMonitoring() {
+  if (window.cardCountMonitor) {
+    clearInterval(window.cardCountMonitor);
+  }
+  
+  window.cardCountMonitor = setInterval(() => {
+    const totalInPlay = game.state.hands.flat().length + 
+                        game.state.board.length + 
+                        game.state.deck.length;
+    
+    const combinationCount = Object.values(game.state.combination)
+                                   .flat().length;
+    
+    const grandTotal = totalInPlay + combinationCount;
+    
+    if (grandTotal !== 52) {
+      console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
+    }
+  }, 10000);
+}
+
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
@@ -526,6 +548,9 @@ if (game.state.currentPlayer !== 0) {
 // Clear localStorage after game starts
 localStorage.removeItem('selectedDifficulty');
 localStorage.removeItem('selectedMode');
+
+// 🔥 NEW: Start card monitoring
+startCardCountMonitoring();
 }
 
 // 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
@@ -535,13 +560,15 @@ function handleSubmit() {
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Base Card area must have exactly one card!"
-    });
-    playSound('invalid');
-    return;
-  }
+  // 🔥 NEW: Auto-reset combination on validation failure
+  handleResetPlayArea();
+  
+  window.messageController.handleGameEvent('CAPTURE_ERROR', {
+    message: "Base Card area must have exactly one card! Cards returned to hand."
+  });
+  playSound('invalid');
+  return;
+}
 
   const baseCard = baseCards[0];
   const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
@@ -564,15 +591,18 @@ function handleSubmit() {
         validCaptures.push({ name: area.name, cards: area.cards });
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
+        // 🔥 NEW: Auto-reset combination on validation failure
+        handleResetPlayArea();
+        
         const areaNames = {
           'sum1': 'Sum Area 1',
           'sum2': 'Sum Area 2', 
           'sum3': 'Sum Area 3',
           'match': 'Match Area'
         };
-        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+        
         window.messageController.handleGameEvent('CAPTURE_ERROR', {
-          message: `${areaNames[area.name]}: ${result.details}`
+          message: `${areaNames[area.name]}: ${result.details}. Cards returned to hand.`
         });
         playSound('invalid');
         return;
@@ -581,9 +611,11 @@ function handleSubmit() {
   }
 
   if (validCaptures.length === 0) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    // 🔥 NEW: Auto-reset combination on validation failure
+    handleResetPlayArea();
+    
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "No valid captures found - check your combinations!"
+      message: "No valid captures found! Cards returned to hand."
     });
     playSound('invalid');
     return;

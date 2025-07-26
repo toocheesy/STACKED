@@ -242,34 +242,70 @@ if (window.cardIntelligence) {
     return true;
   }
 
-  // 🔥 FIXED: botResetModal() - Clean reset without card corruption
-  async botResetModal() {
-    console.log(`🤖 BOT: Resetting modal - clearing ALL areas`);
-    
-    // Clean reset: Clear combo areas without touching source arrays
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    
-    this.ui.render();
-    await this.delay(500);
-    
-    // Verify all areas are empty
-    const totalCards = this.game.state.combination.base.length +
-                      this.game.state.combination.sum1.length +
-                      this.game.state.combination.sum2.length +
-                      this.game.state.combination.sum3.length +
-                      this.game.state.combination.match.length;
-                      
-    console.log(`🤖 BOT: Modal reset complete - ${totalCards} cards remaining in combo areas`);
-    
-    if (totalCards > 0) {
-      console.log(`🚨 BOT: Warning - combo areas not fully cleared!`);
-      // Force clear again
-      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-      this.ui.render();
+  // 🔥 FIXED: botResetModal() - Now restores cards instead of destroying them
+async botResetModal() {
+  console.log(`🤖 BOT: Resetting modal - RESTORING cards to original locations`);
+  
+  // 🔥 NEW: Restore cards to their original locations before clearing
+  const combination = this.game.state.combination;
+  let restoredCount = 0;
+  
+  // Restore cards from each combination area
+  Object.keys(combination).forEach(area => {
+    if (combination[area] && Array.isArray(combination[area])) {
+      combination[area].forEach(entry => {
+        if (entry.source === 'hand' && entry.playerSource !== undefined) {
+          // Restore to specific player's hand
+          if (this.game.state.hands[entry.playerSource]) {
+            this.game.state.hands[entry.playerSource].push(entry.card);
+            restoredCount++;
+            console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to Player ${entry.playerSource} hand`);
+          }
+        } else if (entry.source === 'board') {
+          // Restore to board
+          this.game.state.board.push(entry.card);
+          restoredCount++;
+          console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to board`);
+        }
+      });
     }
-    
-    return true;
+  });
+  
+  console.log(`🔄 BOT RESET: Restored ${restoredCount} cards to their original locations`);
+  
+  // Clear combination after restoration
+  this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  
+  this.ui.render();
+  await this.delay(500);
+  
+  // 🔥 NEW: Verify all areas are empty and total card count is preserved
+  const totalCards = this.game.state.combination.base.length +
+                    this.game.state.combination.sum1.length +
+                    this.game.state.combination.sum2.length +
+                    this.game.state.combination.sum3.length +
+                    this.game.state.combination.match.length;
+                    
+  const gameTotal = this.game.state.hands.flat().length + 
+                   this.game.state.board.length + 
+                   this.game.state.deck.length;
+  
+  console.log(`🔍 BOT RESET VERIFICATION:`);
+  console.log(`   Combo areas: ${totalCards} cards (should be 0)`);
+  console.log(`   Game total: ${gameTotal} cards (should be 52)`);
+  
+  if (totalCards > 0) {
+    console.log(`🚨 BOT RESET WARNING: ${totalCards} cards still in combo areas!`);
   }
+  
+  if (gameTotal !== 52) {
+    console.log(`🚨 BOT RESET WARNING: Total cards = ${gameTotal}/52!`);
+  } else {
+    console.log(`✅ BOT RESET SUCCESS: All 52 cards accounted for`);
+  }
+  
+  return true;
+}
 
   // 🔥 FIXED: placeCard() - PURE UI ACTION, NO TURN MANAGEMENT
   async placeCard(handCard, playerIndex) {

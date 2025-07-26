@@ -512,6 +512,20 @@ function showGameOverModal(endResult) {
 }
 
 function dealNewRound() {
+  // 🔥 NEW: Check for trapped cards before new round
+  const combination = game.state.combination;
+  let trappedCards = 0;
+  
+  Object.keys(combination).forEach(area => {
+    if (combination[area] && Array.isArray(combination[area])) {
+      trappedCards += combination[area].length;
+    }
+  });
+  
+  if (trappedCards > 0) {
+    console.warn(`⚠️ ROUND TRANSITION: ${trappedCards} cards trapped in combination areas!`);
+  }
+
   // 🔥 FIXED: Use proper dealer rotation from game engine
   game.currentRound++;
   
@@ -523,6 +537,15 @@ function dealNewRound() {
     game.state.deck = dealResult.remainingDeck;
     // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
     game.state.lastCapturer = null;
+    
+    // 🔥 NEW: Verify new round has exactly 52 cards
+    const newTotal = game.state.hands.flat().length + 
+                     game.state.board.length + 
+                     game.state.deck.length;
+    
+    if (newTotal !== 52) {
+      console.warn(`⚠️ NEW ROUND CARD ERROR: ${newTotal}/52 cards dealt!`);
+    }
     
     // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('NEW_ROUND', {

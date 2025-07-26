@@ -187,51 +187,64 @@ console.log(`🎮 ${gameMode.name} initialized successfully`);
   }
 
   // Execute capture and update scores
-  executeCapture(baseCard, validCaptures, allCapturedCards) {
-    console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
-    
-    const cardsToRemove = {
-      board: [],
-      hand: []
-    };
-    
-    // Collect base card
-    if (baseCard.source === 'board') {
-      cardsToRemove.board.push(baseCard.card.id);
-    } else if (baseCard.source === 'hand') {
-      cardsToRemove.hand.push(baseCard.card.id);
-    }
-    
-    // Collect all capture area cards
-    validCaptures.forEach(capture => {
-      capture.cards.forEach(entry => {
-        if (entry.source === 'board') {
-          cardsToRemove.board.push(entry.card.id);
-        } else if (entry.source === 'hand') {
-          cardsToRemove.hand.push(entry.card.id);
-        }
-      });
-    });
-
-    // Remove cards from board
-    this.state.board = this.state.board.filter(card => !cardsToRemove.board.includes(card.id));
-
-    // Remove cards from current player's hand
-    const currentPlayer = this.state.currentPlayer;
-    if (currentPlayer === 0) {
-      this.state.hands[0] = this.state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
-    } else {
-      this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
-    }
-
-    // Calculate and apply score
-    const points = this.calculateScore(allCapturedCards);
-    this.addScore(currentPlayer, points);
-    this.addOverallScore(currentPlayer, points); // Update overall scores
-    this.state.lastCapturer = currentPlayer;
-
-    console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
+executeCapture(baseCard, validCaptures, allCapturedCards) {
+  console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
+  
+  const cardsToRemove = {
+    board: [],
+    hand: []
+  };
+  
+  // Collect base card
+  if (baseCard.source === 'board') {
+    cardsToRemove.board.push(baseCard.card.id);
+  } else if (baseCard.source === 'hand') {
+    cardsToRemove.hand.push(baseCard.card.id);
   }
+  
+  // Collect all capture area cards
+  validCaptures.forEach(capture => {
+    capture.cards.forEach(entry => {
+      if (entry.source === 'board') {
+        cardsToRemove.board.push(entry.card.id);
+      } else if (entry.source === 'hand') {
+        cardsToRemove.hand.push(entry.card.id);
+      }
+    });
+  });
+
+  // Remove cards from board
+  this.state.board = this.state.board.filter(card => !cardsToRemove.board.includes(card.id));
+
+  // Remove cards from current player's hand
+  const currentPlayer = this.state.currentPlayer;
+  if (currentPlayer === 0) {
+    this.state.hands[0] = this.state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
+  } else {
+    this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
+  }
+
+  // Calculate and apply score
+  const points = this.calculateScore(allCapturedCards);
+  this.addScore(currentPlayer, points);
+  this.addOverallScore(currentPlayer, points);
+  this.state.lastCapturer = currentPlayer;
+
+  // 🔥 NEW: Verify card count integrity after capture
+  const totalInPlay = this.state.hands.flat().length + 
+                      this.state.board.length + 
+                      this.state.deck.length;
+  
+  const capturedCount = allCapturedCards.length;
+  const expectedTotal = 52;
+  
+  if (totalInPlay + capturedCount !== expectedTotal) {
+    console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay - capturedCount} cards missing after capture`);
+    console.warn(`   In play: ${totalInPlay}, Captured: ${capturedCount}, Expected: ${expectedTotal}`);
+  }
+
+  console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
+}
 
   // Calculate score using current mode
   calculateScore(cards) {
