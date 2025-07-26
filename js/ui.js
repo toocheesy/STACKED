@@ -59,6 +59,11 @@ class UISystem {
     // Add to DOM
     document.body.appendChild(modalContainer);
     
+    // Store round data for continue button
+    if (type === 'round_end') {
+      this.currentRoundData = data;
+    }
+    
     // 🔥 NEW: Add event listeners for modal buttons
     if (type === 'round_end') {
       const continueBtn = modalContainer.querySelector('#continue-round-btn');
@@ -67,18 +72,12 @@ class UISystem {
   console.log('🎯 Continue button clicked - UI SYSTEM');
   this.hideModal();
   
-  // 🔥 CRITICAL: Resume game flow after modal
-  setTimeout(() => {
-    if (window.main && typeof window.main.resumeAfterModal === 'function') {
-      window.main.resumeAfterModal();
-    } else {
-      // Fallback: Force bot turn if needed
-      console.log('🔄 FORCING GAME RESUME - Bot turn');
-      if (game.state.currentPlayer !== 0 && typeof scheduleNextBotTurn === 'function') {
-        scheduleNextBotTurn();
-      }
-    }
-  }, 100);
+  // 🔥 PHASE 2: Resume round setup
+  if (typeof window.resumeNextRound === 'function') {
+    // Pass the round data stored in modal
+    const roundData = this.currentRoundData || data;
+    window.resumeNextRound(roundData);
+  }
 });
       }
     }

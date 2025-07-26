@@ -1221,11 +1221,11 @@ window.messageController.handleGameEvent('NEW_HAND', {
   }
 }
 
-// 🔄 END ROUND - Apply jackpot, rotate dealer, start new round
+// 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
 function handleEndRound(result) {
   console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
   
-  // Apply jackpot to game scores if it exists
+  // PHASE 1: Apply jackpot and show modal - NO SETUP
   if (result.data.jackpot.hasJackpot) {
     console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
     
@@ -1237,49 +1237,52 @@ function handleEndRound(result) {
     // Clear the board after jackpot
     game.state.board = [];
   }
-
-  // 🔥 CRITICAL FIX: Create new deck for new round
-  game.state.deck = createDeck();
-  console.log(`🔄 NEW DECK CREATED FOR ROUND ${result.data.newRound}: ${game.state.deck.length} cards`);
-
-  // 🔥 CRITICAL FIX: Set up new round properly
-  const newStartingPlayer = (result.data.newDealer + 1) % 3;
-  game.state.currentPlayer = newStartingPlayer;
-
-  // 🔥 CRITICAL FIX: Deal new cards from fresh deck
-  const dealResult = dealCards(game.state.deck, 3, 4, 4);
-  game.state.hands = dealResult.players;
-  game.state.deck = dealResult.remainingDeck;
-  game.state.board = dealResult.board;
-
-  console.log(`🎮 NEW ROUND SETUP: Dealer=${result.data.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
-  console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
-
-  // 🔥 FIXED: Apply BOTH round and dealer from GameStateManager
-  game.currentRound = result.data.newRound;
-  game.currentDealer = result.data.newDealer;
-  
-  console.log(`🔄 DEALER ROTATED: ${['Player', 'Bot 1', 'Bot 2'][result.data.oldDealer]} → ${['Player', 'Bot 1', 'Bot 2'][result.data.newDealer]}`);
   
   // Notify current mode of round end
   if (game.currentMode.onRoundEnd) {
     game.currentMode.onRoundEnd(game);
   }
   
-  // 🔥 NEW: Use centralized modal system
+  // 🔥 NEW: Use centralized modal system and STOP
   ui.showModal('round_end', result.data);
   
-  // 🔥 CRITICAL FIX: Update UI BEFORE scheduling bot turn
+  // NO deck creation, NO dealing, NO bot scheduling!
+}
+
+// 🔥 NEW: PHASE 2 - Complete round setup when continue clicked
+function resumeNextRound(roundData) {
+  console.log(`🔄 RESUMING ROUND ${roundData.newRound} AFTER CONTINUE`);
+  
+  // Create new deck for new round
+  game.state.deck = createDeck();
+  console.log(`🔄 NEW DECK CREATED FOR ROUND ${roundData.newRound}: ${game.state.deck.length} cards`);
+
+  // Set up new round properly
+  const newStartingPlayer = (roundData.newDealer + 1) % 3;
+  game.state.currentPlayer = newStartingPlayer;
+
+  // Deal new cards from fresh deck
+  const dealResult = dealCards(game.state.deck, 3, 4, 4);
+  game.state.hands = dealResult.players;
+  game.state.deck = dealResult.remainingDeck;
+  game.state.board = dealResult.board;
+
+  console.log(`🎮 NEW ROUND SETUP: Dealer=${roundData.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
+  console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
+
+  // Apply round and dealer from GameStateManager
+  game.currentRound = roundData.newRound;
+  game.currentDealer = roundData.newDealer;
+  
+  console.log(`🔄 DEALER ROTATED: ${['Player', 'Bot 1', 'Bot 2'][roundData.oldDealer]} → ${['Player', 'Bot 1', 'Bot 2'][roundData.newDealer]}`);
+  
+  // Update UI after setup
   ui.render();
 
-  // 🔥 CRITICAL FIX: Schedule first turn if starting player is bot (with extra delay for modal)
+  // Schedule first turn if starting player is bot
   if (newStartingPlayer !== 0) {
-    console.log(`🤖 NEW ROUND STARTS WITH BOT ${newStartingPlayer} - SCHEDULING TURN AFTER MODAL`);
-    setTimeout(() => {
-      if (!ui.modalManager.isModalActive) {
-        scheduleNextBotTurn();
-      }
-    }, 3000); // Wait for modal to be dismissed
+    console.log(`🤖 SCHEDULING BOT ${newStartingPlayer} TURN AFTER RESUME`);
+    setTimeout(() => scheduleNextBotTurn(), 1000);
   }
 }
 
@@ -1325,6 +1328,9 @@ function handleGameStateError(result) {
     message: result.data.userMessage
   });
 }
+
+// Make resumeNextRound globally available
+window.resumeNextRound = resumeNextRound;
 
 // Initialize the game
 initGame();
@@ -1372,3 +1378,5 @@ function showGameOverModal(data) {
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;
+// Make resumeNextRound globally available
+window.resumeNextRound = resumeNextRound;
