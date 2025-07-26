@@ -100,7 +100,6 @@ hideModal() {
   
   console.log('🎪 MODAL HIDDEN - Game resumed');
 }
-  }
 
   // 🔥 NEW: PAUSE GAME DURING MODALS
   pauseGame() {
