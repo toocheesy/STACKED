@@ -92,13 +92,24 @@ class UISystem {
       }, 300);
     }
     
-    // 🔥 CRITICAL: Resume the game after modal closes
-    this.resumeGame();
-    
-    this.modalManager.isModalActive = false;
-    this.modalManager.currentModal = null;
-    
-    console.log('🎪 MODAL HIDDEN - Game resumed');
+    // 🔥 NEW: HIDE MODAL AND RESUME GAME
+hideModal() {
+  const existingModal = document.getElementById('game-modal-container');
+  if (existingModal) {
+    existingModal.classList.add('hide');
+    setTimeout(() => {
+      existingModal.remove();
+    }, 300);
+  }
+  
+  // 🔥 CRITICAL: Resume the game after modal closes
+  this.resumeGame();
+  
+  this.modalManager.isModalActive = false;
+  this.modalManager.currentModal = null;
+  
+  console.log('🎪 MODAL HIDDEN - Game resumed');
+}
   }
 
   // 🔥 NEW: PAUSE GAME DURING MODALS
