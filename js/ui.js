@@ -64,12 +64,23 @@ class UISystem {
       const continueBtn = modalContainer.querySelector('#continue-round-btn');
       if (continueBtn) {
         continueBtn.addEventListener('click', () => {
-          console.log('🎯 Continue button clicked - UI SYSTEM');
-          this.hideModal();
-        });
+  console.log('🎯 Continue button clicked - UI SYSTEM');
+  this.hideModal();
+  
+  // 🔥 CRITICAL: Resume game flow after modal
+  setTimeout(() => {
+    if (window.main && typeof window.main.resumeAfterModal === 'function') {
+      window.main.resumeAfterModal();
+    } else {
+      // Fallback: Force bot turn if needed
+      console.log('🔄 FORCING GAME RESUME - Bot turn');
+      if (game.state.currentPlayer !== 0 && typeof scheduleNextBotTurn === 'function') {
+        scheduleNextBotTurn();
       }
     }
-    
+  }, 100);
+});
+     
     // Mark modal as active
     this.modalManager.isModalActive = true;
     this.modalManager.currentModal = type;
