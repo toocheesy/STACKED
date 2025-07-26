@@ -295,16 +295,6 @@ nextPlayer() {
     const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
     if (totalCards === 0) {
   console.log(`🏁 ALL PLAYERS OUT OF CARDS - CALLING checkGameEnd()`);
-  // 🔥 FIXED: Call checkGameEnd() to let Game State Manager decide what to do
-  setTimeout(() => {
-    if (typeof checkGameEnd === 'function') {
-      checkGameEnd();
-    } else {
-      console.error('🚨 checkGameEnd function not available!');
-    }
-  }, 50);
-  return;
-}
     
   } while (attempts < maxAttempts);
   
