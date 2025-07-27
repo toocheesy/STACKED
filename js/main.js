@@ -24,18 +24,13 @@ analyzeAllPossibleCaptures() {
 
   console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
 
-  // 🔥 USE CARD INTELLIGENCE SYSTEM!
-  if (!window.cardIntelligence) {
-    console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
-    return this.basicHintDetection(playerHand, board);
-  }
-
-  // Get the best capture from Card Intelligence
-  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+  // 🔥 USE AI SYSTEM FOR HINTS!
+  const hints = AISystem.getPlayerHints(playerHand, board);
   
-  if (bestCapture) {
-    console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
-    return [this.convertToHintFormat(bestCapture)];
+  if (hints.length > 0) {
+    const bestHint = hints[0];
+    console.log(`🧠 AI SYSTEM FOUND HINT: ${bestHint.description}`);
+    return [bestHint];
   }
 
   // If no captures found, check all cards for any possible captures
@@ -49,6 +44,7 @@ analyzeAllPossibleCaptures() {
 
   return this.prioritizeHints(allCaptures);
 }
+
 // 🔄 CONVERT Card Intelligence capture to hint format
 convertToHintFormat(bestCapture) {
   const handCard = bestCapture.handCard;
@@ -518,9 +514,7 @@ function startGame(modeName = 'classic', settings = {}) {
 
 // Main initialization
 function initGame() {
-  if (window.cardIntelligence) {
-    window.cardIntelligence.reset();
-  }
+  AISystem.resetCardMemory();
 
   logCheckpoint('GAME INITIALIZATION', { mode: 'classic', difficulty: 'legendary' });
   
@@ -542,6 +536,9 @@ function initGame() {
   };
   
   startGame(modeSelector.currentMode || 'classic', gameSettings);
+
+// 🔥 NEW: Initialize AI System with game components
+AISystem.initialize(game, ui);
 
 // 🔥 CRITICAL FIX: Schedule bot turn if bot goes first
 if (game.state.currentPlayer !== 0) {
@@ -626,7 +623,7 @@ function handleSubmit() {
   }
 
   game.executeCapture(baseCard, validCaptures, allCapturedCards);
-window.cardIntelligence.updateCardsSeen(allCapturedCards);
+AISystem.updateCardMemory(allCapturedCards);
 
 // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
 game.state.lastAction = 'capture';
@@ -715,7 +712,7 @@ function handleBoardDrop(e) {
     
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
-window.cardIntelligence.updateCardsSeen([handCard]);
+AISystem.updateCardMemory([handCard]);
 game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 game.state.draggedCard = null;
 
@@ -850,17 +847,17 @@ async function aiTurn() {
     logBotTurn('START', playerIndex, { action: 'analyzing' });
     
     // Get AI decision
-    const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
+    const move = AISystem.makeMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
     
     let result;
     
     if (move && move.action === 'capture') {
       console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
-      result = await botModal.executeCapture(move, playerIndex);
+      result = await AISystem.executeCapture(move, playerIndex);
     } else {
       const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
       console.log(`🤖 BOT ${playerIndex}: Placing card ${cardToPlace.value}${cardToPlace.suit}`);
-      result = await botModal.placeCard(cardToPlace, playerIndex);
+      result = await AISystem.placeCard(cardToPlace, playerIndex);
     }
     
     // 🔥 CRITICAL FIX: ALWAYS CLEAR BOT TURN FLAG BEFORE BRANCHING LOGIC
