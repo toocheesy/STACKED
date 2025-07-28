@@ -1368,47 +1368,6 @@ window.resumeNextRound = resumeNextRound;
 // Initialize the game
 initGame();
 
-// 🔥 OVERRIDE OLD MODAL FUNCTIONS TO USE NEW CENTRALIZED SYSTEM
-function showRoundEndModal(data) {
-  console.log('🔄 REDIRECTING OLD ROUND END MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    newRound: data.newRound || game.currentRound,
-    oldDealer: game.currentDealer === 0 ? 2 : game.currentDealer - 1,
-    newDealer: game.currentDealer
-  };
-  
-  ui.showModal('round_end', modalData);
-}
-
-function showGameOverModal(data) {
-  console.log('🔄 REDIRECTING OLD GAME OVER MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed  
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    winner: data.winner || 0,
-    winnerName: data.winner || 'Player',
-    winnerScore: data.winnerScore || 0
-  };
-  
-  ui.showModal('game_over', modalData);
-}
-
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;
 // Make resumeNextRound globally available

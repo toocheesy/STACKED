@@ -152,17 +152,17 @@ class GameStateManager {
     // STEP 3: Round end - apply jackpot and check scores
     this.log('🏆 ROUND END - APPLYING JACKPOT AND CHECKING SCORES');
     const jackpotResult = this.applyJackpot(snapshot, gameEngine);
-    const scoresAfterJackpot = this.calculateScoresAfterJackpot(snapshot, jackpotResult);
+    const currentScores = this.getCurrentScores(snapshot, jackpotResult);
     
     // STEP 4: Determine if game ends or continues to new round
-    const shouldEndGame = this.shouldGameEnd(scoresAfterJackpot, snapshot.targetScore);
+    const shouldEndGame = this.shouldGameEnd(currentScores, snapshot.targetScore);
     
     if (shouldEndGame) {
       this.log('🏆 GAME SHOULD END - TARGET SCORE REACHED');
-      return this.createEndGameResult(scoresAfterJackpot, jackpotResult, snapshot);
+      return this.createEndGameResult(currentScores, jackpotResult, snapshot);
     } else {
       this.log('🔄 NEW ROUND NEEDED - NO ONE REACHED TARGET');
-      return this.createEndRoundResult(scoresAfterJackpot, jackpotResult, snapshot);
+      return this.createEndRoundResult(currentScores, jackpotResult, snapshot);
     }
   }
 
@@ -257,23 +257,16 @@ class GameStateManager {
     return boardCards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
-  // 📊 CALCULATE SCORES AFTER JACKPOT
-  calculateScoresAfterJackpot(snapshot, jackpotResult) {
-    const updatedScores = { ...snapshot.currentScores };
+  // 📊 GET CURRENT SCORES (jackpot already applied by Classic Mode)
+  getCurrentScores(snapshot, jackpotResult) {
+    // Just return current scores - jackpot already applied by Classic Mode
+    const currentScores = { ...snapshot.currentScores };
     
     if (jackpotResult.hasJackpot) {
-      if (jackpotResult.winner === 0) {
-        updatedScores.player += jackpotResult.points;
-      } else if (jackpotResult.winner === 1) {
-        updatedScores.bot1 += jackpotResult.points;
-      } else if (jackpotResult.winner === 2) {
-        updatedScores.bot2 += jackpotResult.points;
-      }
-      
-      this.log(`📊 SCORES AFTER JACKPOT: Player: ${updatedScores.player}, Bot1: ${updatedScores.bot1}, Bot2: ${updatedScores.bot2}`);
+      this.log(`📊 JACKPOT ALREADY APPLIED BY CLASSIC MODE`);
     }
     
-    return updatedScores;
+    return currentScores;
   }
 
   // 🏁 CHECK IF GAME SHOULD END
