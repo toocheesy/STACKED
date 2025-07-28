@@ -1254,22 +1254,10 @@ window.messageController.handleGameEvent('NEW_HAND', {
   }
 }
 
-// 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
+// 🔄 END ROUND (PHASE 1 ONLY)
 function handleEndRound(result) {
   console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
   
-  // PHASE 1: Apply jackpot and show modal - NO SETUP
-  if (result.data.jackpot.hasJackpot) {
-    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
-    
-    // Apply jackpot to game engine scores
-    const jackpot = result.data.jackpot;
-    game.addScore(jackpot.winner, jackpot.points);
-    game.addOverallScore(jackpot.winner, jackpot.points);
-    
-    // Clear the board after jackpot
-    game.state.board = [];
-  }
   
   // Notify current mode of round end
   if (game.currentMode.onRoundEnd) {
