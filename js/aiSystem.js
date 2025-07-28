@@ -103,7 +103,9 @@ findBestCapture(handCards, boardCards, personality = 'calculator') {
   return bestCapture;
 }
 
-// 🔥 NEW FUNCTION: MEGA-CAPTURE DETECTION ENGINE
+// 🔥 FIXED MEGA-CAPTURE SYSTEM - REPLACE ALL 5 FUNCTIONS
+
+// 🔥 NEW FUNCTION: MEGA-CAPTURE DETECTION ENGINE (FIXED)
 findMegaCaptures(handCards, boardCards, personality) {
   const megaCaptures = [];
   
@@ -116,7 +118,7 @@ findMegaCaptures(handCards, boardCards, personality) {
     if (numericValue === null && handCard.value !== 'A') continue;
     
     // Find all possible multi-area combinations using this base
-    const megaCombos = this.findAllMegaCombinations(handCard, handCards, boardCards, handIdx);
+    const megaCombos = this.findValidMegaCombinations(handCard, handCards, boardCards, handIdx);
     
     // Evaluate each mega-combination
     for (const combo of megaCombos) {
@@ -124,10 +126,25 @@ findMegaCaptures(handCards, boardCards, personality) {
       
       // Only keep truly spectacular captures (4+ cards)
       if (evaluation.totalCards >= 4) {
+        // Convert to format expected by bot executor
+        const captureTargets = [];
+        ['sum1', 'sum2', 'sum3', 'match'].forEach(area => {
+          if (combo.areas[area] && combo.areas[area].length > 0) {
+            combo.areas[area].forEach(cardItem => {
+              if (cardItem.source === 'board') {
+                captureTargets.push(cardItem.card);
+              }
+            });
+          }
+        });
+        
         megaCaptures.push({
           handIndex: handIdx,
           handCard: handCard,
-          capture: combo,
+          capture: {
+            type: 'mega',
+            targets: captureTargets
+          },
           evaluation: evaluation,
           type: 'mega-capture'
         });
@@ -135,36 +152,41 @@ findMegaCaptures(handCards, boardCards, personality) {
     }
   }
   
-  console.log(`🔥 MEGA-CAPTURE SCAN: Found ${megaCaptures.length} spectacular combinations!`);
+  console.log(`🔥 MEGA-CAPTURE SCAN: Found ${megaCaptures.length} valid combinations!`);
   return megaCaptures;
 }
 
-// 🧠 FIND ALL MEGA-COMBINATIONS for a base card
-findAllMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
+// 🧠 FIND VALID MEGA-COMBINATIONS (COMPLETELY REWRITTEN)
+findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
   const combinations = [];
   const baseValue = baseCard.value;
   const baseNumValue = this.getNumericValue(baseValue);
   
-  console.log(`🔍 MEGA SCAN: Base ${baseValue} (numeric: ${baseNumValue})`);
+  console.log(`🔍 MEGA SCAN: Base ${baseValue} (numeric: ${baseNumValue}) from hand`);
   
-  // Collect available cards (excluding the base card from hand)
+  // Get available cards (excluding base card)
   const availableHandCards = handCards.filter((card, idx) => idx !== baseHandIdx);
   const availableBoardCards = [...boardCards];
-  const allAvailableCards = [
-    ...availableHandCards.map((card, idx) => ({ card, source: 'hand', originalIndex: idx >= baseHandIdx ? idx + 1 : idx })),
-    ...availableBoardCards.map((card, idx) => ({ card, source: 'board', originalIndex: idx }))
-  ];
   
   // For face cards, only look for matches
   if (baseNumValue === null && baseValue !== 'A') {
-    const matches = allAvailableCards.filter(item => item.card.value === baseValue);
-    if (matches.length > 0) {
-      combinations.push({
-        base: baseCard,
-        match: matches,
-        sum1: [], sum2: [], sum3: [],
-        totalCards: 1 + matches.length
-      });
+    const matchingBoardCards = availableBoardCards.filter(card => card.value === baseValue);
+    if (matchingBoardCards.length > 0) {
+      // Need at least 1 hand card to make a valid match area
+      if (availableHandCards.some(card => card.value === baseValue)) {
+        const handMatches = availableHandCards.filter(card => card.value === baseValue);
+        combinations.push({
+          base: baseCard,
+          areas: {
+            match: [
+              ...handMatches.map(card => ({ card, source: 'hand' })),
+              ...matchingBoardCards.map(card => ({ card, source: 'board' }))
+            ],
+            sum1: [], sum2: [], sum3: []
+          },
+          totalCards: 1 + handMatches.length + matchingBoardCards.length
+        });
+      }
     }
     return combinations;
   }
@@ -172,104 +194,140 @@ findAllMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
   // For number cards and Aces: Find sum combinations + matches
   const targetValue = baseValue === 'A' ? 1 : baseNumValue;
   
-  // Find all possible sum combinations that equal the target
-  const sumCombinations = this.findSumCombinations(allAvailableCards, targetValue);
+  // Find valid sum combinations that follow STACKED! rules
+  const validSumAreas = this.findValidSumAreas(availableHandCards, availableBoardCards, targetValue);
   
   // Find matching cards
-  const matchingCards = allAvailableCards.filter(item => item.card.value === baseValue);
+  const handMatches = availableHandCards.filter(card => card.value === baseValue);
+  const boardMatches = availableBoardCards.filter(card => card.value === baseValue);
   
-  // Generate combinations using multiple areas
-  const maxAreas = 3; // sum1, sum2, sum3
-  
-  // Try combinations of 1, 2, or 3 sum areas + optional matches
-  for (let numSumAreas = 1; numSumAreas <= Math.min(maxAreas, sumCombinations.length); numSumAreas++) {
-    const sumAreaCombos = this.getCombinations(sumCombinations, numSumAreas);
+  // Generate combinations using 1-3 sum areas + optional matches
+  for (let numAreas = 1; numAreas <= Math.min(3, validSumAreas.length); numAreas++) {
+    const areaCombos = this.getCombinations(validSumAreas, numAreas);
     
-    for (const sumAreas of sumAreaCombos) {
-      // Check for conflicts (same card used twice)
+    for (const areaCombo of areaCombos) {
+      // Check for card conflicts
       const usedCards = new Set();
       let hasConflict = false;
       
-      for (const sumArea of sumAreas) {
-        for (const cardItem of sumArea) {
-          const cardKey = `${cardItem.source}-${cardItem.originalIndex}`;
+      const areas = { sum1: [], sum2: [], sum3: [], match: [] };
+      
+      // Assign areas
+      areaCombo.forEach((area, index) => {
+        const areaName = `sum${index + 1}`;
+        areas[areaName] = area;
+        
+        area.forEach(cardItem => {
+          const cardKey = `${cardItem.source}-${cardItem.card.id || cardItem.card.value + cardItem.card.suit}`;
           if (usedCards.has(cardKey)) {
             hasConflict = true;
-            break;
           }
           usedCards.add(cardKey);
-        }
-        if (hasConflict) break;
-      }
+        });
+      });
       
       if (hasConflict) continue;
       
-      // Add available matches (that don't conflict)
-      const availableMatches = matchingCards.filter(item => {
-        const cardKey = `${item.source}-${item.originalIndex}`;
-        return !usedCards.has(cardKey);
-      });
+      // Add matches if available and no conflicts
+      if (handMatches.length > 0 && boardMatches.length > 0) {
+        const availableHandMatches = handMatches.filter(card => {
+          const cardKey = `hand-${card.id || card.value + card.suit}`;
+          return !usedCards.has(cardKey);
+        });
+        const availableBoardMatches = boardMatches.filter(card => {
+          const cardKey = `board-${card.id || card.value + card.suit}`;
+          return !usedCards.has(cardKey);
+        });
+        
+        if (availableHandMatches.length > 0 && availableBoardMatches.length > 0) {
+          areas.match = [
+            ...availableHandMatches.map(card => ({ card, source: 'hand' })),
+            ...availableBoardMatches.map(card => ({ card, source: 'board' }))
+          ];
+        }
+      }
       
-      // Create the combination
-      const combo = {
+      // Calculate total cards
+      const totalCards = 1 + Object.values(areas).reduce((sum, area) => sum + area.length, 0);
+      
+      combinations.push({
         base: baseCard,
-        sum1: sumAreas[0] || [],
-        sum2: sumAreas[1] || [],
-        sum3: sumAreas[2] || [],
-        match: availableMatches,
-        totalCards: 1 + sumAreas.reduce((sum, area) => sum + area.length, 0) + availableMatches.length
-      };
-      
-      combinations.push(combo);
+        areas: areas,
+        totalCards: totalCards
+      });
     }
   }
   
   return combinations;
 }
 
-// 🧮 FIND ALL SUM COMBINATIONS that equal target value
-findSumCombinations(availableCards, targetValue) {
-  const sumCombinations = [];
-  const numberCards = availableCards.filter(item => {
-    const numValue = this.getNumericValue(item.card.value);
+// 🧮 FIND VALID SUM AREAS (NEW FUNCTION)
+findValidSumAreas(handCards, boardCards, targetValue) {
+  const validAreas = [];
+  
+  // Each area must have at least 1 hand card AND 1 board card
+  const numberHandCards = handCards.filter(card => {
+    const numValue = this.getNumericValue(card.value);
     return numValue !== null;
   });
   
-  // Find pairs, triples that sum to target
-  for (let i = 0; i < numberCards.length; i++) {
-    const card1 = numberCards[i];
-    const value1 = this.getNumericValue(card1.card.value);
+  const numberBoardCards = boardCards.filter(card => {
+    const numValue = this.getNumericValue(card.value);
+    return numValue !== null;
+  });
+  
+  // Try combinations of 2-3 cards that sum to target
+  for (let i = 0; i < numberHandCards.length; i++) {
+    const handCard = numberHandCards[i];
+    const handValue = this.getNumericValue(handCard.value);
     
-    // Single card matches
-    if (value1 === targetValue) {
-      sumCombinations.push([card1]);
-    }
-    
-    // Two card combinations
-    for (let j = i + 1; j < numberCards.length; j++) {
-      const card2 = numberCards[j];
-      const value2 = this.getNumericValue(card2.card.value);
+    for (let j = 0; j < numberBoardCards.length; j++) {
+      const boardCard = numberBoardCards[j];
+      const boardValue = this.getNumericValue(boardCard.value);
       
-      if (value1 + value2 === targetValue) {
-        sumCombinations.push([card1, card2]);
+      // Two card combination (1 hand + 1 board)
+      if (handValue + boardValue === targetValue) {
+        validAreas.push([
+          { card: handCard, source: 'hand' },
+          { card: boardCard, source: 'board' }
+        ]);
       }
       
-      // Three card combinations
-      for (let k = j + 1; k < numberCards.length; k++) {
-        const card3 = numberCards[k];
-        const value3 = this.getNumericValue(card3.card.value);
+      // Three card combinations (1 hand + 2 board OR 2 hand + 1 board)
+      for (let k = j + 1; k < numberBoardCards.length; k++) {
+        const boardCard2 = numberBoardCards[k];
+        const boardValue2 = this.getNumericValue(boardCard2.value);
         
-        if (value1 + value2 + value3 === targetValue) {
-          sumCombinations.push([card1, card2, card3]);
+        // 1 hand + 2 board
+        if (handValue + boardValue + boardValue2 === targetValue) {
+          validAreas.push([
+            { card: handCard, source: 'hand' },
+            { card: boardCard, source: 'board' },
+            { card: boardCard2, source: 'board' }
+          ]);
+        }
+      }
+      
+      // 2 hand + 1 board
+      for (let k = i + 1; k < numberHandCards.length; k++) {
+        const handCard2 = numberHandCards[k];
+        const handValue2 = this.getNumericValue(handCard2.value);
+        
+        if (handValue + handValue2 + boardValue === targetValue) {
+          validAreas.push([
+            { card: handCard, source: 'hand' },
+            { card: handCard2, source: 'hand' },
+            { card: boardCard, source: 'board' }
+          ]);
         }
       }
     }
   }
   
-  return sumCombinations;
+  return validAreas;
 }
 
-// 🎯 EVALUATE MEGA-CAPTURE with exponential scoring
+// 🎯 EVALUATE MEGA-CAPTURE (FIXED SCORING)
 evaluateMegaCapture(combo, personality) {
   let score = 0;
   let reasoning = [];
@@ -282,39 +340,39 @@ evaluateMegaCapture(combo, personality) {
   
   // Points from each area
   ['sum1', 'sum2', 'sum3', 'match'].forEach(area => {
-    if (combo[area] && combo[area].length > 0) {
+    if (combo.areas[area] && combo.areas[area].length > 0) {
       areasUsed.push(area);
-      const areaPoints = combo[area].reduce((sum, item) => sum + this.getCardPointValue(item.card), 0);
+      const areaPoints = combo.areas[area].reduce((sum, item) => sum + this.getCardPointValue(item.card), 0);
       score += areaPoints;
       reasoning.push(`${area}: ${areaPoints}pts`);
     }
   });
   
-  // 🔥 EXPONENTIAL MEGA-BONUS based on total cards!
+  // 🔥 REALISTIC MEGA-BONUS (reduced from insane levels)
   const totalCards = combo.totalCards;
   let megaBonus = 0;
   
   if (totalCards >= 4) {
-    megaBonus = Math.pow(totalCards - 2, 2.5) * 10; // Exponential scaling!
-    reasoning.push(`🔥 MEGA BONUS: ${megaBonus.toFixed(0)}pts (${totalCards} cards)`);
+    megaBonus = (totalCards - 3) * 8; // Much more reasonable: 4 cards = +8, 5 cards = +16, 6 cards = +24
+    reasoning.push(`🔥 MEGA BONUS: ${megaBonus}pts (${totalCards} cards)`);
   }
   
-  // Multi-area bonus (using multiple sum areas is extra spectacular)
-  const numSumAreas = ['sum1', 'sum2', 'sum3'].filter(area => combo[area] && combo[area].length > 0).length;
-  if (numSumAreas >= 2) {
-    const multiAreaBonus = numSumAreas * 15;
+  // Multi-area bonus
+  const numAreas = areasUsed.length;
+  if (numAreas >= 2) {
+    const multiAreaBonus = (numAreas - 1) * 5; // 2 areas = +5, 3 areas = +10, 4 areas = +15
     megaBonus += multiAreaBonus;
-    reasoning.push(`🎯 MULTI-AREA: +${multiAreaBonus}pts (${numSumAreas} areas)`);
+    reasoning.push(`🎯 MULTI-AREA: +${multiAreaBonus}pts (${numAreas} areas)`);
   }
   
   score += megaBonus;
   
-  // Personality adjustments
+  // Personality adjustments (smaller bonuses)
   if (personality === 'adaptive' && totalCards >= 5) {
-    score += 25; // Adaptive AI loves spectacular plays
+    score += 10; // Reduced from 25
     reasoning.push('🧠 ADAPTIVE: Spectacular play bonus');
   } else if (personality === 'strategist' && areasUsed.length >= 3) {
-    score += 20; // Strategist loves complex combinations
+    score += 8; // Reduced from 20
     reasoning.push('🎯 STRATEGIST: Complexity bonus');
   }
   
@@ -328,7 +386,7 @@ evaluateMegaCapture(combo, personality) {
   };
 }
 
-// 🔧 UTILITY: Get combinations of arrays
+// 🔧 UTILITY: Get combinations of arrays (UNCHANGED)
 getCombinations(array, size) {
   if (size === 1) return array.map(item => [item]);
   if (size > array.length) return [];
@@ -1053,7 +1111,7 @@ class AISystemCore {
           capture: {
             type: bestCapture.capture.type,
             cards: bestCapture.capture.cards,
-            targets: bestCapture.capture.targets || bestCapture.capture.cards.map(idx => board[idx])
+            targets: bestCapture.capture.targets || []
           }
         };
       } else {
