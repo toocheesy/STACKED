@@ -985,47 +985,82 @@ async executeCapture(move, playerIndex) {
     }
     console.log(`✅ BOT: Base card verified in place`);
     
-    // STEP 3: Add target cards - FIXED LOGIC!
-    if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
-      console.log(`🎯 BOT: Adding ${move.capture.targets.length} target cards`);
-      
-      for (let i = 0; i < move.capture.targets.length; i++) {
-        const targetCard = move.capture.targets[i];
-        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+    // STEP 3: Add target cards - MEGA-CAPTURE AWARE LOGIC!
+if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
+  console.log(`🎯 BOT: Adding ${move.capture.targets.length} target cards`);
+  
+  // Check if this is a mega-capture with intelligent distribution
+  if (move.type === 'mega-capture' && move.megaCapture && move.megaCapture.areas) {
+    console.log(`🚀 BOT: MEGA-CAPTURE EXECUTION - Using intelligent area distribution`);
+    
+    // Use the intelligent mega-capture distribution
+    for (const [areaName, areaCards] of Object.entries(move.megaCapture.areas)) {
+      if (areaCards && areaCards.length > 0) {
+        console.log(`🎯 BOT: MEGA-AREA ${areaName} - Adding ${areaCards.length} cards`);
         
-        if (boardIndex !== -1) {
-          // Determine correct area based on capture rules
-          let targetArea = 'sum1'; // Default for sum captures
+        for (const cardItem of areaCards) {
+          const targetCard = cardItem.card;
+          const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
           
-          // For pair captures (same value), use match area
-          if (targetCard.value === baseCard.value) {
-            targetArea = 'match';
-            console.log(`🎯 BOT: PAIR CAPTURE - Adding ${targetCard.value}${targetCard.suit} to MATCH area`);
+          if (boardIndex !== -1) {
+            console.log(`🚀 BOT: MEGA - Adding ${targetCard.value}${targetCard.suit} to ${areaName}`);
+            const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, areaName);
+            
+            if (!success) {
+              console.error(`🚨 BOT: Failed to add mega-capture card ${targetCard.value}${targetCard.suit} to ${areaName}`);
+              this.isAnimating = false;
+              return { success: false, reason: 'Mega-capture card placement failed' };
+            }
+            
+            console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${areaName}`);
           } else {
-            console.log(`🎯 BOT: SUM CAPTURE - Adding ${targetCard.value}${targetCard.suit} to SUM1 area`);
+            console.error(`🚨 BOT: Mega-capture card ${targetCard.value}${targetCard.suit} not found on board`);
           }
-          
-          const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, targetArea);
-          
-          if (!success) {
-            console.error(`🚨 BOT: Failed to add target card ${targetCard.value}${targetCard.suit}`);
-            this.isAnimating = false;
-            return { success: false, reason: 'Target card placement failed' };
-          }
-          
-          console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${targetArea}`);
-        } else {
-          console.error(`🚨 BOT: Target card ${targetCard.value}${targetCard.suit} not found on board`);
-          this.isAnimating = false;
-          return { success: false, reason: 'Target card not found on board' };
         }
       }
-    } else {
-      console.error(`🚨 BOT: No target cards found in move.capture.targets`);
-      console.log(`🔍 BOT DEBUG: move.capture =`, move.capture);
-      this.isAnimating = false;
-      return { success: false, reason: 'No target cards' };
     }
+  } else {
+    // Standard capture logic for simple captures
+    console.log(`🎯 BOT: STANDARD CAPTURE - Using simple area logic`);
+    
+    for (let i = 0; i < move.capture.targets.length; i++) {
+      const targetCard = move.capture.targets[i];
+      const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+      
+      if (boardIndex !== -1) {
+        // Determine correct area based on capture rules
+        let targetArea = 'sum1'; // Default for sum captures
+        
+        // For pair captures (same value), use match area
+        if (targetCard.value === baseCard.value) {
+          targetArea = 'match';
+          console.log(`🎯 BOT: PAIR CAPTURE - Adding ${targetCard.value}${targetCard.suit} to MATCH area`);
+        } else {
+          console.log(`🎯 BOT: SUM CAPTURE - Adding ${targetCard.value}${targetCard.suit} to SUM1 area`);
+        }
+        
+        const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, targetArea);
+        
+        if (!success) {
+          console.error(`🚨 BOT: Failed to add target card ${targetCard.value}${targetCard.suit}`);
+          this.isAnimating = false;
+          return { success: false, reason: 'Target card placement failed' };
+        }
+        
+        console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${targetArea}`);
+      } else {
+        console.error(`🚨 BOT: Target card ${targetCard.value}${targetCard.suit} not found on board`);
+        this.isAnimating = false;
+        return { success: false, reason: 'Target card not found on board' };
+      }
+    }
+  }
+} else {
+  console.error(`🚨 BOT: No target cards found in move.capture.targets`);
+  console.log(`🔍 BOT DEBUG: move.capture =`, move.capture);
+  this.isAnimating = false;
+  return { success: false, reason: 'No target cards' };
+}
     
     // STEP 4: Submit capture
     const baseCount = this.game.state.combination.base.length;
