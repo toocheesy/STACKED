@@ -157,36 +157,50 @@ findMegaCaptures(handCards, boardCards, personality) {
 }
 
 // 🧠 FIND VALID MEGA-COMBINATIONS (COMPLETELY REWRITTEN)
+// 🧠 FIND VALID MEGA-COMBINATIONS (COMPLETELY REWRITTEN WITH CORRECT LOGIC)
 findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
   const combinations = [];
   const baseValue = baseCard.value;
   const baseNumValue = this.getNumericValue(baseValue);
   
-  console.log(`🔍 MEGA SCAN: Base ${baseValue} (numeric: ${baseNumValue}) from hand`);
+  // Determine if base card is from hand or board
+  const baseIsFromHand = baseHandIdx !== -1; // -1 means board card
   
-  // Get available cards (excluding base card)
-  const availableHandCards = handCards.filter((card, idx) => idx !== baseHandIdx);
-  const availableBoardCards = [...boardCards];
+  console.log(`🔍 MEGA SCAN: Base ${baseValue} (numeric: ${baseNumValue}) from ${baseIsFromHand ? 'hand' : 'board'}`);
+  
+  // Get available cards (excluding base card if from hand)
+  const availableHandCards = baseIsFromHand ? 
+    handCards.filter((card, idx) => idx !== baseHandIdx) : 
+    [...handCards];
+  const availableBoardCards = baseIsFromHand ? 
+    [...boardCards] : 
+    boardCards.filter(card => card.id !== baseCard.id);
   
   // For face cards, only look for matches
   if (baseNumValue === null && baseValue !== 'A') {
-    const matchingBoardCards = availableBoardCards.filter(card => card.value === baseValue);
-    if (matchingBoardCards.length > 0) {
-      // Need at least 1 hand card to make a valid match area
-      if (availableHandCards.some(card => card.value === baseValue)) {
-        const handMatches = availableHandCards.filter(card => card.value === baseValue);
-        combinations.push({
-          base: baseCard,
-          areas: {
-            match: [
-              ...handMatches.map(card => ({ card, source: 'hand' })),
-              ...matchingBoardCards.map(card => ({ card, source: 'board' }))
-            ],
-            sum1: [], sum2: [], sum3: []
-          },
-          totalCards: 1 + handMatches.length + matchingBoardCards.length
-        });
-      }
+    let matchingCards = [];
+    
+    if (baseIsFromHand) {
+      // Base from hand, need board cards for match
+      matchingCards = availableBoardCards.filter(card => card.value === baseValue);
+    } else {
+      // Base from board, need hand cards for match
+      matchingCards = availableHandCards.filter(card => card.value === baseValue);
+    }
+    
+    if (matchingCards.length > 0) {
+      combinations.push({
+        base: baseCard,
+        baseSource: baseIsFromHand ? 'hand' : 'board',
+        areas: {
+          match: matchingCards.map(card => ({ 
+            card, 
+            source: baseIsFromHand ? 'board' : 'hand' 
+          })),
+          sum1: [], sum2: [], sum3: []
+        },
+        totalCards: 1 + matchingCards.length
+      });
     }
     return combinations;
   }
@@ -194,12 +208,21 @@ findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
   // For number cards and Aces: Find sum combinations + matches
   const targetValue = baseValue === 'A' ? 1 : baseNumValue;
   
-  // Find valid sum combinations that follow STACKED! rules
-  const validSumAreas = this.findValidSumAreas(availableHandCards, availableBoardCards, targetValue);
+  // Find valid sum combinations based on base card source
+  const validSumAreas = this.findValidSumAreas(
+    availableHandCards, 
+    availableBoardCards, 
+    targetValue, 
+    baseIsFromHand
+  );
   
-  // Find matching cards
-  const handMatches = availableHandCards.filter(card => card.value === baseValue);
-  const boardMatches = availableBoardCards.filter(card => card.value === baseValue);
+  // Find matching cards (opposite source from base)
+  let matchingCards = [];
+  if (baseIsFromHand) {
+    matchingCards = availableBoardCards.filter(card => card.value === baseValue);
+  } else {
+    matchingCards = availableHandCards.filter(card => card.value === baseValue);
+  }
   
   // Generate combinations using 1-3 sum areas + optional matches
   for (let numAreas = 1; numAreas <= Math.min(3, validSumAreas.length); numAreas++) {
@@ -212,7 +235,7 @@ findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
       
       const areas = { sum1: [], sum2: [], sum3: [], match: [] };
       
-      // Assign areas
+      // Assign sum areas
       areaCombo.forEach((area, index) => {
         const areaName = `sum${index + 1}`;
         areas[areaName] = area;
@@ -229,43 +252,42 @@ findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
       if (hasConflict) continue;
       
       // Add matches if available and no conflicts
-      if (handMatches.length > 0 && boardMatches.length > 0) {
-        const availableHandMatches = handMatches.filter(card => {
-          const cardKey = `hand-${card.id || card.value + card.suit}`;
-          return !usedCards.has(cardKey);
-        });
-        const availableBoardMatches = boardMatches.filter(card => {
-          const cardKey = `board-${card.id || card.value + card.suit}`;
+      if (matchingCards.length > 0) {
+        const availableMatches = matchingCards.filter(card => {
+          const cardKey = `${baseIsFromHand ? 'board' : 'hand'}-${card.id || card.value + card.suit}`;
           return !usedCards.has(cardKey);
         });
         
-        if (availableHandMatches.length > 0 && availableBoardMatches.length > 0) {
-          areas.match = [
-            ...availableHandMatches.map(card => ({ card, source: 'hand' })),
-            ...availableBoardMatches.map(card => ({ card, source: 'board' }))
-          ];
+        if (availableMatches.length > 0) {
+          areas.match = availableMatches.map(card => ({ 
+            card, 
+            source: baseIsFromHand ? 'board' : 'hand' 
+          }));
         }
       }
       
       // Calculate total cards
       const totalCards = 1 + Object.values(areas).reduce((sum, area) => sum + area.length, 0);
       
-      combinations.push({
-        base: baseCard,
-        areas: areas,
-        totalCards: totalCards
-      });
+      if (totalCards >= 4) { // Only keep truly mega captures
+        combinations.push({
+          base: baseCard,
+          baseSource: baseIsFromHand ? 'hand' : 'board',
+          areas: areas,
+          totalCards: totalCards
+        });
+      }
     }
   }
   
   return combinations;
 }
 
-// 🧮 FIND VALID SUM AREAS (NEW FUNCTION)
-findValidSumAreas(handCards, boardCards, targetValue) {
+// 🧮 FIND VALID SUM AREAS (CORRECTED LOGIC)
+findValidSumAreas(handCards, boardCards, targetValue, baseIsFromHand) {
   const validAreas = [];
   
-  // Each area must have at least 1 hand card AND 1 board card
+  // Filter to only number cards
   const numberHandCards = handCards.filter(card => {
     const numValue = this.getNumericValue(card.value);
     return numValue !== null;
@@ -276,54 +298,186 @@ findValidSumAreas(handCards, boardCards, targetValue) {
     return numValue !== null;
   });
   
-  // Try combinations of 2-3 cards that sum to target
-  for (let i = 0; i < numberHandCards.length; i++) {
-    const handCard = numberHandCards[i];
-    const handValue = this.getNumericValue(handCard.value);
+  console.log(`🔍 SUM AREAS: Base from ${baseIsFromHand ? 'hand' : 'board'}, need ${baseIsFromHand ? 'board' : 'hand'} cards in areas`);
+  
+  if (baseIsFromHand) {
+    // Base from hand - each sum area must have at least 1 board card
     
-    for (let j = 0; j < numberBoardCards.length; j++) {
-      const boardCard = numberBoardCards[j];
-      const boardValue = this.getNumericValue(boardCard.value);
+    // 1. Board-only combinations
+    for (let i = 0; i < numberBoardCards.length; i++) {
+      const boardCard1 = numberBoardCards[i];
+      const value1 = this.getNumericValue(boardCard1.value);
       
-      // Two card combination (1 hand + 1 board)
-      if (handValue + boardValue === targetValue) {
-        validAreas.push([
-          { card: handCard, source: 'hand' },
-          { card: boardCard, source: 'board' }
-        ]);
+      // Single board card
+      if (value1 === targetValue) {
+        validAreas.push([{ card: boardCard1, source: 'board' }]);
       }
       
-      // Three card combinations (1 hand + 2 board OR 2 hand + 1 board)
-      for (let k = j + 1; k < numberBoardCards.length; k++) {
-        const boardCard2 = numberBoardCards[k];
-        const boardValue2 = this.getNumericValue(boardCard2.value);
+      // Two board cards
+      for (let j = i + 1; j < numberBoardCards.length; j++) {
+        const boardCard2 = numberBoardCards[j];
+        const value2 = this.getNumericValue(boardCard2.value);
         
-        // 1 hand + 2 board
-        if (handValue + boardValue + boardValue2 === targetValue) {
+        if (value1 + value2 === targetValue) {
           validAreas.push([
-            { card: handCard, source: 'hand' },
-            { card: boardCard, source: 'board' },
+            { card: boardCard1, source: 'board' },
             { card: boardCard2, source: 'board' }
           ]);
         }
+        
+        // Three board cards
+        for (let k = j + 1; k < numberBoardCards.length; k++) {
+          const boardCard3 = numberBoardCards[k];
+          const value3 = this.getNumericValue(boardCard3.value);
+          
+          if (value1 + value2 + value3 === targetValue) {
+            validAreas.push([
+              { card: boardCard1, source: 'board' },
+              { card: boardCard2, source: 'board' },
+              { card: boardCard3, source: 'board' }
+            ]);
+          }
+        }
+      }
+    }
+    
+    // 2. Mixed combinations (board + hand, but must have at least 1 board)
+    for (let i = 0; i < numberBoardCards.length; i++) {
+      const boardCard = numberBoardCards[i];
+      const boardValue = this.getNumericValue(boardCard.value);
+      
+      for (let j = 0; j < numberHandCards.length; j++) {
+        const handCard = numberHandCards[j];
+        const handValue = this.getNumericValue(handCard.value);
+        
+        // Board + hand combination
+        if (boardValue + handValue === targetValue) {
+          validAreas.push([
+            { card: boardCard, source: 'board' },
+            { card: handCard, source: 'hand' }
+          ]);
+        }
+        
+        // Board + hand + hand combination
+        for (let k = j + 1; k < numberHandCards.length; k++) {
+          const handCard2 = numberHandCards[k];
+          const handValue2 = this.getNumericValue(handCard2.value);
+          
+          if (boardValue + handValue + handValue2 === targetValue) {
+            validAreas.push([
+              { card: boardCard, source: 'board' },
+              { card: handCard, source: 'hand' },
+              { card: handCard2, source: 'hand' }
+            ]);
+          }
+        }
+        
+        // Board + board + hand combination
+        for (let k = i + 1; k < numberBoardCards.length; k++) {
+          const boardCard2 = numberBoardCards[k];
+          const boardValue2 = this.getNumericValue(boardCard2.value);
+          
+          if (boardValue + boardValue2 + handValue === targetValue) {
+            validAreas.push([
+              { card: boardCard, source: 'board' },
+              { card: boardCard2, source: 'board' },
+              { card: handCard, source: 'hand' }
+            ]);
+          }
+        }
+      }
+    }
+    
+  } else {
+    // Base from board - each sum area must have at least 1 hand card
+    
+    // 1. Hand-only combinations
+    for (let i = 0; i < numberHandCards.length; i++) {
+      const handCard1 = numberHandCards[i];
+      const value1 = this.getNumericValue(handCard1.value);
+      
+      // Single hand card
+      if (value1 === targetValue) {
+        validAreas.push([{ card: handCard1, source: 'hand' }]);
       }
       
-      // 2 hand + 1 board
-      for (let k = i + 1; k < numberHandCards.length; k++) {
-        const handCard2 = numberHandCards[k];
-        const handValue2 = this.getNumericValue(handCard2.value);
+      // Two hand cards
+      for (let j = i + 1; j < numberHandCards.length; j++) {
+        const handCard2 = numberHandCards[j];
+        const value2 = this.getNumericValue(handCard2.value);
         
-        if (handValue + handValue2 + boardValue === targetValue) {
+        if (value1 + value2 === targetValue) {
+          validAreas.push([
+            { card: handCard1, source: 'hand' },
+            { card: handCard2, source: 'hand' }
+          ]);
+        }
+        
+        // Three hand cards
+        for (let k = j + 1; k < numberHandCards.length; k++) {
+          const handCard3 = numberHandCards[k];
+          const value3 = this.getNumericValue(handCard3.value);
+          
+          if (value1 + value2 + value3 === targetValue) {
+            validAreas.push([
+              { card: handCard1, source: 'hand' },
+              { card: handCard2, source: 'hand' },
+              { card: handCard3, source: 'hand' }
+            ]);
+          }
+        }
+      }
+    }
+    
+    // 2. Mixed combinations (hand + board, but must have at least 1 hand)
+    for (let i = 0; i < numberHandCards.length; i++) {
+      const handCard = numberHandCards[i];
+      const handValue = this.getNumericValue(handCard.value);
+      
+      for (let j = 0; j < numberBoardCards.length; j++) {
+        const boardCard = numberBoardCards[j];
+        const boardValue = this.getNumericValue(boardCard.value);
+        
+        // Hand + board combination
+        if (handValue + boardValue === targetValue) {
           validAreas.push([
             { card: handCard, source: 'hand' },
-            { card: handCard2, source: 'hand' },
             { card: boardCard, source: 'board' }
           ]);
+        }
+        
+        // Hand + hand + board combination
+        for (let k = i + 1; k < numberHandCards.length; k++) {
+          const handCard2 = numberHandCards[k];
+          const handValue2 = this.getNumericValue(handCard2.value);
+          
+          if (handValue + handValue2 + boardValue === targetValue) {
+            validAreas.push([
+              { card: handCard, source: 'hand' },
+              { card: handCard2, source: 'hand' },
+              { card: boardCard, source: 'board' }
+            ]);
+          }
+        }
+        
+        // Hand + board + board combination
+        for (let k = j + 1; k < numberBoardCards.length; k++) {
+          const boardCard2 = numberBoardCards[k];
+          const boardValue2 = this.getNumericValue(boardCard2.value);
+          
+          if (handValue + boardValue + boardValue2 === targetValue) {
+            validAreas.push([
+              { card: handCard, source: 'hand' },
+              { card: boardCard, source: 'board' },
+              { card: boardCard2, source: 'board' }
+            ]);
+          }
         }
       }
     }
   }
   
+  console.log(`🧮 FOUND ${validAreas.length} valid sum combinations for target ${targetValue}`);
   return validAreas;
 }
 
