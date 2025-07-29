@@ -976,14 +976,30 @@ class BotActionExecutor {
       }
       console.log(`✅ BOT: Base card verified in place`);
       
-      // STEP 3: Add target cards
-      for (const targetCard of move.capture.targets) {
-        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+      // STEP 3: Add target cards according to mega-capture plan
+if (move.capture && move.capture.type === 'mega' && move.megaCapture) {
+  // Use the intelligent mega-capture distribution
+  for (const [area, cards] of Object.entries(move.megaCapture.areas)) {
+    if (cards && cards.length > 0) {
+      for (const cardItem of cards) {
+        const boardIndex = this.game.state.board.findIndex(bc => bc.id === cardItem.card.id);
         if (boardIndex !== -1) {
-          console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
-          await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+          console.log(`🤖 BOT MEGA: Adding ${cardItem.card.value}${cardItem.card.suit} to ${area}`);
+          await this.botDragCardToSlot(cardItem.card, 'board', boardIndex, area);
         }
       }
+    }
+  }
+} else {
+  // Original logic for simple captures
+  for (const targetCard of move.capture.targets) {
+    const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+    if (boardIndex !== -1) {
+      console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
+      await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+    }
+  }
+}
       
       // STEP 4: Submit capture
       const baseCount = this.game.state.combination.base.length;
