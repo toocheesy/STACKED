@@ -933,99 +933,126 @@ class BotActionExecutor {
   }
   
   // 🎯 EXECUTE CAPTURE
-  async executeCapture(move, playerIndex) {
-    if (this.isAnimating) return { success: false, reason: 'Already animating' };
-    this.isAnimating = true;
+  // 🔧 REPLACE executeCapture() function in aiSystem.js around line 940
+// This fixes the missing target card placement
 
-    console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
-    
-    try {
-      // Check if combo areas are occupied
-      const totalCardsInCombo = this.game.state.combination.base.length +
-                               this.game.state.combination.sum1.length +
-                               this.game.state.combination.sum2.length +
-                               this.game.state.combination.sum3.length +
-                               this.game.state.combination.match.length;
-                               
-      if (totalCardsInCombo > 0) {
-        console.log(`🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
-        await this.botResetModal();
-      }
-      
-      const baseCard = move.handCard;
-      const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+async executeCapture(move, playerIndex) {
+  if (this.isAnimating) return { success: false, reason: 'Already animating' };
+  this.isAnimating = true;
 
-      if (handIndex === -1) {
-        console.error(`🚨 BOT: Base card not found in hand`);
-        this.isAnimating = false;
-        return { success: false, reason: 'Base card not found' };
-      }
-
-      // STEP 1: Reset modal completely
+  console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
+  console.log(`🔍 MOVE DEBUG:`, {
+    type: move.type,
+    handCard: move.handCard.value + move.handCard.suit,
+    captureType: move.capture?.type,
+    targets: move.capture?.targets?.length || 0
+  });
+  
+  try {
+    // Check if combo areas are occupied
+    const totalCardsInCombo = this.game.state.combination.base.length +
+                             this.game.state.combination.sum1.length +
+                             this.game.state.combination.sum2.length +
+                             this.game.state.combination.sum3.length +
+                             this.game.state.combination.match.length;
+                             
+    if (totalCardsInCombo > 0) {
+      console.log(`🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
       await this.botResetModal();
-      console.log(`🤖 BOT: Modal reset complete`);
+    }
+    
+    const baseCard = move.handCard;
+    const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+
+    if (handIndex === -1) {
+      console.error(`🚨 BOT: Base card not found in hand`);
+      this.isAnimating = false;
+      return { success: false, reason: 'Base card not found' };
+    }
+
+    // STEP 1: Reset modal completely
+    await this.botResetModal();
+    console.log(`🤖 BOT: Modal reset complete`);
+    
+    // STEP 2: Place base card
+    console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
+    const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+    
+    if (!baseSuccess || this.game.state.combination.base.length !== 1) {
+      console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
+      this.isAnimating = false;
+      return { success: false, reason: 'Base card placement failed' };
+    }
+    console.log(`✅ BOT: Base card verified in place`);
+    
+    // STEP 3: Add target cards - FIXED LOGIC!
+    if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
+      console.log(`🎯 BOT: Adding ${move.capture.targets.length} target cards`);
       
-      // STEP 2: Place base card
-      console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
-      const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
-      
-      if (!baseSuccess || this.game.state.combination.base.length !== 1) {
-        console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
-        this.isAnimating = false;
-        return { success: false, reason: 'Base card placement failed' };
-      }
-      console.log(`✅ BOT: Base card verified in place`);
-      
-      // STEP 3: Add target cards according to mega-capture plan
-if (move.capture && move.capture.type === 'mega' && move.megaCapture) {
-  // Use the intelligent mega-capture distribution
-  for (const [area, cards] of Object.entries(move.megaCapture.areas)) {
-    if (cards && cards.length > 0) {
-      for (const cardItem of cards) {
-        const boardIndex = this.game.state.board.findIndex(bc => bc.id === cardItem.card.id);
+      for (let i = 0; i < move.capture.targets.length; i++) {
+        const targetCard = move.capture.targets[i];
+        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+        
         if (boardIndex !== -1) {
-          console.log(`🤖 BOT MEGA: Adding ${cardItem.card.value}${cardItem.card.suit} to ${area}`);
-          await this.botDragCardToSlot(cardItem.card, 'board', boardIndex, area);
+          // Determine correct area based on capture rules
+          let targetArea = 'sum1'; // Default for sum captures
+          
+          // For pair captures (same value), use match area
+          if (targetCard.value === baseCard.value) {
+            targetArea = 'match';
+            console.log(`🎯 BOT: PAIR CAPTURE - Adding ${targetCard.value}${targetCard.suit} to MATCH area`);
+          } else {
+            console.log(`🎯 BOT: SUM CAPTURE - Adding ${targetCard.value}${targetCard.suit} to SUM1 area`);
+          }
+          
+          const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, targetArea);
+          
+          if (!success) {
+            console.error(`🚨 BOT: Failed to add target card ${targetCard.value}${targetCard.suit}`);
+            this.isAnimating = false;
+            return { success: false, reason: 'Target card placement failed' };
+          }
+          
+          console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${targetArea}`);
+        } else {
+          console.error(`🚨 BOT: Target card ${targetCard.value}${targetCard.suit} not found on board`);
+          this.isAnimating = false;
+          return { success: false, reason: 'Target card not found on board' };
         }
       }
+    } else {
+      console.error(`🚨 BOT: No target cards found in move.capture.targets`);
+      console.log(`🔍 BOT DEBUG: move.capture =`, move.capture);
+      this.isAnimating = false;
+      return { success: false, reason: 'No target cards' };
     }
-  }
-} else {
-  // Original logic for simple captures
-  for (const targetCard of move.capture.targets) {
-    const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-    if (boardIndex !== -1) {
-      console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
-      await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+    
+    // STEP 4: Submit capture
+    const baseCount = this.game.state.combination.base.length;
+    const captureCount = this.game.state.combination.sum1.length + 
+                        this.game.state.combination.sum2.length + 
+                        this.game.state.combination.sum3.length + 
+                        this.game.state.combination.match.length;
+                        
+    console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
+    
+    if (baseCount === 1 && captureCount > 0) {
+      console.log(`✅ BOT: Ready to submit - Base: ${baseCount}, Captures: ${captureCount}`);
+      const submitResult = await this.botSubmitCapture();
+      this.isAnimating = false;
+      return submitResult;
+    } else {
+      console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
+      this.isAnimating = false;
+      return { success: false, reason: 'Final verification failed' };
     }
+    
+  } catch (error) {
+    console.error('🚨 Bot capture error:', error);
+    this.isAnimating = false;
+    return { success: false, reason: error.message };
   }
 }
-      
-      // STEP 4: Submit capture
-      const baseCount = this.game.state.combination.base.length;
-      const captureCount = this.game.state.combination.sum1.length + 
-                          this.game.state.combination.sum2.length + 
-                          this.game.state.combination.sum3.length + 
-                          this.game.state.combination.match.length;
-                          
-      console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
-      
-      if (baseCount === 1 && captureCount > 0) {
-        const submitResult = await this.botSubmitCapture();
-        this.isAnimating = false;
-        return submitResult;
-      } else {
-        console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
-        this.isAnimating = false;
-        return { success: false, reason: 'Final verification failed' };
-      }
-      
-    } catch (error) {
-      console.error('🚨 Bot capture error:', error);
-      this.isAnimating = false;
-      return { success: false, reason: error.message };
-    }
-  }
   
   // 🎯 SUBMIT CAPTURE
   async botSubmitCapture() {
