@@ -1181,11 +1181,19 @@ if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
     Object.keys(combination).forEach(area => {
       if (combination[area] && Array.isArray(combination[area])) {
         combination[area].forEach(entry => {
-          if (entry.source === 'hand' && entry.playerSource !== undefined) {
-            if (this.game.state.hands[entry.playerSource]) {
-              this.game.state.hands[entry.playerSource].push(entry.card);
+          if (entry.source === 'hand') {
+            const playerIndex = entry.playerSource;
+            if (typeof playerIndex === 'number' && 
+                playerIndex >= 0 && 
+                playerIndex <= 2 &&
+                this.game.state.hands[playerIndex]) {
+              this.game.state.hands[playerIndex].push(entry.card);
               restoredCount++;
-              console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to Player ${entry.playerSource} hand`);
+              console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to Player ${playerIndex} hand`);
+            } else {
+              console.error(`🚨 INVALID playerSource: ${playerIndex}, restoring to Player 0`);
+              this.game.state.hands[0].push(entry.card);
+              restoredCount++;
             }
           } else if (entry.source === 'board') {
             this.game.state.board.push(entry.card);

@@ -237,11 +237,12 @@ executeCapture(baseCard, validCaptures, allCapturedCards) {
   this.addOverallScore(currentPlayer, points);
   this.state.lastCapturer = currentPlayer;
 
-  // 🔥 NEW: Verify card count integrity including captured cards
+  // 🔥 FIXED: Verify card count integrity including combo areas
   const totalInPlay = this.state.hands.flat().length + 
                       this.state.board.length + 
                       this.state.deck.length +
-                      this.state.capturedCards.flat().length; // 🔥 INCLUDE CAPTURED!
+                      this.state.capturedCards.flat().length +
+                      Object.values(this.state.combination).flat().length; // 🔥 INCLUDE COMBO!
   
   const expectedTotal = 52;
   

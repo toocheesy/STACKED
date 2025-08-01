@@ -477,8 +477,7 @@ function startCardCountMonitoring() {
     const capturedCount = game.state.capturedCards.flat().length;
     const comboCount = Object.values(game.state.combination).flat().length;
     
-    const totalInPlay = handsCount + boardCount + deckCount;
-    const grandTotal = totalInPlay + capturedCount + comboCount;
+    const grandTotal = handsCount + boardCount + deckCount + capturedCount + comboCount;
     
     if (grandTotal !== 52) {
       console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
