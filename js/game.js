@@ -232,10 +232,17 @@ executeCapture(baseCard, validCaptures, allCapturedCards) {
   console.log(`✅ STORED: ${allCapturedCards.length} cards in player ${currentPlayer} captured pile`);
 
   // Calculate and apply score
-  const points = this.calculateScore(allCapturedCards);
-  this.addScore(currentPlayer, points);
-  this.addOverallScore(currentPlayer, points);
-  this.state.lastCapturer = currentPlayer;
+const points = this.calculateScore(allCapturedCards);
+this.addScore(currentPlayer, points);
+this.addOverallScore(currentPlayer, points);
+this.state.lastCapturer = currentPlayer;
+
+// 🔥 FORCE CLEAR COMBO AREAS IMMEDIATELY AFTER CAPTURE
+console.log(`🧹 FORCE CLEARING COMBO AREAS AFTER CAPTURE`);
+const preComboCount = Object.values(this.state.combination).flat().length;
+this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+const postComboCount = Object.values(this.state.combination).flat().length;
+console.log(`🧹 COMBO CLEAR: ${preComboCount} → ${postComboCount} cards`);
 
   // 🔥 BULLETPROOF: Count cards BEFORE and AFTER capture with combo awareness
 const preComboCount = Object.values(this.state.combination).flat().length;
@@ -256,8 +263,7 @@ const expectedTotal = 52;
 if (totalInPlay !== expectedTotal) {
   console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay} cards missing after capture`);
   console.warn(`   Breakdown: Hands=${this.state.hands.flat().length}, Board=${this.state.board.length}, Deck=${this.state.deck.length}`);
-  console.warn(`   Captured=${this.state.capturedCards.flat().length}, Combo=${postComboCount} (should be 0)`);
-  console.warn(`   Pre-capture combo: ${preComboCount}, Post-capture combo: ${postComboCount}`);
+  console.warn(`   Captured=${this.state.capturedCards.flat().length}, Combo=${Object.values(this.state.combination).flat().length} (should be 0)`);
   console.warn(`   Total: ${totalInPlay}, Expected: ${expectedTotal}`);
   } else {
     console.log(`✅ CARD COUNT VERIFIED: ${totalInPlay}/52 cards accounted for`);

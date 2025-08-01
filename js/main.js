@@ -482,6 +482,7 @@ function startCardCountMonitoring() {
 if (grandTotal !== 52) {
   console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
   console.warn(`   Breakdown: Hands=${handsCount}, Board=${boardCount}, Deck=${deckCount}, Captured=${capturedCount}, Combo=${comboCount}`);
+  console.warn(`   Breakdown: Hands=${handsCount}, Board=${boardCount}, Deck=${deckCount}, Captured=${capturedCount}, Combo=${comboCount}`);
       console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount} = ${totalInPlay} in play`);
       console.warn(`   Captured: ${capturedCount} cards [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
       console.warn(`   In combo: ${comboCount} cards`);
