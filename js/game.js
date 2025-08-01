@@ -244,9 +244,6 @@ this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 const postComboCount = Object.values(this.state.combination).flat().length;
 console.log(`🧹 COMBO CLEAR: ${preComboCount} → ${postComboCount} cards`);
 
-  // 🔥 BULLETPROOF: Count cards BEFORE and AFTER capture with combo awareness
-const preComboCount = Object.values(this.state.combination).flat().length;
-console.log(`🔍 PRE-CAPTURE: ${preComboCount} cards in combo areas about to be captured`);
 
 // Execute the actual capture logic here...
 

@@ -496,7 +496,7 @@ function initGameSystems() {
   modeSelector.registerMode('classic', ClassicMode);
   modeSelector.registerMode('speed', SpeedMode);
   
-  game = new GameEngine();
+  game = new window.GameEngine();
   ui = new UISystem(game);
   botModal = new BotModalInterface(game, ui);
 }

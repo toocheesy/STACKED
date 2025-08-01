@@ -387,6 +387,22 @@ function dealNewRound() {
 // 🌍 GLOBAL EXPORTS - Make everything available globally
 // ============================================================================
 
+function showRoundEndModal(data) {
+  if (window.ui && window.ui.showModal) {
+    window.ui.showModal('round_end', data);
+  } else {
+    console.log('🎪 Round end modal data:', data);
+  }
+}
+
+function showGameOverModal(data) {
+  if (window.ui && window.ui.showModal) {
+    window.ui.showModal('game_over', data);
+  } else {
+    console.log('🎪 Game over modal data:', data);
+  }
+}
+
 // Make utility classes globally available
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
