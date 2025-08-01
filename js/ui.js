@@ -417,9 +417,9 @@ hideModal() {
     ];
 
     areas.forEach(({ el, slot }) => {
-      el.addEventListener('dragover', (e) => e.preventDefault());
-      el.addEventListener('drop', (e) => window.handleDrop(e, slot));
-      el.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'combo', slot));
+  el.addEventListener('dragover', (e) => e.preventDefault(), { passive: false });
+  el.addEventListener('drop', (e) => window.handleDrop(e, slot), { passive: false });
+  el.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'combo', slot), { passive: false });
     });
   }
 
@@ -517,10 +517,10 @@ hideModal() {
         cardEl.setAttribute('draggable', 'true');
         cardEl.setAttribute('data-slot', slotName);
         cardEl.setAttribute('data-combo-index', comboIndex);
-        cardEl.addEventListener('dragstart', (e) => window.handleDragStartCombo(e, slotName, comboIndex));
-        cardEl.addEventListener('dragend', window.handleDragEnd);
-        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }));
-        cardEl.addEventListener('touchend', window.handleTouchEnd);
+        cardEl.addEventListener('dragstart', (e) => window.handleDragStartCombo(e, slotName, comboIndex), { passive: false });
+cardEl.addEventListener('dragend', window.handleDragEnd, { passive: true });
+cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }), { passive: false });
+cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: true });
         areaEl.appendChild(cardEl);
       });
       areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
@@ -785,12 +785,12 @@ hideModal() {
     cardEl.setAttribute('draggable', 'true');
     cardEl.setAttribute('data-index', index);
     cardEl.setAttribute('data-type', type);
-    cardEl.addEventListener('dragstart', (e) => window.handleDragStart(e, type, index));
-    cardEl.addEventListener('dragend', window.handleDragEnd);
-    cardEl.addEventListener('dragover', (e) => e.preventDefault());
-    cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
-    cardEl.addEventListener('touchend', window.handleTouchEnd);
+    cardEl.addEventListener('dragstart', (e) => window.handleDragStart(e, type, index), { passive: false });
+cardEl.addEventListener('dragend', window.handleDragEnd, { passive: true });
+cardEl.addEventListener('dragover', (e) => e.preventDefault(), { passive: false });
+cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index), { passive: false });
+cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
+cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: true });
     return cardEl;
   }
 
@@ -812,12 +812,12 @@ hideModal() {
     cardEl.setAttribute('draggable', 'true');
     cardEl.setAttribute('data-index', index);
     cardEl.setAttribute('data-type', type);
-    cardEl.addEventListener('dragstart', (e) => window.handleDragStart(e, type, index));
-    cardEl.addEventListener('dragend', window.handleDragEnd);
-    cardEl.addEventListener('dragover', (e) => e.preventDefault());
-    cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
-    cardEl.addEventListener('touchend', window.handleTouchEnd);
+    cardEl.addEventListener('dragstart', (e) => window.handleDragStart(e, type, index), { passive: false });
+cardEl.addEventListener('dragend', window.handleDragEnd, { passive: true });
+cardEl.addEventListener('dragover', (e) => e.preventDefault(), { passive: false });
+cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index), { passive: false });
+cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
+cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: true });
   }
 }
 

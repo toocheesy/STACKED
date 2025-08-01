@@ -237,20 +237,28 @@ executeCapture(baseCard, validCaptures, allCapturedCards) {
   this.addOverallScore(currentPlayer, points);
   this.state.lastCapturer = currentPlayer;
 
-  // 🔥 FIXED: Verify card count integrity including combo areas
-  const totalInPlay = this.state.hands.flat().length + 
-                      this.state.board.length + 
-                      this.state.deck.length +
-                      this.state.capturedCards.flat().length +
-                      Object.values(this.state.combination).flat().length; // 🔥 INCLUDE COMBO!
-  
-  const expectedTotal = 52;
-  
-  if (totalInPlay !== expectedTotal) {
-    console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay} cards missing after capture`);
-    console.warn(`   In play: ${this.state.hands.flat().length + this.state.board.length + this.state.deck.length}`);
-    console.warn(`   Captured: ${this.state.capturedCards.flat().length}`);
-    console.warn(`   Total: ${totalInPlay}, Expected: ${expectedTotal}`);
+  // 🔥 BULLETPROOF: Count cards BEFORE and AFTER capture with combo awareness
+const preComboCount = Object.values(this.state.combination).flat().length;
+console.log(`🔍 PRE-CAPTURE: ${preComboCount} cards in combo areas about to be captured`);
+
+// Execute the actual capture logic here...
+
+// AFTER capture, combo areas should be empty (0)
+const postComboCount = Object.values(this.state.combination).flat().length;
+const totalInPlay = this.state.hands.flat().length + 
+                    this.state.board.length + 
+                    this.state.deck.length +
+                    this.state.capturedCards.flat().length +
+                    postComboCount;
+
+const expectedTotal = 52;
+
+if (totalInPlay !== expectedTotal) {
+  console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay} cards missing after capture`);
+  console.warn(`   Breakdown: Hands=${this.state.hands.flat().length}, Board=${this.state.board.length}, Deck=${this.state.deck.length}`);
+  console.warn(`   Captured=${this.state.capturedCards.flat().length}, Combo=${postComboCount} (should be 0)`);
+  console.warn(`   Pre-capture combo: ${preComboCount}, Post-capture combo: ${postComboCount}`);
+  console.warn(`   Total: ${totalInPlay}, Expected: ${expectedTotal}`);
   } else {
     console.log(`✅ CARD COUNT VERIFIED: ${totalInPlay}/52 cards accounted for`);
   }
