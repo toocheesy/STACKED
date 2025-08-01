@@ -477,12 +477,11 @@ function startCardCountMonitoring() {
     const capturedCount = game.state.capturedCards.flat().length;
     const comboCount = Object.values(game.state.combination).flat().length;
     
-    const grandTotal = handsCount + boardCount + deckCount + capturedCount + comboCount;
-
-if (grandTotal !== 52) {
-  console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
-  console.warn(`   Breakdown: Hands=${handsCount}, Board=${boardCount}, Deck=${deckCount}, Captured=${capturedCount}, Combo=${comboCount}`);
-  console.warn(`   Breakdown: Hands=${handsCount}, Board=${boardCount}, Deck=${deckCount}, Captured=${capturedCount}, Combo=${comboCount}`);
+    const totalInPlay = handsCount + boardCount + deckCount;
+    const grandTotal = totalInPlay + capturedCount + comboCount;
+    
+    if (grandTotal !== 52) {
+      console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
       console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount} = ${totalInPlay} in play`);
       console.warn(`   Captured: ${capturedCount} cards [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
       console.warn(`   In combo: ${comboCount} cards`);
@@ -496,7 +495,7 @@ function initGameSystems() {
   modeSelector.registerMode('classic', ClassicMode);
   modeSelector.registerMode('speed', SpeedMode);
   
-  game = new window.GameEngine();
+  game = new GameEngine();
   ui = new UISystem(game);
   botModal = new BotModalInterface(game, ui);
 }
@@ -1255,10 +1254,22 @@ window.messageController.handleGameEvent('NEW_HAND', {
   }
 }
 
-// 🔄 END ROUND (PHASE 1 ONLY)
+// 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
 function handleEndRound(result) {
   console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
   
+  // PHASE 1: Apply jackpot and show modal - NO SETUP
+  if (result.data.jackpot.hasJackpot) {
+    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
+    
+    // Apply jackpot to game engine scores
+    const jackpot = result.data.jackpot;
+    game.addScore(jackpot.winner, jackpot.points);
+    game.addOverallScore(jackpot.winner, jackpot.points);
+    
+    // Clear the board after jackpot
+    game.state.board = [];
+  }
   
   // Notify current mode of round end
   if (game.currentMode.onRoundEnd) {
@@ -1356,6 +1367,47 @@ window.resumeNextRound = resumeNextRound;
 
 // Initialize the game
 initGame();
+
+// 🔥 OVERRIDE OLD MODAL FUNCTIONS TO USE NEW CENTRALIZED SYSTEM
+function showRoundEndModal(data) {
+  console.log('🔄 REDIRECTING OLD ROUND END MODAL TO NEW SYSTEM');
+  
+  // Convert old data format to new format if needed
+  const modalData = {
+    scores: data.scores || game.state.scores,
+    jackpot: { 
+      hasJackpot: data.message ? true : false,
+      message: data.message,
+      winnerName: data.message ? data.message.split(' ')[1] : null,
+      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
+    },
+    newRound: data.newRound || game.currentRound,
+    oldDealer: game.currentDealer === 0 ? 2 : game.currentDealer - 1,
+    newDealer: game.currentDealer
+  };
+  
+  ui.showModal('round_end', modalData);
+}
+
+function showGameOverModal(data) {
+  console.log('🔄 REDIRECTING OLD GAME OVER MODAL TO NEW SYSTEM');
+  
+  // Convert old data format to new format if needed  
+  const modalData = {
+    scores: data.scores || game.state.scores,
+    jackpot: { 
+      hasJackpot: data.message ? true : false,
+      message: data.message,
+      winnerName: data.message ? data.message.split(' ')[1] : null,
+      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
+    },
+    winner: data.winner || 0,
+    winnerName: data.winner || 'Player',
+    winnerScore: data.winnerScore || 0
+  };
+  
+  ui.showModal('game_over', modalData);
+}
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;

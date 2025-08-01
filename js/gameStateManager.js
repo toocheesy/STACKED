@@ -152,17 +152,17 @@ class GameStateManager {
     // STEP 3: Round end - apply jackpot and check scores
     this.log('🏆 ROUND END - APPLYING JACKPOT AND CHECKING SCORES');
     const jackpotResult = this.applyJackpot(snapshot, gameEngine);
-    const currentScores = this.getCurrentScores(snapshot, jackpotResult);
+    const scoresAfterJackpot = this.calculateScoresAfterJackpot(snapshot, jackpotResult);
     
     // STEP 4: Determine if game ends or continues to new round
-    const shouldEndGame = this.shouldGameEnd(currentScores, snapshot.targetScore);
+    const shouldEndGame = this.shouldGameEnd(scoresAfterJackpot, snapshot.targetScore);
     
     if (shouldEndGame) {
       this.log('🏆 GAME SHOULD END - TARGET SCORE REACHED');
-      return this.createEndGameResult(currentScores, jackpotResult, snapshot);
+      return this.createEndGameResult(scoresAfterJackpot, jackpotResult, snapshot);
     } else {
       this.log('🔄 NEW ROUND NEEDED - NO ONE REACHED TARGET');
-      return this.createEndRoundResult(currentScores, jackpotResult, snapshot);
+      return this.createEndRoundResult(scoresAfterJackpot, jackpotResult, snapshot);
     }
   }
 
@@ -218,30 +218,33 @@ class GameStateManager {
 
   // 🏆 APPLY JACKPOT LOGIC
   applyJackpot(snapshot, gameEngine) {
-    this.log('🏆 CHECKING JACKPOT LOGIC...');
+    this.log('🏆 APPLYING JACKPOT LOGIC...');
     
     if (snapshot.lastCapturer !== null && snapshot.boardSize > 0) {
-      // LET CLASSIC MODE HANDLE THE ACTUAL APPLICATION
-      const jackpotResult = gameEngine.currentMode.applyLastComboTakesAll(gameEngine);
+      // Calculate jackpot points
+      const jackpotPoints = this.calculateJackpotPoints(snapshot.gameEngine.state.board);
+      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+      const winnerName = playerNames[snapshot.lastCapturer];
       
-      if (jackpotResult) {
-        this.log(`🏆 CLASSIC MODE APPLIED JACKPOT: ${jackpotResult.message}`);
-        return {
-          hasJackpot: true,
-          winner: snapshot.lastCapturer,
-          winnerName: jackpotResult.player,
-          points: jackpotResult.points,
-          cardsCount: jackpotResult.cardsCount,
-          message: jackpotResult.message
-        };
-      }
+      const jackpotMessage = `🏆 ${winnerName} sweeps ${snapshot.boardSize} remaining cards! +${jackpotPoints} pts`;
+      
+      this.log(`🏆 JACKPOT: ${jackpotMessage}`);
+      
+      return {
+        hasJackpot: true,
+        winner: snapshot.lastCapturer,
+        winnerName: winnerName,
+        points: jackpotPoints,
+        cardsCount: snapshot.boardSize,
+        message: jackpotMessage
+      };
+    } else {
+      this.log('🏆 NO JACKPOT: No last capturer or empty board');
+      return {
+        hasJackpot: false,
+        message: null
+      };
     }
-    
-    this.log('🏆 NO JACKPOT: No last capturer or empty board');
-    return {
-      hasJackpot: false,
-      message: null
-    };
   }
 
   // 💰 CALCULATE JACKPOT POINTS
@@ -254,16 +257,23 @@ class GameStateManager {
     return boardCards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
-  // 📊 GET CURRENT SCORES (jackpot already applied by Classic Mode)
-  getCurrentScores(snapshot, jackpotResult) {
-    // Just return current scores - jackpot already applied by Classic Mode
-    const currentScores = { ...snapshot.currentScores };
+  // 📊 CALCULATE SCORES AFTER JACKPOT
+  calculateScoresAfterJackpot(snapshot, jackpotResult) {
+    const updatedScores = { ...snapshot.currentScores };
     
     if (jackpotResult.hasJackpot) {
-      this.log(`📊 JACKPOT ALREADY APPLIED BY CLASSIC MODE`);
+      if (jackpotResult.winner === 0) {
+        updatedScores.player += jackpotResult.points;
+      } else if (jackpotResult.winner === 1) {
+        updatedScores.bot1 += jackpotResult.points;
+      } else if (jackpotResult.winner === 2) {
+        updatedScores.bot2 += jackpotResult.points;
+      }
+      
+      this.log(`📊 SCORES AFTER JACKPOT: Player: ${updatedScores.player}, Bot1: ${updatedScores.bot1}, Bot2: ${updatedScores.bot2}`);
     }
     
-    return currentScores;
+    return updatedScores;
   }
 
   // 🏁 CHECK IF GAME SHOULD END

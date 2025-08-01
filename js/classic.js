@@ -86,13 +86,9 @@ const ClassicMode = {
   // 🔥 JACKPOT LOGIC - WORKING CORRECTLY, JUST NEEDED TO RETURN MESSAGE
   applyLastComboTakesAll(gameEngine) {
     if (gameEngine.state.lastCapturer !== null && gameEngine.state.board.length > 0) {
-      // Store board cards AND count BEFORE any modifications
-      const boardCards = [...gameEngine.state.board]; // Copy the cards
-      const cardsCount = boardCards.length;
-      const bonusPoints = this.calculateScore(boardCards);
-      
-      // ADD CARDS TO CAPTURED PILE (don't lose them!)
-      gameEngine.state.capturedCards[gameEngine.state.lastCapturer].push(...boardCards);
+      // Store card count BEFORE clearing the board
+      const cardsCount = gameEngine.state.board.length;
+      const bonusPoints = this.calculateScore(gameEngine.state.board);
       
       gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
       
@@ -101,9 +97,10 @@ const ClassicMode = {
       
       console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`);
       
-      // Clear the board AFTER storing the cards
+      // Clear the board AFTER creating the message
       gameEngine.state.board = [];
       
+      // 🔥 RETURN the complete message object
       return {
         message: `🏆 ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`,
         points: bonusPoints,

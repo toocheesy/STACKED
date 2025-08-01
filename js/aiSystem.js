@@ -50,514 +50,45 @@ class CardIntelligenceEngine {
     return Math.max(0, this.TOTAL_CARDS_PER_VALUE - seen);
   }
   
-  // 🎯 STRATEGIC CAPTURE ANALYSIS - ENHANCED WITH MEGA-CAPTURE DETECTION
-findBestCapture(handCards, boardCards, personality = 'calculator') {
-  if (!handCards || handCards.length === 0) {
-    console.log('🚨 AI SAFETY: No cards in hand for captures');
-    return null;
-  }
-  
-  const allCaptures = [];
-  
-  // PHASE 1: Find traditional single-area captures (EXISTING LOGIC)
-  for (let i = 0; i < handCards.length; i++) {
-    const handCard = handCards[i];
-    const captures = canCapture(handCard, boardCards);
+  // 🎯 STRATEGIC CAPTURE ANALYSIS
+  findBestCapture(handCards, boardCards, personality = 'calculator') {
+    if (!handCards || handCards.length === 0) {
+      console.log('🚨 AI SAFETY: No cards in hand for captures');
+      return null;
+    }
     
-    if (captures && captures.length > 0) {
-      for (const capture of captures) {
-        const evaluation = this.evaluateCapture(handCard, capture, personality);
-        allCaptures.push({
-          handIndex: i,
-          handCard: handCard,
-          capture: capture,
-          evaluation: evaluation,
-          type: 'single-area'
-        });
+    const allCaptures = [];
+    
+    // Find all possible captures
+    for (let i = 0; i < handCards.length; i++) {
+      const handCard = handCards[i];
+      const captures = canCapture(handCard, boardCards); // Use existing function
+      
+      if (captures && captures.length > 0) {
+        for (const capture of captures) {
+          const evaluation = this.evaluateCapture(handCard, capture, personality);
+          allCaptures.push({
+            handIndex: i,
+            handCard: handCard,
+            capture: capture,
+            evaluation: evaluation
+          });
+        }
       }
     }
-  }
-  
-  // 🔥 PHASE 2: Find MEGA multi-area captures (NEW MEGA-CAPTURE LOGIC!)
-  const megaCaptures = this.findMegaCaptures(handCards, boardCards, personality);
-  allCaptures.push(...megaCaptures);
-  
-  if (allCaptures.length === 0) {
-    return null;
-  }
-  
-  // Sort by evaluation score (best first)
-  allCaptures.sort((a, b) => b.evaluation.totalScore - a.evaluation.totalScore);
-  
-  const bestCapture = allCaptures[0];
-  
-  // 🎉 EPIC LOGGING for mega-captures
-  if (bestCapture.type === 'mega-capture' && bestCapture.evaluation.totalCards >= 4) {
-    console.log(`🚀 MEGA-CAPTURE DETECTED! ${bestCapture.evaluation.totalCards} cards for ${bestCapture.evaluation.totalScore} pts!`);
-    console.log(`   Areas used: ${bestCapture.evaluation.areasUsed.join(', ')}`);
-    console.log(`   🤯 MIND-BLOWING: ${bestCapture.evaluation.reasoning}`);
-  } else {
+    
+    if (allCaptures.length === 0) {
+      return null;
+    }
+    
+    // Sort by evaluation score (best first)
+    allCaptures.sort((a, b) => b.evaluation.totalScore - a.evaluation.totalScore);
+    
+    const bestCapture = allCaptures[0];
     console.log(`🎯 BEST CAPTURE: ${bestCapture.handCard.value} → ${bestCapture.evaluation.totalScore} pts (${bestCapture.evaluation.reasoning})`);
+    
+    return bestCapture;
   }
-  
-  return bestCapture;
-}
-
-// 🔥 FIXED MEGA-CAPTURE SYSTEM - REPLACE ALL 5 FUNCTIONS
-
-// 🔥 NEW FUNCTION: MEGA-CAPTURE DETECTION ENGINE (FIXED)
-findMegaCaptures(handCards, boardCards, personality) {
-  const megaCaptures = [];
-  
-  // Try each hand card as a potential base
-  for (let handIdx = 0; handIdx < handCards.length; handIdx++) {
-    const handCard = handCards[handIdx];
-    
-    // Skip face cards as base (they can only make pairs)
-    const numericValue = this.getNumericValue(handCard.value);
-    if (numericValue === null && handCard.value !== 'A') continue;
-    
-    // Find all possible multi-area combinations using this base
-    const megaCombos = this.findValidMegaCombinations(handCard, handCards, boardCards, handIdx);
-    
-    // Evaluate each mega-combination
-    for (const combo of megaCombos) {
-      const evaluation = this.evaluateMegaCapture(combo, personality);
-      
-      // Only keep truly spectacular captures (4+ cards)
-      if (evaluation.totalCards >= 4) {
-        // Convert to format expected by bot executor
-        const captureTargets = [];
-        ['sum1', 'sum2', 'sum3', 'match'].forEach(area => {
-          if (combo.areas[area] && combo.areas[area].length > 0) {
-            combo.areas[area].forEach(cardItem => {
-              if (cardItem.source === 'board') {
-                captureTargets.push(cardItem.card);
-              }
-            });
-          }
-        });
-        
-        megaCaptures.push({
-          handIndex: handIdx,
-          handCard: handCard,
-          capture: {
-            type: 'mega',
-            targets: captureTargets
-          },
-          evaluation: evaluation,
-          type: 'mega-capture'
-        });
-      }
-    }
-  }
-  
-  console.log(`🔥 MEGA-CAPTURE SCAN: Found ${megaCaptures.length} valid combinations!`);
-  return megaCaptures;
-}
-
-// 🧠 FIND VALID MEGA-COMBINATIONS (COMPLETELY REWRITTEN)
-// 🧠 FIND VALID MEGA-COMBINATIONS (COMPLETELY REWRITTEN WITH CORRECT LOGIC)
-findValidMegaCombinations(baseCard, handCards, boardCards, baseHandIdx) {
-  const combinations = [];
-  const baseValue = baseCard.value;
-  const baseNumValue = this.getNumericValue(baseValue);
-  
-  // Determine if base card is from hand or board
-  const baseIsFromHand = baseHandIdx !== -1; // -1 means board card
-  
-  console.log(`🔍 MEGA SCAN: Base ${baseValue} (numeric: ${baseNumValue}) from ${baseIsFromHand ? 'hand' : 'board'}`);
-  
-  // Get available cards (excluding base card if from hand)
-  const availableHandCards = baseIsFromHand ? 
-    handCards.filter((card, idx) => idx !== baseHandIdx) : 
-    [...handCards];
-  const availableBoardCards = baseIsFromHand ? 
-    [...boardCards] : 
-    boardCards.filter(card => card.id !== baseCard.id);
-  
-  // For face cards, only look for matches
-  if (baseNumValue === null && baseValue !== 'A') {
-    let matchingCards = [];
-    
-    if (baseIsFromHand) {
-      // Base from hand, need board cards for match
-      matchingCards = availableBoardCards.filter(card => card.value === baseValue);
-    } else {
-      // Base from board, need hand cards for match
-      matchingCards = availableHandCards.filter(card => card.value === baseValue);
-    }
-    
-    if (matchingCards.length > 0) {
-      combinations.push({
-        base: baseCard,
-        baseSource: baseIsFromHand ? 'hand' : 'board',
-        areas: {
-          match: matchingCards.map(card => ({ 
-            card, 
-            source: baseIsFromHand ? 'board' : 'hand' 
-          })),
-          sum1: [], sum2: [], sum3: []
-        },
-        totalCards: 1 + matchingCards.length
-      });
-    }
-    return combinations;
-  }
-  
-  // For number cards and Aces: Find sum combinations + matches
-  const targetValue = baseValue === 'A' ? 1 : baseNumValue;
-  
-  // Find valid sum combinations based on base card source
-  const validSumAreas = this.findValidSumAreas(
-    availableHandCards, 
-    availableBoardCards, 
-    targetValue, 
-    baseIsFromHand
-  );
-  
-  // Find matching cards (opposite source from base)
-  let matchingCards = [];
-  if (baseIsFromHand) {
-    matchingCards = availableBoardCards.filter(card => card.value === baseValue);
-  } else {
-    matchingCards = availableHandCards.filter(card => card.value === baseValue);
-  }
-  
-  // Generate combinations using 1-3 sum areas + optional matches
-  for (let numAreas = 1; numAreas <= Math.min(3, validSumAreas.length); numAreas++) {
-    const areaCombos = this.getCombinations(validSumAreas, numAreas);
-    
-    for (const areaCombo of areaCombos) {
-      // Check for card conflicts
-      const usedCards = new Set();
-      let hasConflict = false;
-      
-      const areas = { sum1: [], sum2: [], sum3: [], match: [] };
-      
-      // Assign sum areas
-      areaCombo.forEach((area, index) => {
-        const areaName = `sum${index + 1}`;
-        areas[areaName] = area;
-        
-        area.forEach(cardItem => {
-          const cardKey = `${cardItem.source}-${cardItem.card.id || cardItem.card.value + cardItem.card.suit}`;
-          if (usedCards.has(cardKey)) {
-            hasConflict = true;
-          }
-          usedCards.add(cardKey);
-        });
-      });
-      
-      if (hasConflict) continue;
-      
-      // Add matches if available and no conflicts
-      if (matchingCards.length > 0) {
-        const availableMatches = matchingCards.filter(card => {
-          const cardKey = `${baseIsFromHand ? 'board' : 'hand'}-${card.id || card.value + card.suit}`;
-          return !usedCards.has(cardKey);
-        });
-        
-        if (availableMatches.length > 0) {
-          areas.match = availableMatches.map(card => ({ 
-            card, 
-            source: baseIsFromHand ? 'board' : 'hand' 
-          }));
-        }
-      }
-      
-      // Calculate total cards
-      const totalCards = 1 + Object.values(areas).reduce((sum, area) => sum + area.length, 0);
-      
-      if (totalCards >= 4) { // Only keep truly mega captures
-        combinations.push({
-          base: baseCard,
-          baseSource: baseIsFromHand ? 'hand' : 'board',
-          areas: areas,
-          totalCards: totalCards
-        });
-      }
-    }
-  }
-  
-  return combinations;
-}
-
-// 🧮 FIND VALID SUM AREAS (CORRECTED LOGIC)
-findValidSumAreas(handCards, boardCards, targetValue, baseIsFromHand) {
-  const validAreas = [];
-  
-  // Filter to only number cards
-  const numberHandCards = handCards.filter(card => {
-    const numValue = this.getNumericValue(card.value);
-    return numValue !== null;
-  });
-  
-  const numberBoardCards = boardCards.filter(card => {
-    const numValue = this.getNumericValue(card.value);
-    return numValue !== null;
-  });
-  
-  console.log(`🔍 SUM AREAS: Base from ${baseIsFromHand ? 'hand' : 'board'}, need ${baseIsFromHand ? 'board' : 'hand'} cards in areas`);
-  
-  if (baseIsFromHand) {
-    // Base from hand - each sum area must have at least 1 board card
-    
-    // 1. Board-only combinations
-    for (let i = 0; i < numberBoardCards.length; i++) {
-      const boardCard1 = numberBoardCards[i];
-      const value1 = this.getNumericValue(boardCard1.value);
-      
-      // Single board card
-      if (value1 === targetValue) {
-        validAreas.push([{ card: boardCard1, source: 'board' }]);
-      }
-      
-      // Two board cards
-      for (let j = i + 1; j < numberBoardCards.length; j++) {
-        const boardCard2 = numberBoardCards[j];
-        const value2 = this.getNumericValue(boardCard2.value);
-        
-        if (value1 + value2 === targetValue) {
-          validAreas.push([
-            { card: boardCard1, source: 'board' },
-            { card: boardCard2, source: 'board' }
-          ]);
-        }
-        
-        // Three board cards
-        for (let k = j + 1; k < numberBoardCards.length; k++) {
-          const boardCard3 = numberBoardCards[k];
-          const value3 = this.getNumericValue(boardCard3.value);
-          
-          if (value1 + value2 + value3 === targetValue) {
-            validAreas.push([
-              { card: boardCard1, source: 'board' },
-              { card: boardCard2, source: 'board' },
-              { card: boardCard3, source: 'board' }
-            ]);
-          }
-        }
-      }
-    }
-    
-    // 2. Mixed combinations (board + hand, but must have at least 1 board)
-    for (let i = 0; i < numberBoardCards.length; i++) {
-      const boardCard = numberBoardCards[i];
-      const boardValue = this.getNumericValue(boardCard.value);
-      
-      for (let j = 0; j < numberHandCards.length; j++) {
-        const handCard = numberHandCards[j];
-        const handValue = this.getNumericValue(handCard.value);
-        
-        // Board + hand combination
-        if (boardValue + handValue === targetValue) {
-          validAreas.push([
-            { card: boardCard, source: 'board' },
-            { card: handCard, source: 'hand' }
-          ]);
-        }
-        
-        // Board + hand + hand combination
-        for (let k = j + 1; k < numberHandCards.length; k++) {
-          const handCard2 = numberHandCards[k];
-          const handValue2 = this.getNumericValue(handCard2.value);
-          
-          if (boardValue + handValue + handValue2 === targetValue) {
-            validAreas.push([
-              { card: boardCard, source: 'board' },
-              { card: handCard, source: 'hand' },
-              { card: handCard2, source: 'hand' }
-            ]);
-          }
-        }
-        
-        // Board + board + hand combination
-        for (let k = i + 1; k < numberBoardCards.length; k++) {
-          const boardCard2 = numberBoardCards[k];
-          const boardValue2 = this.getNumericValue(boardCard2.value);
-          
-          if (boardValue + boardValue2 + handValue === targetValue) {
-            validAreas.push([
-              { card: boardCard, source: 'board' },
-              { card: boardCard2, source: 'board' },
-              { card: handCard, source: 'hand' }
-            ]);
-          }
-        }
-      }
-    }
-    
-  } else {
-    // Base from board - each sum area must have at least 1 hand card
-    
-    // 1. Hand-only combinations
-    for (let i = 0; i < numberHandCards.length; i++) {
-      const handCard1 = numberHandCards[i];
-      const value1 = this.getNumericValue(handCard1.value);
-      
-      // Single hand card
-      if (value1 === targetValue) {
-        validAreas.push([{ card: handCard1, source: 'hand' }]);
-      }
-      
-      // Two hand cards
-      for (let j = i + 1; j < numberHandCards.length; j++) {
-        const handCard2 = numberHandCards[j];
-        const value2 = this.getNumericValue(handCard2.value);
-        
-        if (value1 + value2 === targetValue) {
-          validAreas.push([
-            { card: handCard1, source: 'hand' },
-            { card: handCard2, source: 'hand' }
-          ]);
-        }
-        
-        // Three hand cards
-        for (let k = j + 1; k < numberHandCards.length; k++) {
-          const handCard3 = numberHandCards[k];
-          const value3 = this.getNumericValue(handCard3.value);
-          
-          if (value1 + value2 + value3 === targetValue) {
-            validAreas.push([
-              { card: handCard1, source: 'hand' },
-              { card: handCard2, source: 'hand' },
-              { card: handCard3, source: 'hand' }
-            ]);
-          }
-        }
-      }
-    }
-    
-    // 2. Mixed combinations (hand + board, but must have at least 1 hand)
-    for (let i = 0; i < numberHandCards.length; i++) {
-      const handCard = numberHandCards[i];
-      const handValue = this.getNumericValue(handCard.value);
-      
-      for (let j = 0; j < numberBoardCards.length; j++) {
-        const boardCard = numberBoardCards[j];
-        const boardValue = this.getNumericValue(boardCard.value);
-        
-        // Hand + board combination
-        if (handValue + boardValue === targetValue) {
-          validAreas.push([
-            { card: handCard, source: 'hand' },
-            { card: boardCard, source: 'board' }
-          ]);
-        }
-        
-        // Hand + hand + board combination
-        for (let k = i + 1; k < numberHandCards.length; k++) {
-          const handCard2 = numberHandCards[k];
-          const handValue2 = this.getNumericValue(handCard2.value);
-          
-          if (handValue + handValue2 + boardValue === targetValue) {
-            validAreas.push([
-              { card: handCard, source: 'hand' },
-              { card: handCard2, source: 'hand' },
-              { card: boardCard, source: 'board' }
-            ]);
-          }
-        }
-        
-        // Hand + board + board combination
-        for (let k = j + 1; k < numberBoardCards.length; k++) {
-          const boardCard2 = numberBoardCards[k];
-          const boardValue2 = this.getNumericValue(boardCard2.value);
-          
-          if (handValue + boardValue + boardValue2 === targetValue) {
-            validAreas.push([
-              { card: handCard, source: 'hand' },
-              { card: boardCard, source: 'board' },
-              { card: boardCard2, source: 'board' }
-            ]);
-          }
-        }
-      }
-    }
-  }
-  
-  console.log(`🧮 FOUND ${validAreas.length} valid sum combinations for target ${targetValue}`);
-  return validAreas;
-}
-
-// 🎯 EVALUATE MEGA-CAPTURE (FIXED SCORING)
-evaluateMegaCapture(combo, personality) {
-  let score = 0;
-  let reasoning = [];
-  const areasUsed = [];
-  
-  // Base card points
-  const basePoints = this.getCardPointValue(combo.base);
-  score += basePoints;
-  reasoning.push(`Base: ${basePoints}pts`);
-  
-  // Points from each area
-  ['sum1', 'sum2', 'sum3', 'match'].forEach(area => {
-    if (combo.areas[area] && combo.areas[area].length > 0) {
-      areasUsed.push(area);
-      const areaPoints = combo.areas[area].reduce((sum, item) => sum + this.getCardPointValue(item.card), 0);
-      score += areaPoints;
-      reasoning.push(`${area}: ${areaPoints}pts`);
-    }
-  });
-  
-  // 🔥 REALISTIC MEGA-BONUS (reduced from insane levels)
-  const totalCards = combo.totalCards;
-  let megaBonus = 0;
-  
-  if (totalCards >= 4) {
-    megaBonus = (totalCards - 3) * 8; // Much more reasonable: 4 cards = +8, 5 cards = +16, 6 cards = +24
-    reasoning.push(`🔥 MEGA BONUS: ${megaBonus}pts (${totalCards} cards)`);
-  }
-  
-  // Multi-area bonus
-  const numAreas = areasUsed.length;
-  if (numAreas >= 2) {
-    const multiAreaBonus = (numAreas - 1) * 5; // 2 areas = +5, 3 areas = +10, 4 areas = +15
-    megaBonus += multiAreaBonus;
-    reasoning.push(`🎯 MULTI-AREA: +${multiAreaBonus}pts (${numAreas} areas)`);
-  }
-  
-  score += megaBonus;
-  
-  // Personality adjustments (smaller bonuses)
-  if (personality === 'adaptive' && totalCards >= 5) {
-    score += 10; // Reduced from 25
-    reasoning.push('🧠 ADAPTIVE: Spectacular play bonus');
-  } else if (personality === 'strategist' && areasUsed.length >= 3) {
-    score += 8; // Reduced from 20
-    reasoning.push('🎯 STRATEGIST: Complexity bonus');
-  }
-  
-  return {
-    totalScore: Math.round(score),
-    basePoints: basePoints,
-    megaBonus: Math.round(megaBonus),
-    totalCards: totalCards,
-    areasUsed: areasUsed,
-    reasoning: reasoning.join(', ')
-  };
-}
-
-// 🔧 UTILITY: Get combinations of arrays (UNCHANGED)
-getCombinations(array, size) {
-  if (size === 1) return array.map(item => [item]);
-  if (size > array.length) return [];
-  
-  const combinations = [];
-  
-  for (let i = 0; i <= array.length - size; i++) {
-    const head = array[i];
-    const tailCombinations = this.getCombinations(array.slice(i + 1), size - 1);
-    
-    for (const tail of tailCombinations) {
-      combinations.push([head, ...tail]);
-    }
-  }
-  
-  return combinations;
-}
   
   // 📊 EVALUATE CAPTURE OPPORTUNITY
   evaluateCapture(handCard, capture, personality = 'calculator') {
@@ -933,161 +464,83 @@ class BotActionExecutor {
   }
   
   // 🎯 EXECUTE CAPTURE
-  // 🔧 REPLACE executeCapture() function in aiSystem.js around line 940
-// This fixes the missing target card placement
+  async executeCapture(move, playerIndex) {
+    if (this.isAnimating) return { success: false, reason: 'Already animating' };
+    this.isAnimating = true;
 
-async executeCapture(move, playerIndex) {
-  if (this.isAnimating) return { success: false, reason: 'Already animating' };
-  this.isAnimating = true;
-
-  console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
-  console.log(`🔍 MOVE DEBUG:`, {
-    type: move.type,
-    handCard: move.handCard.value + move.handCard.suit,
-    captureType: move.capture?.type,
-    targets: move.capture?.targets?.length || 0
-  });
-  
-  try {
-    // Check if combo areas are occupied
-    const totalCardsInCombo = this.game.state.combination.base.length +
-                             this.game.state.combination.sum1.length +
-                             this.game.state.combination.sum2.length +
-                             this.game.state.combination.sum3.length +
-                             this.game.state.combination.match.length;
-                             
-    if (totalCardsInCombo > 0) {
-      console.log(`🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
-      await this.botResetModal();
-    }
+    console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
     
-    const baseCard = move.handCard;
-    const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
-
-    if (handIndex === -1) {
-      console.error(`🚨 BOT: Base card not found in hand`);
-      this.isAnimating = false;
-      return { success: false, reason: 'Base card not found' };
-    }
-
-    // STEP 1: Reset modal completely
-    await this.botResetModal();
-    console.log(`🤖 BOT: Modal reset complete`);
-    
-    // STEP 2: Place base card
-    console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
-    const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
-    
-    if (!baseSuccess || this.game.state.combination.base.length !== 1) {
-      console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
-      this.isAnimating = false;
-      return { success: false, reason: 'Base card placement failed' };
-    }
-    console.log(`✅ BOT: Base card verified in place`);
-    
-    // STEP 3: Add target cards - MEGA-CAPTURE AWARE LOGIC!
-if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
-  console.log(`🎯 BOT: Adding ${move.capture.targets.length} target cards`);
-  
-  // Check if this is a mega-capture with intelligent distribution
-  if (move.type === 'mega-capture' && move.megaCapture && move.megaCapture.areas) {
-    console.log(`🚀 BOT: MEGA-CAPTURE EXECUTION - Using intelligent area distribution`);
-    
-    // Use the intelligent mega-capture distribution
-    for (const [areaName, areaCards] of Object.entries(move.megaCapture.areas)) {
-      if (areaCards && areaCards.length > 0) {
-        console.log(`🎯 BOT: MEGA-AREA ${areaName} - Adding ${areaCards.length} cards`);
-        
-        for (const cardItem of areaCards) {
-          const targetCard = cardItem.card;
-          const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-          
-          if (boardIndex !== -1) {
-            console.log(`🚀 BOT: MEGA - Adding ${targetCard.value}${targetCard.suit} to ${areaName}`);
-            const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, areaName);
-            
-            if (!success) {
-              console.error(`🚨 BOT: Failed to add mega-capture card ${targetCard.value}${targetCard.suit} to ${areaName}`);
-              this.isAnimating = false;
-              return { success: false, reason: 'Mega-capture card placement failed' };
-            }
-            
-            console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${areaName}`);
-          } else {
-            console.error(`🚨 BOT: Mega-capture card ${targetCard.value}${targetCard.suit} not found on board`);
-          }
-        }
+    try {
+      // Check if combo areas are occupied
+      const totalCardsInCombo = this.game.state.combination.base.length +
+                               this.game.state.combination.sum1.length +
+                               this.game.state.combination.sum2.length +
+                               this.game.state.combination.sum3.length +
+                               this.game.state.combination.match.length;
+                               
+      if (totalCardsInCombo > 0) {
+        console.log(`🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
+        await this.botResetModal();
       }
-    }
-  } else {
-    // Standard capture logic for simple captures
-    console.log(`🎯 BOT: STANDARD CAPTURE - Using simple area logic`);
-    
-    for (let i = 0; i < move.capture.targets.length; i++) {
-      const targetCard = move.capture.targets[i];
-      const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
       
-      if (boardIndex !== -1) {
-        // Determine correct area based on capture rules
-        let targetArea = 'sum1'; // Default for sum captures
-        
-        // For pair captures (same value), use match area
-        if (targetCard.value === baseCard.value) {
-          targetArea = 'match';
-          console.log(`🎯 BOT: PAIR CAPTURE - Adding ${targetCard.value}${targetCard.suit} to MATCH area`);
-        } else {
-          console.log(`🎯 BOT: SUM CAPTURE - Adding ${targetCard.value}${targetCard.suit} to SUM1 area`);
-        }
-        
-        const success = await this.botDragCardToSlot(targetCard, 'board', boardIndex, targetArea);
-        
-        if (!success) {
-          console.error(`🚨 BOT: Failed to add target card ${targetCard.value}${targetCard.suit}`);
-          this.isAnimating = false;
-          return { success: false, reason: 'Target card placement failed' };
-        }
-        
-        console.log(`✅ BOT: Successfully added ${targetCard.value}${targetCard.suit} to ${targetArea}`);
-      } else {
-        console.error(`🚨 BOT: Target card ${targetCard.value}${targetCard.suit} not found on board`);
+      const baseCard = move.handCard;
+      const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
+
+      if (handIndex === -1) {
+        console.error(`🚨 BOT: Base card not found in hand`);
         this.isAnimating = false;
-        return { success: false, reason: 'Target card not found on board' };
+        return { success: false, reason: 'Base card not found' };
       }
+
+      // STEP 1: Reset modal completely
+      await this.botResetModal();
+      console.log(`🤖 BOT: Modal reset complete`);
+      
+      // STEP 2: Place base card
+      console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
+      const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+      
+      if (!baseSuccess || this.game.state.combination.base.length !== 1) {
+        console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
+        this.isAnimating = false;
+        return { success: false, reason: 'Base card placement failed' };
+      }
+      console.log(`✅ BOT: Base card verified in place`);
+      
+      // STEP 3: Add target cards
+      for (const targetCard of move.capture.targets) {
+        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+        if (boardIndex !== -1) {
+          console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
+          await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+        }
+      }
+      
+      // STEP 4: Submit capture
+      const baseCount = this.game.state.combination.base.length;
+      const captureCount = this.game.state.combination.sum1.length + 
+                          this.game.state.combination.sum2.length + 
+                          this.game.state.combination.sum3.length + 
+                          this.game.state.combination.match.length;
+                          
+      console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
+      
+      if (baseCount === 1 && captureCount > 0) {
+        const submitResult = await this.botSubmitCapture();
+        this.isAnimating = false;
+        return submitResult;
+      } else {
+        console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
+        this.isAnimating = false;
+        return { success: false, reason: 'Final verification failed' };
+      }
+      
+    } catch (error) {
+      console.error('🚨 Bot capture error:', error);
+      this.isAnimating = false;
+      return { success: false, reason: error.message };
     }
   }
-} else {
-  console.error(`🚨 BOT: No target cards found in move.capture.targets`);
-  console.log(`🔍 BOT DEBUG: move.capture =`, move.capture);
-  this.isAnimating = false;
-  return { success: false, reason: 'No target cards' };
-}
-    
-    // STEP 4: Submit capture
-    const baseCount = this.game.state.combination.base.length;
-    const captureCount = this.game.state.combination.sum1.length + 
-                        this.game.state.combination.sum2.length + 
-                        this.game.state.combination.sum3.length + 
-                        this.game.state.combination.match.length;
-                        
-    console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
-    
-    if (baseCount === 1 && captureCount > 0) {
-      console.log(`✅ BOT: Ready to submit - Base: ${baseCount}, Captures: ${captureCount}`);
-      const submitResult = await this.botSubmitCapture();
-      this.isAnimating = false;
-      return submitResult;
-    } else {
-      console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
-      this.isAnimating = false;
-      return { success: false, reason: 'Final verification failed' };
-    }
-    
-  } catch (error) {
-    console.error('🚨 Bot capture error:', error);
-    this.isAnimating = false;
-    return { success: false, reason: error.message };
-  }
-}
   
   // 🎯 SUBMIT CAPTURE
   async botSubmitCapture() {
@@ -1181,19 +634,11 @@ if (move.capture && move.capture.targets && move.capture.targets.length > 0) {
     Object.keys(combination).forEach(area => {
       if (combination[area] && Array.isArray(combination[area])) {
         combination[area].forEach(entry => {
-          if (entry.source === 'hand') {
-            const playerIndex = entry.playerSource;
-            if (typeof playerIndex === 'number' && 
-                playerIndex >= 0 && 
-                playerIndex <= 2 &&
-                this.game.state.hands[playerIndex]) {
-              this.game.state.hands[playerIndex].push(entry.card);
+          if (entry.source === 'hand' && entry.playerSource !== undefined) {
+            if (this.game.state.hands[entry.playerSource]) {
+              this.game.state.hands[entry.playerSource].push(entry.card);
               restoredCount++;
-              console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to Player ${playerIndex} hand`);
-            } else {
-              console.error(`🚨 INVALID playerSource: ${playerIndex}, restoring to Player 0`);
-              this.game.state.hands[0].push(entry.card);
-              restoredCount++;
+              console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to Player ${entry.playerSource} hand`);
             }
           } else if (entry.source === 'board') {
             this.game.state.board.push(entry.card);
@@ -1351,7 +796,7 @@ class AISystemCore {
           capture: {
             type: bestCapture.capture.type,
             cards: bestCapture.capture.cards,
-            targets: bestCapture.capture.targets || []
+            targets: bestCapture.capture.targets || bestCapture.capture.cards.map(idx => board[idx])
           }
         };
       } else {
