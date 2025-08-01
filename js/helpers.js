@@ -87,7 +87,7 @@ function canCapture(handCard, board) {
       captures.push({ 
         type: 'pair', 
         cards: [index], 
-        target: card,
+        target: [card],
         handCard: handCard,
         score: 10 // Base score for pairs
       });
