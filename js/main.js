@@ -785,6 +785,52 @@ function executeUnifiedCapture() {
   return unifiedCardSystem.executeCapture();
 }
 
+// 🤖 UNIFIED BOT EXECUTOR FUNCTIONS
+// Add this after the unified card system
+
+class UnifiedBotExecution {
+  constructor() {
+    this.isExecuting = false;
+  }
+
+  async placeCard(handCard, playerIndex) {
+    console.log(`🤖 UNIFIED BOT PLACE: ${handCard.value}${handCard.suit} for player ${playerIndex}`);
+    
+    // For now, use the existing AISystem function
+    return await AISystem.placeCard(handCard, playerIndex);
+  }
+
+  async executeCapture(move, playerIndex) {
+    console.log(`🤖 UNIFIED BOT CAPTURE: ${move.handCard.value}${move.handCard.suit} for player ${playerIndex}`);
+    
+    // For now, use the existing AISystem function
+    return await AISystem.executeCapture(move, playerIndex);
+  }
+}
+
+// 🎯 GLOBAL INSTANCE
+let unifiedBotExecutor = null;
+
+// 🎯 INITIALIZATION
+function initializeUnifiedBotExecution() {
+  unifiedBotExecutor = new UnifiedBotExecution();
+  console.log(`🤖 UNIFIED BOT EXECUTION: Initialized and ready!`);
+}
+
+// 🎯 PUBLIC API
+async function executeBotMove(move, gameEngine) {
+  if (!unifiedBotExecutor) {
+    console.error(`❌ Unified bot executor not initialized!`);
+    return { success: false, reason: 'Bot executor not initialized' };
+  }
+  
+  if (move.action === 'capture') {
+    return await unifiedBotExecutor.executeCapture(move, gameEngine.state.currentPlayer);
+  } else {
+    return await unifiedBotExecutor.placeCard(move.handCard, gameEngine.state.currentPlayer);
+  }
+}
+
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
@@ -1122,12 +1168,7 @@ function checkGameEnd() {
   }
 }
 
-// 🔥 REMOVED: dealNewCards() function - Now handled by GameStateManager
-// This function has been replaced by handleDealNewHand() below
-
-// 🔥 FIXED: Bot Turn Flag Management - Add this to main.js around line 825
-
-// 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
+// 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT (FIXED SYNTAX)
 async function aiTurn() {
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
   if (botTurnInProgress) {
@@ -1181,15 +1222,8 @@ async function aiTurn() {
     
     let result;
     
+    // 🔥 FIXED: Use OLD AI SYSTEM until unified system is working
     if (move && move.action === 'capture') {
-      // 🔥 USE UNIFIED SYSTEM: Call unified bot executor instead
-      result = await executeBotMove(move, game);
-    } else {
-      const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
-      // 🔥 USE UNIFIED SYSTEM: Use unified place function
-      result = await unifiedBotExecutor.placeCard(cardToPlace, playerIndex);
-    }
-    
       console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
       result = await AISystem.executeCapture(move, playerIndex);
     } else {
@@ -1263,7 +1297,7 @@ async function aiTurn() {
       const fallbackCard = game.state.hands[playerIndex][0];
       if (fallbackCard) {
         console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
-        result = await botModal.placeCard(fallbackCard, playerIndex);
+        result = await AISystem.placeCard(fallbackCard, playerIndex);
         if (result.success) {
           game.nextPlayer();
           ui.render();
