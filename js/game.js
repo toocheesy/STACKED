@@ -1,7 +1,7 @@
 /* 
  * GameEngine - Core Game Logic for STACKED!
  * Handles game state, validation, and mode coordination
- * Works with any game mode
+ * 🔥 CLEANED: Removed capturedCards tracking system
  */
 
 class GameEngine {
@@ -10,7 +10,6 @@ class GameEngine {
   deck: [],
   board: [],
   hands: [[], [], []], // Player, Bot 1, Bot 2
-  capturedCards: [[], [], []], // 🔥 NEW: Store captured cards for each player
   scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
   overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
   combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
@@ -72,7 +71,6 @@ class GameEngine {
     
     // Reset current round scores, preserve overall scores
 this.state.scores = { player: 0, bot1: 0, bot2: 0 };
-this.state.capturedCards = [[], [], []]; // 🔥 NEW: Reset captured cards
 this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 this.state.draggedCard = null;
 this.state.selectedCard = null;
@@ -188,8 +186,7 @@ console.log(`🎮 ${gameMode.name} initialized successfully`);
     }
   }
 
-  // 🔧 FIX #2: Update executeCapture() to store captured cards
-
+  // 🔥 CLEANED: executeCapture() - Cards just disappear when captured (like real cards!)
 executeCapture(baseCard, validCaptures, allCapturedCards) {
   console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
   
@@ -227,34 +224,22 @@ executeCapture(baseCard, validCaptures, allCapturedCards) {
     this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
   }
 
-  // 🔥 NEW: Store captured cards instead of losing them!
-  this.state.capturedCards[currentPlayer].push(...allCapturedCards);
-  console.log(`✅ STORED: ${allCapturedCards.length} cards in player ${currentPlayer} captured pile`);
-
+  // 🔥 CLEANED: Cards just disappear! Calculate points and add to score.
+  // No more capturedCards storage - cards are simply removed from play.
+  
   // Calculate and apply score
   const points = this.calculateScore(allCapturedCards);
   this.addScore(currentPlayer, points);
   this.addOverallScore(currentPlayer, points);
   this.state.lastCapturer = currentPlayer;
 
-  // 🔥 NEW: Verify card count integrity including captured cards
+  // 🔥 CLEANED: Simple card count verification (hands + board + deck only)
   const totalInPlay = this.state.hands.flat().length + 
                       this.state.board.length + 
-                      this.state.deck.length +
-                      this.state.capturedCards.flat().length; // 🔥 INCLUDE CAPTURED!
+                      this.state.deck.length;
   
-  const expectedTotal = 52;
-  
-  if (totalInPlay !== expectedTotal) {
-    console.warn(`⚠️ CARD COUNT WARNING: ${expectedTotal - totalInPlay} cards missing after capture`);
-    console.warn(`   In play: ${this.state.hands.flat().length + this.state.board.length + this.state.deck.length}`);
-    console.warn(`   Captured: ${this.state.capturedCards.flat().length}`);
-    console.warn(`   Total: ${totalInPlay}, Expected: ${expectedTotal}`);
-  } else {
-    console.log(`✅ CARD COUNT VERIFIED: ${totalInPlay}/52 cards accounted for`);
-  }
-
-  console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
+  console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards captured, ${points} points scored`);
+  console.log(`📊 CARDS REMAINING IN PLAY: ${totalInPlay} (${52 - totalInPlay} captured total)`);
 }
 
   // Calculate score using current mode

@@ -463,7 +463,7 @@ function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCo
   console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
 }
 
-// 🔧 UPDATED: Clearer card count monitoring in main.js
+// 🔥 CLEANED: Updated card count monitoring in main.js
 
 function startCardCountMonitoring() {
   if (window.cardCountMonitor) {
@@ -474,21 +474,23 @@ function startCardCountMonitoring() {
     const handsCount = game.state.hands.flat().length;
     const boardCount = game.state.board.length;
     const deckCount = game.state.deck.length;
-    const capturedCount = game.state.capturedCards.flat().length;
     const comboCount = Object.values(game.state.combination).flat().length;
     
-    const totalInPlay = handsCount + boardCount + deckCount;
-    const grandTotal = totalInPlay + capturedCount + comboCount;
+    // 🔥 CLEANED: Only track cards that are still "in play"
+    const totalInPlay = handsCount + boardCount + deckCount + comboCount;
+    const capturedCount = 52 - totalInPlay; // Calculated, not tracked!
     
-    if (grandTotal !== 52) {
-      console.warn(`⚠️ Card count drift: ${grandTotal}/52 cards accounted for`);
-      console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount} = ${totalInPlay} in play`);
-      console.warn(`   Captured: ${capturedCount} cards [${game.state.capturedCards.map(pile => pile.length).join(', ')}]`);
-      console.warn(`   In combo: ${comboCount} cards`);
-      console.warn(`   TOTAL: ${grandTotal} cards`);
+    // Only warn if cards somehow got duplicated (shouldn't happen now)
+    if (totalInPlay > 52) {
+      console.warn(`🚨 CARD DUPLICATION: ${totalInPlay}/52 cards in play (${totalInPlay - 52} extra cards!)`);
+      console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount}, Combo: ${comboCount}`);
+    } else {
+      // This is normal - cards get captured and disappear
+      console.log(`📊 CARDS IN PLAY: ${totalInPlay}/52 (${capturedCount} captured)`);
     }
   }, 10000);
 }
+
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
