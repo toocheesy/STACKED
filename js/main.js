@@ -890,14 +890,6 @@ class UnifiedCardMovement {
   }
 
   /**
-   * 🔧 HELPER: Restore single card to original position
-   */
-  restoreCardToOriginal(cardEntry) {
-    const { card, originalPosition } = cardEntry;
-    const { sourceType, sourceIndex, playerIndex } = originalPosition;
-
-
-  /**
    * 🔧 HELPER: Update board card indices after removal
    */
   updateBoardIndicesAfterRemoval(removedIndex) {
