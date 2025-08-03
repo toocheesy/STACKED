@@ -805,7 +805,7 @@ let unifiedCardSystem = null;
 
 // 🎯 INITIALIZATION: Call this when game starts
 function initializeUnifiedCardSystem(gameEngine) {
-  unifiedCardSystem = new UnifiedCardMovement(gameEngine);
+  window.unifiedCardSystem = new UnifiedCardMovement(gameEngine);  // ← GLOBAL WINDOW OBJECT
   console.log(`🚀 UNIFIED CARD SYSTEM: Initialized and ready!`);
 }
 
@@ -862,7 +862,7 @@ let unifiedBotExecutor = null;
 
 // 🎯 INITIALIZATION
 function initializeUnifiedBotExecution() {
-  unifiedBotExecutor = new UnifiedBotExecution();
+  window.unifiedBotExecutor = new UnifiedBotExecution();  // ← GLOBAL WINDOW OBJECT
   console.log(`🤖 UNIFIED BOT EXECUTION: Initialized and ready!`);
 }
 
