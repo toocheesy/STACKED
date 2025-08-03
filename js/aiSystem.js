@@ -684,64 +684,41 @@ class BotActionExecutor {
       await this.delay(500);
 
       // Verify card exists in bot's hand
-// 🎴 PLACE CARD
-async placeCard(handCard, playerIndex) {
-  if (this.isAnimating) return { success: false, reason: 'Already animating' };
-  this.isAnimating = true;
+      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c && c.id === handCard.id);
+      if (cardIndex === -1) {
+        console.error(`🚨 CRITICAL: Card ${handCard.value}${handCard.suit} not found in Bot ${playerIndex} hand!`);
+        this.isAnimating = false;
+        return { success: false, reason: 'Card not found in hand' };
+      }
+      
+      // Remove from bot's hand
+      this.game.state.hands[playerIndex].splice(cardIndex, 1);
+      console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
 
-  // Safety checks
-  if (!this.game.state.hands[playerIndex] || this.game.state.hands[playerIndex].length === 0) {
-    console.error(`🚨 SAFETY GUARD: Bot ${playerIndex} has no cards to place!`);
-    this.isAnimating = false;
-    return { success: false, reason: 'No cards available' };
-  }
-
-  if (!handCard || !handCard.value || !handCard.suit) {
-    console.error(`🚨 SAFETY GUARD: Invalid handCard provided to placeCard!`, handCard);
-    this.isAnimating = false;
-    return { success: false, reason: 'Invalid card' };
-  }
-
-  console.log(`🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} on board`);
-  
-  try {
-    await this.delay(500);
-
-    // Verify card exists in bot's hand
-    const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c && c.id === handCard.id);
-    if (cardIndex === -1) {
-      console.error(`🚨 BOT: Card ${handCard.value}${handCard.suit} not found in hand for player ${playerIndex}`);
+      // Track bot last action
+      this.game.state.lastAction = 'place';
+      console.log('🎯 BOT LAST ACTION SET TO: place');
+      
+      // Add to board
+      this.game.state.board.push(handCard);
+      
+      console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${this.game.state.board.length} cards total)`);
+      
+      // Clear combo areas
+      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+      console.log(`✅ CLEARED: All combo areas`);
+      
+      // Update UI
+      this.ui.render();
+      console.log(`✅ RENDERED: UI updated`);
+      
       this.isAnimating = false;
-      return { success: false, reason: 'Card not found in hand' };
-    }
-
-    // Remove card from hand and place on board
-    this.game.state.hands[playerIndex].splice(cardIndex, 1);
-    this.game.state.board.push(handCard);
-
-    // Update AI card memory
-    window.AISystem.updateCardMemory([handCard]);
-
-    // Reset combination state
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-
-    // Set last action
-    this.game.state.lastAction = 'place';
-    console.log('🎯 BOT LAST ACTION SET TO: place');
-
-    this.ui.render();
-    if (window.playSound) window.playSound('place');
-
-    this.isAnimating = false;
-    return { success: true, action: 'place' };
-  } catch (error) {
-    console.error(`🚨 BOT ${playerIndex}: Error in card placement:`, error);
-    this.isAnimating = false;
-    return { success: false, reason: error.message };
-  }
-}
-
-  // Verify card exists in bot's hand
+      return { success: true, action: 'place', remainingCards: this.game.state.hands[playerIndex].length };
+      
+    } catch (error) {
+      console.error(`🚨 CRITICAL ERROR in placeCard:`, error);
+      this.isAnimating = false;
+      return { success: false, reason: error.message };
     }
   }
   
