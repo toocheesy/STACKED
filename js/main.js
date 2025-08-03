@@ -739,13 +739,13 @@ const cardId = `${card.value}${card.suit}`;
    * 🔧 HELPER: Calculate score for captured cards
    */
   calculateCaptureScore(cards) {
-    return cards.reduce((total, card) => {
-      if (card.rank === 'A') return total + 15;
-      if (['K', 'Q', 'J'].includes(card.rank)) return total + 10;
-      if (card.rank === '10') return total + 10;
-      return total + 5;
-    }, 0);
-  }
+  return cards.reduce((total, card) => {
+    if (card.value === 'A') return total + 15;
+    if (['K', 'Q', 'J'].includes(card.value)) return total + 10;
+    if (card.value === '10') return total + 10;
+    return total + 5;
+  }, 0);
+}
 
   /**
    * 🔧 HELPER: Validate inputs for move operation
