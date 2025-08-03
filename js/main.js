@@ -491,6 +491,55 @@ function startCardCountMonitoring() {
   }, 10000);
 }
 
+// 🔍 UNIFIED SYSTEM DEBUG FUNCTION
+function debugUnifiedSystem() {
+  console.log(`
+🔍 UNIFIED SYSTEM DEBUG REPORT
+┌─ SYSTEM STATUS ────────────────────────────────────────────────
+│  unifiedCardSystem: ${window.unifiedCardSystem ? '✅ EXISTS' : '❌ UNDEFINED'}
+│  unifiedBotExecutor: ${window.unifiedBotExecutor ? '✅ EXISTS' : '❌ UNDEFINED'}
+│  
+│  PUBLIC FUNCTIONS:
+│  - moveCardToCombo: ${typeof window.moveCardToCombo}
+│  - restoreAllCards: ${typeof window.restoreAllCards}  
+│  - executeUnifiedCapture: ${typeof window.executeUnifiedCapture}
+│  - executeBotMove: ${typeof window.executeBotMove}
+├─ SYSTEM OBJECTS ──────────────────────────────────────────────
+│  unifiedCardSystem type: ${typeof window.unifiedCardSystem}
+│  unifiedBotExecutor type: ${typeof window.unifiedBotExecutor}
+├─ INITIALIZATION FUNCTIONS ───────────────────────────────────
+│  initializeUnifiedCardSystem: ${typeof window.initializeUnifiedCardSystem}
+│  initializeUnifiedBotExecution: ${typeof window.initializeUnifiedBotExecution}
+├─ CLASSES AVAILABLE ──────────────────────────────────────────
+│  UnifiedCardMovement: ${typeof window.UnifiedCardMovement}
+│  UnifiedBotExecution: ${typeof window.UnifiedBotExecution}
+└────────────────────────────────────────────────────────────────`);
+
+  // Test if unified functions work
+  if (window.unifiedCardSystem) {
+    console.log('🧪 TESTING UNIFIED CARD SYSTEM...');
+    try {
+      window.unifiedCardSystem.validateCardCount();
+      console.log('✅ UNIFIED SYSTEM: validateCardCount() works');
+    } catch (error) {
+      console.log('❌ UNIFIED SYSTEM ERROR:', error.message);
+    }
+  }
+  
+  if (window.unifiedBotExecutor) {
+    console.log('✅ UNIFIED BOT EXECUTOR: Ready for testing');
+  }
+  
+  return {
+    systemExists: !!window.unifiedCardSystem,
+    executorExists: !!window.unifiedBotExecutor,
+    functionsWork: typeof window.moveCardToCombo === 'function'
+  };
+}
+
+// Make it globally available
+window.debugUnifiedSystem = debugUnifiedSystem;
+
 // 🔥 UNIFIED CARD MOVEMENT SYSTEM
 // Both humans and bots use these EXACT SAME functions
 // Add this to main.js or create new cardMovement.js
@@ -917,11 +966,10 @@ function handleSubmit() {
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-  // 🔥 NEW: Auto-reset combination on validation failure
-  handleResetPlayArea();
+  // 🔥 NO AUTO-RESET
   
   window.messageController.handleGameEvent('CAPTURE_ERROR', {
-    message: "Base Card area must have exactly one card! Cards returned to hand."
+    message: "Base Card area must have exactly one card! Click Reset to try again."
   });
   playSound('invalid');
   return;
@@ -945,38 +993,36 @@ function handleSubmit() {
       const result = game.validateCapture(area.cards, baseValue, baseCard, area.name);
 
       if (result.isValid) {
-        validCaptures.push({ name: area.name, cards: area.cards });
-        allCapturedCards.push(...area.cards.map(entry => entry.card));
-      } else {
-        // 🔥 NEW: Auto-reset combination on validation failure
-        handleResetPlayArea();
-        
-        const areaNames = {
-          'sum1': 'Sum Area 1',
-          'sum2': 'Sum Area 2', 
-          'sum3': 'Sum Area 3',
-          'match': 'Match Area'
-        };
-        
-        window.messageController.handleGameEvent('CAPTURE_ERROR', {
-          message: `${areaNames[area.name]}: ${result.details}. Cards returned to hand.`
-        });
-        playSound('invalid');
-        return;
-      }
+  validCaptures.push({ name: area.name, cards: area.cards });
+  allCapturedCards.push(...area.cards.map(entry => entry.card));
+} else {
+  // 🔥 REMOVED AUTO-RESET - USER MUST CLICK RESET BUTTON
+  
+  const areaNames = {
+    'sum1': 'Sum Area 1',
+    'sum2': 'Sum Area 2', 
+    'sum3': 'Sum Area 3',
+    'match': 'Match Area'
+  };
+  
+  window.messageController.handleGameEvent('CAPTURE_ERROR', {
+    message: `${areaNames[area.name]}: ${result.details}. Click Reset to try again.` // ← CHANGED MESSAGE
+  });
+  playSound('invalid');
+  return;
+}
     }
   }
 
   if (validCaptures.length === 0) {
-    // 🔥 NEW: Auto-reset combination on validation failure
-    handleResetPlayArea();
-    
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "No valid captures found! Cards returned to hand."
-    });
-    playSound('invalid');
-    return;
-  }
+  // 🔥 NO AUTO-RESET
+  
+  window.messageController.handleGameEvent('CAPTURE_ERROR', {
+    message: "No valid captures found! Click Reset to try again."
+  });
+  playSound('invalid');
+  return;
+}
 
   game.executeCapture(baseCard, validCaptures, allCapturedCards);
 AISystem.updateCardMemory(allCapturedCards);
