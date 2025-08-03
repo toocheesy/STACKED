@@ -879,9 +879,19 @@ function initGame() {
   
   startGame(modeSelector.currentMode || 'classic', gameSettings);
 
-  // 🔥 ADD THIS: Initialize unified systems
+  console.log('🔍 About to initialize unified systems...');
   initializeUnifiedCardSystem(game);
   initializeUnifiedBotExecution();
+  
+  // 🔥 ADD VERIFICATION:
+  console.log('🔍 POST-INIT CHECK:', {
+    unifiedCardSystem: !!window.unifiedCardSystem,
+    unifiedBotExecutor: !!window.unifiedBotExecutor,
+    functions: {
+      moveCardToCombo: typeof window.moveCardToCombo,
+      executeUnifiedCapture: typeof window.executeUnifiedCapture
+    }
+  });
 
 // 🔥 NEW: Initialize AI System with game components
 AISystem.initialize(game, ui);
