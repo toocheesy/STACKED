@@ -122,12 +122,13 @@ basicHintDetection(playerHand, board) {
 
   // 💰 CALCULATE CAPTURE SCORE
   calculateCaptureScore(cards) {
-    const pointsMap = {
-      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
-      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
-    };
-    return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
-  }
+  return cards.reduce((total, card) => {
+    if (card.value === 'A') return total + 15;
+    if (['K', 'Q', 'J'].includes(card.value)) return total + 10;
+    if (card.value === '10') return total + 10;
+    return total + 5;
+  }, 0);
+}
 
   // 🎮 GET CARD NUMERIC VALUE
   getCardValue(card) {
@@ -555,7 +556,7 @@ class UnifiedCardMovement {
    * Used by both humans (drag/drop) and bots (AI decisions)
    */
   moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex = null) {
-    console.log(`🔄 MOVING: ${card.rank}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
+  console.log(`🔄 MOVING: ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
     
     // Validate inputs
     if (!this.validateMoveInputs(sourceType, sourceIndex, targetSlot, card)) {
@@ -563,7 +564,7 @@ class UnifiedCardMovement {
     }
 
     // Store original position for restoration
-    const cardId = `${card.rank}${card.suit}`;
+const cardId = `${card.value}${card.suit}`;
     const originalPosition = {
       sourceType: sourceType,
       sourceIndex: sourceIndex,
@@ -765,10 +766,10 @@ class UnifiedCardMovement {
       return false;
     }
     
-    if (!card || !card.rank || !card.suit) {
-      console.error(`❌ Invalid card:`, card);
-      return false;
-    }
+    if (!card || !card.value || !card.suit) {
+  console.error(`❌ Invalid card:`, card);
+  return false;
+}
     
     return true;
   }
@@ -805,8 +806,11 @@ let unifiedCardSystem = null;
 
 // 🎯 INITIALIZATION: Call this when game starts
 function initializeUnifiedCardSystem(gameEngine) {
-  window.unifiedCardSystem = new UnifiedCardMovement(gameEngine);  // ← GLOBAL WINDOW OBJECT
-  console.log(`🚀 UNIFIED CARD SYSTEM: Initialized and ready!`);
+  unifiedCardSystem = new UnifiedCardMovement(gameEngine);
+  window.unifiedCardSystem = unifiedCardSystem;
+  window.moveCardToCombo = moveCardToCombo;
+  window.restoreAllCards = restoreAllCards;
+  console.log('🚀 UNIFIED SYSTEM: Fully activated!');
 }
 
 // 🎯 PUBLIC API: Functions that replace old handleDrop/reset functions
@@ -877,6 +881,47 @@ async function executeBotMove(move, gameEngine) {
     return await unifiedBotExecutor.executeCapture(move, gameEngine.state.currentPlayer);
   } else {
     return await unifiedBotExecutor.placeCard(move.handCard, gameEngine.state.currentPlayer);
+  }
+}
+
+// 🎯 NEW UNIFIED DROP HANDLER
+function unifiedDrop(e, slot) {
+  e.preventDefault();
+  
+  // Block all interactions during modals or game pause
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
+    console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
+    return;
+  }
+  
+  // Block during bot turns
+  if (game.state.currentPlayer !== 0) {
+    console.log('🚨 BLOCKING DROP: Bot turn in progress');
+    return;
+  }
+  
+  if (!game.state.draggedCard) return;
+
+  const { source, index, card } = game.state.draggedCard;
+  const success = window.moveCardToCombo(source, index, slot, card);
+  
+  if (success) {
+    game.state.draggedCard = null;
+    
+    // Send combo assistance event
+    if (window.messageController && window.messageController.educationalMode) {
+      const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
+      const cardName = `${card.value}${suitSymbols[card.suit]}`;
+      
+      window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
+        slot: slot,
+        cardName: cardName,
+        card: card,
+        source: source
+      });
+    }
+    
+    ui.render();
   }
 }
 
@@ -1060,53 +1105,14 @@ console.log('🎯 LAST ACTION SET TO: capture');
   checkGameEnd();
 }
 
-// 🔥 COMPLETELY FIXED handleResetPlayArea() function - Proper card restoration
+// 🔥 NEW UNIFIED RESET FUNCTION
 function handleResetPlayArea() {
   if (game.state.currentPlayer !== 0) return;
-
-  console.log(`🔄 RESETTING COMBO AREA - Restoring cards to original locations`);
   
-  let restoredCount = 0;
-
-  // Restore all cards from combo areas back to their original locations
-  Object.keys(game.state.combination).forEach(areaName => {
-    const area = game.state.combination[areaName];
-    
-    area.forEach(entry => {
-      if (entry.source === 'hand') {
-        // Restore to hand at original index (or append if index is taken)
-        const playerIndex = entry.playerSource || 0;
-        const originalIndex = entry.originalIndex || entry.index;
-        
-        if (originalIndex < game.state.hands[playerIndex].length) {
-          // Insert at original position
-          game.state.hands[playerIndex].splice(originalIndex, 0, entry.card);
-        } else {
-          // Append to end if original position doesn't exist
-          game.state.hands[playerIndex].push(entry.card);
-        }
-        
-        console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to hand[${originalIndex}]`);
-        restoredCount++;
-        
-      } else if (entry.source === 'board') {
-        // Restore to board
-        game.state.board.push(entry.card);
-        console.log(`✅ RESTORED: ${entry.card.value}${entry.card.suit} to board`);
-        restoredCount++;
-      }
-    });
-  });
-
-  // Clear all combo areas
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  const restored = window.restoreAllCards();
+  console.log(`🔄 RESET: Restored ${restored} cards`);
   
-  console.log(`🔄 RESET COMPLETE: Restored ${restoredCount} cards to original locations`);
-  
-  // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER
   window.messageController.handleGameEvent('RESET_COMBO');
-  
-  // Update UI
   ui.render();
 }
 
@@ -1474,131 +1480,9 @@ function handleDragEnd(e) {
   game.state.draggedCard = null;
 }
 
-// 🔥 COMPLETELY FIXED handleDrop() function - Proper card movement without duplication
+// 🔥 NEW: Use unified drop handler (combo area moves)
 function handleDrop(e, slot) {
-  e.preventDefault();
-  
-  // 🔥 NEW: Block all interactions during modals or game pause
-  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
-    console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
-    return;
-  }
-  
-  // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚨 BLOCKING DROP: Bot turn in progress');
-    return;
-  }
-  
-  if (!game.state.draggedCard) return;
-
-  // Handle moving cards FROM combo areas back to combo areas
-  if (game.state.draggedCard.slot !== undefined) {
-    // Remove from old combo slot
-    const oldSlot = game.state.draggedCard.slot;
-    const oldIndex = game.state.draggedCard.comboIndex;
-    game.state.combination[oldSlot] = game.state.combination[oldSlot].filter((_, i) => i !== oldIndex);
-    console.log(`🔄 MOVED: Card from ${oldSlot} to ${slot}`);
-  }
-
-  // Handle base slot special logic (only one card allowed)
-  if (slot === 'base' && game.state.combination.base.length > 0) {
-    const existingBase = game.state.combination.base[0];
-    game.state.combination.base = [];
-    
-    // Move existing base card to first available sum area
-    if (game.state.combination.sum1.length === 0) {
-      game.state.combination.sum1.push(existingBase);
-    } else if (game.state.combination.sum2.length === 0) {
-      game.state.combination.sum2.push(existingBase);
-    } else if (game.state.combination.sum3.length === 0) {
-      game.state.combination.sum3.push(existingBase);
-    } else {
-      game.state.combination.match.push(existingBase);
-    }
-    console.log(`🔄 BASE SWAP: Moved existing base card to available area`);
-  }
-
-  // 🎓 CAPTURE CARD INFO BEFORE ADDING TO COMBO
-  const cardBeingDropped = game.state.draggedCard.card;
-  const sourceType = game.state.draggedCard.source;
-  const sourceIndex = game.state.draggedCard.index;
-
-  // 🔥 CRITICAL FIX: Remove card from source BEFORE adding to combo
-  if (game.state.draggedCard.slot === undefined) { // Only for NEW cards coming from hand/board
-    if (sourceType === 'hand') {
-      const playerIndex = game.state.currentPlayer;
-      // Safety check: make sure card exists at expected index
-      if (game.state.hands[playerIndex][sourceIndex] && 
-          game.state.hands[playerIndex][sourceIndex].id === cardBeingDropped.id) {
-        game.state.hands[playerIndex].splice(sourceIndex, 1);
-        console.log(`🔥 REMOVED: ${cardBeingDropped.value}${cardBeingDropped.suit} from hand[${sourceIndex}]`);
-      } else {
-        console.warn(`⚠️ CARD MISMATCH: Expected ${cardBeingDropped.value}${cardBeingDropped.suit} at hand[${sourceIndex}]`);
-      }
-    } else if (sourceType === 'board') {
-      // Safety check: make sure card exists at expected index
-      if (game.state.board[sourceIndex] && 
-          game.state.board[sourceIndex].id === cardBeingDropped.id) {
-        game.state.board.splice(sourceIndex, 1);
-        console.log(`🔥 REMOVED: ${cardBeingDropped.value}${cardBeingDropped.suit} from board[${sourceIndex}]`);
-        
-        // 🔥 CRITICAL: Update board indices in combo areas after removal
-        updateBoardIndicesAfterRemoval(sourceIndex);
-      } else {
-        console.warn(`⚠️ CARD MISMATCH: Expected ${cardBeingDropped.value}${cardBeingDropped.suit} at board[${sourceIndex}]`);
-      }
-    }
-  }
-
-  // Add card to combo area with full tracking
-  const currentPlayer = game.state.currentPlayer;
-  game.state.combination[slot].push({
-    source: sourceType,
-    index: sourceIndex,
-    card: cardBeingDropped,
-    playerSource: currentPlayer,
-    fromBot: currentPlayer !== 0,
-    originalSource: sourceType, // 🔥 NEW: Track original location for restoration
-    originalIndex: sourceIndex
-  });
-
-  console.log(`👤 COMBO ENTRY: Player ${currentPlayer} moved ${cardBeingDropped.value}${cardBeingDropped.suit} from ${sourceType}[${sourceIndex}] to ${slot}`);
-
-  // Clear dragged card state
-  game.state.draggedCard = null;
-
-  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
-  if (window.messageController && window.messageController.educationalMode) {
-    const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-    const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
-    
-    window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
-      slot: slot,
-      cardName: cardName,
-      card: cardBeingDropped,
-      source: sourceType
-    });
-  }
-
-  // Update UI
-  ui.render();
-}
-
-// 🔥 NEW: Helper function to update board indices after card removal
-function updateBoardIndicesAfterRemoval(removedIndex) {
-  console.log(`🔄 UPDATING BOARD INDICES: Card removed from board[${removedIndex}]`);
-  
-  // Update all combo entries that reference board cards with higher indices
-  Object.keys(game.state.combination).forEach(areaName => {
-    const area = game.state.combination[areaName];
-    area.forEach(entry => {
-      if (entry.source === 'board' && entry.index > removedIndex) {
-        console.log(`🔄 INDEX UPDATE: ${entry.card.value}${entry.card.suit} board index ${entry.index} → ${entry.index - 1}`);
-        entry.index = entry.index - 1;
-      }
-    });
-  });
+  return unifiedDrop(e, slot);
 }
 
 function handleDropOriginal(e, source, index) {
