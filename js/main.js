@@ -292,6 +292,28 @@ basicHintDetection(playerHand, board) {
   }
 }
 
+// 🎯 NEW: Helper for binding UI events (modular for future buttons)
+function setupUIEvents() {  // <--- Now top-level, outside class
+  const hintEl = document.getElementById('hint-button');
+  if (!hintEl) return; // Defensive: Button may not exist on load
+
+  hintEl.addEventListener('click', () => {
+    // Defensive: Only human player, and must have cards
+    if (!game || game.state.currentPlayer !== 0) return;
+    const hand = (game.state.hands && game.state.hands[0]) || [];
+    if (hand.length === 0) return;
+
+    // Ensure HintSystem exists (lazy init if needed)
+    if (!window.hintSystem) window.hintSystem = new HintSystem(game, ui);
+    window.hintSystem.showHint();
+
+    // Tie to educational messaging
+    if (window.messageController) {
+      window.messageController.handleGameEvent?.('HINT_REQUESTED');
+    }
+  });
+}
+
 // Global game instance
 let game = null;
 let ui = null;
@@ -553,7 +575,10 @@ localStorage.removeItem('selectedDifficulty');
 localStorage.removeItem('selectedMode');
 
 // 🔥 NEW: Start card monitoring
-startCardCountMonitoring();
+  startCardCountMonitoring();
+
+// 🔥 NEW: Bind UI events (Hint button, etc.)
+  setupUIEvents();
 }
 
 // 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
