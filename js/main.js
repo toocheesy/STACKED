@@ -1526,7 +1526,7 @@ async function aiTurn() {
       if (fallbackCard) {
         console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
         result = await AISystem.placeCard(fallbackCard, playerIndex);
-        if (result.success) {
+        if (result.success)
           game.nextPlayer();
           ui.render();
           checkGameEnd();
