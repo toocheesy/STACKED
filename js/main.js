@@ -793,38 +793,6 @@ class UnifiedCardMovement {
 }
 
   /**
-   * 🔄 CORE FUNCTION: Reset combo area and restore all cards
-   * Used by both humans (reset button) and bots (failed captures)
-   */
-  restoreAllCardsFromCombo() {
-    console.log(`🔄 RESTORING: All cards from combo areas to original positions`);
-    let restoredCount = 0;
-
-    // Process all combo areas
-    ['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-      const cards = this.game.state.combination[slot];
-      
-      cards.forEach(cardEntry => {
-        if (this.restoreCardToOriginal(cardEntry)) {
-          restoredCount++;
-        }
-      });
-
-      // Clear the combo area
-      this.game.state.combination[slot] = [];
-    });
-
-    // Clear position tracking
-    this.cardPositions.clear();
-
-    // Validate final state
-    this.validateCardCount();
-
-    console.log(`✅ RESTORED: ${restoredCount} cards to original positions`);
-    return restoredCount;
-  }
-
-  /**
    * 🎯 CORE FUNCTION: Execute capture and store cards
    * Used by both humans and bots when submitting valid captures
    */
