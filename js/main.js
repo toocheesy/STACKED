@@ -1019,14 +1019,13 @@ function handleSubmit() {
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-  // 🔥 NO AUTO-RESET
-  
-  window.messageController.handleGameEvent('CAPTURE_ERROR', {
-    message: "Base Card area must have exactly one card! Click Reset to try again."
-  });
-  playSound('invalid');
-  return;
-}
+    // 🔥 NO AUTO-RESET
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "Base Card area must have exactly one card! Click Reset to try again."
+    });
+    playSound('invalid');
+    return;
+  }
 
   const baseCard = baseCards[0];
   const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
@@ -1041,52 +1040,80 @@ function handleSubmit() {
     { name: 'match', cards: game.state.combination.match }
   ];
 
-  // Replace this block in handleSubmit() after validation:
+  // Validate each capture area
+  captureAreas.forEach(area => {
+    if (area.cards.length > 0) {
+      if (area.name === 'match') {
+        // Match area validation
+        const allMatch = area.cards.every(item => 
+          item.card.value === baseCard.card.value
+        );
+        if (allMatch) {
+          validCaptures.push(area.name);
+          area.cards.forEach(item => allCapturedCards.push(item.card));
+        }
+      } else {
+        // Sum area validation
+        const sum = area.cards.reduce((total, item) => {
+          const val = parseInt(item.card.value) || (window.valueMap && window.valueMap[item.card.value]) || 0;
+          return total + val;
+        }, 0);
+        if (sum === baseValue) {
+          validCaptures.push(area.name);
+          area.cards.forEach(item => allCapturedCards.push(item.card));
+        }
+      }
+    }
+  });
 
-if (validCaptures.length === 0) {
-  // Error handling stays the same...
-  return;
-}
+  if (validCaptures.length === 0) {
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "Invalid capture combination! Check your math or matches."
+    });
+    playSound('invalid');
+    return;
+  }
 
-// 🔥 NEW: Replace old executeCapture with unified system
-const captureResult = window.executeUnifiedCapture();
-if (captureResult) {
-  AISystem.updateCardMemory(captureResult.cards);
+  // 🔥 NEW: Replace old executeCapture with unified system
+  const captureResult = window.executeUnifiedCapture();
+  if (captureResult) {
+    AISystem.updateCardMemory(captureResult.cards);
 
-  // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
-  game.state.lastAction = 'capture';
-  console.log('🎯 LAST ACTION SET TO: capture');
+    // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
+    game.state.lastAction = 'capture';
+    console.log('🎯 LAST ACTION SET TO: capture');
+      
+    if (game.currentMode.onCapture) {
+      game.currentMode.onCapture(game, captureResult.cards);
+    }
     
-  if (game.currentMode.onCapture) {
-    game.currentMode.onCapture(game, captureResult.cards);
-  }
-  
-  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
-  window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
-    points: captureResult.points,
-    cardsCount: captureResult.cards.length
-  });
+    // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+      points: captureResult.points,
+      cardsCount: captureResult.cards.length
+    });
 
-  if (game.state.hands[0].length > 0) {
-    game.state.currentPlayer = 0;
-    // 🎯 SEND TURN START EVENT
-    window.messageController.handleGameEvent('TURN_START');
+    if (game.state.hands[0].length > 0) {
+      game.state.currentPlayer = 0;
+      // 🎯 SEND TURN START EVENT
+      window.messageController.handleGameEvent('TURN_START');
+    } else {
+      game.state.currentPlayer = 1;
+      // 🎯 SEND PLAYER OUT OF CARDS EVENT
+      window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
+      setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    }
+    
+    ui.render();
+    playSound('capture');
+    checkGameEnd();
   } else {
-    game.state.currentPlayer = 1;
-    // 🎯 SEND PLAYER OUT OF CARDS EVENT
-    window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
-    setTimeout(async () => await scheduleNextBotTurn(), 1000);
+    // Error handling
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "Capture failed! Click Reset to try again."
+    });
+    playSound('invalid');
   }
-  
-  ui.render();
-  playSound('capture');
-  checkGameEnd();
-} else {
-  // Error handling
-  window.messageController.handleGameEvent('CAPTURE_ERROR', {
-    message: "Capture failed! Click Reset to try again."
-  });
-  playSound('invalid');
 }
 
 // 🔥 FIXED: Use unified reset system
@@ -1103,7 +1130,6 @@ function handleResetPlayArea() {
   // Update UI
   ui.render();
 }
-
 
 // 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT
 function handleBoardDrop(e) {
@@ -1367,37 +1393,6 @@ async function aiTurn() {
     game.nextPlayer();
     ui.render();
   }
-}
-
-async function scheduleNextBotTurn() {
-  // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
-  if (botTurnInProgress) {
-    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
-    return;
-  }
-  
-  // 🛡️ SAFETY GUARD: Only for bot players
-  if (game.state.currentPlayer === 0) {
-    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
-    return;
-  }
-  
-  if (!game.state.hands[game.state.currentPlayer] || 
-    game.state.hands[game.state.currentPlayer].length === 0) {
-    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
-    setTimeout(() => {
-      console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
-      checkGameEnd();
-    }, 100);
-    return;
-  }
-  
-  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
-  
-  setTimeout(async () => {
-    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
-    await aiTurn();
-  }, 1000);
 }
 
 async function scheduleNextBotTurn() {
