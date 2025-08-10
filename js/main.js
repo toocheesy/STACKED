@@ -674,28 +674,52 @@ class UnifiedCardMovement {
 
   try {
     if (sourceType === 'hand') {
-      // ✅ FIX: Find the actual card first, then remove by ID match
+      // 🔥 FIX: Don't trust the index! Find by actual card ID
       const targetCard = this.game.state.hands[player][sourceIndex];
-      if (targetCard) {
-        const actualIndex = this.game.state.hands[player].findIndex(c => c && c.id === targetCard.id);
-        if (actualIndex !== -1) {
-          this.game.state.hands[player].splice(actualIndex, 1);
-          console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from hand[${actualIndex}]`);
-          return true;
-        }
+      if (!targetCard) {
+        console.error(`❌ No card at hand[${sourceIndex}]`);
+        return false;
       }
+      
+      // Find the ACTUAL position of this exact card
+      const actualIndex = this.game.state.hands[player].findIndex(
+        card => card && card.id === targetCard.id
+      );
+      
+      if (actualIndex === -1) {
+        console.error(`❌ Card ${targetCard.value}${targetCard.suit} not found in hand!`);
+        return false;
+      }
+      
+      // Remove the RIGHT card
+      this.game.state.hands[player].splice(actualIndex, 1);
+      console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from hand[${actualIndex}] (was at visual index ${sourceIndex})`);
+      return true;
+      
     } else if (sourceType === 'board') {
-      // ✅ FIX: Find the actual card first, then remove by ID match
+      // 🔥 FIX: Same fix for board cards
       const targetCard = this.game.state.board[sourceIndex];
-      if (targetCard) {
-        const actualIndex = this.game.state.board.findIndex(c => c && c.id === targetCard.id);
-        if (actualIndex !== -1) {
-          this.game.state.board.splice(actualIndex, 1);
-          console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from board[${actualIndex}]`);
-          return true;
-        }
+      if (!targetCard) {
+        console.error(`❌ No card at board[${sourceIndex}]`);
+        return false;
       }
+      
+      // Find the ACTUAL position of this exact card
+      const actualIndex = this.game.state.board.findIndex(
+        card => card && card.id === targetCard.id
+      );
+      
+      if (actualIndex === -1) {
+        console.error(`❌ Card ${targetCard.value}${targetCard.suit} not found on board!`);
+        return false;
+      }
+      
+      // Remove the RIGHT card
+      this.game.state.board.splice(actualIndex, 1);
+      console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from board[${actualIndex}] (was at visual index ${sourceIndex})`);
+      return true;
     }
+    
     return false;
   } catch (error) {
     console.error(`❌ ERROR removing card from ${sourceType}[${sourceIndex}]:`, error);
@@ -1031,7 +1055,6 @@ function handleSubmit() {
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
-    // 🔥 NO AUTO-RESET
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: "Base Card area must have exactly one card! Click Reset to try again."
     });
@@ -1040,44 +1063,70 @@ function handleSubmit() {
   }
 
   const baseCard = baseCards[0];
-  const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
+  const baseValue = baseCard.card.value; // 🔥 FIX: Use direct value for pairs
 
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
+  let captureType = null; // Track if this is a pair or sum capture
 
-  const captureAreas = [
-    { name: 'sum1', cards: game.state.combination.sum1 },
-    { name: 'sum2', cards: game.state.combination.sum2 },
-    { name: 'sum3', cards: game.state.combination.sum3 },
-    { name: 'match', cards: game.state.combination.match }
-  ];
-
-  // Validate each capture area
-  captureAreas.forEach(area => {
-    if (area.cards.length > 0) {
-      if (area.name === 'match') {
-        // Match area validation
-        const allMatch = area.cards.every(item => 
-          item.card.value === baseCard.card.value
-        );
-        if (allMatch) {
-          validCaptures.push(area.name);
-          area.cards.forEach(item => allCapturedCards.push(item.card));
-        }
-      } else {
-        // Sum area validation
-        const sum = area.cards.reduce((total, item) => {
-          const val = parseInt(item.card.value) || (window.valueMap && window.valueMap[item.card.value]) || 0;
-          return total + val;
-        }, 0);
-        if (sum === baseValue) {
-          validCaptures.push(area.name);
-          area.cards.forEach(item => allCapturedCards.push(item.card));
-        }
-      }
+  // 🔥 NEW: Collect ALL cards from ALL areas (except base)
+  const allCaptureAreaCards = [];
+  ['sum1', 'sum2', 'sum3', 'match'].forEach(areaName => {
+    if (game.state.combination[areaName].length > 0) {
+      allCaptureAreaCards.push(...game.state.combination[areaName]);
     }
   });
 
+  // 🔥 FIX: Check if it's a PAIR capture (all cards same value as base)
+  const isPairCapture = allCaptureAreaCards.length > 0 && 
+    allCaptureAreaCards.every(item => item.card.value === baseValue);
+
+  if (isPairCapture) {
+    // ✅ PAIR CAPTURE DETECTED - doesn't matter which area cards are in!
+    console.log(`✅ PAIR CAPTURE: ${baseValue} matches all capture cards`);
+    captureType = 'pair';
+    allCaptureAreaCards.forEach(item => allCapturedCards.push(item.card));
+    validCaptures.push('pair');
+  } else {
+    // 🔥 CHECK FOR SUM CAPTURES - validate each area individually
+    const baseNumValue = parseInt(baseValue) || (baseValue === 'A' ? 1 : null);
+    
+    if (baseNumValue && !['J', 'Q', 'K'].includes(baseValue)) {
+      // Check each sum area
+      ['sum1', 'sum2', 'sum3'].forEach(areaName => {
+        const areaCards = game.state.combination[areaName];
+        if (areaCards.length > 0) {
+          const sum = areaCards.reduce((total, item) => {
+            const val = parseInt(item.card.value) || (item.card.value === 'A' ? 1 : 0);
+            return total + val;
+          }, 0);
+          
+          if (sum === baseNumValue) {
+            validCaptures.push(areaName);
+            areaCards.forEach(item => allCapturedCards.push(item.card));
+            console.log(`✅ SUM CAPTURE: ${areaName} adds to ${baseNumValue}`);
+          }
+        }
+      });
+      
+      // Check match area for number matches too
+      const matchCards = game.state.combination.match;
+      if (matchCards.length > 0) {
+        const allMatch = matchCards.every(item => item.card.value === baseValue);
+        if (allMatch) {
+          validCaptures.push('match');
+          matchCards.forEach(item => allCapturedCards.push(item.card));
+          console.log(`✅ MATCH CAPTURE: Cards in match area equal ${baseValue}`);
+        }
+      }
+      
+      if (validCaptures.length > 0) {
+        captureType = 'sum';
+      }
+    }
+  }
+
+  // 🔥 FINAL VALIDATION
   if (validCaptures.length === 0) {
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: "Invalid capture combination! Check your math or matches."
@@ -1086,7 +1135,30 @@ function handleSubmit() {
     return;
   }
 
-  // 🔥 NEW: Replace old executeCapture with unified system
+  // 🔥 NEW: Must have both hand and board cards
+  const hasHandCard = allCapturedCards.some(card => {
+    // Check if this card came from a hand
+    return game.state.combination.base.some(entry => entry.source === 'hand') ||
+           allCaptureAreaCards.some(entry => entry.source === 'hand' && entry.card.id === card.id);
+  });
+  
+  const hasBoardCard = allCapturedCards.some(card => {
+    // Check if this card came from board
+    return game.state.combination.base.some(entry => entry.source === 'board') ||
+           allCaptureAreaCards.some(entry => entry.source === 'board' && entry.card.id === card.id);
+  });
+
+  if (!hasHandCard || !hasBoardCard) {
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: "Capture requires both hand and board cards!"
+    });
+    playSound('invalid');
+    return;
+  }
+
+  // Execute the capture (rest of your code continues as normal)
+  console.log(`🎯 EXECUTING ${captureType.toUpperCase()} CAPTURE: ${allCapturedCards.length} cards`);
+  
   const captureResult = window.executeUnifiedCapture();
   if (captureResult) {
     AISystem.updateCardMemory(captureResult.cards);
