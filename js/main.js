@@ -555,6 +555,25 @@ class UnifiedCardMovement {
   moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex = null) {
     console.log(`🔄 MOVING: ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
     
+    // 🔥 NEW: VERIFY CARD EXISTS AT EXPECTED INDEX
+    const actualCard = this.getCardAtIndex(sourceType, sourceIndex, playerIndex);
+    
+    if (!actualCard || actualCard.id !== card.id) {
+      console.error(`🚨 CARD INDEX MISMATCH!`);
+      console.error(`   Expected: ${card.value}${card.suit} at ${sourceType}[${sourceIndex}]`);
+      console.error(`   Found: ${actualCard ? `${actualCard.value}${actualCard.suit}` : 'NO CARD'}`);
+      
+      // 🔥 SEARCH FOR CORRECT INDEX
+      const correctIndex = this.findCorrectCardIndex(sourceType, card, playerIndex);
+      if (correctIndex !== -1) {
+        console.log(`🔍 FOUND CORRECT INDEX: ${correctIndex} instead of ${sourceIndex}`);
+        return this.moveCardToCombo(sourceType, correctIndex, targetSlot, card, playerIndex);
+      } else {
+        console.error(`❌ CARD NOT FOUND IN ${sourceType}!`);
+        return false;
+      }
+    }
+    
     // Validate inputs
     if (!this.validateMoveInputs(sourceType, sourceIndex, targetSlot, card)) {
       return false;
@@ -789,6 +808,29 @@ class UnifiedCardMovement {
     }
     
     return true;
+  }
+
+  // 🔥 NEW HELPER METHODS FOR CARD INDEX VERIFICATION
+  getCardAtIndex(sourceType, sourceIndex, playerIndex = null) {
+    const player = playerIndex || this.game.state.currentPlayer;
+    
+    if (sourceType === 'hand') {
+      return this.game.state.hands[player][sourceIndex] || null;
+    } else if (sourceType === 'board') {
+      return this.game.state.board[sourceIndex] || null;
+    }
+    return null;
+  }
+
+  findCorrectCardIndex(sourceType, card, playerIndex = null) {
+    const player = playerIndex || this.game.state.currentPlayer;
+    
+    if (sourceType === 'hand') {
+      return this.game.state.hands[player].findIndex(c => c && c.id === card.id);
+    } else if (sourceType === 'board') {
+      return this.game.state.board.findIndex(c => c && c.id === card.id);
+    }
+    return -1;
   }
 }
 
