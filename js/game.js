@@ -300,21 +300,6 @@ nextPlayer() {
       return;
     }
     
-    // If no one has cards, end the round
-const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-if (totalCards === 0) {
-  console.log(`🏁 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
-  // 🔥 FIXED: Call checkGameEnd() with a small delay to let the UI update
-  setTimeout(() => {
-    if (typeof checkGameEnd === 'function') {
-      checkGameEnd();
-    } else {
-      console.error('🚨 checkGameEnd function not available!');
-    }
-  }, 100);
-  return;
-}
-    
   } while (attempts < maxAttempts);
   
   // Safety fallback
@@ -367,61 +352,15 @@ setStartingPlayer() {
   console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
 }
 
-  // Check if game should end (uses current mode)
-  checkGameEnd() {
-    // 🔍 DETECTIVE MODE: Log who called this and when
-    const stack = new Error().stack;
-    const caller = stack.split('\n')[2]?.trim() || 'unknown';
-    const timestamp = new Date().toLocaleTimeString();
-    
-    console.log('🔍 ========== checkGameEnd() CALLED ==========');
-    console.log('⏰ Time:', timestamp);
-    console.log('📞 Called by:', caller);
-    console.log('🎮 Current Player:', this.state.currentPlayer);
-    console.log('👤 Hands:', this.state.hands.map((hand, i) => `Player ${i}: ${hand.length} cards`));
-    console.log('🃏 Board:', this.state.board.length, 'cards');
-    console.log('📚 Deck:', this.state.deck.length, 'cards');
-    console.log('🏆 Scores:', this.state.scores);
-    console.log('🎯 Target Score:', this.currentMode.getTargetScore());
-    
-    // 🧠 EXISTING LOGIC (don't change this part)
-    const maxScore = Math.max(...this.state.scores);
-    const targetScore = this.currentMode.getTargetScore();
-    
-    // Check if someone reached target score
-    if (maxScore >= targetScore) {
-        console.log('🏆 GAME END REASON: Target score reached!', maxScore, '>=', targetScore);
-        this.handleGameEnd();
-        return;
-    }
-    
-    // Check if all hands are empty (need new deal)
-    const allHandsEmpty = this.state.hands.every(hand => hand.length === 0);
-    if (allHandsEmpty) {
-        console.log('📋 ROUND END REASON: All hands empty');
-        if (this.state.deck.length >= 12) {
-            console.log('🔄 ACTION: Deal new round (deck has', this.state.deck.length, 'cards)');
-            this.dealNewRound();
-        } else {
-            console.log('🏁 GAME END REASON: Deck too small for new round');
-            this.handleGameEnd();
-        }
-        return;
-    }
-    
-    console.log('✅ RESULT: Game continues');
-    console.log('🔍 ==========================================');
+// Get ranked players
+getRankedPlayers() {
+  const players = [
+    { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
+    { name: 'Bot 1', score: this.state.scores.bot1, index: 1, overall: this.state.overallScores.bot1 },
+    { name: 'Bot 2', score: this.state.scores.bot2, index: 2, overall: this.state.overallScores.bot2 }
+  ];
+  return players.sort((a, b) => b.score - a.score);
 }
-
-  // Get ranked players
-  getRankedPlayers() {
-    const players = [
-      { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
-      { name: 'Bot 1', score: this.state.scores.bot1, index: 1, overall: this.state.overallScores.bot1 },
-      { name: 'Bot 2', score: this.state.scores.bot2, index: 2, overall: this.state.overallScores.bot2 }
-    ];
-    return players.sort((a, b) => b.score - a.score);
-  }
 
   // Reset combination area
   resetCombination() {
