@@ -746,22 +746,27 @@ hideModal() {
   // 🔥 FIX: Get the actual card at this position to check by ID
   let cardToCheck = null;
   
-  if (source === 'hand' && playerIndex !== undefined) {
+  if (source === 'hand' && playerIndex !== undefined && playerIndex !== null) {
     cardToCheck = this.game.state.hands[playerIndex] && this.game.state.hands[playerIndex][index];
   } else if (source === 'hand') {
     cardToCheck = this.game.state.hands[0] && this.game.state.hands[0][index];
   } else if (source === 'board') {
-    cardToCheck = this.game.state.board[index];
+    cardToCheck = this.game.state.board && this.game.state.board[index];
   }
   
   // If no card at this position, it's not in play area
-  if (!cardToCheck) return false;
+  if (!cardToCheck) {
+    return false;
+  }
   
   // 🔥 NEW: Check if THIS SPECIFIC CARD (by ID) is in any combo area
   return Object.values(this.game.state.combination).some(area => 
     area.some(entry => {
       // Check if this exact card (by ID) is in the combo area
-      return entry.card && entry.card.id === cardToCheck.id;
+      if (entry.card && entry.card.id === cardToCheck.id) {
+        return true;
+      }
+      return false;
     })
   );
 }
