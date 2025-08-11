@@ -553,49 +553,45 @@ class UnifiedCardMovement {
    * Used by both humans (drag/drop) and bots (AI decisions)
    */
   moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex = null) {
-    console.log(`🔄 MOVING: ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
-    
-    // Validate inputs
-    if (!this.validateMoveInputs(sourceType, sourceIndex, targetSlot, card)) {
-      return false;
-    }
-
-    // Store original position for restoration
-    const cardId = `${card.value}${card.suit}`;
-    const originalPosition = {
-      sourceType: sourceType,
-      sourceIndex: sourceIndex,
-      playerIndex: playerIndex || this.game.state.currentPlayer
-    };
-    this.cardPositions.set(cardId, originalPosition);
-
-    // Remove card from source
-    const removed = this.removeCardFromSource(sourceType, sourceIndex, playerIndex);
-    if (!removed) {
-      console.error(`❌ FAILED: Could not remove card from ${sourceType}[${sourceIndex}]`);
-      return false;
-    }
-
-    // Add card to combo area with tracking
-    this.game.state.combination[targetSlot].push({
-      source: sourceType,
-      index: sourceIndex,
-      card: card,
-      playerSource: playerIndex || this.game.state.currentPlayer,
-      originalPosition: originalPosition
-    });
-
-    // Update board indices if we removed from board
-    if (sourceType === 'board') {
-      this.updateBoardIndicesAfterRemoval(sourceIndex);
-    }
-
-    // Validate card count
-    this.validateCardCount();
-
-    console.log(`✅ MOVED: Card successfully moved to ${targetSlot}`);
-    return true;
+  console.log(`🔄 MOVING: ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
+  
+  // Validate inputs
+  if (!this.validateMoveInputs(sourceType, sourceIndex, targetSlot, card)) {
+    return false;
   }
+
+  // Store original position for restoration
+  const cardId = `${card.value}${card.suit}`;
+  const originalPosition = {
+    sourceType: sourceType,
+    sourceIndex: sourceIndex,
+    playerIndex: playerIndex || this.game.state.currentPlayer,
+    card: card  // 🔥 STORE THE ACTUAL CARD REFERENCE
+  };
+  this.cardPositions.set(cardId, originalPosition);
+
+  // 🔥 FIX: Use the existing removeCardFromSource which now finds by ID
+  const removed = this.removeCardFromSource(sourceType, sourceIndex, playerIndex);
+  if (!removed) {
+    console.error(`❌ FAILED: Could not remove card from ${sourceType}[${sourceIndex}]`);
+    return false;
+  }
+
+  // Add card to combo area with tracking
+  this.game.state.combination[targetSlot].push({
+    source: sourceType,
+    index: sourceIndex,  // Keep original index for reference
+    card: card,
+    playerSource: playerIndex || this.game.state.currentPlayer,
+    originalPosition: originalPosition
+  });
+
+  // Validate card count
+  this.validateCardCount();
+
+  console.log(`✅ MOVED: Card successfully moved to ${targetSlot}`);
+  return true;
+}
 
   /**
    * 🔄 CORE FUNCTION: Reset combo area and restore all cards
@@ -1078,6 +1074,7 @@ function handleSubmit() {
   });
 
   // 🔥 FIX: Check if it's a PAIR capture (all cards same value as base)
+  // 🔥 FIX: Check if it's a PAIR capture (all cards same value as base)
   const isPairCapture = allCaptureAreaCards.length > 0 && 
     allCaptureAreaCards.every(item => item.card.value === baseValue);
 
@@ -1091,7 +1088,11 @@ function handleSubmit() {
     // 🔥 CHECK FOR SUM CAPTURES - validate each area individually
     const baseNumValue = parseInt(baseValue) || (baseValue === 'A' ? 1 : null);
     
-    if (baseNumValue && !['J', 'Q', 'K'].includes(baseValue)) {
+    // 🔥 IMPORTANT: Face cards CAN make pairs but NOT sums
+    if (['J', 'Q', 'K'].includes(baseValue)) {
+      // Face cards can ONLY make pairs, which we already checked above
+      console.log(`❌ Face card ${baseValue} cannot make sum captures`);
+    } else if (baseNumValue) {
       // Check each sum area
       ['sum1', 'sum2', 'sum3'].forEach(areaName => {
         const areaCards = game.state.combination[areaName];
@@ -1577,7 +1578,15 @@ function handleDrop(e, slot) {
   const sourceIndex = game.state.draggedCard.index;
   const card = game.state.draggedCard.card;
 
-  // 🔥 NEW: Use unified system - NO MORE MANUAL SPLICING!
+  // 🔥 CRITICAL: Make sure we have the actual card object
+  if (!card || !card.id) {
+    console.error('❌ INVALID CARD IN DRAG STATE');
+    game.state.draggedCard = null;
+    ui.render();
+    return;
+  }
+
+  // 🔥 Use unified system with card reference
   const success = window.moveCardToCombo(sourceType, sourceIndex, slot, card);
 
   if (success) {
