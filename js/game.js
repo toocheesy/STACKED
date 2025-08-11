@@ -333,64 +333,49 @@ setStartingPlayer() {
 
   // Check if game should end (uses current mode)
   checkGameEnd() {
-    if (this.currentMode.checkEndCondition) {
-      return this.currentMode.checkEndCondition(this);
+    // 🔍 DETECTIVE MODE: Log who called this and when
+    const stack = new Error().stack;
+    const caller = stack.split('\n')[2]?.trim() || 'unknown';
+    const timestamp = new Date().toLocaleTimeString();
+    
+    console.log('🔍 ========== checkGameEnd() CALLED ==========');
+    console.log('⏰ Time:', timestamp);
+    console.log('📞 Called by:', caller);
+    console.log('🎮 Current Player:', this.state.currentPlayer);
+    console.log('👤 Hands:', this.state.hands.map((hand, i) => `Player ${i}: ${hand.length} cards`));
+    console.log('🃏 Board:', this.state.board.length, 'cards');
+    console.log('📚 Deck:', this.state.deck.length, 'cards');
+    console.log('🏆 Scores:', this.state.scores);
+    console.log('🎯 Target Score:', this.currentMode.getTargetScore());
+    
+    // 🧠 EXISTING LOGIC (don't change this part)
+    const maxScore = Math.max(...this.state.scores);
+    const targetScore = this.currentMode.getTargetScore();
+    
+    // Check if someone reached target score
+    if (maxScore >= targetScore) {
+        console.log('🏆 GAME END REASON: Target score reached!', maxScore, '>=', targetScore);
+        this.handleGameEnd();
+        return;
     }
     
-    // Default end condition
-    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
-      
-      // 🚨 CRITICAL: Check if deck is empty FIRST
-      if (this.state.deck.length === 0) {
-        console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
-        
-        // Apply "Last Combo Takes All" rule
-        let jackpotMessage = null;
-        if (this.state.lastCapturer !== null && this.state.board.length > 0) {
-          const bonusPoints = this.calculateScore(this.state.board);
-          this.addScore(this.state.lastCapturer, bonusPoints);
-          this.addOverallScore(this.state.lastCapturer, bonusPoints);
-          
-          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-          const lastCapturerName = playerNames[this.state.lastCapturer];
-          
-          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
-          console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
-          
-          // Clear the board after jackpot
-          this.state.board = [];
-        }
-        
-        // Check if anyone reached target score
-        const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
-        if (maxScore >= this.state.settings.targetScore) {
-          return { 
-            gameOver: true, 
-            reason: 'target_score_reached',
-            message: jackpotMessage 
-          };
+    // Check if all hands are empty (need new deal)
+    const allHandsEmpty = this.state.hands.every(hand => hand.length === 0);
+    if (allHandsEmpty) {
+        console.log('📋 ROUND END REASON: All hands empty');
+        if (this.state.deck.length >= 12) {
+            console.log('🔄 ACTION: Deal new round (deck has', this.state.deck.length, 'cards)');
+            this.dealNewRound();
         } else {
-          return { 
-            gameOver: true, 
-            reason: 'deck_empty',
-            message: jackpotMessage 
-          };
+            console.log('🏁 GAME END REASON: Deck too small for new round');
+            this.handleGameEnd();
         }
-      } else {
-        // Deck has cards, deal new round
-        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
-        return { 
-          continueRound: true, 
-          reason: 'new_round' 
-        };
-      }
+        return;
     }
     
-    return { continue: true };
-  }
+    console.log('✅ RESULT: Game continues');
+    console.log('🔍 ==========================================');
+}
 
   // Get ranked players
   getRankedPlayers() {
