@@ -75,7 +75,7 @@ const ClassicMode = {
     }
     
     return { continue: true };
-  }
+  }, // 🔥 FIX: THIS COMMA WAS MISSING!
 
   // 🔥 CLEANED: Jackpot logic - Cards just disappear!
   applyLastComboTakesAll(gameEngine) {
