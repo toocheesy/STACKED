@@ -743,12 +743,28 @@ hideModal() {
   // Helper methods
   // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
   isCardInPlayArea(index, source, playerIndex = null) {
-    return Object.values(this.game.state.combination).some(area => 
-      area.some(entry => {
-        // Basic source and index match
-        if (entry.source !== source || entry.index !== index) {
-          return false;
-        }
+  // 🔥 FIX: Get the actual card at this position to check by ID
+  let cardToCheck = null;
+  
+  if (source === 'hand' && playerIndex !== undefined) {
+    cardToCheck = this.game.state.hands[playerIndex] && this.game.state.hands[playerIndex][index];
+  } else if (source === 'hand') {
+    cardToCheck = this.game.state.hands[0] && this.game.state.hands[0][index];
+  } else if (source === 'board') {
+    cardToCheck = this.game.state.board[index];
+  }
+  
+  // If no card at this position, it's not in play area
+  if (!cardToCheck) return false;
+  
+  // 🔥 NEW: Check if THIS SPECIFIC CARD (by ID) is in any combo area
+  return Object.values(this.game.state.combination).some(area => 
+    area.some(entry => {
+      // Check if this exact card (by ID) is in the combo area
+      return entry.card && entry.card.id === cardToCheck.id;
+    })
+  );
+}
         
         // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
         if (source === 'hand') {
