@@ -1619,8 +1619,30 @@ function handleDropOriginal(e, source, index) {
   
   if (!game.state.draggedCard) return;
 
+  // 🔥 FIX: RESTORE CARD WHEN DRAGGED FROM COMBO BACK TO ORIGINAL POSITION
   if (game.state.draggedCard.slot !== undefined) {
     const originalSlot = game.state.draggedCard.slot;
+    const comboEntry = game.state.combination[originalSlot][game.state.draggedCard.comboIndex];
+    
+    if (comboEntry) {
+      // 🔥 RESTORE THE CARD TO ITS ORIGINAL LOCATION
+      if (comboEntry.source === 'hand') {
+        // Find empty slot in hand or append
+        const playerIndex = comboEntry.playerSource || 0;
+        if (!game.state.hands[playerIndex].includes(comboEntry.card)) {
+          game.state.hands[playerIndex].push(comboEntry.card);
+          console.log(`✅ RESTORED: ${comboEntry.card.value}${comboEntry.card.suit} to hand`);
+        }
+      } else if (comboEntry.source === 'board') {
+        // Restore to board if not already there
+        if (!game.state.board.some(c => c.id === comboEntry.card.id)) {
+          game.state.board.push(comboEntry.card);
+          console.log(`✅ RESTORED: ${comboEntry.card.value}${comboEntry.card.suit} to board`);
+        }
+      }
+    }
+    
+    // NOW remove from combo area
     game.state.combination[originalSlot] = game.state.combination[originalSlot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
     game.state.draggedCard = null;
     ui.render();

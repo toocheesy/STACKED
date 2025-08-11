@@ -321,6 +321,42 @@ if (totalCards === 0) {
   console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
 }
 
+// 🏆 UNIFIED JACKPOT SYSTEM - Single source of truth
+  applyJackpot() {
+    if (this.state.lastCapturer === null || this.state.board.length === 0) {
+      console.log('🏆 NO JACKPOT: No last capturer or empty board');
+      return null;
+    }
+    
+    const boardCards = this.state.board;
+    const cardsCount = boardCards.length;
+    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+    const winner = this.state.lastCapturer;
+    const winnerName = playerNames[winner];
+    
+    // Calculate points using current mode's scoring
+    const points = this.calculateScore(boardCards);
+    
+    // Apply jackpot points to BOTH round and overall scores
+    this.addScore(winner, points);
+    this.addOverallScore(winner, points);
+    
+    // Clear the board (cards "disappear" - jackpot collected)
+    this.state.board = [];
+    
+    const jackpotData = {
+      hasJackpot: true,
+      winner: winner,
+      winnerName: winnerName,
+      points: points,
+      cardsCount: cardsCount,
+      message: `🏆 ${winnerName} sweeps ${cardsCount} remaining cards! +${points} pts`
+    };
+    
+    console.log(`🏆 JACKPOT APPLIED: ${winnerName} gets ${points} points from ${cardsCount} cards`);
+    return jackpotData;
+  }
+
   // 🔥 NEW: Set starting player based on current dealer
 setStartingPlayer() {
   // Starting player is to the left of dealer (next clockwise)

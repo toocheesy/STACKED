@@ -217,27 +217,16 @@ class GameStateManager {
   }
 
   // 🏆 APPLY JACKPOT LOGIC
+  // 🏆 APPLY JACKPOT LOGIC - Use GameEngine's unified system
   applyJackpot(snapshot, gameEngine) {
     this.log('🏆 APPLYING JACKPOT LOGIC...');
     
-    if (snapshot.lastCapturer !== null && snapshot.boardSize > 0) {
-      // Calculate jackpot points
-      const jackpotPoints = this.calculateJackpotPoints(snapshot.gameEngine.state.board);
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const winnerName = playerNames[snapshot.lastCapturer];
-      
-      const jackpotMessage = `🏆 ${winnerName} sweeps ${snapshot.boardSize} remaining cards! +${jackpotPoints} pts`;
-      
-      this.log(`🏆 JACKPOT: ${jackpotMessage}`);
-      
-      return {
-        hasJackpot: true,
-        winner: snapshot.lastCapturer,
-        winnerName: winnerName,
-        points: jackpotPoints,
-        cardsCount: snapshot.boardSize,
-        message: jackpotMessage
-      };
+    // Use GameEngine's unified jackpot system
+    const jackpotResult = gameEngine.applyJackpot();
+    
+    if (jackpotResult) {
+      this.log(`🏆 JACKPOT: ${jackpotResult.message}`);
+      return jackpotResult;
     } else {
       this.log('🏆 NO JACKPOT: No last capturer or empty board');
       return {

@@ -48,11 +48,7 @@ const ClassicMode = {
     
     if (playersWithCards === 0) {
       if (gameEngine.state.deck.length === 0) {
-        // 🔥 CLEANED: Apply jackpot and let cards disappear
-        const jackpotResult = this.applyLastComboTakesAll(gameEngine);
-        const jackpotMessage = jackpotResult ? jackpotResult.message : null;
-        
-        console.log(`🔥 JACKPOT MESSAGE: "${jackpotMessage}"`);
+        // 🔥 DON'T apply jackpot here - GameStateManager will handle it
         
         const maxScore = Math.max(
           gameEngine.state.scores.player, 
@@ -64,15 +60,13 @@ const ClassicMode = {
           return { 
             gameOver: true, 
             winner: this.getWinner(gameEngine),
-            reason: 'target_score_reached',
-            message: jackpotMessage
+            reason: 'target_score_reached'
           };
         } else {
           return { 
             roundOver: true, 
             gameOver: false,
-            reason: 'round_complete',
-            message: jackpotMessage
+            reason: 'round_complete'
           };
         }
       } else {
@@ -81,7 +75,7 @@ const ClassicMode = {
     }
     
     return { continue: true };
-  },
+  }
 
   // 🔥 CLEANED: Jackpot logic - Cards just disappear!
   applyLastComboTakesAll(gameEngine) {
