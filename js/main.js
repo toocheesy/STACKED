@@ -1434,25 +1434,29 @@ async function aiTurn() {
           }
         }
       } else if (result.action === 'place') {
-        // Bot placed card, switch to next player
-        console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
-        
-        // Update current player BEFORE calling checkGameEnd
-        game.nextPlayer();
-        ui.render();
-        
-        console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
-        
-        // Handle next player logic
+    // Bot placed card, switch to next player
+    console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
+    
+    // Update current player BEFORE calling checkGameEnd
+    game.nextPlayer();
+    ui.render();
+    
+    console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
+    
+    // 🔥 FIX: CHECK GAME STATE AFTER BOT PLACES!
+    checkGameEnd();
+    
+    // Only schedule next turn if game didn't end
+    if (!window.gameIsPaused) {
         if (game.state.currentPlayer !== 0) {
-          console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
-          setTimeout(() => scheduleNextBotTurn(), 1000);
+            console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
+            setTimeout(() => scheduleNextBotTurn(), 1000);
         } else {
-          console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
-          // Send turn start event for human
-          window.messageController.handleGameEvent('TURN_START');
+            console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
+            window.messageController.handleGameEvent('TURN_START');
         }
-      }
+    }
+}
     } else {
       console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
       // Fallback: place first card

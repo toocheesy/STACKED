@@ -173,22 +173,13 @@ findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
   let playerOrder;
   
   if (skipCurrentPlayer) {
-    // 🔥 FIX: Actually SKIP the current player when told to!
+    // 🔥 FIX: Actually skip current player
     this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}`);
-    
-    // Check OTHER players in clockwise order
     playerOrder = [
-      (snapshot.currentPlayer + 1) % 3,  // Next player
-      (snapshot.currentPlayer + 2) % 3   // Player after that
+        (snapshot.currentPlayer + 1) % 3,  // Next player
+        (snapshot.currentPlayer + 2) % 3   // Player after that
     ];
-  } else {
-    // Original logic: Check players in dealer order starting with starting player
-    playerOrder = [
-      snapshot.startingPlayer,
-      (snapshot.startingPlayer + 1) % 3,
-      (snapshot.startingPlayer + 2) % 3
-    ];
-  }
+}
   
   for (const playerIndex of playerOrder) {
     const cardCount = snapshot.handSizes[playerIndex];
