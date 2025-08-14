@@ -167,45 +167,42 @@ class GameStateManager {
   }
 
   // 🔍 FIND NEXT PLAYER WITH CARDS (DEALER ORDER)
-  findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
-    this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
-    
-    let playerOrder;
-    
-    if (skipCurrentPlayer) {
-  // 🔥 FIXED: After place action, check if current player has cards, then others
-  this.log(`🔄 CHECKING PLAYERS STARTING WITH CURRENT PLAYER`);
+findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
+  this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
   
-  // Check current player first (who just received turn), then others clockwise
-  playerOrder = [
-    snapshot.currentPlayer,
-    (snapshot.currentPlayer + 1) % 3,
-    (snapshot.currentPlayer + 2) % 3
-  ];
-} 
+  let playerOrder;
+  
+  if (skipCurrentPlayer) {
+    // 🔥 FIX: Actually SKIP the current player when told to!
+    this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}`);
     
-    else {
-      // Original logic: Check players in dealer order starting with starting player
-      playerOrder = [
-        snapshot.startingPlayer,
-        (snapshot.startingPlayer + 1) % 3,
-        (snapshot.startingPlayer + 2) % 3
-      ];
-    }
-    
-    for (const playerIndex of playerOrder) {
-      const cardCount = snapshot.handSizes[playerIndex];
-      this.log(`   Player ${playerIndex}: ${cardCount} cards`);
-      
-      if (cardCount > 0) {
-        this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
-        return playerIndex;
-      }
-    }
-    
-    this.log('❌ NO PLAYERS HAVE CARDS');
-    return null;
+    // Check OTHER players in clockwise order
+    playerOrder = [
+      (snapshot.currentPlayer + 1) % 3,  // Next player
+      (snapshot.currentPlayer + 2) % 3   // Player after that
+    ];
+  } else {
+    // Original logic: Check players in dealer order starting with starting player
+    playerOrder = [
+      snapshot.startingPlayer,
+      (snapshot.startingPlayer + 1) % 3,
+      (snapshot.startingPlayer + 2) % 3
+    ];
   }
+  
+  for (const playerIndex of playerOrder) {
+    const cardCount = snapshot.handSizes[playerIndex];
+    this.log(`   Player ${playerIndex}: ${cardCount} cards`);
+    
+    if (cardCount > 0) {
+      this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
+      return playerIndex;
+    }
+  }
+  
+  this.log('❌ NO PLAYERS HAVE CARDS');
+  return null;
+}
 
   // 🎴 CHECK IF NEW HAND CAN BE DEALT
   canDealNewHand(snapshot) {
