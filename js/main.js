@@ -300,6 +300,7 @@ let modeSelector = null;
 
 // 🎯 CENTRALIZED BOT TURN MANAGEMENT
 let botTurnInProgress = false;
+let pendingBotTimeout = null;  // 🔥 ADD THIS LINE!
 
 /* 
  * 🔍 CLEAN DEBUG LOGGING SYSTEM
@@ -1332,6 +1333,12 @@ function checkGameEnd() {
 
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT (FIXED SYNTAX)
 async function aiTurn() {
+  // 🔥 SAFETY GUARD: Don't run during modals!
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
+    console.log('🚨 BOT TURN BLOCKED: Modal is active');
+    return;
+  }
+  
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
@@ -1485,6 +1492,12 @@ async function aiTurn() {
 }
 
 async function scheduleNextBotTurn() {
+  // 🔥 Clear any existing timeout
+  if (pendingBotTimeout) {
+    clearTimeout(pendingBotTimeout);
+    pendingBotTimeout = null;
+  }
+  
   // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
@@ -1497,16 +1510,23 @@ async function scheduleNextBotTurn() {
     return;
   }
   
+  // 🛡️ SAFETY GUARD: Don't schedule during modals
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
+    console.log('🚨 BOT TURN BLOCKED: Modal is active');
+    return;
+  }
+  
   // 🔥 FIXED: Let GameStateManager handle "no cards" scenarios
-if (!game.state.hands[game.state.currentPlayer] || 
-  game.state.hands[game.state.currentPlayer].length === 0) {
-console.log(`🚨 BOT ${game.state.currentPlayer}: No cards left - skipping turn`);
-return; // Just return, let GameStateManager handle it
-}
+  if (!game.state.hands[game.state.currentPlayer] || 
+      game.state.hands[game.state.currentPlayer].length === 0) {
+    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards left - skipping turn`);
+    return; // Just return, let GameStateManager handle it
+  }
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
   
-  setTimeout(async () => {
+  pendingBotTimeout = setTimeout(async () => {
+    pendingBotTimeout = null;
     console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
     await aiTurn();
   }, 1000);
@@ -1777,25 +1797,25 @@ window.messageController.handleGameEvent('NEW_HAND', {
 function handleEndRound(result) {
   console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
   
-  // PHASE 1: Apply jackpot and show modal - NO SETUP
-  if (result.data.jackpot.hasJackpot) {
-    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
-    
-    // Apply jackpot to game engine scores
-    const jackpot = result.data.jackpot;
-    game.addScore(jackpot.winner, jackpot.points);
-    game.addOverallScore(jackpot.winner, jackpot.points);
-    
-    // Clear the board after jackpot
-    game.state.board = [];
+  // 🔥 CLEAR ANY PENDING BOT TURNS!
+  botTurnInProgress = false;
+  if (pendingBotTimeout) {
+    clearTimeout(pendingBotTimeout);
+    pendingBotTimeout = null;
   }
+  
+  // 🔥 DON'T APPLY JACKPOT HERE - GameStateManager already did it!
+  // The jackpot points are already in result.data
+  
+  // Clear the board (jackpot cards were taken)
+  game.state.board = [];
   
   // Notify current mode of round end
   if (game.currentMode.onRoundEnd) {
     game.currentMode.onRoundEnd(game);
   }
   
-  // 🔥 NEW: Use centralized modal system and STOP
+  // Show modal with the data (including jackpot info)
   ui.showModal('round_end', result.data);
   
   // NO deck creation, NO dealing, NO bot scheduling!
