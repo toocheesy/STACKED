@@ -979,6 +979,10 @@ function initGame() {
   
   initGameSystems();
   
+  // 🎪 Initialize modal manager
+  window.modalManager = new ModalManager(game, ui);
+  window.modalManager.ensureModalStyling();
+  
   // Read homepage selections
   const storedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
   const storedMode = localStorage.getItem('selectedMode');
@@ -1795,28 +1799,10 @@ window.messageController.handleGameEvent('NEW_HAND', {
 
 // 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
 function handleEndRound(result) {
-  console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
-  
-  // 🔥 CLEAR ANY PENDING BOT TURNS!
-  botTurnInProgress = false;
-  if (pendingBotTimeout) {
-    clearTimeout(pendingBotTimeout);
-    pendingBotTimeout = null;
-  }
-  
-  // 🔥 DON'T APPLY JACKPOT HERE - GameStateManager already did it!
-  // The jackpot points are already in result.data
-  
-  // Clear the board (jackpot cards were taken)
-  game.state.board = [];
-  
-  // Notify current mode of round end
-  if (game.currentMode.onRoundEnd) {
-    game.currentMode.onRoundEnd(game);
-  }
+  console.log(`âœ… END ROUND: Moving to round ${result.data.newRound}`);
   
   // Show modal with the data (including jackpot info)
-  ui.showModal('round_end', result.data);
+  window.modalManager.show('round_end', result.data);
   
   // NO deck creation, NO dealing, NO bot scheduling!
 }
@@ -1860,40 +1846,21 @@ function resumeNextRound(roundData) {
 
 // 🏆 END GAME - Show game over modal
 function handleEndGame(result) {
-  console.log(`✅ END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
+  console.log(`âœ… END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
   
-  // Apply jackpot to game scores if it exists
-  if (result.data.jackpot.hasJackpot) {
-    console.log(`🏆 FINAL JACKPOT: ${result.data.jackpot.message}`);
-    
-    // Apply jackpot to game engine scores
-    const jackpot = result.data.jackpot;
-    game.addScore(jackpot.winner, jackpot.points);
-    game.addOverallScore(jackpot.winner, jackpot.points);
-    
-    // Clear the board after jackpot
-    game.state.board = [];
-  }
-  
-  // Notify current mode of game end
-  if (game.currentMode.onGameEnd) {
-    game.currentMode.onGameEnd(game);
-  }
-  
-  // 🔥 NEW: Use centralized modal system
-  ui.showModal('game_over', result.data);
+  // ðŸ"¥ NEW: Use centralized modal system
+  window.modalManager.show('game_over', result.data);
   
   // Update UI one final time
   ui.render();
 }
 
-// 🚨 HANDLE GAME STATE ERROR
 function handleGameStateError(result) {
-  console.error(`🚨 GAME STATE ERROR: ${result.data.message}`);
-  console.error(`🔍 TECHNICAL DETAILS:`, result.data.technicalDetails);
+  console.error(`ðŸš¨ GAME STATE ERROR: ${result.data.message}`);
+  console.error(`ðŸ" TECHNICAL DETAILS:`, result.data.technicalDetails);
   
-  // 🔥 NEW: Use centralized modal system
-  ui.showModal('error', result.data);
+  // ðŸ"¥ NEW: Use centralized modal system
+  window.modalManager.show('error', result.data);
   
   // Also send error to message controller
   window.messageController.handleGameEvent('CAPTURE_ERROR', {
@@ -1906,47 +1873,6 @@ window.resumeNextRound = resumeNextRound;
 
 // Initialize the game
 initGame();
-
-// 🔥 OVERRIDE OLD MODAL FUNCTIONS TO USE NEW CENTRALIZED SYSTEM
-function showRoundEndModal(data) {
-  console.log('🔄 REDIRECTING OLD ROUND END MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    newRound: data.newRound || game.currentRound,
-    oldDealer: game.currentDealer === 0 ? 2 : game.currentDealer - 1,
-    newDealer: game.currentDealer
-  };
-  
-  ui.showModal('round_end', modalData);
-}
-
-function showGameOverModal(data) {
-  console.log('🔄 REDIRECTING OLD GAME OVER MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed  
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    winner: data.winner || 0,
-    winnerName: data.winner || 'Player',
-    winnerScore: data.winnerScore || 0
-  };
-  
-  ui.showModal('game_over', modalData);
-}
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;
