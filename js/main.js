@@ -648,10 +648,33 @@ class UnifiedCardMovement {
     // Set last capturer for jackpot
     this.game.state.lastCapturer = currentPlayer;
 
-    // Clear combo areas (cards are "captured" - removed from game)
-    ['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-      this.game.state.combination[slot] = [];
-    });
+    // 🔥 CRITICAL FIX: Remove cards from source locations BEFORE clearing combo
+['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
+  this.game.state.combination[slot].forEach(entry => {
+    // Remove from hands
+    if (entry.source === 'hand') {
+      const playerIndex = entry.playerSource || this.game.state.currentPlayer;
+      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === entry.card.id);
+      if (cardIndex !== -1) {
+        this.game.state.hands[playerIndex].splice(cardIndex, 1);
+        console.log(`🔥 REMOVED: ${entry.card.value}${entry.card.suit} from player ${playerIndex} hand`);
+      }
+    }
+    // Remove from board
+    else if (entry.source === 'board') {
+      const cardIndex = this.game.state.board.findIndex(c => c.id === entry.card.id);
+      if (cardIndex !== -1) {
+        this.game.state.board.splice(cardIndex, 1);
+        console.log(`🔥 REMOVED: ${entry.card.value}${entry.card.suit} from board`);
+      }
+    }
+  });
+});
+
+// Clear combo areas (cards are "captured" - removed from game)
+['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
+  this.game.state.combination[slot] = [];
+});
 
     // Clear position tracking
     this.cardPositions.clear();
