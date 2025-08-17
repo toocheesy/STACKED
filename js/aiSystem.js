@@ -516,7 +516,7 @@ class BotActionExecutor {
         }
       }
       
-      // STEP 4: Submit capture
+      // STEP 4: Submit capture using unified system
       const baseCount = this.game.state.combination.base.length;
       const captureCount = this.game.state.combination.sum1.length + 
                           this.game.state.combination.sum2.length + 
@@ -526,9 +526,20 @@ class BotActionExecutor {
       console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
       
       if (baseCount === 1 && captureCount > 0) {
-        const submitResult = await this.botSubmitCapture();
-        this.isAnimating = false;
-        return submitResult;
+        // 🔥 USE UNIFIED CAPTURE DIRECTLY
+        console.log(`🤖 BOT: Using unified capture system`);
+        const captureResult = window.executeUnifiedCapture();
+        
+        if (captureResult) {
+          console.log(`✅ BOT UNIFIED CAPTURE: ${captureResult.cards.length} cards, ${captureResult.points} points`);
+          this.game.state.lastAction = 'capture';
+          this.isAnimating = false;
+          return { success: true, action: 'capture', points: captureResult.points };
+        } else {
+          console.log(`🚨 BOT: Unified capture failed`);
+          this.isAnimating = false;
+          return { success: false, reason: 'Unified capture failed' };
+        }
       } else {
         console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
         this.isAnimating = false;
@@ -539,22 +550,6 @@ class BotActionExecutor {
       console.error('🚨 Bot capture error:', error);
       this.isAnimating = false;
       return { success: false, reason: error.message };
-    }
-  }
-  
-  // 🎯 SUBMIT CAPTURE
-  async botSubmitCapture() {
-    console.log(`🤖 BOT: Attempting to submit capture`);
-    await this.delay(300);
-
-    const success = this.executeBotSubmit();
-    
-    if (success) {
-      console.log(`🤖 BOT: Capture successful!`);
-      return { success: true, action: 'capture' };
-    } else {
-      console.log(`🤖 BOT: Capture failed`);
-      return { success: false, reason: 'Submit validation failed' };
     }
   }
   
@@ -603,26 +598,23 @@ class BotActionExecutor {
 
     console.log(`🎯 BOT MULTI-CAPTURE: ${validCaptures.length} areas, ${allCapturedCards.length} cards`);
 
-    // Use GameEngine's executeCapture() for proper card removal
-    this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
+    // 🔥 USE UNIFIED CAPTURE SYSTEM
+const captureResult = window.executeUnifiedCapture();
+if (!captureResult) {
+  console.log('🚨 BOT UNIFIED CAPTURE FAILED');
+  return false;
+}
 
-    // Track bot last action
-    this.game.state.lastAction = 'capture';
-    console.log('🎯 BOT LAST ACTION SET TO: capture');
+console.log(`✅ BOT UNIFIED CAPTURE: ${captureResult.cards.length} cards, ${captureResult.points} points`);
 
-    // Notify mode of capture
-    if (this.game.currentMode.onCapture) {
-      this.game.currentMode.onCapture(this.game, allCapturedCards);
-    }
+// 🔥 UNIFIED SYSTEM HANDLES: card removal, scoring, UI updates
+// Bot action tracking only
+this.game.state.lastAction = 'capture';
+console.log('🎯 BOT LAST ACTION SET TO: capture');
 
-    // Reset combination state
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-    
-    this.ui.render();
-    if (window.playSound) window.playSound('capture');
-    return true;
-  }
-  
+return true; // Validation and execution successful
+}  // ← ADD THIS CLOSING BRACE!
+
   // 🔄 RESET MODAL
   async botResetModal() {
     console.log(`🤖 BOT: Resetting modal - RESTORING cards to original locations`);
