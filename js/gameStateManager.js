@@ -173,13 +173,20 @@ findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
   let playerOrder;
   
   if (skipCurrentPlayer) {
-    // 🔥 FIX: Actually skip current player
+    // Skip current player and check next players in order
     this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}`);
     playerOrder = [
         (snapshot.currentPlayer + 1) % 3,  // Next player
         (snapshot.currentPlayer + 2) % 3   // Player after that
     ];
-}
+  } else {
+    // Check all players starting from current
+    playerOrder = [
+        snapshot.currentPlayer,
+        (snapshot.currentPlayer + 1) % 3,
+        (snapshot.currentPlayer + 2) % 3
+    ];
+  }
   
   for (const playerIndex of playerOrder) {
     const cardCount = snapshot.handSizes[playerIndex];
@@ -189,6 +196,12 @@ findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
       this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
       return playerIndex;
     }
+  }
+  
+  // Safety check: If skipping current player, also check them as last resort
+  if (skipCurrentPlayer && snapshot.handSizes[snapshot.currentPlayer] > 0) {
+    this.log(`🔄 SAFETY CHECK: Current player ${snapshot.currentPlayer} still has ${snapshot.handSizes[snapshot.currentPlayer]} cards`);
+    return snapshot.currentPlayer;
   }
   
   this.log('❌ NO PLAYERS HAVE CARDS');
@@ -204,7 +217,6 @@ findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
     return canDeal;
   }
 
-  // 🏆 APPLY JACKPOT LOGIC
   // 🏆 APPLY JACKPOT LOGIC - Use GameEngine's unified system
   applyJackpot(snapshot, gameEngine) {
     this.log('🏆 APPLYING JACKPOT LOGIC...');
