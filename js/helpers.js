@@ -21,10 +21,20 @@ function createDeck() {
 
 function shuffleDeck(deck) {
   const shuffled = [...deck];
+  
+  // 🎴 DOUBLE SHUFFLE for proper randomness
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+  
+  // Second shuffle pass
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  
+  console.log('🎴 DECK SHUFFLED:', shuffled.slice(0, 5).map(c => c.value + c.suit));
   return shuffled;
 }
 

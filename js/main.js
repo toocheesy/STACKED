@@ -325,18 +325,28 @@ function logGameState(checkNumber, reason = '') {
   if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showGameState) return;
   
   const state = game.getState();
+  
+  // 🔍 COUNT ALL CARD LOCATIONS
   const handCounts = state.hands.map(hand => hand ? hand.length : 0);
-  const totalCards = handCounts.reduce((sum, count) => sum + count, 0);
+  const handsTotal = handCounts.reduce((sum, count) => sum + count, 0);
   const boardCount = state.board ? state.board.length : 0;
   const deckCount = state.deck ? state.deck.length : 0;
-  const totalGameCards = totalCards + boardCount + deckCount;
+  
+  // 🔥 FIX: Count combo cards too!
+  const comboCount = Object.values(state.combination).reduce((total, area) => {
+    return total + (area ? area.length : 0);
+  }, 0);
+  
+  // 🎯 TOTAL CARD COUNT
+  const totalGameCards = handsTotal + boardCount + deckCount + comboCount;
   
   console.log(`
 🎮 GAME STATE CHECK #${checkNumber} ${reason ? `(${reason})` : ''}
 ┌─ CARDS ────────────────────────────────────────────────────────
-│  Hands: [${handCounts.join(', ')}] = ${totalCards} total
+│  Hands: [${handCounts.join(', ')}] = ${handsTotal} total
 │  Board: ${boardCount} cards
-│  Deck:  ${deckCount} cards  
+│  Deck:  ${deckCount} cards
+│  Combo: ${comboCount} cards  🔥 NEW!
 │  TOTAL: ${totalGameCards}/52 cards ${totalGameCards !== 52 ? '⚠️ MISMATCH!' : '✅'}
 ├─ PLAYERS ─────────────────────────────────────────────────────
 │  Current: Player ${state.currentPlayer} (${['Human', 'Bot 1', 'Bot 2'][state.currentPlayer]})
@@ -347,6 +357,26 @@ function logGameState(checkNumber, reason = '') {
 │  Player: ${state.scores.player}  |  Bot 1: ${state.scores.bot1}  |  Bot 2: ${state.scores.bot2}
 │  Round: ${game.currentRound}  |  Target: ${state.settings.targetScore}
 └────────────────────────────────────────────────────────────────`);
+
+  // 🚨 DETAILED BREAKDOWN IF MISMATCH
+  if (totalGameCards !== 52) {
+    console.error(`🚨 CARD MISMATCH BREAKDOWN:`);
+    console.error(`   Expected: 52 cards total`);
+    console.error(`   Found: ${totalGameCards} cards`);
+    console.error(`   Missing: ${52 - totalGameCards} cards`);
+    
+    // 🔍 DETAILED COMBO BREAKDOWN
+    if (comboCount > 0) {
+      const comboBreakdown = {
+        base: state.combination.base?.length || 0,
+        sum1: state.combination.sum1?.length || 0,
+        sum2: state.combination.sum2?.length || 0,
+        sum3: state.combination.sum3?.length || 0,
+        match: state.combination.match?.length || 0
+      };
+      console.error(`   Combo Details: Base:${comboBreakdown.base}, Sum1:${comboBreakdown.sum1}, Sum2:${comboBreakdown.sum2}, Sum3:${comboBreakdown.sum3}, Match:${comboBreakdown.match}`);
+    }
+  }
 }
 
 // 🤖 BOT TURN TRACKER

@@ -231,6 +231,9 @@ console.log(`🎮 ${gameMode.name} initialized successfully`);
     this.state.lastCapturer = currentPlayer;
 
     console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
+    
+    // 🔥 VALIDATE CARD COUNT AFTER CAPTURE
+    this.validateCardCount();
   }
 
   // Calculate score using current mode
@@ -396,6 +399,27 @@ setStartingPlayer() {
   // Reset combination area
   resetCombination() {
     this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  }
+
+  // 🔥 NEW: Card count validation
+  validateCardCount() {
+    const handCounts = this.state.hands.map(hand => hand ? hand.length : 0);
+    const handsTotal = handCounts.reduce((sum, count) => sum + count, 0);
+    const boardCount = this.state.board ? this.state.board.length : 0;
+    const deckCount = this.state.deck ? this.state.deck.length : 0;
+    const comboCount = Object.values(this.state.combination).reduce((total, area) => {
+      return total + (area ? area.length : 0);
+    }, 0);
+    
+    const totalCards = handsTotal + boardCount + deckCount + comboCount;
+    
+    if (totalCards !== 52) {
+      console.error(`🚨 CARD VALIDATION FAILED: ${totalCards}/52 (Missing: ${52 - totalCards})`);
+      console.error(`   Hands: ${handsTotal}, Board: ${boardCount}, Deck: ${deckCount}, Combo: ${comboCount}`);
+      return false;
+    }
+    
+    return true;
   }
 }
 
