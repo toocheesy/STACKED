@@ -331,21 +331,187 @@ function createJackpotAnnouncement(jackpotInfo) {
   `;
 }
 
-function dealNewRound() {
-  // 🔥 NEW: Check for trapped cards before new round
-  const combination = game.state.combination;
-  let trappedCards = 0;
-  
-  Object.keys(combination).forEach(area => {
-    if (combination[area] && Array.isArray(combination[area])) {
-      trappedCards += combination[area].length;
-    }
-  });
-  
-  if (trappedCards > 0) {
-    console.warn(`⚠️ ROUND TRANSITION: ${trappedCards} cards trapped in combination areas!`);
-  }
+// 🏆 ENHANCED ROUND END MODAL - Now with jackpot celebration
+function showRoundEndModal(endResult) {
+  const modal = document.getElementById('scoreboard-modal');
+  if (!modal) return;
 
+  console.log(`🏆 SHOWING ROUND END MODAL WITH RESULT:`, endResult);
+
+  // 🏆 PARSE JACKPOT INFORMATION
+  const jackpotInfo = parseJackpotMessage(endResult.message);
+  const rankedPlayers = rankPlayers(game);
+
+  // 🎯 SEND ROUND END EVENT TO MESSAGE CONTROLLER
+  window.messageController.handleGameEvent('ROUND_END', {
+    message: endResult.message,
+    roundNumber: game.currentRound
+  });
+
+  const jackpotEl = document.getElementById('jackpot-message');
+  const titleEl = document.getElementById('scoreboard-title');
+  const listEl = document.getElementById('scoreboard-list');
+  const buttonsEl = document.getElementById('scoreboard-buttons');
+  const confettiEl = document.getElementById('confetti-container');
+
+  if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
+    // 🏆 DISPLAY EPIC JACKPOT ANNOUNCEMENT
+    if (jackpotInfo) {
+      jackpotEl.innerHTML = createJackpotAnnouncement(jackpotInfo);
+      jackpotEl.classList.add('visible', 'jackpot-celebration');
+      console.log(`🎉 JACKPOT ANNOUNCEMENT CREATED FOR: ${jackpotInfo.winner}`);
+    } else {
+      jackpotEl.innerHTML = endResult.message ? `<div class="round-message">${endResult.message}</div>` : '';
+      jackpotEl.classList.toggle('visible', !!endResult.message);
+      jackpotEl.classList.remove('jackpot-celebration');
+    }
+
+    // Show the COMPLETED round number (current round = actual completed round)
+const completedRound = game.currentRound;
+titleEl.textContent = `Round ${completedRound} Complete!`;
+
+    // 🎯 EPIC SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
+    listEl.innerHTML = rankedPlayers.map((player, index) => {
+      const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
+      const scoreBreakdown = createScoreBreakdown(player, jackpotInfo);
+      
+      return `
+        <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner' : ''}">
+          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || `#${index + 1}`}</span>
+          <div class="player-info">
+            <span class="scoreboard-name">
+              ${player.name}
+              ${isJackpotWinner ? '<span class="jackpot-crown">👑</span>' : ''}
+            </span>
+            ${scoreBreakdown}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    buttonsEl.innerHTML = `
+      <button id="next-round-btn" class="continue-btn">Continue to Next Round</button>
+    `;
+
+    modal.showModal();
+    
+    // 🔊 EPIC JACKPOT SOUND
+    if (jackpotInfo) {
+      playSound('jackpot');
+    } else {
+      playSound('winner');
+    }
+
+    const nextRoundBtn = document.getElementById('next-round-btn');
+    if (nextRoundBtn) {
+      nextRoundBtn.addEventListener('click', () => {
+        modal.close();
+        dealNewRound();
+      });
+    }
+  }
+}
+
+// 🏆 ENHANCED GAME OVER MODAL - Ultimate jackpot celebration
+function showGameOverModal(endResult) {
+  const modal = document.getElementById('scoreboard-modal');
+  if (!modal) return;
+
+  console.log(`🏆 SHOWING GAME OVER MODAL WITH RESULT:`, endResult);
+
+  // 🏆 PARSE JACKPOT INFORMATION
+  const jackpotInfo = parseJackpotMessage(endResult.message);
+  const rankedPlayers = rankPlayers(game);
+  const winner = rankedPlayers[0];
+
+  // 🎯 SEND GAME OVER EVENT TO MESSAGE CONTROLLER
+  window.messageController.handleGameEvent('GAME_OVER', {
+    winner: winner.name,
+    message: endResult.message
+  });
+
+  const jackpotEl = document.getElementById('jackpot-message');
+  const titleEl = document.getElementById('scoreboard-title');
+  const listEl = document.getElementById('scoreboard-list');
+  const buttonsEl = document.getElementById('scoreboard-buttons');
+  const confettiEl = document.getElementById('confetti-container');
+
+  if (jackpotEl && titleEl && listEl && buttonsEl && confettiEl) {
+    // 🏆 DISPLAY EPIC JACKPOT ANNOUNCEMENT
+    if (jackpotInfo) {
+      jackpotEl.innerHTML = createJackpotAnnouncement(jackpotInfo);
+      jackpotEl.classList.add('visible', 'jackpot-celebration');
+      console.log(`🎉 FINAL JACKPOT ANNOUNCEMENT CREATED FOR: ${jackpotInfo.winner}`);
+    } else {
+      jackpotEl.innerHTML = endResult.message ? `<div class="game-end-message">${endResult.message}</div>` : '';
+      jackpotEl.classList.toggle('visible', !!endResult.message);
+      jackpotEl.classList.remove('jackpot-celebration');
+    }
+
+    // 🏆 EPIC GAME OVER TITLE
+    const gameOverTitle = jackpotInfo ? 
+      `🏆 ${winner.name} Wins with Epic Jackpot! 🏆` : 
+      `🎉 Game Over - ${winner.name} Wins! 🎉`;
+    
+    titleEl.textContent = gameOverTitle;
+    createConfetti();
+    confettiEl.classList.add('active');
+
+    // 🎯 ULTIMATE SCOREBOARD WITH JACKPOT WINNER HIGHLIGHTING
+    listEl.innerHTML = rankedPlayers.map((player, index) => {
+      const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
+      const scoreBreakdown = createScoreBreakdown(player, jackpotInfo);
+      
+      return `
+        <div class="scoreboard-item ${index === 0 ? 'leader' : ''} ${isJackpotWinner ? 'jackpot-winner ultimate-winner' : ''}">
+          <span class="scoreboard-rank">${['🥇', '🥈', '🥉'][index] || `#${index + 1}`}</span>
+          <div class="player-info">
+            <span class="scoreboard-name">
+              ${player.name}
+              ${index === 0 ? '<span class="winner-crown">👑</span>' : ''}
+              ${isJackpotWinner ? '<span class="jackpot-crown">🎰</span>' : ''}
+            </span>
+            ${scoreBreakdown}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    buttonsEl.innerHTML = `
+      <button id="new-game-btn" class="new-game-btn">Start New Game</button>
+      <button id="home-btn" class="home-btn">Return to Homepage</button>
+    `;
+
+    modal.showModal();
+    
+    // 🔊 EPIC VICTORY SOUND
+    if (jackpotInfo) {
+      playSound('jackpot');
+      setTimeout(() => playSound('winner'), 1000); // Double celebration!
+    } else {
+      playSound('winner');
+    }
+
+    const newGameBtn = document.getElementById('new-game-btn');
+    const homeBtn = document.getElementById('home-btn');
+    
+    if (newGameBtn) {
+      newGameBtn.addEventListener('click', () => {
+        modal.close();
+        initGame();
+      });
+    }
+    
+    if (homeBtn) {
+      homeBtn.addEventListener('click', () => {
+        modal.close();
+        window.location.href = 'index.html';
+      });
+    }
+  }
+}
+
+function dealNewRound() {
   // 🔥 FIXED: Use proper dealer rotation from game engine
   game.currentRound++;
   
@@ -357,15 +523,6 @@ function dealNewRound() {
     game.state.deck = dealResult.remainingDeck;
     // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
     game.state.lastCapturer = null;
-    
-    // 🔥 NEW: Verify new round has exactly 52 cards
-    const newTotal = game.state.hands.flat().length + 
-                     game.state.board.length + 
-                     game.state.deck.length;
-    
-    if (newTotal !== 52) {
-      console.warn(`⚠️ NEW ROUND CARD ERROR: ${newTotal}/52 cards dealt!`);
-    }
     
     // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('NEW_ROUND', {
@@ -391,6 +548,8 @@ function dealNewRound() {
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
 window.initSounds = initSounds;
+window.showRoundEndModal = showRoundEndModal;
+window.showGameOverModal = showGameOverModal;
 window.dealNewRound = dealNewRound;
 window.parseJackpotMessage = parseJackpotMessage;
 window.createScoreBreakdown = createScoreBreakdown;

@@ -1,29 +1,29 @@
 /* 
  * GameEngine - Core Game Logic for STACKED!
  * Handles game state, validation, and mode coordination
- * 🔥 CLEANED: Removed capturedCards tracking system
+ * Works with any game mode
  */
 
 class GameEngine {
   constructor() {
     this.state = {
-  deck: [],
-  board: [],
-  hands: [[], [], []], // Player, Bot 1, Bot 2
-  scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
-  overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
-  combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
-  currentPlayer: 0,
-  settings: {
-    cardSpeed: 'fast',
-    soundEffects: 'off',
-    targetScore: 500,
-    botDifficulty: 'intermediate'
-  },
-  draggedCard: null,
-  selectedCard: null,
-  lastCapturer: null
-};
+      deck: [],
+      board: [],
+      hands: [[], [], []], // Player, Bot 1, Bot 2
+      scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
+      overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
+      combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
+      currentPlayer: 0,
+      settings: {
+        cardSpeed: 'fast',
+        soundEffects: 'off',
+        targetScore: 500,
+        botDifficulty: 'intermediate'
+      },
+      draggedCard: null,
+      selectedCard: null,
+      lastCapturer: null
+    };
     
     this.currentMode = null;
     this.currentRound = 1;
@@ -75,7 +75,7 @@ this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 this.state.draggedCard = null;
 this.state.selectedCard = null;
 this.currentRound = 1;
-this.currentDealer = Math.floor(Math.random() * 3);;
+this.currentDealer = Math.floor(Math.random() * 3);
 
 // 🔥 FIX: Set proper starting player based on dealer
 this.setStartingPlayer();
@@ -186,61 +186,52 @@ console.log(`🎮 ${gameMode.name} initialized successfully`);
     }
   }
 
-  // 🔥 CLEANED: executeCapture() - Cards just disappear when captured (like real cards!)
-executeCapture(baseCard, validCaptures, allCapturedCards) {
-  console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
-  
-  const cardsToRemove = {
-    board: [],
-    hand: []
-  };
-  
-  // Collect base card
-  if (baseCard.source === 'board') {
-    cardsToRemove.board.push(baseCard.card.id);
-  } else if (baseCard.source === 'hand') {
-    cardsToRemove.hand.push(baseCard.card.id);
-  }
-  
-  // Collect all capture area cards
-  validCaptures.forEach(capture => {
-    capture.cards.forEach(entry => {
-      if (entry.source === 'board') {
-        cardsToRemove.board.push(entry.card.id);
-      } else if (entry.source === 'hand') {
-        cardsToRemove.hand.push(entry.card.id);
-      }
+  // Execute capture and update scores
+  executeCapture(baseCard, validCaptures, allCapturedCards) {
+    console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
+    
+    const cardsToRemove = {
+      board: [],
+      hand: []
+    };
+    
+    // Collect base card
+    if (baseCard.source === 'board') {
+      cardsToRemove.board.push(baseCard.card.id);
+    } else if (baseCard.source === 'hand') {
+      cardsToRemove.hand.push(baseCard.card.id);
+    }
+    
+    // Collect all capture area cards
+    validCaptures.forEach(capture => {
+      capture.cards.forEach(entry => {
+        if (entry.source === 'board') {
+          cardsToRemove.board.push(entry.card.id);
+        } else if (entry.source === 'hand') {
+          cardsToRemove.hand.push(entry.card.id);
+        }
+      });
     });
-  });
 
-  // Remove cards from board
-  this.state.board = this.state.board.filter(card => !cardsToRemove.board.includes(card.id));
+    // Remove cards from board
+    this.state.board = this.state.board.filter(card => !cardsToRemove.board.includes(card.id));
 
-  // Remove cards from current player's hand
-  const currentPlayer = this.state.currentPlayer;
-  if (currentPlayer === 0) {
-    this.state.hands[0] = this.state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
-  } else {
-    this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
+    // Remove cards from current player's hand
+    const currentPlayer = this.state.currentPlayer;
+    if (currentPlayer === 0) {
+      this.state.hands[0] = this.state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
+    } else {
+      this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
+    }
+
+    // Calculate and apply score
+    const points = this.calculateScore(allCapturedCards);
+    this.addScore(currentPlayer, points);
+    this.addOverallScore(currentPlayer, points); // Update overall scores
+    this.state.lastCapturer = currentPlayer;
+
+    console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
   }
-
-  // 🔥 CLEANED: Cards just disappear! Calculate points and add to score.
-  // No more capturedCards storage - cards are simply removed from play.
-  
-  // Calculate and apply score
-  const points = this.calculateScore(allCapturedCards);
-  this.addScore(currentPlayer, points);
-  this.addOverallScore(currentPlayer, points);
-  this.state.lastCapturer = currentPlayer;
-
-  // 🔥 CLEANED: Simple card count verification (hands + board + deck only)
-  const totalInPlay = this.state.hands.flat().length + 
-                      this.state.board.length + 
-                      this.state.deck.length;
-  
-  console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards captured, ${points} points scored`);
-  console.log(`📊 CARDS REMAINING IN PLAY: ${totalInPlay} (${52 - totalInPlay} captured total)`);
-}
 
   // Calculate score using current mode
   calculateScore(cards) {
@@ -300,47 +291,26 @@ nextPlayer() {
       return;
     }
     
+    // If no one has cards, end the round
+const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+if (totalCards === 0) {
+  console.log(`🏁 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
+  // 🔥 FIXED: Call checkGameEnd() with a small delay to let the UI update
+  setTimeout(() => {
+    if (typeof checkGameEnd === 'function') {
+      checkGameEnd();
+    } else {
+      console.error('🚨 checkGameEnd function not available!');
+    }
+  }, 100);
+  return;
+}
+    
   } while (attempts < maxAttempts);
   
   // Safety fallback
   console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
 }
-
-// 🏆 UNIFIED JACKPOT SYSTEM - Single source of truth
-  applyJackpot() {
-    if (this.state.lastCapturer === null || this.state.board.length === 0) {
-      console.log('🏆 NO JACKPOT: No last capturer or empty board');
-      return null;
-    }
-    
-    const boardCards = this.state.board;
-    const cardsCount = boardCards.length;
-    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-    const winner = this.state.lastCapturer;
-    const winnerName = playerNames[winner];
-    
-    // Calculate points using current mode's scoring
-    const points = this.calculateScore(boardCards);
-    
-    // Apply jackpot points to BOTH round and overall scores
-    this.addScore(winner, points);
-    this.addOverallScore(winner, points);
-    
-    // Clear the board (cards "disappear" - jackpot collected)
-    this.state.board = [];
-    
-    const jackpotData = {
-      hasJackpot: true,
-      winner: winner,
-      winnerName: winnerName,
-      points: points,
-      cardsCount: cardsCount,
-      message: `🏆 ${winnerName} sweeps ${cardsCount} remaining cards! +${points} pts`
-    };
-    
-    console.log(`🏆 JACKPOT APPLIED: ${winnerName} gets ${points} points from ${cardsCount} cards`);
-    return jackpotData;
-  }
 
   // 🔥 NEW: Set starting player based on current dealer
 setStartingPlayer() {
@@ -352,15 +322,76 @@ setStartingPlayer() {
   console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
 }
 
-// Get ranked players
-getRankedPlayers() {
-  const players = [
-    { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
-    { name: 'Bot 1', score: this.state.scores.bot1, index: 1, overall: this.state.overallScores.bot1 },
-    { name: 'Bot 2', score: this.state.scores.bot2, index: 2, overall: this.state.overallScores.bot2 }
-  ];
-  return players.sort((a, b) => b.score - a.score);
-}
+  // Check if game should end (uses current mode)
+  checkGameEnd() {
+    if (this.currentMode.checkEndCondition) {
+      return this.currentMode.checkEndCondition(this);
+    }
+    
+    // Default end condition
+    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
+    
+    if (playersWithCards === 0) {
+      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
+      
+      // 🚨 CRITICAL: Check if deck is empty FIRST
+      if (this.state.deck.length === 0) {
+        console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
+        
+        // Apply "Last Combo Takes All" rule
+        let jackpotMessage = null;
+        if (this.state.lastCapturer !== null && this.state.board.length > 0) {
+          const bonusPoints = this.calculateScore(this.state.board);
+          this.addScore(this.state.lastCapturer, bonusPoints);
+          this.addOverallScore(this.state.lastCapturer, bonusPoints);
+          
+          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+          const lastCapturerName = playerNames[this.state.lastCapturer];
+          
+          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
+          console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
+          
+          // Clear the board after jackpot
+          this.state.board = [];
+        }
+        
+        // Check if anyone reached target score
+        const maxScore = Math.max(this.state.scores.player, this.state.scores.bot1, this.state.scores.bot2);
+        if (maxScore >= this.state.settings.targetScore) {
+          return { 
+            gameOver: true, 
+            reason: 'target_score_reached',
+            message: jackpotMessage 
+          };
+        } else {
+          return { 
+            gameOver: true, 
+            reason: 'deck_empty',
+            message: jackpotMessage 
+          };
+        }
+      } else {
+        // Deck has cards, deal new round
+        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
+        return { 
+          continueRound: true, 
+          reason: 'new_round' 
+        };
+      }
+    }
+    
+    return { continue: true };
+  }
+
+  // Get ranked players
+  getRankedPlayers() {
+    const players = [
+      { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
+      { name: 'Bot 1', score: this.state.scores.bot1, index: 1, overall: this.state.overallScores.bot1 },
+      { name: 'Bot 2', score: this.state.scores.bot2, index: 2, overall: this.state.overallScores.bot2 }
+    ];
+    return players.sort((a, b) => b.score - a.score);
+  }
 
   // Reset combination area
   resetCombination() {

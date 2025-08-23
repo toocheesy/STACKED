@@ -167,46 +167,45 @@ class GameStateManager {
   }
 
   // 🔍 FIND NEXT PLAYER WITH CARDS (DEALER ORDER)
-findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
-  this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
-  
-  let playerOrder;
-  
-  if (skipCurrentPlayer) {
-    // Skip current player and check next players in order
-    this.log(`🔄 SKIPPING CURRENT PLAYER ${snapshot.currentPlayer}`);
-    playerOrder = [
-        (snapshot.currentPlayer + 1) % 3,  // Next player
-        (snapshot.currentPlayer + 2) % 3   // Player after that
-    ];
-  } else {
-    // Check all players starting from current
-    playerOrder = [
-        snapshot.currentPlayer,
-        (snapshot.currentPlayer + 1) % 3,
-        (snapshot.currentPlayer + 2) % 3
-    ];
-  }
-  
-  for (const playerIndex of playerOrder) {
-    const cardCount = snapshot.handSizes[playerIndex];
-    this.log(`   Player ${playerIndex}: ${cardCount} cards`);
+  findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
+    this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
     
-    if (cardCount > 0) {
-      this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
-      return playerIndex;
+    let playerOrder;
+    
+    if (skipCurrentPlayer) {
+  // 🔥 FIXED: After place action, check if current player has cards, then others
+  this.log(`🔄 CHECKING PLAYERS STARTING WITH CURRENT PLAYER`);
+  
+  // Check current player first (who just received turn), then others clockwise
+  playerOrder = [
+    snapshot.currentPlayer,
+    (snapshot.currentPlayer + 1) % 3,
+    (snapshot.currentPlayer + 2) % 3
+  ];
+} 
+    
+    else {
+      // Original logic: Check players in dealer order starting with starting player
+      playerOrder = [
+        snapshot.startingPlayer,
+        (snapshot.startingPlayer + 1) % 3,
+        (snapshot.startingPlayer + 2) % 3
+      ];
     }
+    
+    for (const playerIndex of playerOrder) {
+      const cardCount = snapshot.handSizes[playerIndex];
+      this.log(`   Player ${playerIndex}: ${cardCount} cards`);
+      
+      if (cardCount > 0) {
+        this.log(`✅ FOUND: Player ${playerIndex} has ${cardCount} cards`);
+        return playerIndex;
+      }
+    }
+    
+    this.log('❌ NO PLAYERS HAVE CARDS');
+    return null;
   }
-  
-  // Safety check: If skipping current player, also check them as last resort
-  if (skipCurrentPlayer && snapshot.handSizes[snapshot.currentPlayer] > 0) {
-    this.log(`🔄 SAFETY CHECK: Current player ${snapshot.currentPlayer} still has ${snapshot.handSizes[snapshot.currentPlayer]} cards`);
-    return snapshot.currentPlayer;
-  }
-  
-  this.log('❌ NO PLAYERS HAVE CARDS');
-  return null;
-}
 
   // 🎴 CHECK IF NEW HAND CAN BE DEALT
   canDealNewHand(snapshot) {
@@ -217,16 +216,28 @@ findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
     return canDeal;
   }
 
-  // 🏆 APPLY JACKPOT LOGIC - Use GameEngine's unified system
+  // 🏆 APPLY JACKPOT LOGIC
   applyJackpot(snapshot, gameEngine) {
     this.log('🏆 APPLYING JACKPOT LOGIC...');
     
-    // Use GameEngine's unified jackpot system
-    const jackpotResult = gameEngine.applyJackpot();
-    
-    if (jackpotResult) {
-      this.log(`🏆 JACKPOT: ${jackpotResult.message}`);
-      return jackpotResult;
+    if (snapshot.lastCapturer !== null && snapshot.boardSize > 0) {
+      // Calculate jackpot points
+      const jackpotPoints = this.calculateJackpotPoints(snapshot.gameEngine.state.board);
+      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+      const winnerName = playerNames[snapshot.lastCapturer];
+      
+      const jackpotMessage = `🏆 ${winnerName} sweeps ${snapshot.boardSize} remaining cards! +${jackpotPoints} pts`;
+      
+      this.log(`🏆 JACKPOT: ${jackpotMessage}`);
+      
+      return {
+        hasJackpot: true,
+        winner: snapshot.lastCapturer,
+        winnerName: winnerName,
+        points: jackpotPoints,
+        cardsCount: snapshot.boardSize,
+        message: jackpotMessage
+      };
     } else {
       this.log('🏆 NO JACKPOT: No last capturer or empty board');
       return {

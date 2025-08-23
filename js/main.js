@@ -3,7 +3,7 @@
  * 🔥 FIXED: Centralized bot turn management + No more scheduling conflicts
  */
 
-// 🎯 LEGENDARY HINT SYSTEM CLASS - COMPLETE AND FIXED
+// 🎯 LEGENDARY HINT SYSTEM CLASS
 class HintSystem {
   constructor(gameEngine, uiSystem) {
     this.game = gameEngine;
@@ -14,89 +14,93 @@ class HintSystem {
   }
 
   // 🧠 ENHANCED: Use CardIntelligence for hint detection
-  analyzeAllPossibleCaptures() {
-    if (this.game.state.currentPlayer !== 0) {
-      return [];
-    }
+analyzeAllPossibleCaptures() {
+  if (this.game.state.currentPlayer !== 0) {
+    return [];
+  }
 
-    const playerHand = this.game.state.hands[0];
-    const board = this.game.state.board;
+  const playerHand = this.game.state.hands[0];
+  const board = this.game.state.board;
 
-    console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
+  console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
 
-    // 🔥 USE AI SYSTEM FOR HINTS!
-    const hints = AISystem.getPlayerHints(playerHand, board);
-    
-    if (hints.length > 0) {
-      const bestHint = hints[0];
-      console.log(`🧠 AI SYSTEM FOUND HINT: ${bestHint.description}`);
-      return [bestHint];
-    }
+  // 🔥 USE CARD INTELLIGENCE SYSTEM!
+  if (!window.cardIntelligence) {
+    console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
+    return this.basicHintDetection(playerHand, board);
+  }
 
-    // If no captures found, check all cards for any possible captures
-    const allCaptures = [];
-    playerHand.forEach((handCard, handIndex) => {
-      const captures = canCapture(handCard, board); // Use existing gameLogic function
+  // Get the best capture from Card Intelligence
+  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+  
+  if (bestCapture) {
+    console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
+    return [this.convertToHintFormat(bestCapture)];
+  }
+
+  // If no captures found, check all cards for any possible captures
+  const allCaptures = [];
+  playerHand.forEach((handCard, handIndex) => {
+    const captures = canCapture(handCard, board); // Use existing gameLogic function
+    captures.forEach(capture => {
+      allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+    });
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
+// 🔄 CONVERT Card Intelligence capture to hint format
+convertToHintFormat(bestCapture) {
+  const handCard = bestCapture.handCard;
+  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+  
+  // Convert target cards to hint format
+  const targetCards = bestCapture.capture.targets.map(targetCard => {
+    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+    return { card: targetCard, index: boardIndex };
+  });
+
+  return {
+    type: bestCapture.capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+    score: bestCapture.evaluation.totalScore,
+    description: bestCapture.evaluation.reasoning
+  };
+}
+
+// 🔄 CONVERT gameLogic capture to hint format
+convertGameLogicToHint(handCard, handIndex, capture) {
+  const targetCards = capture.cards.map(cardIndex => {
+    return { card: this.game.state.board[cardIndex], index: cardIndex };
+  });
+
+  return {
+    type: capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: capture.type === 'pair' ? 'match' : 'sum1',
+    score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
+    description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
+  };
+}
+
+// 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
+basicHintDetection(playerHand, board) {
+  const allCaptures = [];
+  
+  playerHand.forEach((handCard, handIndex) => {
+    if (typeof canCapture === 'function') {
+      const captures = canCapture(handCard, board);
       captures.forEach(capture => {
         allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
       });
-    });
+    }
+  });
 
-    return this.prioritizeHints(allCaptures);
-  }
-
-  // 🔄 CONVERT Card Intelligence capture to hint format
-  convertToHintFormat(bestCapture) {
-    const handCard = bestCapture.handCard;
-    const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
-    
-    // Convert target cards to hint format
-    const targetCards = bestCapture.capture.targets.map(targetCard => {
-      const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
-      return { card: targetCard, index: boardIndex };
-    });
-
-    return {
-      type: bestCapture.capture.type,
-      handCard: { card: handCard, index: handIndex },
-      targetCards: targetCards,
-      area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
-      score: bestCapture.evaluation.totalScore,
-      description: bestCapture.evaluation.reasoning
-    };
-  }
-
-  // 🔄 CONVERT gameLogic capture to hint format
-  convertGameLogicToHint(handCard, handIndex, capture) {
-    const targetCards = capture.cards.map(cardIndex => {
-      return { card: this.game.state.board[cardIndex], index: cardIndex };
-    });
-
-    return {
-      type: capture.type,
-      handCard: { card: handCard, index: handIndex },
-      targetCards: targetCards,
-      area: capture.type === 'pair' ? 'match' : 'sum1',
-      score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
-      description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
-    };
-  }
-
-  // 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
-  basicHintDetection(playerHand, board) {
-    const allCaptures = [];
-    
-    playerHand.forEach((handCard, handIndex) => {
-      if (typeof canCapture === 'function') {
-        const captures = canCapture(handCard, board);
-        captures.forEach(capture => {
-          allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
-        });
-      }
-    });
-
-    return this.prioritizeHints(allCaptures);
-  }
+  return this.prioritizeHints(allCaptures);
+}
 
   // 🏆 HINT PRIORITIZATION SYSTEM
   prioritizeHints(captures) {
@@ -122,12 +126,11 @@ class HintSystem {
 
   // 💰 CALCULATE CAPTURE SCORE
   calculateCaptureScore(cards) {
-    return cards.reduce((total, card) => {
-      if (card.value === 'A') return total + 15;
-      if (['K', 'Q', 'J'].includes(card.value)) return total + 10;
-      if (card.value === '10') return total + 10;
-      return total + 5;
-    }, 0);
+    const pointsMap = {
+      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
+      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
+    };
+    return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
   // 🎮 GET CARD NUMERIC VALUE
@@ -296,11 +299,11 @@ class HintSystem {
 // Global game instance
 let game = null;
 let ui = null;
+let botModal = null;
 let modeSelector = null;
 
 // 🎯 CENTRALIZED BOT TURN MANAGEMENT
 let botTurnInProgress = false;
-let pendingBotTimeout = null;  // 🔥 ADD THIS LINE!
 
 /* 
  * 🔍 CLEAN DEBUG LOGGING SYSTEM
@@ -464,514 +467,6 @@ function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCo
   console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
 }
 
-// 🔥 CLEANED: Updated card count monitoring in main.js
-
-function startCardCountMonitoring() {
-  if (window.cardCountMonitor) {
-    clearInterval(window.cardCountMonitor);
-  }
-  
-  window.cardCountMonitor = setInterval(() => {
-    const handsCount = game.state.hands.flat().length;
-    const boardCount = game.state.board.length;
-    const deckCount = game.state.deck.length;
-    const comboCount = Object.values(game.state.combination).flat().length;
-    
-    // 🔥 CLEANED: Only track cards that are still "in play"
-    const totalInPlay = handsCount + boardCount + deckCount + comboCount;
-    const capturedCount = 52 - totalInPlay; // Calculated, not tracked!
-    
-    // Only warn if cards somehow got duplicated (shouldn't happen now)
-    if (totalInPlay > 52) {
-      console.warn(`🚨 CARD DUPLICATION: ${totalInPlay}/52 cards in play (${totalInPlay - 52} extra cards!)`);
-      console.warn(`   Hands: ${handsCount}, Board: ${boardCount}, Deck: ${deckCount}, Combo: ${comboCount}`);
-    } else {
-      // This is normal - cards get captured and disappear
-      console.log(`📊 CARDS IN PLAY: ${totalInPlay}/52 (${capturedCount} captured)`);
-    }
-  }, 10000);
-}
-
-// 🔍 UNIFIED SYSTEM DEBUG FUNCTION
-function debugUnifiedSystem() {
-  console.log(`
-🔍 UNIFIED SYSTEM DEBUG REPORT
-┌─ SYSTEM STATUS ────────────────────────────────────────────────
-│  unifiedCardSystem: ${window.unifiedCardSystem ? '✅ EXISTS' : '❌ UNDEFINED'}
-│  unifiedBotExecutor: ${window.unifiedBotExecutor ? '✅ EXISTS' : '❌ UNDEFINED'}
-│  
-│  PUBLIC FUNCTIONS:
-│  - moveCardToCombo: ${typeof window.moveCardToCombo}
-│  - restoreAllCards: ${typeof window.restoreAllCards}  
-│  - executeUnifiedCapture: ${typeof window.executeUnifiedCapture}
-│  - executeBotMove: ${typeof window.executeBotMove}
-├─ SYSTEM OBJECTS ──────────────────────────────────────────────
-│  unifiedCardSystem type: ${typeof window.unifiedCardSystem}
-│  unifiedBotExecutor type: ${typeof window.unifiedBotExecutor}
-├─ INITIALIZATION FUNCTIONS ───────────────────────────────────
-│  initializeUnifiedCardSystem: ${typeof window.initializeUnifiedCardSystem}
-│  initializeUnifiedBotExecution: ${typeof window.initializeUnifiedBotExecution}
-├─ CLASSES AVAILABLE ──────────────────────────────────────────
-│  UnifiedCardMovement: ${typeof window.UnifiedCardMovement}
-│  UnifiedBotExecution: ${typeof window.UnifiedBotExecution}
-└────────────────────────────────────────────────────────────────`);
-
-  // Test if unified functions work
-  if (window.unifiedCardSystem) {
-    console.log('🧪 TESTING UNIFIED CARD SYSTEM...');
-    try {
-      window.unifiedCardSystem.validateCardCount();
-      console.log('✅ UNIFIED SYSTEM: validateCardCount() works');
-    } catch (error) {
-      console.log('❌ UNIFIED SYSTEM ERROR:', error.message);
-    }
-  }
-  
-  if (window.unifiedBotExecutor) {
-    console.log('✅ UNIFIED BOT EXECUTOR: Ready for testing');
-  }
-  
-  return {
-    systemExists: !!window.unifiedCardSystem,
-    executorExists: !!window.unifiedBotExecutor,
-    functionsWork: typeof window.moveCardToCombo === 'function'
-  };
-}
-
-// Make it globally available
-window.debugUnifiedSystem = debugUnifiedSystem;
-
-// 🔥 UNIFIED CARD MOVEMENT SYSTEM
-// 🔥 FIXED: Complete UnifiedCardMovement class with bug fixes
-class UnifiedCardMovement {
-  constructor(gameEngine) {
-    this.game = gameEngine;
-    this.cardPositions = new Map(); // Track original positions for restoration
-  }
-
-  /**
-   * 🎯 CORE FUNCTION: Move card from source to combo area
-   * Used by both humans (drag/drop) and bots (AI decisions)
-   */
-  moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex = null) {
-  console.log(`🔄 MOVING: ${card.value}${card.suit} from ${sourceType}[${sourceIndex}] to ${targetSlot}`);
-  
-  // Validate inputs
-  if (!this.validateMoveInputs(sourceType, sourceIndex, targetSlot, card)) {
-    return false;
-  }
-
-  // Store original position for restoration
-  const cardId = `${card.value}${card.suit}`;
-  const originalPosition = {
-    sourceType: sourceType,
-    sourceIndex: sourceIndex,
-    playerIndex: playerIndex || this.game.state.currentPlayer,
-    card: card  // 🔥 STORE THE ACTUAL CARD REFERENCE
-  };
-  this.cardPositions.set(cardId, originalPosition);
-
-  // 🔥 FIX: Use the existing removeCardFromSource which now finds by ID
-  const removed = this.removeCardFromSource(sourceType, sourceIndex, playerIndex);
-  if (!removed) {
-    console.error(`❌ FAILED: Could not remove card from ${sourceType}[${sourceIndex}]`);
-    return false;
-  }
-
-  // Add card to combo area with tracking
-  this.game.state.combination[targetSlot].push({
-    source: sourceType,
-    index: sourceIndex,  // Keep original index for reference
-    card: card,
-    playerSource: playerIndex || this.game.state.currentPlayer,
-    originalPosition: originalPosition
-  });
-
-  // Validate card count
-  this.validateCardCount();
-
-  console.log(`✅ MOVED: Card successfully moved to ${targetSlot}`);
-  return true;
-}
-
-  /**
-   * 🔄 CORE FUNCTION: Reset combo area and restore all cards
-   * Used by both humans (reset button) and bots (failed captures)
-   */
-  restoreAllCardsFromCombo() {
-    console.log(`🔄 RESTORING: All cards from combo areas to original positions`);
-    let restoredCount = 0;
-
-    // Process all combo areas
-    ['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-      const cards = this.game.state.combination[slot];
-      
-      cards.forEach(cardEntry => {
-        if (this.restoreCardToOriginal(cardEntry)) {
-          restoredCount++;
-        }
-      });
-
-      // Clear the combo area
-      this.game.state.combination[slot] = [];
-    });
-
-    // Clear position tracking
-    this.cardPositions.clear();
-
-    // Validate final state
-    this.validateCardCount();
-
-    console.log(`✅ RESTORED: ${restoredCount} cards to original positions`);
-    return restoredCount;
-  }
-
-  /**
-   * 🎯 CORE FUNCTION: Execute capture and store cards
-   * Used by both humans and bots when submitting valid captures
-   */
-  executeCapture() {
-    console.log(`🎯 EXECUTING: Capture for player ${this.game.state.currentPlayer}`);
-
-    // Collect all cards from combo areas
-    const allCapturedCards = [];
-    ['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-      allCapturedCards.push(...this.game.state.combination[slot].map(entry => entry.card));
-    });
-
-    // Calculate and add score
-    const points = this.calculateCaptureScore(allCapturedCards);
-    const currentPlayer = this.game.state.currentPlayer;
-    this.game.addScore(currentPlayer, points);
-    this.game.addOverallScore(currentPlayer, points);
-
-    // Set last capturer for jackpot
-    this.game.state.lastCapturer = currentPlayer;
-
-    // 🔥 CRITICAL FIX: Remove cards from source locations BEFORE clearing combo
-['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-  this.game.state.combination[slot].forEach(entry => {
-    // Remove from hands
-    if (entry.source === 'hand') {
-      const playerIndex = entry.playerSource || this.game.state.currentPlayer;
-      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === entry.card.id);
-      if (cardIndex !== -1) {
-        this.game.state.hands[playerIndex].splice(cardIndex, 1);
-        console.log(`🔥 REMOVED: ${entry.card.value}${entry.card.suit} from player ${playerIndex} hand`);
-      }
-    }
-    // Remove from board
-    else if (entry.source === 'board') {
-      const cardIndex = this.game.state.board.findIndex(c => c.id === entry.card.id);
-      if (cardIndex !== -1) {
-        this.game.state.board.splice(cardIndex, 1);
-        console.log(`🔥 REMOVED: ${entry.card.value}${entry.card.suit} from board`);
-      }
-    }
-  });
-});
-
-// Clear combo areas (cards are "captured" - removed from game)
-['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-  this.game.state.combination[slot] = [];
-});
-
-    // Clear position tracking
-    this.cardPositions.clear();
-
-    // Validate card count
-    this.validateCardCount();
-
-    console.log(`✅ CAPTURED: ${allCapturedCards.length} cards for ${points} points`);
-    return { cards: allCapturedCards, points: points };
-  }
-
-  /**
-   * 🔧 HELPER: Remove card from its source location
-   */
-  removeCardFromSource(sourceType, sourceIndex, playerIndex = null) {
-  const player = playerIndex || this.game.state.currentPlayer;
-
-  try {
-    if (sourceType === 'hand') {
-      // 🔥 FIX: Don't trust the index! Find by actual card ID
-      const targetCard = this.game.state.hands[player][sourceIndex];
-      if (!targetCard) {
-        console.error(`❌ No card at hand[${sourceIndex}]`);
-        return false;
-      }
-      
-      // Find the ACTUAL position of this exact card
-      const actualIndex = this.game.state.hands[player].findIndex(
-        card => card && card.id === targetCard.id
-      );
-      
-      if (actualIndex === -1) {
-        console.error(`❌ Card ${targetCard.value}${targetCard.suit} not found in hand!`);
-        return false;
-      }
-      
-      // Remove the RIGHT card
-      this.game.state.hands[player].splice(actualIndex, 1);
-      console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from hand[${actualIndex}] (was at visual index ${sourceIndex})`);
-      return true;
-      
-    } else if (sourceType === 'board') {
-      // 🔥 FIX: Same fix for board cards
-      const targetCard = this.game.state.board[sourceIndex];
-      if (!targetCard) {
-        console.error(`❌ No card at board[${sourceIndex}]`);
-        return false;
-      }
-      
-      // Find the ACTUAL position of this exact card
-      const actualIndex = this.game.state.board.findIndex(
-        card => card && card.id === targetCard.id
-      );
-      
-      if (actualIndex === -1) {
-        console.error(`❌ Card ${targetCard.value}${targetCard.suit} not found on board!`);
-        return false;
-      }
-      
-      // Remove the RIGHT card
-      this.game.state.board.splice(actualIndex, 1);
-      console.log(`✅ REMOVED: ${targetCard.value}${targetCard.suit} from board[${actualIndex}] (was at visual index ${sourceIndex})`);
-      return true;
-    }
-    
-    return false;
-  } catch (error) {
-    console.error(`❌ ERROR removing card from ${sourceType}[${sourceIndex}]:`, error);
-    return false;
-  }
-}
-
-  /**
-   * 🔧 HELPER: Restore single card to original position
-   */
-  restoreCardToOriginal(cardEntry) {
-    const { card, originalPosition } = cardEntry;
-    const { sourceType, sourceIndex, playerIndex } = originalPosition;
-
-    try {
-      if (sourceType === 'hand') {
-        // Always append to end of hand (simplest and safest)
-        this.game.state.hands[playerIndex].push(card);
-        return true;
-      } else if (sourceType === 'board') {
-        // Append to board
-        this.game.state.board.push(card);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error(`❌ ERROR restoring card:`, error);
-      return false;
-    }
-  }
-
-  /**
-   * 🔧 HELPER: Update board card indices after removal
-   */
-  updateBoardIndicesAfterRemoval(removedIndex) {
-    // Update any combo entries that reference board positions after the removed card
-    ['base', 'sum1', 'sum2', 'sum3', 'match'].forEach(slot => {
-      this.game.state.combination[slot].forEach(entry => {
-        if (entry.source === 'board' && entry.index > removedIndex) {
-          entry.index--;
-          entry.originalPosition.sourceIndex--;
-        }
-      });
-    });
-  }
-
-  /**
-   * 🔧 HELPER: Calculate score for captured cards
-   */
-  calculateCaptureScore(cards) {
-    return cards.reduce((total, card) => {
-      if (card.value === 'A') return total + 15;
-      if (['K', 'Q', 'J'].includes(card.value)) return total + 10;
-      if (card.value === '10') return total + 10;
-      return total + 5;
-    }, 0);
-  }
-
-  /**
-   * 🔧 HELPER: Validate inputs for move operation
-   */
-  validateMoveInputs(sourceType, sourceIndex, targetSlot, card) {
-    if (!['hand', 'board'].includes(sourceType)) {
-      console.error(`❌ Invalid sourceType: ${sourceType}`);
-      return false;
-    }
-    
-    if (!['base', 'sum1', 'sum2', 'sum3', 'match'].includes(targetSlot)) {
-      console.error(`❌ Invalid targetSlot: ${targetSlot}`);
-      return false;
-    }
-    
-    if (typeof sourceIndex !== 'number' || sourceIndex < 0) {
-      console.error(`❌ Invalid sourceIndex: ${sourceIndex}`);
-      return false;
-    }
-    
-    if (!card || !card.value || !card.suit) {
-      console.error(`❌ Invalid card:`, card);
-      return false;
-    }
-    
-    return true;
-  }
-
-  /**
-   * 🔧 HELPER: Validate total card count
-   */
-  validateCardCount() {
-    const handsCount = this.game.state.hands.flat().length;
-    const boardCount = this.game.state.board.length;
-    const deckCount = this.game.state.deck.length;
-    const comboCount = Object.values(this.game.state.combination).flat().length;
-    
-    const totalInPlay = handsCount + boardCount + deckCount + comboCount;
-    const capturedCount = 52 - totalInPlay; // Cards are "captured" = removed from game
-    
-    console.log(`📊 CARD COUNT: ${totalInPlay} in play + ${capturedCount} captured = ${totalInPlay + capturedCount}/52`);
-    
-    if (totalInPlay + capturedCount !== 52) {
-      console.warn(`🚨 CARD COUNT ISSUE: ${totalInPlay + capturedCount}/52 total!`);
-      return false;
-    }
-    
-    return true;
-  }
-}
-
-// 🎯 GLOBAL INSTANCE: Create unified system
-let unifiedCardSystem = null;
-
-// 🎯 INITIALIZATION: Call this when game starts
-function initializeUnifiedCardSystem(gameEngine) {
-  unifiedCardSystem = new UnifiedCardMovement(gameEngine);
-  window.unifiedCardSystem = unifiedCardSystem;
-  window.moveCardToCombo = moveCardToCombo;
-  window.restoreAllCards = restoreAllCards;
-  console.log('🚀 UNIFIED SYSTEM: Fully activated!');
-}
-
-// 🎯 PUBLIC API: Functions that replace old handleDrop/reset functions
-function moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex = null) {
-  if (!unifiedCardSystem) {
-    console.error(`❌ Unified card system not initialized!`);
-    return false;
-  }
-  return unifiedCardSystem.moveCardToCombo(sourceType, sourceIndex, targetSlot, card, playerIndex);
-}
-
-function restoreAllCards() {
-  if (!unifiedCardSystem) {
-    console.error(`❌ Unified card system not initialized!`);
-    return 0;
-  }
-  return unifiedCardSystem.restoreAllCardsFromCombo();
-}
-
-function executeUnifiedCapture() {
-  if (!unifiedCardSystem) {
-    console.error(`❌ Unified card system not initialized!`);
-    return null;
-  }
-  return unifiedCardSystem.executeCapture();
-}
-
-// 🤖 UNIFIED BOT EXECUTOR FUNCTIONS
-// Add this after the unified card system
-
-class UnifiedBotExecution {
-  constructor() {
-    this.isExecuting = false;
-  }
-
-  async placeCard(handCard, playerIndex) {
-    console.log(`🤖 UNIFIED BOT PLACE: ${handCard.value}${handCard.suit} for player ${playerIndex}`);
-    
-    // For now, use the existing AISystem function
-    return await AISystem.placeCard(handCard, playerIndex);
-  }
-
-  async executeCapture(move, playerIndex) {
-    console.log(`🤖 UNIFIED BOT CAPTURE: ${move.handCard.value}${move.handCard.suit} for player ${playerIndex}`);
-    
-    // For now, use the existing AISystem function
-    return await AISystem.executeCapture(move, playerIndex);
-  }
-}
-
-// 🎯 GLOBAL INSTANCE
-let unifiedBotExecutor = null;
-
-// 🎯 INITIALIZATION
-function initializeUnifiedBotExecution() {
-  window.unifiedBotExecutor = new UnifiedBotExecution();  // ← GLOBAL WINDOW OBJECT
-  console.log(`🤖 UNIFIED BOT EXECUTION: Initialized and ready!`);
-}
-
-// 🎯 PUBLIC API
-async function executeBotMove(move, gameEngine) {
-  if (!unifiedBotExecutor) {
-    console.error(`❌ Unified bot executor not initialized!`);
-    return { success: false, reason: 'Bot executor not initialized' };
-  }
-  
-  if (move.action === 'capture') {
-    return await unifiedBotExecutor.executeCapture(move, gameEngine.state.currentPlayer);
-  } else {
-    return await unifiedBotExecutor.placeCard(move.handCard, gameEngine.state.currentPlayer);
-  }
-}
-
-// 🎯 NEW UNIFIED DROP HANDLER
-function unifiedDrop(e, slot) {
-  e.preventDefault();
-  
-  // Block all interactions during modals or game pause
-  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
-    console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
-    return;
-  }
-  
-  // Block during bot turns
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚨 BLOCKING DROP: Bot turn in progress');
-    return;
-  }
-  
-  if (!game.state.draggedCard) return;
-
-  const { source, index, card } = game.state.draggedCard;
-  const success = window.moveCardToCombo(source, index, slot, card);
-  
-  if (success) {
-    game.state.draggedCard = null;
-    
-    // Send combo assistance event
-    if (window.messageController && window.messageController.educationalMode) {
-      const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-      const cardName = `${card.value}${suitSymbols[card.suit]}`;
-      
-      window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
-        slot: slot,
-        cardName: cardName,
-        card: card,
-        source: source
-      });
-    }
-    
-    ui.render();
-  }
-}
-
 // Initialize game systems
 function initGameSystems() {
   modeSelector = new ModeSelector();
@@ -980,6 +475,7 @@ function initGameSystems() {
   
   game = new GameEngine();
   ui = new UISystem(game);
+  botModal = new BotModalInterface(game, ui);
 }
 
 // Start a new game with specified mode
@@ -996,15 +492,13 @@ function startGame(modeName = 'classic', settings = {}) {
 
 // Main initialization
 function initGame() {
-  AISystem.resetCardMemory();
+  if (window.cardIntelligence) {
+    window.cardIntelligence.reset();
+  }
 
   logCheckpoint('GAME INITIALIZATION', { mode: 'classic', difficulty: 'legendary' });
   
   initGameSystems();
-  
-  // 🎪 Initialize modal manager
-  window.modalManager = new ModalManager(game, ui);
-  window.modalManager.ensureModalStyling();
   
   // Read homepage selections
   const storedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
@@ -1023,41 +517,6 @@ function initGame() {
   
   startGame(modeSelector.currentMode || 'classic', gameSettings);
 
-  // 🔥 CRITICAL FIX: Initialize unified systems properly
-  console.log('🔍 Initializing unified systems...');
-  
-  try {
-    initializeUnifiedCardSystem(game);
-    initializeUnifiedBotExecution();
-    
-    // 🔥 VERIFY INITIALIZATION
-    console.log('🔍 POST-INIT VERIFICATION:', {
-      unifiedCardSystem: !!window.unifiedCardSystem,
-      moveCardToCombo: typeof window.moveCardToCombo,
-      restoreAllCards: typeof window.restoreAllCards,
-      executeUnifiedCapture: typeof window.executeUnifiedCapture
-    });
-    
-    // 🔥 SAFETY CHECK: If any are undefined, throw error
-    if (!window.unifiedCardSystem || typeof window.moveCardToCombo !== 'function') {
-      throw new Error('Unified system initialization failed!');
-    }
-    
-    console.log('✅ UNIFIED SYSTEMS FULLY OPERATIONAL!');
-    
-  } catch (error) {
-    console.error('🚨 UNIFIED SYSTEM INIT ERROR:', error);
-    // Fallback: Try one more time
-    setTimeout(() => {
-      initializeUnifiedCardSystem(game);
-      initializeUnifiedBotExecution();
-    }, 1000);
-  }
-
-
-// 🔥 NEW: Initialize AI System with game components
-AISystem.initialize(game, ui);
-
 // 🔥 CRITICAL FIX: Schedule bot turn if bot goes first
 if (game.state.currentPlayer !== 0) {
   console.log(`🤖 GAME STARTS WITH BOT ${game.state.currentPlayer} - SCHEDULING FIRST TURN`);
@@ -1067,9 +526,6 @@ if (game.state.currentPlayer !== 0) {
 // Clear localStorage after game starts
 localStorage.removeItem('selectedDifficulty');
 localStorage.removeItem('selectedMode');
-
-// 🔥 NEW: Start card monitoring
-startCardCountMonitoring();
 }
 
 // 🎯 UPDATED handleSubmit() WITH MESSAGE EVENTS
@@ -1079,168 +535,113 @@ function handleSubmit() {
   const baseCards = game.state.combination.base;
 
   if (baseCards.length !== 1) {
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Base Card area must have exactly one card! Click Reset to try again."
+      message: "Base Card area must have exactly one card!"
     });
     playSound('invalid');
     return;
   }
 
   const baseCard = baseCards[0];
-  const baseValue = baseCard.card.value; // 🔥 FIX: Use direct value for pairs
+  const baseValue = parseInt(baseCard.card.value) || (window.valueMap && window.valueMap[baseCard.card.value]) || 1;
 
   let validCaptures = [];
   let allCapturedCards = [baseCard.card];
-  let captureType = null; // Track if this is a pair or sum capture
 
-  // 🔥 NEW: Collect ALL cards from ALL areas (except base)
-  const allCaptureAreaCards = [];
-  ['sum1', 'sum2', 'sum3', 'match'].forEach(areaName => {
-    if (game.state.combination[areaName].length > 0) {
-      allCaptureAreaCards.push(...game.state.combination[areaName]);
-    }
-  });
+  const captureAreas = [
+    { name: 'sum1', cards: game.state.combination.sum1 },
+    { name: 'sum2', cards: game.state.combination.sum2 },
+    { name: 'sum3', cards: game.state.combination.sum3 },
+    { name: 'match', cards: game.state.combination.match }
+  ];
 
-  // 🔥 FIX: Check if it's a PAIR capture (all cards same value as base)
-  // 🔥 FIX: Check if it's a PAIR capture (all cards same value as base)
-  const isPairCapture = allCaptureAreaCards.length > 0 && 
-    allCaptureAreaCards.every(item => item.card.value === baseValue);
+  for (const area of captureAreas) {
+    if (area.cards.length > 0) {
+      const result = game.validateCapture(area.cards, baseValue, baseCard, area.name);
 
-  if (isPairCapture) {
-    // ✅ PAIR CAPTURE DETECTED - doesn't matter which area cards are in!
-    console.log(`✅ PAIR CAPTURE: ${baseValue} matches all capture cards`);
-    captureType = 'pair';
-    allCaptureAreaCards.forEach(item => allCapturedCards.push(item.card));
-    validCaptures.push('pair');
-  } else {
-    // 🔥 CHECK FOR SUM CAPTURES - validate each area individually
-    const baseNumValue = parseInt(baseValue) || (baseValue === 'A' ? 1 : null);
-    
-    // 🔥 IMPORTANT: Face cards CAN make pairs but NOT sums
-    if (['J', 'Q', 'K'].includes(baseValue)) {
-      // Face cards can ONLY make pairs, which we already checked above
-      console.log(`❌ Face card ${baseValue} cannot make sum captures`);
-    } else if (baseNumValue) {
-      // Check each sum area
-      ['sum1', 'sum2', 'sum3'].forEach(areaName => {
-        const areaCards = game.state.combination[areaName];
-        if (areaCards.length > 0) {
-          const sum = areaCards.reduce((total, item) => {
-            const val = parseInt(item.card.value) || (item.card.value === 'A' ? 1 : 0);
-            return total + val;
-          }, 0);
-          
-          if (sum === baseNumValue) {
-            validCaptures.push(areaName);
-            areaCards.forEach(item => allCapturedCards.push(item.card));
-            console.log(`✅ SUM CAPTURE: ${areaName} adds to ${baseNumValue}`);
-          }
-        }
-      });
-      
-      // Check match area for number matches too
-      const matchCards = game.state.combination.match;
-      if (matchCards.length > 0) {
-        const allMatch = matchCards.every(item => item.card.value === baseValue);
-        if (allMatch) {
-          validCaptures.push('match');
-          matchCards.forEach(item => allCapturedCards.push(item.card));
-          console.log(`✅ MATCH CAPTURE: Cards in match area equal ${baseValue}`);
-        }
-      }
-      
-      if (validCaptures.length > 0) {
-        captureType = 'sum';
+      if (result.isValid) {
+        validCaptures.push({ name: area.name, cards: area.cards });
+        allCapturedCards.push(...area.cards.map(entry => entry.card));
+      } else {
+        const areaNames = {
+          'sum1': 'Sum Area 1',
+          'sum2': 'Sum Area 2', 
+          'sum3': 'Sum Area 3',
+          'match': 'Match Area'
+        };
+        // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+        window.messageController.handleGameEvent('CAPTURE_ERROR', {
+          message: `${areaNames[area.name]}: ${result.details}`
+        });
+        playSound('invalid');
+        return;
       }
     }
   }
 
-  // 🔥 FINAL VALIDATION
   if (validCaptures.length === 0) {
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Invalid capture combination! Check your math or matches."
+      message: "No valid captures found - check your combinations!"
     });
     playSound('invalid');
     return;
   }
 
-  // 🔥 NEW: Must have both hand and board cards
-  const hasHandCard = allCapturedCards.some(card => {
-    // Check if this card came from a hand
-    return game.state.combination.base.some(entry => entry.source === 'hand') ||
-           allCaptureAreaCards.some(entry => entry.source === 'hand' && entry.card.id === card.id);
-  });
-  
-  const hasBoardCard = allCapturedCards.some(card => {
-    // Check if this card came from board
-    return game.state.combination.base.some(entry => entry.source === 'board') ||
-           allCaptureAreaCards.some(entry => entry.source === 'board' && entry.card.id === card.id);
-  });
+  game.executeCapture(baseCard, validCaptures, allCapturedCards);
+window.cardIntelligence.updateCardsSeen(allCapturedCards);
 
-  if (!hasHandCard || !hasBoardCard) {
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Capture requires both hand and board cards!"
-    });
-    playSound('invalid');
-    return;
+// 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
+game.state.lastAction = 'capture';
+console.log('🎯 LAST ACTION SET TO: capture');
+    
+  if (game.currentMode.onCapture) {
+    game.currentMode.onCapture(game, allCapturedCards);
   }
-
-  // Execute the capture (rest of your code continues as normal)
-  console.log(`🎯 EXECUTING ${captureType.toUpperCase()} CAPTURE: ${allCapturedCards.length} cards`);
   
-  const captureResult = window.executeUnifiedCapture();
-  if (captureResult) {
-    AISystem.updateCardMemory(captureResult.cards);
+  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
+  const points = game.calculateScore(allCapturedCards);
+  window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+    points: points,
+    cardsCount: allCapturedCards.length
+  });
+  
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-    // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
-    game.state.lastAction = 'capture';
-    console.log('🎯 LAST ACTION SET TO: capture');
-      
-    if (game.currentMode.onCapture) {
-      game.currentMode.onCapture(game, captureResult.cards);
-    }
-    
-    // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
-      points: captureResult.points,
-      cardsCount: captureResult.cards.length
-    });
-
-    if (game.state.hands[0].length > 0) {
-      game.state.currentPlayer = 0;
-      // 🎯 SEND TURN START EVENT
-      window.messageController.handleGameEvent('TURN_START');
-    } else {
-      game.state.currentPlayer = 1;
-      // 🎯 SEND PLAYER OUT OF CARDS EVENT
-      window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
-      setTimeout(async () => await scheduleNextBotTurn(), 1000);
-    }
-    
-    ui.render();
-    playSound('capture');
-    checkGameEnd();
+  if (game.state.hands[0].length > 0) {
+    game.state.currentPlayer = 0;
+    // 🎯 SEND TURN START EVENT
+    window.messageController.handleGameEvent('TURN_START');
   } else {
-    // Error handling
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: "Capture failed! Click Reset to try again."
-    });
-    playSound('invalid');
+    game.state.currentPlayer = 1;
+    // 🎯 SEND PLAYER OUT OF CARDS EVENT
+    window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
+    setTimeout(async () => await scheduleNextBotTurn(), 1000);
   }
+  
+  ui.render();
+  playSound('capture');
+  checkGameEnd();
 }
 
-// 🔥 FIXED: Use unified reset system
+// 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS
 function handleResetPlayArea() {
   if (game.state.currentPlayer !== 0) return;
 
-  // 🔥 NEW: Single line replaces 50+ lines of buggy code
-  const restored = window.restoreAllCards();
-  console.log(`🔄 RESET COMPLETE: Restored ${restored} cards`);
+  Object.values(game.state.combination).flat().forEach(entry => {
+    if (entry.source === 'hand' && game.state.hands[0][entry.index]) {
+      game.state.hands[0][entry.index] = entry.card;
+    } else if (entry.source === 'board' && game.state.board[entry.index]) {
+      game.state.board[entry.index] = entry.card;
+    }
+  });
+
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   
   // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER
   window.messageController.handleGameEvent('RESET_COMBO');
   
-  // Update UI
   ui.render();
 }
 
@@ -1278,7 +679,7 @@ function handleBoardDrop(e) {
     
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
-AISystem.updateCardMemory([handCard]);
+window.cardIntelligence.updateCardsSeen([handCard]);
 game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 game.state.draggedCard = null;
 
@@ -1358,14 +759,13 @@ function checkGameEnd() {
   }
 }
 
-// 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT (FIXED SYNTAX)
+// 🔥 REMOVED: dealNewCards() function - Now handled by GameStateManager
+// This function has been replaced by handleDealNewHand() below
+
+// 🔥 FIXED: Bot Turn Flag Management - Add this to main.js around line 825
+
+// 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
-  // 🔥 SAFETY GUARD: Don't run during modals!
-  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
-    console.log('🚨 BOT TURN BLOCKED: Modal is active');
-    return;
-  }
-  
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
@@ -1414,18 +814,17 @@ async function aiTurn() {
     logBotTurn('START', playerIndex, { action: 'analyzing' });
     
     // Get AI decision
-    const move = AISystem.makeMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
+    const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
     
     let result;
     
-    // 🔥 FIXED: Use OLD AI SYSTEM until unified system is working
     if (move && move.action === 'capture') {
       console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
-      result = await AISystem.executeCapture(move, playerIndex);
+      result = await botModal.executeCapture(move, playerIndex);
     } else {
       const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
       console.log(`🤖 BOT ${playerIndex}: Placing card ${cardToPlace.value}${cardToPlace.suit}`);
-      result = await AISystem.placeCard(cardToPlace, playerIndex);
+      result = await botModal.placeCard(cardToPlace, playerIndex);
     }
     
     // 🔥 CRITICAL FIX: ALWAYS CLEAR BOT TURN FLAG BEFORE BRANCHING LOGIC
@@ -1468,36 +867,32 @@ async function aiTurn() {
           }
         }
       } else if (result.action === 'place') {
-    // Bot placed card, switch to next player
-    console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
-    
-    // Update current player BEFORE calling checkGameEnd
-    game.nextPlayer();
-    ui.render();
-    
-    console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
-    
-    // 🔥 FIX: CHECK GAME STATE AFTER BOT PLACES!
-    checkGameEnd();
-    
-    // Only schedule next turn if game didn't end
-    if (!window.gameIsPaused) {
+        // Bot placed card, switch to next player
+        console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
+        
+        // Update current player BEFORE calling checkGameEnd
+        game.nextPlayer();
+        ui.render();
+        
+        console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
+        
+        // Handle next player logic
         if (game.state.currentPlayer !== 0) {
-            console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
-            setTimeout(() => scheduleNextBotTurn(), 1000);
+          console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
+          setTimeout(() => scheduleNextBotTurn(), 1000);
         } else {
-            console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
-            window.messageController.handleGameEvent('TURN_START');
+          console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
+          // Send turn start event for human
+          window.messageController.handleGameEvent('TURN_START');
         }
-    }
-}
+      }
     } else {
       console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
       // Fallback: place first card
       const fallbackCard = game.state.hands[playerIndex][0];
       if (fallbackCard) {
         console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
-        result = await AISystem.placeCard(fallbackCard, playerIndex);
+        result = await botModal.placeCard(fallbackCard, playerIndex);
         if (result.success) {
           game.nextPlayer();
           ui.render();
@@ -1519,12 +914,6 @@ async function aiTurn() {
 }
 
 async function scheduleNextBotTurn() {
-  // 🔥 Clear any existing timeout
-  if (pendingBotTimeout) {
-    clearTimeout(pendingBotTimeout);
-    pendingBotTimeout = null;
-  }
-  
   // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
@@ -1537,23 +926,51 @@ async function scheduleNextBotTurn() {
     return;
   }
   
-  // 🛡️ SAFETY GUARD: Don't schedule during modals
-  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
-    console.log('🚨 BOT TURN BLOCKED: Modal is active');
-    return;
-  }
-  
-  // 🔥 FIXED: Let GameStateManager handle "no cards" scenarios
   if (!game.state.hands[game.state.currentPlayer] || 
-      game.state.hands[game.state.currentPlayer].length === 0) {
-    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards left - skipping turn`);
-    return; // Just return, let GameStateManager handle it
+    game.state.hands[game.state.currentPlayer].length === 0) {
+    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
+    setTimeout(() => {
+      console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
+      checkGameEnd();
+    }, 100);
+    return;
   }
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
   
-  pendingBotTimeout = setTimeout(async () => {
-    pendingBotTimeout = null;
+  setTimeout(async () => {
+    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
+    await aiTurn();
+  }, 1000);
+}
+
+async function scheduleNextBotTurn() {
+  // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
+  if (botTurnInProgress) {
+    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
+    return;
+  }
+  
+  // 🛡️ SAFETY GUARD: Only for bot players
+  if (game.state.currentPlayer === 0) {
+    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
+    return;
+  }
+  
+  // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled elsewhere!
+  if (!game.state.hands[game.state.currentPlayer] || 
+    game.state.hands[game.state.currentPlayer].length === 0) {
+  console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
+  setTimeout(() => {
+    console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
+    checkGameEnd();
+  }, 100);
+  return;
+}
+  
+  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
+  
+  setTimeout(async () => {
     console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
     await aiTurn();
   }, 1000);
@@ -1596,17 +1013,16 @@ function handleDragEnd(e) {
   game.state.draggedCard = null;
 }
 
-// 🔥 FIXED: Use unified drop handler (combo area moves)
 function handleDrop(e, slot) {
   e.preventDefault();
   
-  // Block all interactions during modals or game pause
+  // 🔥 NEW: Block all interactions during modals or game pause
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
     console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
     return;
   }
   
-  // CRITICAL FIX: Block during bot turns
+  // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
   if (game.state.currentPlayer !== 0) {
     console.log('🚨 BLOCKING DROP: Bot turn in progress');
     return;
@@ -1614,49 +1030,56 @@ function handleDrop(e, slot) {
   
   if (!game.state.draggedCard) return;
 
-  // Handle moving between combo slots
   if (game.state.draggedCard.slot !== undefined) {
-    const oldSlot = game.state.draggedCard.slot;
-    game.state.combination[oldSlot] = game.state.combination[oldSlot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
-    console.log(`🔄 MOVED: Card from ${oldSlot} to ${slot}`);
+    game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
   }
 
-  const sourceType = game.state.draggedCard.source;
-  const sourceIndex = game.state.draggedCard.index;
-  const card = game.state.draggedCard.card;
-
-  // 🔥 CRITICAL: Make sure we have the actual card object
-  if (!card || !card.id) {
-    console.error('❌ INVALID CARD IN DRAG STATE');
-    game.state.draggedCard = null;
-    ui.render();
-    return;
-  }
-
-  // 🔥 Use unified system with card reference
-  const success = window.moveCardToCombo(sourceType, sourceIndex, slot, card);
-
-  if (success) {
-    game.state.draggedCard = null;
-    ui.render();
-    
-    // Send educational event if needed
-    if (window.messageController && window.messageController.educationalMode) {
-      const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-      const cardName = `${card.value}${suitSymbols[card.suit]}`;
-      
-      window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
-        slot: slot,
-        cardName: cardName,
-        card: card,
-        source: sourceType
-      });
+  if (slot === 'base' && game.state.combination.base.length > 0) {
+    const existingBase = game.state.combination.base[0];
+    game.state.combination.base = [];
+    if (game.state.combination.sum1.length === 0) {
+      game.state.combination.sum1.push(existingBase);
+    } else if (game.state.combination.sum2.length === 0) {
+      game.state.combination.sum2.push(existingBase);
+    } else if (game.state.combination.sum3.length === 0) {
+      game.state.combination.sum3.push(existingBase);
+    } else {
+      game.state.combination.match.push(existingBase);
     }
-  } else {
-    console.error('❌ UNIFIED MOVE FAILED!');
-    game.state.draggedCard = null;
-    ui.render();
   }
+
+  // 🎓 CAPTURE CARD INFO BEFORE ADDING TO COMBO
+  const cardBeingDropped = game.state.draggedCard.card;
+  const sourceType = game.state.draggedCard.source;
+
+  // 🔥 NEW: Add player tracking for combo entries (same as bot system)
+const currentPlayer = game.state.currentPlayer;
+game.state.combination[slot].push({
+  source: game.state.draggedCard.source,
+  index: game.state.draggedCard.index,
+  card: game.state.draggedCard.card,
+  playerSource: currentPlayer, // 🔥 NEW: Track which player added this card
+  fromBot: currentPlayer !== 0  // 🔥 NEW: Flag for consistency with bot system
+});
+
+console.log(`👤 PLAYER CARD ENTRY: Player ${currentPlayer} adding ${game.state.draggedCard.card.value}${game.state.draggedCard.card.suit} from ${game.state.draggedCard.source}[${game.state.draggedCard.index}] to ${slot}`);
+
+  game.state.draggedCard = null;
+
+  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
+  if (window.messageController && window.messageController.educationalMode) {
+    const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
+    const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
+    
+    window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
+      slot: slot,
+      cardName: cardName,
+      card: cardBeingDropped,
+      source: sourceType
+    });
+  }
+
+  ui.render();
 }
 
 function handleDropOriginal(e, source, index) {
@@ -1670,30 +1093,8 @@ function handleDropOriginal(e, source, index) {
   
   if (!game.state.draggedCard) return;
 
-  // 🔥 FIX: RESTORE CARD WHEN DRAGGED FROM COMBO BACK TO ORIGINAL POSITION
   if (game.state.draggedCard.slot !== undefined) {
     const originalSlot = game.state.draggedCard.slot;
-    const comboEntry = game.state.combination[originalSlot][game.state.draggedCard.comboIndex];
-    
-    if (comboEntry) {
-      // 🔥 RESTORE THE CARD TO ITS ORIGINAL LOCATION
-      if (comboEntry.source === 'hand') {
-        // Find empty slot in hand or append
-        const playerIndex = comboEntry.playerSource || 0;
-        if (!game.state.hands[playerIndex].includes(comboEntry.card)) {
-          game.state.hands[playerIndex].push(comboEntry.card);
-          console.log(`✅ RESTORED: ${comboEntry.card.value}${comboEntry.card.suit} to hand`);
-        }
-      } else if (comboEntry.source === 'board') {
-        // Restore to board if not already there
-        if (!game.state.board.some(c => c.id === comboEntry.card.id)) {
-          game.state.board.push(comboEntry.card);
-          console.log(`✅ RESTORED: ${comboEntry.card.value}${comboEntry.card.suit} to board`);
-        }
-      }
-    }
-    
-    // NOW remove from combo area
     game.state.combination[originalSlot] = game.state.combination[originalSlot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
     game.state.draggedCard = null;
     ui.render();
@@ -1822,10 +1223,28 @@ window.messageController.handleGameEvent('NEW_HAND', {
 
 // 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
 function handleEndRound(result) {
-  console.log(`âœ… END ROUND: Moving to round ${result.data.newRound}`);
+  console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
   
-  // Show modal with the data (including jackpot info)
-  window.modalManager.show('round_end', result.data);
+  // PHASE 1: Apply jackpot and show modal - NO SETUP
+  if (result.data.jackpot.hasJackpot) {
+    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
+    
+    // Apply jackpot to game engine scores
+    const jackpot = result.data.jackpot;
+    game.addScore(jackpot.winner, jackpot.points);
+    game.addOverallScore(jackpot.winner, jackpot.points);
+    
+    // Clear the board after jackpot
+    game.state.board = [];
+  }
+  
+  // Notify current mode of round end
+  if (game.currentMode.onRoundEnd) {
+    game.currentMode.onRoundEnd(game);
+  }
+  
+  // 🔥 NEW: Use centralized modal system and STOP
+  ui.showModal('round_end', result.data);
   
   // NO deck creation, NO dealing, NO bot scheduling!
 }
@@ -1869,21 +1288,40 @@ function resumeNextRound(roundData) {
 
 // 🏆 END GAME - Show game over modal
 function handleEndGame(result) {
-  console.log(`âœ… END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
+  console.log(`✅ END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
   
-  // ðŸ"¥ NEW: Use centralized modal system
-  window.modalManager.show('game_over', result.data);
+  // Apply jackpot to game scores if it exists
+  if (result.data.jackpot.hasJackpot) {
+    console.log(`🏆 FINAL JACKPOT: ${result.data.jackpot.message}`);
+    
+    // Apply jackpot to game engine scores
+    const jackpot = result.data.jackpot;
+    game.addScore(jackpot.winner, jackpot.points);
+    game.addOverallScore(jackpot.winner, jackpot.points);
+    
+    // Clear the board after jackpot
+    game.state.board = [];
+  }
+  
+  // Notify current mode of game end
+  if (game.currentMode.onGameEnd) {
+    game.currentMode.onGameEnd(game);
+  }
+  
+  // 🔥 NEW: Use centralized modal system
+  ui.showModal('game_over', result.data);
   
   // Update UI one final time
   ui.render();
 }
 
+// 🚨 HANDLE GAME STATE ERROR
 function handleGameStateError(result) {
-  console.error(`ðŸš¨ GAME STATE ERROR: ${result.data.message}`);
-  console.error(`ðŸ" TECHNICAL DETAILS:`, result.data.technicalDetails);
+  console.error(`🚨 GAME STATE ERROR: ${result.data.message}`);
+  console.error(`🔍 TECHNICAL DETAILS:`, result.data.technicalDetails);
   
-  // ðŸ"¥ NEW: Use centralized modal system
-  window.modalManager.show('error', result.data);
+  // 🔥 NEW: Use centralized modal system
+  ui.showModal('error', result.data);
   
   // Also send error to message controller
   window.messageController.handleGameEvent('CAPTURE_ERROR', {
@@ -1896,6 +1334,47 @@ window.resumeNextRound = resumeNextRound;
 
 // Initialize the game
 initGame();
+
+// 🔥 OVERRIDE OLD MODAL FUNCTIONS TO USE NEW CENTRALIZED SYSTEM
+function showRoundEndModal(data) {
+  console.log('🔄 REDIRECTING OLD ROUND END MODAL TO NEW SYSTEM');
+  
+  // Convert old data format to new format if needed
+  const modalData = {
+    scores: data.scores || game.state.scores,
+    jackpot: { 
+      hasJackpot: data.message ? true : false,
+      message: data.message,
+      winnerName: data.message ? data.message.split(' ')[1] : null,
+      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
+    },
+    newRound: data.newRound || game.currentRound,
+    oldDealer: game.currentDealer === 0 ? 2 : game.currentDealer - 1,
+    newDealer: game.currentDealer
+  };
+  
+  ui.showModal('round_end', modalData);
+}
+
+function showGameOverModal(data) {
+  console.log('🔄 REDIRECTING OLD GAME OVER MODAL TO NEW SYSTEM');
+  
+  // Convert old data format to new format if needed  
+  const modalData = {
+    scores: data.scores || game.state.scores,
+    jackpot: { 
+      hasJackpot: data.message ? true : false,
+      message: data.message,
+      winnerName: data.message ? data.message.split(' ')[1] : null,
+      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
+    },
+    winner: data.winner || 0,
+    winnerName: data.winner || 'Player',
+    winnerScore: data.winnerScore || 0
+  };
+  
+  ui.showModal('game_over', modalData);
+}
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;
