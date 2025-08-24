@@ -802,7 +802,6 @@ function checkGameEnd() {
 
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
-  const gameState = game.getState();
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
