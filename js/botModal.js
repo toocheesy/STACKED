@@ -74,77 +74,56 @@ this.ui.render();
     return true;
   }
 
-  // 🔥 FIXED: executeCapture() - PURE UI SIMULATOR, NO TURN MANAGEMENT
   async executeCapture(move, playerIndex) {
     if (this.isAnimating) return { success: false, reason: 'Already animating' };
     this.isAnimating = true;
 
-    console.log(`🤖 BOT ${playerIndex}: Attempting modal capture`);
+    console.log(`🤖 BOT ${playerIndex}: Attempting CardManager capture`);
     
     try {
-      // Check if combo areas are occupied by previous player
-      const totalCardsInCombo = this.game.state.combination.base.length +
-                               this.game.state.combination.sum1.length +
-                               this.game.state.combination.sum2.length +
-                               this.game.state.combination.sum3.length +
-                               this.game.state.combination.match.length;
-                               
-      if (totalCardsInCombo > 0) {
-        console.log(`🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
-        await this.botResetModal();
-      }
-      
       const baseCard = move.handCard;
-      const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
-
-      if (handIndex === -1) {
-        console.error(`🚨 BOT: Base card not found in hand`);
+      const targetCards = move.capture.targets;
+      
+      // 🔥 VALIDATION: Verify cards exist in CardManager
+      const gameState = this.game.getState();
+      const botHand = gameState.hands[playerIndex];
+      
+      if (!botHand.find(c => c.id === baseCard.id)) {
+        console.error(`🚨 BOT: Base card ${baseCard.value}${baseCard.suit} not found in bot hand`);
         this.isAnimating = false;
         return { success: false, reason: 'Base card not found' };
       }
-
-      // STEP 1: Reset modal completely
-      await this.botResetModal();
-      console.log(`🤖 BOT: Modal reset complete`);
       
-      // STEP 2: Place base card with verification
-      console.log(`🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
-      const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+      // 🔥 NEW: Use CardManager for capture execution
+      console.log(`🎯 BOT: Executing capture via CardManager`);
       
-      if (!baseSuccess || this.game.state.combination.base.length !== 1) {
-        console.log(`🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
-        this.isAnimating = false;
-        return { success: false, reason: 'Base card placement failed' };
+      // Create capture data for GameEngine
+      const allCapturedCards = [baseCard, ...targetCards];
+      const validCaptures = [{
+        name: move.capture.type === 'pair' ? 'match' : 'sum1',
+        cards: targetCards.map(card => ({
+          card: card,
+          source: 'board'
+        }))
+      }];
+      
+      const baseCardEntry = {
+        card: baseCard,
+        source: 'hand'
+      };
+      
+      // 🔥 ATOMIC CAPTURE via GameEngine + CardManager
+      const result = this.game.executeCapture(baseCardEntry, validCaptures, allCapturedCards);
+      
+      console.log(`✅ BOT CAPTURE SUCCESS: ${allCapturedCards.length} cards captured`);
+      
+      // Update card intelligence
+      if (window.cardIntelligence) {
+        window.cardIntelligence.updateCardsSeen(allCapturedCards);
       }
-      console.log(`✅ BOT: Base card verified in place`);
       
-      // STEP 3: Add target cards one by one with verification
-      for (const targetCard of move.capture.targets) {
-        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-        if (boardIndex !== -1) {
-          console.log(`🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
-          await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
-        }
-      }
-      
-      // STEP 4: Final verification before submit
-      const baseCount = this.game.state.combination.base.length;
-      const captureCount = this.game.state.combination.sum1.length + 
-                          this.game.state.combination.sum2.length + 
-                          this.game.state.combination.sum3.length + 
-                          this.game.state.combination.match.length;
-                          
-      console.log(`🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
-      
-      if (baseCount === 1 && captureCount > 0) {
-        const submitResult = await this.botSubmitCapture();
-        this.isAnimating = false;
-        return submitResult;
-      } else {
-        console.log(`🚨 BOT: Final verification failed - Base: ${baseCount}, Captures: ${captureCount}`);
-        this.isAnimating = false;
-        return { success: false, reason: 'Final verification failed' };
-      }
+      this.isAnimating = false;
+      return { success: true, action: 'capture', capturedCards: result };
       
     } catch (error) {
       console.error('🚨 Bot capture error:', error);
@@ -271,68 +250,45 @@ if (window.cardIntelligence) {
     return true;
   }
 
-  // 🔥 FIXED: placeCard() - PURE UI ACTION, NO TURN MANAGEMENT
   async placeCard(handCard, playerIndex) {
     if (this.isAnimating) return { success: false, reason: 'Already animating' };
     this.isAnimating = true;
 
-    // 🚨 CRITICAL SAFETY CHECK: Verify bot has cards before attempting to place
-    if (!this.game.state.hands[playerIndex] || this.game.state.hands[playerIndex].length === 0) {
-      console.error(`🚨 SAFETY GUARD: Bot ${playerIndex} has no cards to place!`);
-      this.isAnimating = false;
-      return { success: false, reason: 'No cards available' };
-    }
-
-    // 🚨 SAFETY CHECK: Verify handCard exists
-    if (!handCard || !handCard.value || !handCard.suit) {
-      console.error(`🚨 SAFETY GUARD: Invalid handCard provided to placeCard!`, handCard);
-      this.isAnimating = false;
-      return { success: false, reason: 'Invalid card' };
-    }
-
-    console.log(`🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} on board`);
+    console.log(`🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} via CardManager`);
     
     try {
       await this.delay(500);
 
-      // STEP 1: Verify card exists in bot's hand
-      const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c && c.id === handCard.id);
+      // 🔥 VALIDATION: Verify card exists in CardManager
+      const gameState = this.game.getState();
+      const botHand = gameState.hands[playerIndex];
+      
+      const cardIndex = botHand.findIndex(c => c && c.id === handCard.id);
       if (cardIndex === -1) {
         console.error(`🚨 CRITICAL: Card ${handCard.value}${handCard.suit} not found in Bot ${playerIndex} hand!`);
         this.isAnimating = false;
         return { success: false, reason: 'Card not found in hand' };
       }
       
-      // STEP 2: Remove from bot's hand ATOMICALLY
-this.game.state.hands[playerIndex].splice(cardIndex, 1);
-console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerIndex} hand (${this.game.state.hands[playerIndex].length} cards left)`);
-
-// 🔥 TRACK BOT LAST ACTION - CRITICAL FOR GAME STATE MANAGER
-this.game.state.lastAction = 'place';
-console.log('🎯 BOT LAST ACTION SET TO: place');
+      // 🔥 NEW: Use GameEngine + CardManager for placement
+      this.game.placeCard(handCard, 'hands', cardIndex, playerIndex);
       
-      // STEP 3: Add to board IMMEDIATELY
-      this.game.state.board.push(handCard);
-
       // Track placed card for AI intelligence
       if (window.cardIntelligence) {
         window.cardIntelligence.updateCardsSeen([handCard]);
       }
       
-      console.log(`✅ ADDED: ${handCard.value}${handCard.suit} to board (${this.game.state.board.length} cards total)`);
+      console.log(`✅ CARD PLACED VIA CARDMANAGER`);
       
-      // STEP 4: Clear combo areas
-      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-      console.log(`✅ CLEARED: All combo areas`);
-      
-      // STEP 5: Update UI immediately
+      // Update UI
       this.ui.render();
-      console.log(`✅ RENDERED: UI updated`);
-      
-      // 🎯 REMOVED: All turn management logic - let main.js handle turns!
       
       this.isAnimating = false;
-      return { success: true, action: 'place', remainingCards: this.game.state.hands[playerIndex].length };
+      return { 
+        success: true, 
+        action: 'place', 
+        remainingCards: this.game.getState().hands[playerIndex].length 
+      };
       
     } catch (error) {
       console.error(`🚨 CRITICAL ERROR in placeCard:`, error);

@@ -562,10 +562,10 @@ localStorage.removeItem('selectedMode');
 function handleSubmit() {
   if (game.state.currentPlayer !== 0) return;
 
-  const baseCards = game.state.combination.base;
+  const gameState = game.getState();
+  const baseCards = gameState.combination.base;
 
   if (baseCards.length !== 1) {
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: "Base Card area must have exactly one card!"
     });
@@ -580,10 +580,10 @@ function handleSubmit() {
   let allCapturedCards = [baseCard.card];
 
   const captureAreas = [
-    { name: 'sum1', cards: game.state.combination.sum1 },
-    { name: 'sum2', cards: game.state.combination.sum2 },
-    { name: 'sum3', cards: game.state.combination.sum3 },
-    { name: 'match', cards: game.state.combination.match }
+    { name: 'sum1', cards: gameState.combination.sum1 },
+    { name: 'sum2', cards: gameState.combination.sum2 },
+    { name: 'sum3', cards: gameState.combination.sum3 },
+    { name: 'match', cards: gameState.combination.match }
   ];
 
   for (const area of captureAreas) {
@@ -619,33 +619,39 @@ function handleSubmit() {
     return;
   }
 
+// 🔥 NEW: Execute capture via CardManager
   game.executeCapture(baseCard, validCaptures, allCapturedCards);
-window.cardIntelligence.updateCardsSeen(allCapturedCards);
+  
+  // Update card intelligence
+  if (window.cardIntelligence) {
+    window.cardIntelligence.updateCardsSeen(allCapturedCards);
+  }
 
-// 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
-game.state.lastAction = 'capture';
-console.log('🎯 LAST ACTION SET TO: capture');
+  // Track last action
+  game.state.lastAction = 'capture';
+  console.log('🎯 LAST ACTION SET TO: capture');
     
   if (game.currentMode.onCapture) {
     game.currentMode.onCapture(game, allCapturedCards);
   }
   
-  // 🎯 SEND SUCCESS EVENT TO MESSAGE CONTROLLER
+  // Send success event
   const points = game.calculateScore(allCapturedCards);
   window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
     points: points,
     cardsCount: allCapturedCards.length
   });
   
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  // Reset combo areas
+  game.resetCombination();
 
-  if (game.state.hands[0].length > 0) {
+  // Handle turn continuation
+  const currentState = game.getState();
+  if (currentState.hands[0].length > 0) {
     game.state.currentPlayer = 0;
-    // 🎯 SEND TURN START EVENT
     window.messageController.handleGameEvent('TURN_START');
   } else {
     game.state.currentPlayer = 1;
-    // 🎯 SEND PLAYER OUT OF CARDS EVENT
     window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
     setTimeout(async () => await scheduleNextBotTurn(), 1000);
   }
@@ -743,14 +749,14 @@ console.log('🎯 LAST ACTION SET TO: place');
   }
 }
 
-// Add this OUTSIDE the function (around line 380, after the logging functions):
+// Add this OUTSIDE the function:
 let checkGameEndCount = 0;
 
 // Then in checkGameEnd() function:
 function checkGameEnd() {
   logGameState(++checkGameEndCount, 'checkGameEnd() called');
   
-  // 🔥 USE NEW GAME STATE MANAGER
+  // 🔥 USE GAME STATE MANAGER WITH CARDMANAGER
   const result = window.gameStateManager.determineGameState(game);
   
   console.log(`🎯 GAME STATE RESULT: ${result.state}`);

@@ -1,7 +1,7 @@
 /* 
- * UI Rendering System for STACKED!
- * Handles all DOM manipulation and rendering
- * 🔥 FIXED: Centralized modal system with game pausing
+ * 🔥 UI SYSTEM - CARDMANAGER INTEGRATION  
+ * Phase 3: Single source of truth rendering - no more card hiding conflicts!
+ * BULLETPROOF: UI reads from CardManager, never loses cards
  */
 
 class UISystem {
@@ -10,28 +10,26 @@ class UISystem {
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
     
-    // 🔥 NEW: Modal management system
+    // Modal management system
     this.modalManager = {
       isModalActive: false,
       currentModal: null,
       gameWasPaused: false
     };
+    
+    console.log('🎨 UI SYSTEM INITIALIZED WITH CARDMANAGER!');
   }
 
-  // 🔥 NEW: CENTRALIZED MODAL DISPLAY WITH GAME PAUSING
+  // 🔥 CENTRALIZED MODAL DISPLAY WITH GAME PAUSING (unchanged)
   showModal(type, data = {}) {
-  console.log(`🎪 SHOWING MODAL: ${type}`);
-  
-  // 🔥 CRITICAL: Pause the game during modals
-  this.pauseGame();
-  
-  // Remove any existing modal - BUT ONLY THE DOM ELEMENT
-  const existingModal = document.getElementById('game-modal-container');
-  if (existingModal) {
-    existingModal.remove();
-  }
-  
-  // DON'T call this.hideModal() here - it resumes the game immediately!
+    console.log(`🎪 SHOWING MODAL: ${type}`);
+    
+    this.pauseGame();
+    
+    const existingModal = document.getElementById('game-modal-container');
+    if (existingModal) {
+      existingModal.remove();
+    }
     
     let modalHTML = '';
     
@@ -50,43 +48,35 @@ class UISystem {
         return;
     }
     
-    // Create modal container
     const modalContainer = document.createElement('div');
     modalContainer.id = 'game-modal-container';
     modalContainer.className = 'game-modal-overlay';
     modalContainer.innerHTML = modalHTML;
     
-    // Add to DOM
     document.body.appendChild(modalContainer);
     
-    // Store round data for continue button
     if (type === 'round_end') {
       this.currentRoundData = data;
     }
     
-    // 🔥 NEW: Add event listeners for modal buttons
     if (type === 'round_end') {
       const continueBtn = modalContainer.querySelector('#continue-round-btn');
       if (continueBtn) {
         continueBtn.addEventListener('click', () => {
-  console.log('🎯 Continue button clicked - UI SYSTEM');
-  this.hideModal();
-  
-  // 🔥 PHASE 2: Resume round setup
-  if (typeof window.resumeNextRound === 'function') {
-    // Pass the round data stored in modal
-    const roundData = this.currentRoundData || data;
-    window.resumeNextRound(roundData);
-  }
-});
+          console.log('🎯 Continue button clicked - UI SYSTEM');
+          this.hideModal();
+          
+          if (typeof window.resumeNextRound === 'function') {
+            const roundData = this.currentRoundData || data;
+            window.resumeNextRound(roundData);
+          }
+        });
       }
     }
     
-    // Mark modal as active
     this.modalManager.isModalActive = true;
     this.modalManager.currentModal = type;
     
-    // Animate in
     setTimeout(() => {
       modalContainer.classList.add('show');
     }, 50);
@@ -94,38 +84,34 @@ class UISystem {
     console.log(`✅ MODAL DISPLAYED: ${type} (Game paused: ${this.modalManager.gameWasPaused})`);
   }
 
-  // 🔥 NEW: HIDE MODAL AND RESUME GAME
-hideModal() {
-  const existingModal = document.getElementById('game-modal-container');
-  if (existingModal) {
-    existingModal.classList.add('hide');
-    setTimeout(() => {
-      existingModal.remove();
-    }, 300);
+  // Hide modal and resume game (unchanged)
+  hideModal() {
+    const existingModal = document.getElementById('game-modal-container');
+    if (existingModal) {
+      existingModal.classList.add('hide');
+      setTimeout(() => {
+        existingModal.remove();
+      }, 300);
+    }
+    
+    this.resumeGame();
+    
+    this.modalManager.isModalActive = false;
+    this.modalManager.currentModal = null;
+    
+    console.log('🎪 MODAL HIDDEN - Game resumed');
   }
-  
-  // 🔥 CRITICAL: Resume the game after modal closes
-  this.resumeGame();
-  
-  this.modalManager.isModalActive = false;
-  this.modalManager.currentModal = null;
-  
-  console.log('🎪 MODAL HIDDEN - Game resumed');
-}
 
-  // 🔥 NEW: PAUSE GAME DURING MODALS
+  // Pause/resume game functions (unchanged)
   pauseGame() {
-    // Set global pause flag
     window.gameIsPaused = true;
     
-    // Disable all game interactions
     const gameContainer = document.querySelector('.table');
     if (gameContainer) {
       gameContainer.style.pointerEvents = 'none';
       gameContainer.style.opacity = '0.7';
     }
     
-    // Stop any bot turn scheduling
     if (window.botTurnInProgress) {
       this.modalManager.gameWasPaused = true;
     }
@@ -133,20 +119,16 @@ hideModal() {
     console.log('⏸️ GAME PAUSED for modal');
   }
 
-  // 🔥 NEW: RESUME GAME AFTER MODAL
   resumeGame() {
-    // Clear global pause flag
     window.gameIsPaused = false;
     
-    // Re-enable game interactions
     const gameContainer = document.querySelector('.table');
     if (gameContainer) {
       gameContainer.style.pointerEvents = 'auto';
       gameContainer.style.opacity = '1';
     }
     
-    // Resume bot turns if they were paused
-    if (this.modalManager.gameWasPaused && game.state.currentPlayer !== 0) {
+    if (this.modalManager.gameWasPaused && this.game.state.currentPlayer !== 0) {
       console.log('🤖 RESUMING BOT TURN AFTER MODAL');
       setTimeout(() => {
         if (typeof scheduleNextBotTurn === 'function') {
@@ -159,7 +141,7 @@ hideModal() {
     console.log('▶️ GAME RESUMED after modal');
   }
 
-  // 🔥 NEW: CREATE ROUND END MODAL
+  // Modal creation functions (unchanged - they work with CardManager data)
   createRoundEndModal(data) {
     const { scores, jackpot, newRound, oldDealer, newDealer } = data;
     
@@ -211,7 +193,6 @@ hideModal() {
     `;
   }
 
-  // 🔥 NEW: CREATE GAME OVER MODAL
   createGameOverModal(data) {
     const { scores, jackpot, winner, winnerName, winnerScore } = data;
     
@@ -262,7 +243,6 @@ hideModal() {
     `;
   }
 
-  // 🔥 NEW: CREATE ERROR MODAL
   createErrorModal(data) {
     return `
       <div class="game-modal error-modal">
@@ -283,14 +263,14 @@ hideModal() {
     `;
   }
 
-  // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
+  // 🔥 NEW: RENDER WITH CARDMANAGER DATA
   render() {
-    // 🔥 NEW: Don't render if modal is active
     if (this.modalManager.isModalActive) {
       console.log('🎪 SKIPPING RENDER: Modal is active');
       return;
     }
     
+    // 🔥 NEW: Get game state from CardManager
     const state = this.game.getState();
     
     // Connect message controller if not already connected
@@ -298,21 +278,20 @@ hideModal() {
       this.initMessageController();
     }
     
-    this.renderDeckCount();
+    this.renderDeckCount(state);
     this.renderTable();
-    this.renderComboArea();
-    this.renderBoard();
-    this.renderHands();
-    this.renderBotHands();
-    this.renderScores();
-    this.renderDealerIndicator();
-    this.updateSubmitButton();
+    this.renderComboArea(state);
+    this.renderBoard(state);
+    this.renderHands(state);
+    this.renderBotHands(state);
+    this.renderScores(state);
+    this.renderDealerIndicator(state);
+    this.updateSubmitButton(state);
     
-    // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-    const comboStatus = this.getComboAreaStatus();
+    // Enhanced combo assistance logic
+    const comboStatus = this.getComboAreaStatus(state);
 
     if (comboStatus.hasCards) {
-      // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
       if (window.messageController && window.messageController.educationalMode) {
         this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
       } else if (window.messageController) {
@@ -325,26 +304,27 @@ hideModal() {
     }
   }
 
-  // Rest of the UISystem methods remain the same...
-  renderDeckCount() {
+  // 🔥 NEW: Render deck count from CardManager
+  renderDeckCount(state) {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
-      deckCountEl.textContent = `Deck: ${this.game.state.deck.length || 0} cards`;
+      deckCountEl.textContent = `Deck: ${state.deck.length || 0} cards`;
     }
   }
 
+  // Table rendering (unchanged)
   renderTable() {
     const tableEl = document.querySelector('.table');
     if (!tableEl) return;
 
-    const cardCount = this.game.state.board ? this.game.state.board.length : 0;
+    // 🔥 NEW: Get board count from state
+    const state = this.game.getState();
+    const cardCount = state.board ? state.board.length : 0;
     
-    // Keep table size consistent
     tableEl.style.width = '800px';
     tableEl.style.maxWidth = '800px';
     tableEl.style.height = 'auto';
     
-    // Board positioning
     const boardEl = document.getElementById('board');
     if (boardEl && cardCount > 8) {
       const rows = Math.ceil(cardCount / 4);
@@ -355,7 +335,6 @@ hideModal() {
       boardEl.style.transform = 'translate(-50%, -50%)';
     }
     
-    // Force fixed bot hand positions
     this.fixBotHandPositions();
   }
 
@@ -380,12 +359,9 @@ hideModal() {
     }
   }
 
-  // ... [Continue with all the other existing methods] ...
-  // [The rest of the UISystem class methods remain exactly the same]
-  
-  renderComboArea() {
+  // 🔥 NEW: Render combo area with CardManager data
+  renderComboArea(state) {
     const comboAreaEl = document.getElementById('combination-area');
-    let captureTypeMessage = "No cards in play areas.";
     
     if (!comboAreaEl) return;
 
@@ -397,15 +373,15 @@ hideModal() {
     
     if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) return;
 
-    // Render each area
-    this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
-    this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
-    this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
-    this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
-    this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
+    // 🔥 NEW: Render each area with CardManager data
+    this.renderArea(baseEl, state.combination.base, 'base', 'Base Card');
+    this.renderArea(sum1El, state.combination.sum1, 'sum1', 'Sum Cards');
+    this.renderArea(sum2El, state.combination.sum2, 'sum2', 'Sum Cards');
+    this.renderArea(sum3El, state.combination.sum3, 'sum3', 'Sum Cards');
+    this.renderArea(matchEl, state.combination.match, 'match', 'Matching Cards');
 
     // Validate combinations
-    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
+    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl, state);
 
     // Add event listeners
     const areas = [
@@ -423,20 +399,20 @@ hideModal() {
     });
   }
 
-  validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
+  // 🔥 UPDATED: Validate combo area with CardManager data
+  validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl, state) {
     let validCaptures = [];
     let isAnyValid = false;
 
-    if (this.game.state.combination.base.length === 1) {
-      const baseCard = this.game.state.combination.base[0];
+    if (state.combination.base.length === 1) {
+      const baseCard = state.combination.base[0];
       const baseValue = parseInt(baseCard.card.value) || 1;
 
-      // Validate each area using game engine
       const areas = [
-        { el: sum1El, cards: this.game.state.combination.sum1, name: 'Sum Area 1' },
-        { el: sum2El, cards: this.game.state.combination.sum2, name: 'Sum Area 2' },
-        { el: sum3El, cards: this.game.state.combination.sum3, name: 'Sum Area 3' },
-        { el: matchEl, cards: this.game.state.combination.match, name: 'Match Area' }
+        { el: sum1El, cards: state.combination.sum1, name: 'Sum Area 1' },
+        { el: sum2El, cards: state.combination.sum2, name: 'Sum Area 2' },
+        { el: sum3El, cards: state.combination.sum3, name: 'Sum Area 3' },
+        { el: matchEl, cards: state.combination.match, name: 'Match Area' }
       ];
 
       areas.forEach(({ el, cards, name }) => {
@@ -462,17 +438,17 @@ hideModal() {
     }
   }
 
+  // 🔥 NEW: Render area with proper sum calculations
   renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.innerHTML = '';
     
-    // 🔥 NEW: Add live sum totals for sum areas - BEAUTIFUL VERSION
+    // Add live sum totals for sum areas
     if (slotName.startsWith('sum') && cards.length > 0) {
       const sumTotal = this.calculateSumTotal(cards);
       const sumDisplay = document.createElement('div');
       sumDisplay.className = 'sum-total-display';
       sumDisplay.textContent = `[${sumTotal}]`;
       
-      // Make sure parent has relative positioning and overflow visible
       areaEl.style.position = 'relative';
       areaEl.style.overflow = 'visible';
       
@@ -498,17 +474,15 @@ hideModal() {
       `;
       
       areaEl.appendChild(sumDisplay);
-    } else {
-      // Ensure relative positioning is always set for sum areas
-      if (slotName.startsWith('sum')) {
-        areaEl.style.position = 'relative';
-        areaEl.style.overflow = 'visible';
-      }
+    } else if (slotName.startsWith('sum')) {
+      areaEl.style.position = 'relative';
+      areaEl.style.overflow = 'visible';
     }
     
     if (cards.length > 0) {
       cards.forEach((comboEntry, comboIndex) => {
-        const card = comboEntry.card;
+        // 🔥 NEW: Handle CardManager combo format
+        const card = comboEntry.card || comboEntry;
         const cardEl = document.createElement('div');
         cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
         cardEl.textContent = `${card.value}${this.suitSymbols[card.suit]}`;
@@ -531,16 +505,16 @@ hideModal() {
     }
   }
 
-  // 🔥 NEW: Calculate sum total for sum areas
+  // Calculate sum total (unchanged)
   calculateSumTotal(cards) {
     return cards.reduce((total, comboEntry) => {
-      const card = comboEntry.card;
+      const card = comboEntry.card || comboEntry;
       let value = 0;
       
       if (card.value === 'A') {
-        value = 1; // Aces = 1 for sum calculations
+        value = 1;
       } else if (['J', 'Q', 'K'].includes(card.value)) {
-        value = 10; // Face cards = 10
+        value = 10;
       } else {
         value = parseInt(card.value) || 0;
       }
@@ -549,16 +523,16 @@ hideModal() {
     }, 0);
   }
 
-  renderBoard() {
+  // 🔥 NEW: Render board with CardManager data
+  renderBoard(state) {
     const boardEl = document.getElementById('board');
     if (!boardEl) return;
 
     boardEl.innerHTML = '';
     
-    if (this.game.state.board && Array.isArray(this.game.state.board)) {
-      this.game.state.board.forEach((card, index) => {
-        if (this.isCardInPlayArea(index, 'board')) return;
-
+    if (state.board && Array.isArray(state.board)) {
+      state.board.forEach((card, index) => {
+        // 🔥 NEW: No more card hiding logic - CardManager handles everything!
         const cardEl = this.createCardElement(card, index, 'board');
         boardEl.appendChild(cardEl);
       });
@@ -569,48 +543,44 @@ hideModal() {
     boardEl.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'board'));
   }
 
-  renderHands() {
+  // 🔥 NEW: Render hands with CardManager data
+  renderHands(state) {
     const handEl = document.getElementById('player-hand');
     if (!handEl) return;
 
     handEl.innerHTML = '';
     
+    // 🔥 NEW: Always show 4 slots, fill with actual cards
     for (let index = 0; index < 4; index++) {
-      const card = this.game.state.hands[0] && this.game.state.hands[0][index] ? this.game.state.hands[0][index] : null;
+      const card = state.hands[0] && state.hands[0][index] ? state.hands[0][index] : null;
       const cardEl = document.createElement('div');
       
-      const isInPlayArea = this.isCardInPlayArea(index, 'hand', 0);
-      if (isInPlayArea || !card) {
-        if (isInPlayArea) {
-          console.log(`🔍 UI DEBUG: Hiding player card at position ${index} - found in combo area`);
-        }
-        this.createEmptyCardSlot(cardEl, index, 'hand');
-      } else {
+      if (card) {
         this.setupCardElement(cardEl, card, index, 'hand');
+      } else {
+        this.createEmptyCardSlot(cardEl, index, 'hand');
       }
       
       handEl.appendChild(cardEl);
     }
   }
 
-  renderBotHands() {
+  // 🔥 NEW: Render bot hands with CardManager data
+  renderBotHands(state) {
     const bot1HandEl = document.getElementById('bot1-hand');
     const bot2HandEl = document.getElementById('bot2-hand');
     
     if (bot1HandEl) {
       bot1HandEl.innerHTML = '';
-      const bot1Cards = this.game.state.hands[1] || [];
+      const bot1Cards = state.hands[1] || [];
       
-      // Create 4 fixed card slots
       for (let i = 0; i < 4; i++) {
         const cardEl = document.createElement('div');
         
         if (i < bot1Cards.length) {
-          // Show actual card
           cardEl.className = 'card back';
           cardEl.style.visibility = 'visible';
         } else {
-          // Empty slot - invisible but takes up space
           cardEl.className = 'card back';
           cardEl.style.visibility = 'hidden';
         }
@@ -621,18 +591,15 @@ hideModal() {
 
     if (bot2HandEl) {
       bot2HandEl.innerHTML = '';
-      const bot2Cards = this.game.state.hands[2] || [];
+      const bot2Cards = state.hands[2] || [];
       
-      // Create 4 fixed card slots
       for (let i = 0; i < 4; i++) {
         const cardEl = document.createElement('div');
         
         if (i < bot2Cards.length) {
-          // Show actual card
           cardEl.className = 'card back';
           cardEl.style.visibility = 'visible';
         } else {
-          // Empty slot - invisible but takes up space
           cardEl.className = 'card back';
           cardEl.style.visibility = 'hidden';
         }
@@ -642,30 +609,29 @@ hideModal() {
     }
   }
 
-  renderScores() {
+  // Render scores with CardManager data
+  renderScores(state) {
     const playerScoreEl = document.getElementById('player-score');
     const bot1ScoreEl = document.getElementById('bot1-score');
     const bot2ScoreEl = document.getElementById('bot2-score');
     
-    if (playerScoreEl) playerScoreEl.textContent = `Player: ${this.game.state.scores.player} pts`;
-    if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${this.game.state.scores.bot1} pts`;
-    if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${this.game.state.scores.bot2} pts`;
+    if (playerScoreEl) playerScoreEl.textContent = `Player: ${state.scores.player} pts`;
+    if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${state.scores.bot1} pts`;
+    if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${state.scores.bot2} pts`;
   }
 
-  renderDealerIndicator() {
-    // Remove existing dealer indicators
+  // 🔥 NEW: Render dealer indicator with CardManager data
+  renderDealerIndicator(state) {
     const existingDealer = document.querySelector('.dealer-indicator');
     if (existingDealer) existingDealer.remove();
 
-    // Create new dealer indicator
     const dealerEl = document.createElement('div');
     dealerEl.className = 'dealer-indicator';
     
     const dealerNames = ['Player', 'Bot 1', 'Bot 2'];
-    const deckCount = this.game.state.deck ? this.game.state.deck.length : 0;
+    const deckCount = state.deck ? state.deck.length : 0;
     dealerEl.textContent = `${dealerNames[this.game.currentDealer]} Deals • Deck: ${deckCount}`;
     
-    // Position based on current dealer
     if (this.game.currentDealer === 0) {
       dealerEl.classList.add('player-dealer');
     } else if (this.game.currentDealer === 1) {
@@ -677,31 +643,27 @@ hideModal() {
     document.querySelector('.table')?.appendChild(dealerEl);
   }
 
-  updateSubmitButton() {
+  // 🔥 NEW: Update submit button with CardManager data
+  updateSubmitButton(state) {
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
-      const hasBaseCard = this.game.state.combination.base.length === 1;
-      const hasAnyCaptureCards = this.game.state.combination.sum1.length > 0 || 
-                               this.game.state.combination.sum2.length > 0 || 
-                               this.game.state.combination.sum3.length > 0 || 
-                               this.game.state.combination.match.length > 0;
+      const hasBaseCard = state.combination.base.length === 1;
+      const hasAnyCaptureCards = state.combination.sum1.length > 0 || 
+                               state.combination.sum2.length > 0 || 
+                               state.combination.sum3.length > 0 || 
+                               state.combination.match.length > 0;
       
-      submitBtn.disabled = !(this.game.state.currentPlayer === 0 && hasBaseCard && hasAnyCaptureCards);
+      submitBtn.disabled = !(state.currentPlayer === 0 && hasBaseCard && hasAnyCaptureCards);
     }
   }
 
-  // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
+  // Message system integration (unchanged)
   updateMessage() {
-    // 🔥 MESSAGE CONTROLLER HANDLES EVERYTHING NOW!
-    // The MessageController will handle all message updates through events
-    
-    // Only keep this for backwards compatibility - but it should rarely be called
     if (window.messageController) {
       window.messageController.forceRefresh();
     }
   }
 
-  // 🎯 INTEGRATE WITH MESSAGE CONTROLLER
   initMessageController() {
     if (window.messageController && this.game) {
       window.messageController.connect(this.game);
@@ -709,7 +671,6 @@ hideModal() {
     }
   }
 
-  // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
   sendMessageEvent(eventType, data = {}) {
     if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
       window.messageController.handleGameEvent(eventType, data);
@@ -718,16 +679,16 @@ hideModal() {
     }
   }
 
-  // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
-  getComboAreaStatus() {
-    const combo = this.game.state.combination;
+  // 🔥 NEW: Get combo area status with CardManager data
+  getComboAreaStatus(state) {
+    const combo = state.combination;
     const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
     
     return {
       hasCards: totalCards > 0,
       cardCount: totalCards,
       hasBase: combo.base.length > 0,
-      baseCard: combo.base.length > 0 ? combo.base[0].card : null,
+      baseCard: combo.base.length > 0 ? combo.base[0].card || combo.base[0] : null,
       sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
       matchCards: combo.match.length,
       comboData: {
@@ -740,44 +701,7 @@ hideModal() {
     };
   }
 
-  // Helper methods
-  // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
-  isCardInPlayArea(index, source, playerIndex = null) {
-    return Object.values(this.game.state.combination).some(area => 
-      area.some(entry => {
-        // Basic source and index match
-        if (entry.source !== source || entry.index !== index) {
-          return false;
-        }
-        
-        // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
-        if (source === 'hand') {
-          // If we're checking the player's hand (playerIndex = 0)
-          if (playerIndex === 0) {
-            // NEVER hide player cards, regardless of what's in combo areas
-            // Player cards should only be hidden if THEY put them in combo areas
-            const currentPlayer = this.game.state.currentPlayer;
-            
-            // Only hide player cards if it's the player's turn AND they put cards in combo
-            if (currentPlayer === 0) {
-              // Check if this entry has a playerSource property indicating it came from player
-              return entry.playerSource === 0;
-            }
-            
-            // If it's a bot turn, NEVER hide player cards
-            return false;
-          }
-          
-          // For bot hands, use existing logic
-          return true;
-        }
-        
-        // Board cards always check normally
-        return true;
-      })
-    );
-  }
-
+  // Helper functions (updated for CardManager)
   createCardElement(card, index, type) {
     const cardEl = document.createElement('div');
     cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
