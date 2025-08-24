@@ -19,8 +19,14 @@ analyzeAllPossibleCaptures() {
     return [];
   }
 
-  const playerHand = this.game.state.hands[0];
-  const board = this.game.state.board;
+  const gameState = this.game.getState();
+  if (!gameState || !gameState.hands || !gameState.board) {
+    console.error('Invalid game state in analyzeAllPossibleCaptures');
+    return [];
+  }
+
+  const playerHand = gameState.hands[0];
+  const board = gameState.board;
 
   console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
 
@@ -51,12 +57,18 @@ analyzeAllPossibleCaptures() {
 }
 // 🔄 CONVERT Card Intelligence capture to hint format
 convertToHintFormat(bestCapture) {
+  const gameState = this.game.getState();
+  if (!gameState || !gameState.hands || !gameState.board) {
+    console.error('Invalid game state in convertToHintFormat');
+    return null;
+  }
+
   const handCard = bestCapture.handCard;
-  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+  const handIndex = gameState.hands[0].findIndex(card => card.id === handCard.id);
   
   // Convert target cards to hint format
   const targetCards = bestCapture.capture.targets.map(targetCard => {
-    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+    const boardIndex = gameState.board.findIndex(card => card.id === targetCard.id);
     return { card: targetCard, index: boardIndex };
   });
 
@@ -72,8 +84,14 @@ convertToHintFormat(bestCapture) {
 
 // 🔄 CONVERT gameLogic capture to hint format
 convertGameLogicToHint(handCard, handIndex, capture) {
+  const gameState = this.game.getState();
+  if (!gameState || !gameState.board) {
+    console.error('Invalid game state in convertGameLogicToHint');
+    return null;
+  }
+
   const targetCards = capture.cards.map(cardIndex => {
-    return { card: this.game.state.board[cardIndex], index: cardIndex };
+    return { card: gameState.board[cardIndex], index: cardIndex };
   });
 
   return {
@@ -385,7 +403,7 @@ function logBotTurn(phase, botIndex, details = {}) {
   
   const botName = ['Human', 'Bot 1', 'Bot 2'][botIndex];
   const gameState = game.getState();
-const handCount = gameState.hands[botIndex] ? gameState.hands[botIndex].length : 0;
+  const handCount = gameState.hands[botIndex] ? gameState.hands[botIndex].length : 0;
   
   switch(phase) {
     case 'START':
@@ -564,6 +582,11 @@ function handleSubmit() {
   if (game.state.currentPlayer !== 0) return;
 
   const gameState = game.getState();
+  if (!gameState || !gameState.combination) {
+    console.error('Invalid game state in handleSubmit');
+    return;
+  }
+
   const baseCards = gameState.combination.base;
 
   if (baseCards.length !== 1) {
@@ -648,6 +671,11 @@ function handleSubmit() {
 
   // Handle turn continuation
   const currentState = game.getState();
+  if (!currentState || !currentState.hands) {
+    console.error('Invalid current state in handleSubmit');
+    return;
+  }
+
   if (currentState.hands[0].length > 0) {
     game.state.currentPlayer = 0;
     window.messageController.handleGameEvent('TURN_START');
@@ -666,15 +694,13 @@ function handleSubmit() {
 function handleResetPlayArea() {
   if (game.state.currentPlayer !== 0) return;
 
-  Object.values(game.state.combination).flat().forEach(entry => {
-    if (entry.source === 'hand' && game.state.hands[0][entry.index]) {
-      game.state.hands[0][entry.index] = entry.card;
-    } else if (entry.source === 'board' && game.state.board[entry.index]) {
-      game.state.board[entry.index] = entry.card;
-    }
-  });
+  const gameState = game.getState();
+  if (!gameState || !gameState.combination) {
+    console.error('Invalid game state in handleResetPlayArea');
+    return;
+  }
 
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  game.resetCombination();
   
   // 🎯 SEND RESET EVENT TO MESSAGE CONTROLLER
   window.messageController.handleGameEvent('RESET_COMBO');
@@ -685,15 +711,29 @@ function handleResetPlayArea() {
 // 🎯 UPDATED handleBoardDrop() WITH CARD PLACED EVENT
 function handleBoardDrop(e) {
   e.preventDefault();
+
+  const gameState = game.getState();
+  if (!gameState || !gameState.hands || !gameState.board || !gameState.combination) {
+    console.error('Invalid game state in handleBoardDrop');
+    return;
+  }
+
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
 
   if (game.state.draggedCard.slot !== undefined) {
-    game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
-    
-    if (game.state.draggedCard.source === 'hand') {
-      game.state.hands[0][game.state.draggedCard.index] = game.state.draggedCard.card;
+    // Return from combo to original
+    const oldSlot = game.state.draggedCard.slot;
+    const comboIndex = game.state.draggedCard.comboIndex;
+    const entry = gameState.combination[oldSlot][comboIndex];
+    if (!entry) {
+      game.state.draggedCard = null;
+      ui.render();
+      return;
     }
-    
+    const originalLocation = entry.originalLocation;
+    const originalIndex = entry.originalIndex;
+    const originalPlayerIndex = entry.originalPlayerIndex;
+    game.cardManager.moveCard(entry.card.id, 'combo', originalLocation, originalIndex, originalPlayerIndex);
     game.state.draggedCard = null;
     ui.render();
     // 🎯 SEND CARD RETURNED EVENT
@@ -707,29 +747,28 @@ function handleBoardDrop(e) {
   const handIndex = game.state.draggedCard.index;
 
   try {
-    const actualCard = game.state.hands[0][handIndex];
+    const actualCard = gameState.hands[0][handIndex];
     if (!actualCard || actualCard.id !== handCard.id) {
       game.state.draggedCard = null;
       ui.render();
       return;
     }
     
-    game.state.hands[0].splice(handIndex, 1);
-    game.state.board.push(handCard);
-window.cardIntelligence.updateCardsSeen([handCard]);
-game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-game.state.draggedCard = null;
+    game.placeCard(handCard, 'hands', handIndex, 0);
+    window.cardIntelligence.updateCardsSeen([handCard]);
+    game.resetCombination();
+    game.state.draggedCard = null;
 
-// 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER
-game.state.lastAction = 'place';
-console.log('🎯 LAST ACTION SET TO: place');
+    // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER
+    game.state.lastAction = 'place';
+    console.log('🎯 LAST ACTION SET TO: place');
     
     // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CARD_PLACED', {
       cardName: `${handCard.value}${handCard.suit}`
     });
     
-    const playerCards = game.state.hands[0].length;
+    const playerCards = gameState.hands[0].length;
     if (playerCards > 0) {
       game.nextPlayer();
     } else {
@@ -796,9 +835,6 @@ function checkGameEnd() {
   }
 }
 
-// 🔥 REMOVED: dealNewCards() function - Now handled by GameStateManager
-// This function has been replaced by handleDealNewHand() below
-
 // 🔥 FIXED: Bot Turn Flag Management - Add this to main.js around line 825
 
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
@@ -818,21 +854,26 @@ async function aiTurn() {
   const playerIndex = game.state.currentPlayer;
   
   // 🛡️ SAFETY GUARD: Check if bot has cards
-const gameState = game.getState();
-if (!gameState || !gameState.hands || !gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) {
+  const gameState = game.getState();
+  if (!gameState || !gameState.hands || !gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) {
     console.log(`🏁 BOT ${playerIndex}: No cards left, switching players`);
     game.nextPlayer();
     ui.render();
     
     // Continue to next player if they have cards
+    const updatedState = game.getState();
+    if (!updatedState || !updatedState.hands) {
+      console.error('Invalid updated state in aiTurn');
+      return;
+    }
+
     if (game.state.currentPlayer !== 0 && 
-        gameState.hands[game.state.currentPlayer] && 
-        gameState.hands[game.state.currentPlayer].length > 0) {
+    updatedState.hands[game.state.currentPlayer].length > 0) {
       setTimeout(() => scheduleNextBotTurn(), 1000);
-    } else if (game.state.currentPlayer === 0 && game.state.hands[0].length === 0) {
+    } else if (game.state.currentPlayer === 0 && updatedState.hands[0].length === 0) {
       // Player is also out of cards, find next bot with cards
       let nextBot = 1;
-      while (nextBot < 3 && (!game.state.hands[nextBot] || game.state.hands[nextBot].length === 0)) {
+      while (nextBot < 3 && (!updatedState.hands[nextBot] || updatedState.hands[nextBot].length === 0)) {
         nextBot++;
       }
       if (nextBot < 3) {
@@ -852,8 +893,13 @@ if (!gameState || !gameState.hands || !gameState.hands[playerIndex] || gameState
     logBotTurn('START', playerIndex, { action: 'analyzing' });
     
     // Get AI decision
-    const gameState = game.getState();
-const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.settings.botDifficulty);
+    const gameStateForMove = game.getState();
+    if (!gameStateForMove || !gameStateForMove.hands || !gameStateForMove.board) {
+      console.error('Invalid game state for move in aiTurn');
+      botTurnInProgress = false;
+      return;
+    }
+    const move = aiMove(gameStateForMove.hands[playerIndex], gameStateForMove.board, gameStateForMove.settings.botDifficulty);
     
     let result;
     
@@ -861,7 +907,7 @@ const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.set
       console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
       result = await botModal.executeCapture(move, playerIndex);
     } else {
-      const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
+      const cardToPlace = move ? move.handCard : gameStateForMove.hands[playerIndex][0];
       console.log(`🤖 BOT ${playerIndex}: Placing card ${cardToPlace.value}${cardToPlace.suit}`);
       result = await botModal.placeCard(cardToPlace, playerIndex);
     }
@@ -885,7 +931,12 @@ const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.set
         }
         
         // Bot captured, check if they can continue
-        const remainingCards = game.state.hands[playerIndex].length;
+        const currentState = game.getState();
+        if (!currentState || !currentState.hands) {
+          console.error('Invalid current state after capture in aiTurn');
+          return;
+        }
+        const remainingCards = currentState.hands[playerIndex].length;
         if (remainingCards > 0) {
           console.log(`🔄 BOT ${playerIndex}: Has ${remainingCards} cards left, continuing turn`);
           setTimeout(() => scheduleNextBotTurn(), 1500);
@@ -895,9 +946,13 @@ const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.set
           ui.render();
           
           // Schedule next bot turn if current player is a bot
+          const updatedState = game.getState();
+          if (!updatedState || !updatedState.hands) {
+            console.error('Invalid updated state after capture out-of-cards in aiTurn');
+            return;
+          }
           if (game.state.currentPlayer !== 0 && 
-              gameState.hands[game.state.currentPlayer] && 
-              gameState.hands[game.state.currentPlayer].length > 0) {
+    updatedState.hands[game.state.currentPlayer].length > 0) {
             console.log(`🤖 SCHEDULING NEXT BOT ${game.state.currentPlayer} AFTER OUT-OF-CARDS`);
             setTimeout(() => scheduleNextBotTurn(), 1000);
           } else {
@@ -928,7 +983,12 @@ const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.set
     } else {
       console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
       // Fallback: place first card
-      const fallbackCard = game.state.hands[playerIndex][0];
+      const fallbackState = game.getState();
+      if (!fallbackState || !fallbackState.hands) {
+        console.error('Invalid fallback state in aiTurn');
+        return;
+      }
+      const fallbackCard = fallbackState.hands[playerIndex][0];
       if (fallbackCard) {
         console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
         result = await botModal.placeCard(fallbackCard, playerIndex);
@@ -966,17 +1026,17 @@ async function scheduleNextBotTurn() {
   }
   
   // 🔥 CRITICAL FIX: Use CardManager data access
-const gameState = game.getState();
-if (!gameState || !gameState.hands || !gameState.hands[game.state.currentPlayer]) {
-  console.log(`🚨 BOT ${game.state.currentPlayer}: CardManager hands missing - CALLING checkGameEnd()`);
-  setTimeout(() => {
-    console.log(`🎯 CALLING checkGameEnd() because CardManager hands are missing`);
-    checkGameEnd();
-  }, 100);
-  return;
-}
+  const gameState = game.getState();
+  if (!gameState || !gameState.hands || !gameState.hands[game.state.currentPlayer]) {
+    console.log(`🚨 BOT ${game.state.currentPlayer}: CardManager hands missing - CALLING checkGameEnd()`);
+    setTimeout(() => {
+      console.log(`🎯 CALLING checkGameEnd() because CardManager hands are missing`);
+      checkGameEnd();
+    }, 100);
+    return;
+  }
 
-if (gameState.hands[game.state.currentPlayer].length === 0) {
+  if (gameState.hands[game.state.currentPlayer].length === 0) {
     console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
     setTimeout(() => {
       console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
@@ -1009,17 +1069,40 @@ function handleDragStart(e, source, index) {
   }
   
   if (game.state.currentPlayer !== 0) return;
+
+  const gameState = game.getState();
+  if (!gameState || !gameState.hands || !gameState.board) {
+    console.error('Invalid game state in handleDragStart');
+    return;
+  }
+
+  const card = source === 'hand' ? gameState.hands[0][index] : gameState.board[index];
+  if (!card) {
+    console.error('Invalid card in handleDragStart');
+    return;
+  }
   game.state.draggedCard = { 
-    source, 
-    index, 
-    card: source === 'hand' ? game.state.hands[0][index] : game.state.board[index] 
-  };
-  e.target.classList.add('selected');
+  source, 
+  index, 
+  card
+};
 }
 
 function handleDragStartCombo(e, slot, comboIndex) {
   if (game.state.currentPlayer !== 0) return;
-  game.state.draggedCard = game.state.combination[slot][comboIndex];
+
+  const gameState = game.getState();
+  if (!gameState || !gameState.combination) {
+    console.error('Invalid game state in handleDragStartCombo');
+    return;
+  }
+
+  const entry = gameState.combination[slot][comboIndex];
+  if (!entry) {
+    console.error('Invalid combo entry in handleDragStartCombo');
+    return;
+  }
+  game.state.draggedCard = entry;
   game.state.draggedCard.slot = slot;
   game.state.draggedCard.comboIndex = comboIndex;
   e.target.classList.add('selected');
@@ -1033,13 +1116,11 @@ function handleDragEnd(e) {
 function handleDrop(e, slot) {
   e.preventDefault();
   
-  // 🔥 NEW: Block all interactions during modals or game pause
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive)) {
     console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
     return;
   }
   
-  // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
   if (game.state.currentPlayer !== 0) {
     console.log('🚨 BLOCKING DROP: Bot turn in progress');
     return;
@@ -1047,55 +1128,43 @@ function handleDrop(e, slot) {
   
   if (!game.state.draggedCard) return;
 
-  if (game.state.draggedCard.slot !== undefined) {
-    game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
+  const gameState = game.getState();
+  if (!gameState || !gameState.combination) {
+    console.error('Invalid game state in handleDrop');
+    return;
   }
 
-  if (slot === 'base' && game.state.combination.base.length > 0) {
-    const existingBase = game.state.combination.base[0];
-    game.state.combination.base = [];
-    if (game.state.combination.sum1.length === 0) {
-      game.state.combination.sum1.push(existingBase);
-    } else if (game.state.combination.sum2.length === 0) {
-      game.state.combination.sum2.push(existingBase);
-    } else if (game.state.combination.sum3.length === 0) {
-      game.state.combination.sum3.push(existingBase);
+  // Simple combo logic - let UI handle the visual, GameEngine handles the logic
+  if (game.state.draggedCard.slot !== undefined) {
+    gameState.combination[game.state.draggedCard.slot] = gameState.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
+  }
+
+  // Handle base replacement
+  if (slot === 'base' && gameState.combination.base.length > 0) {
+    const existingBase = gameState.combination.base[0];
+    gameState.combination.base = [];
+    if (gameState.combination.sum1.length === 0) {
+      gameState.combination.sum1.push(existingBase);
+    } else if (gameState.combination.sum2.length === 0) {
+      gameState.combination.sum2.push(existingBase);
+    } else if (gameState.combination.sum3.length === 0) {
+      gameState.combination.sum3.push(existingBase);
     } else {
-      game.state.combination.match.push(existingBase);
+      gameState.combination.match.push(existingBase);
     }
   }
 
-  // 🎓 CAPTURE CARD INFO BEFORE ADDING TO COMBO
-  const cardBeingDropped = game.state.draggedCard.card;
-  const sourceType = game.state.draggedCard.source;
-
-  // 🔥 NEW: Add player tracking for combo entries (same as bot system)
-const currentPlayer = game.state.currentPlayer;
-game.state.combination[slot].push({
-  source: game.state.draggedCard.source,
-  index: game.state.draggedCard.index,
-  card: game.state.draggedCard.card,
-  playerSource: currentPlayer, // 🔥 NEW: Track which player added this card
-  fromBot: currentPlayer !== 0  // 🔥 NEW: Flag for consistency with bot system
-});
-
-console.log(`👤 PLAYER CARD ENTRY: Player ${currentPlayer} adding ${game.state.draggedCard.card.value}${game.state.draggedCard.card.suit} from ${game.state.draggedCard.source}[${game.state.draggedCard.index}] to ${slot}`);
+  // Add to new combo area
+  const currentPlayer = game.state.currentPlayer;
+  gameState.combination[slot].push({
+    source: game.state.draggedCard.source,
+    index: game.state.draggedCard.index,
+    card: game.state.draggedCard.card,
+    playerSource: currentPlayer,
+    fromBot: currentPlayer !== 0
+  });
 
   game.state.draggedCard = null;
-
-  // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
-  if (window.messageController && window.messageController.educationalMode) {
-    const suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-    const cardName = `${cardBeingDropped.value}${suitSymbols[cardBeingDropped.suit]}`;
-    
-    window.messageController.handleGameEvent('CARD_ADDED_TO_COMBO', {
-      slot: slot,
-      cardName: cardName,
-      card: cardBeingDropped,
-      source: sourceType
-    });
-  }
-
   ui.render();
 }
 
@@ -1110,9 +1179,16 @@ function handleDropOriginal(e, source, index) {
   
   if (!game.state.draggedCard) return;
 
+  const gameState = game.getState();
+  if (!gameState || !gameState.combination) {
+    console.error('Invalid game state in handleDropOriginal');
+    return;
+  }
+
   if (game.state.draggedCard.slot !== undefined) {
-    const originalSlot = game.state.draggedCard.slot;
-    game.state.combination[originalSlot] = game.state.combination[originalSlot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
+    const oldSlot = game.state.draggedCard.slot;
+    const comboIndex = game.state.draggedCard.comboIndex;
+    game.cardManager.removeCardFromLocation(game.state.draggedCard.card.id, 'combo', comboIndex);
     game.state.draggedCard = null;
     ui.render();
   }
@@ -1204,10 +1280,13 @@ function handleDealNewHand(result) {
   console.log(`✅ DEAL NEW HAND: Deck has ${result.data.deckSize} cards`);
   
   try {
-    // Deal new cards (existing function)
-    const dealResult = dealCards(game.state.deck, 3, 4, 0);
-    game.state.hands = dealResult.players;
-    game.state.deck = dealResult.remainingDeck;
+    const gameState = game.getState();
+    if (!gameState || !gameState.deck) {
+      console.error('Invalid game state in handleDealNewHand');
+      return;
+    }
+    // Deal new cards using CardManager
+    game.cardManager.dealCards(3, 4, 0);
     
     // Keep same starting player as beginning of round
     game.state.currentPlayer = result.data.startingPlayer;
@@ -1216,8 +1295,8 @@ function handleDealNewHand(result) {
     console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][result.data.startingPlayer]}`);
     
     // Send new hand event to message controller
-window.messageController.handleGameEvent('NEW_HAND', {
-  handNumber: Math.floor((52 - game.state.deck.length) / 12),
+    window.messageController.handleGameEvent('NEW_HAND', {
+  handNumber: Math.floor((52 - gameState.deck.length) / 12),
   roundNumber: game.currentRound
 });
     
@@ -1251,8 +1330,14 @@ function handleEndRound(result) {
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
     
-    // Clear the board after jackpot
-    game.state.board = [];
+    // Clear the board after jackpot by moving to captured
+    const gameState = game.getState();
+    if (!gameState || !gameState.board) {
+      console.error('Invalid game state in handleEndRound');
+      return;
+    }
+    const boardCardIds = gameState.board.map(card => card.id);
+    game.cardManager.executeCapture(boardCardIds);
   }
   
   // Notify current mode of round end
@@ -1271,21 +1356,19 @@ function resumeNextRound(roundData) {
   console.log(`🔄 RESUMING ROUND ${roundData.newRound} AFTER CONTINUE`);
   
   // Create new deck for new round
-  game.state.deck = createDeck();
-  console.log(`🔄 NEW DECK CREATED FOR ROUND ${roundData.newRound}: ${game.state.deck.length} cards`);
+  game.cardManager.initializeDeck();
+  console.log(`🔄 NEW DECK CREATED FOR ROUND ${roundData.newRound}: ${game.getState().deck.length} cards`);
 
   // Set up new round properly
   const newStartingPlayer = (roundData.newDealer + 1) % 3;
   game.state.currentPlayer = newStartingPlayer;
 
   // Deal new cards from fresh deck
-  const dealResult = dealCards(game.state.deck, 3, 4, 4);
-  game.state.hands = dealResult.players;
-  game.state.deck = dealResult.remainingDeck;
-  game.state.board = dealResult.board;
+  game.cardManager.dealCards(3, 4, 4);
 
+  const gameState = game.getState();
   console.log(`🎮 NEW ROUND SETUP: Dealer=${roundData.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
-  console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
+  console.log(`🎮 NEW CARDS DEALT: Hands=[${gameState.hands.map(h => h.length)}], Board=${gameState.board.length}, Deck=${gameState.deck.length}`);
 
   // Apply round and dealer from GameStateManager
   game.currentRound = roundData.newRound;
@@ -1316,8 +1399,14 @@ function handleEndGame(result) {
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
     
-    // Clear the board after jackpot
-    game.state.board = [];
+    // Clear the board after jackpot by moving to captured
+    const gameState = game.getState();
+    if (!gameState || !gameState.board) {
+      console.error('Invalid game state in handleEndGame');
+      return;
+    }
+    const boardCardIds = gameState.board.map(card => card.id);
+    game.cardManager.executeCapture(boardCardIds);
   }
   
   // Notify current mode of game end
