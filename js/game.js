@@ -1,19 +1,18 @@
 /* 
- * 🔥 GAMEENGINE - CARDMANAGER INTEGRATION
- * Phase 2: Replace all card arrays with CardManager single source of truth
- * BULLETPROOF: Cards can never disappear again!
+ * GameEngine - Core Game Logic for STACKED!
+ * Handles game state, validation, and mode coordination
+ * Works with any game mode
  */
 
 class GameEngine {
   constructor() {
-    // 🔥 NEW: CardManager is the ONLY source of card data
-    this.cardManager = new CardManager();
-    
-    // 🎯 GAME STATE: No more card arrays - only game logic data
     this.state = {
-      // ❌ REMOVED: deck, board, hands, combination (CardManager handles these)
+      deck: [],
+      board: [],
+      hands: [[], [], []], // Player, Bot 1, Bot 2
       scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
       overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
+      combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
       currentPlayer: 0,
       settings: {
         cardSpeed: 'fast',
@@ -23,21 +22,18 @@ class GameEngine {
       },
       draggedCard: null,
       selectedCard: null,
-      lastCapturer: null,
-      lastAction: null // For GameStateManager
+      lastCapturer: null
     };
     
     this.currentMode = null;
     this.currentRound = 1;
     this.currentDealer = 0;
     this.botTurnInProgress = false;
-    
-    console.log('🎮 GAMEENGINE INITIALIZED WITH CARDMANAGER!');
   }
 
-  // 🎯 INITIALIZE GAME WITH CARDMANAGER
+  // Initialize game with specified mode
   initGame(gameMode, settings = {}) {
-    console.log(`🎮 Initializing ${gameMode.name} with CardManager`);
+    console.log(`🎮 Initializing ${gameMode.name}`);
     
     // Set current mode
     this.currentMode = gameMode;
@@ -45,139 +41,59 @@ class GameEngine {
     // Apply mode settings
     Object.assign(this.state.settings, settings);
     
-    // 🔥 NEW: Use CardManager for all card operations
-    this.cardManager.reset();
-    this.cardManager.initializeDeck();
-    this.cardManager.shuffleDeck();
-    this.cardManager.dealCards(3, 4, 4); // 3 players, 4 cards each, 4 to board
-    
-    // Reset game state (no more card arrays!)
-    this.state.scores = { player: 0, bot1: 0, bot2: 0 };
-    this.state.draggedCard = null;
-    this.state.selectedCard = null;
-    this.state.lastCapturer = null;
-    this.state.lastAction = null;
-    this.currentRound = 1;
-    this.currentDealer = Math.floor(Math.random() * 3);
-    
-    // Set proper starting player based on dealer
-    this.setStartingPlayer();
-    
-    // Initialize mode
-    if (this.currentMode.init) {
-      this.currentMode.init(this);
+    // Create and deal deck
+    let deck;
+    try {
+      deck = shuffleDeck(createDeck());
+    } catch (e) {
+      console.error('Failed to create/shuffle deck:', e);
+      deck = createDeck();
     }
-    
-    console.log(`🎮 ${gameMode.name} initialized with CardManager successfully`);
-    this.cardManager.validateCardCount('GAME_INITIALIZATION');
-  }
 
-  // 🔥 NEW: Get current game state (CardManager + game logic)
-  getState() {
-    const cardState = this.cardManager.getGameState();
-    
-    return {
-      // 🔥 CARD DATA: From CardManager (single source of truth)
-      deck: cardState.deck,
-      hands: cardState.hands,
-      board: cardState.board,
-      combination: cardState.combo,
-      capturedCards: cardState.captured,
-      
-      // 🎯 GAME LOGIC: From GameEngine
-      scores: { ...this.state.scores },
-      overallScores: { ...this.state.overallScores },
-      currentPlayer: this.state.currentPlayer,
-      settings: { ...this.state.settings },
-      draggedCard: this.state.draggedCard,
-      selectedCard: this.state.selectedCard,
-      lastCapturer: this.state.lastCapturer,
-      lastAction: this.state.lastAction
-    };
-  }
-  
-  // 🔥 NEW: BULLETPROOF EXECUTE CAPTURE
-  executeCapture(baseCard, validCaptures, allCapturedCards) {
-    console.log(`🎯 EXECUTING CAPTURE VIA CARDMANAGER - ${allCapturedCards.length} cards`);
-    
-    // 🛡️ VALIDATION: Verify all cards exist
-    const cardIds = allCapturedCards.map(card => card.id);
-    for (const cardId of cardIds) {
-      if (!this.cardManager.getCardById(cardId)) {
-        throw new Error(`CRITICAL: Card ${cardId} not found in CardManager!`);
-      }
+    let dealResult;
+    try {
+      dealResult = dealCards(deck);
+    } catch (e) {
+      console.error('Failed to deal cards:', e);
+      dealResult = { players: [[], [], []], board: [], remainingDeck: deck };
     }
-    
-    // 🔥 ATOMIC CAPTURE: Move all cards to captured pile
-    const capturedIds = this.cardManager.executeCapture(cardIds);
-    
-    // Calculate and apply score
-    const points = this.calculateScore(allCapturedCards);
-    this.addScore(this.state.currentPlayer, points);
-    this.addOverallScore(this.state.currentPlayer, points);
-    this.state.lastCapturer = this.state.currentPlayer;
-    this.state.lastAction = 'capture';
-    
-    console.log(`✅ CAPTURE COMPLETE VIA CARDMANAGER: ${capturedIds.length} cards, ${points} points`);
-    
-    // 🔥 PERFECT VALIDATION
-    this.cardManager.validateCardCount('CAPTURE_EXECUTION');
-    
-    return capturedIds;
-  }
-  
-  // 🔥 NEW: CARD PLACEMENT VIA CARDMANAGER
-  placeCard(card, fromLocation, fromIndex = null, playerIndex = null) {
-    console.log(`🃏 PLACING CARD VIA CARDMANAGER: ${card.displayName || card.value + card.suit}`);
-    
-    // Move card from source to board
-    this.cardManager.moveCard(card.id, fromLocation, 'board', null, playerIndex);
-    
-    this.state.lastAction = 'place';
-    
-    console.log(`✅ CARD PLACED VIA CARDMANAGER`);
-    this.cardManager.validateCardCount('CARD_PLACEMENT');
-  }
-  
-  // 🔥 NEW: COMBO AREA MANAGEMENT
-  addToComboArea(card, comboArea, fromLocation, fromIndex = null, playerIndex = null) {
-    console.log(`🎪 ADDING TO COMBO VIA CARDMANAGER: ${card.displayName || card.value + card.suit} → ${comboArea}`);
-    
-    // For combo areas, we use the specialized function
-    this.cardManager.addToComboArea(card.id, comboArea);
-    
-    console.log(`✅ ADDED TO COMBO VIA CARDMANAGER`);
-    this.cardManager.validateCardCount('COMBO_ADDITION');
-  }
-  
-  // 🔥 NEW: CLEAR COMBO AREAS
-  clearComboAreas() {
-    console.log('🧹 CLEARING COMBO AREAS VIA CARDMANAGER');
-    
-    const comboState = this.cardManager.getCardsInLocation('combo');
-    const allComboCards = [
-      ...comboState.base,
-      ...comboState.sum1,
-      ...comboState.sum2,
-      ...comboState.sum3,
-      ...comboState.match
-    ];
-    
-    // Return each card to its original location
-    allComboCards.forEach(comboEntry => {
-      const card = comboEntry.card;
-      const originalLocation = comboEntry.originalLocation;
-      const originalIndex = comboEntry.originalIndex;
-      const originalPlayerIndex = comboEntry.originalPlayerIndex;
-      
-      this.cardManager.moveCard(card.id, 'combo', originalLocation, originalIndex, originalPlayerIndex);
+
+    // Initialize game state
+    this.state.deck = dealResult.remainingDeck || deck;
+    this.state.board = dealResult.board || [];
+    this.state.hands = dealResult.players && dealResult.players.length === 3 ? dealResult.players : [[], [], []];
+    this.state.hands = this.state.hands.map(hand => {
+      if (hand.length === 0 && this.state.deck.length >= 4) {
+        return this.state.deck.splice(0, 4);
+      }
+      return hand;
     });
     
-    console.log(`✅ COMBO AREAS CLEARED VIA CARDMANAGER`);
-    this.cardManager.validateCardCount('COMBO_CLEAR');
+    // Reset current round scores, preserve overall scores
+this.state.scores = { player: 0, bot1: 0, bot2: 0 };
+this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+this.state.draggedCard = null;
+this.state.selectedCard = null;
+this.currentRound = 1;
+this.currentDealer = Math.floor(Math.random() * 3);
+
+// 🔥 FIX: Set proper starting player based on dealer
+this.setStartingPlayer();
+    
+    // Initialize mode
+if (this.currentMode.init) {
+  this.currentMode.init(this);
+}
+
+console.log(`🎮 ${gameMode.name} initialized successfully`);
   }
 
-  // 🎯 VALIDATION: CardManager integration
+  // Get current game state (read-only)
+  getState() {
+    return { ...this.state };
+  }
+
+  // Validate capture using current mode or standard rules
   validateCapture(areaCards, baseValue, baseCard, areaName) {
     // Check if mode has custom validation
     if (this.currentMode.validateCapture) {
@@ -191,18 +107,10 @@ class GameEngine {
     return this.standardValidateCapture(areaCards, baseValue, baseCard, areaName);
   }
 
-  // Standard validation logic (unchanged - works with CardManager data)
+  // Standard validation logic (used by all modes unless overridden)
   standardValidateCapture(areaCards, baseValue, baseCard, areaName) {
-    // 🔥 ENHANCED: Validate cards exist in CardManager
-    const hasHandCard = areaCards.some(entry => {
-      const cardData = this.cardManager.getCardById(entry.card.id);
-      return cardData && (cardData.location === 'hands' || entry.source === 'hand');
-    }) || (baseCard.source === 'hand');
-    
-    const hasBoardCard = areaCards.some(entry => {
-      const cardData = this.cardManager.getCardById(entry.card.id);
-      return cardData && (cardData.location === 'board' || entry.source === 'board');
-    }) || (baseCard.source === 'board');
+    const hasHandCard = areaCards.some(entry => entry.source === 'hand') || baseCard.source === 'hand';
+    const hasBoardCard = areaCards.some(entry => entry.source === 'board') || baseCard.source === 'board';
     
     if (!hasHandCard || !hasBoardCard) {
       return { isValid: false, details: "Requires hand + board cards" };
@@ -278,7 +186,54 @@ class GameEngine {
     }
   }
 
-  // Calculate score using current mode (unchanged)
+  // Execute capture and update scores
+  executeCapture(baseCard, validCaptures, allCapturedCards) {
+    console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
+    
+    const cardsToRemove = {
+      board: [],
+      hand: []
+    };
+    
+    // Collect base card
+    if (baseCard.source === 'board') {
+      cardsToRemove.board.push(baseCard.card.id);
+    } else if (baseCard.source === 'hand') {
+      cardsToRemove.hand.push(baseCard.card.id);
+    }
+    
+    // Collect all capture area cards
+    validCaptures.forEach(capture => {
+      capture.cards.forEach(entry => {
+        if (entry.source === 'board') {
+          cardsToRemove.board.push(entry.card.id);
+        } else if (entry.source === 'hand') {
+          cardsToRemove.hand.push(entry.card.id);
+        }
+      });
+    });
+
+    // Remove cards from board
+    this.state.board = this.state.board.filter(card => !cardsToRemove.board.includes(card.id));
+
+    // Remove cards from current player's hand
+    const currentPlayer = this.state.currentPlayer;
+    if (currentPlayer === 0) {
+      this.state.hands[0] = this.state.hands[0].filter(card => card && !cardsToRemove.hand.includes(card.id));
+    } else {
+      this.state.hands[currentPlayer] = this.state.hands[currentPlayer].filter(card => card && !cardsToRemove.hand.includes(card.id));
+    }
+
+    // Calculate and apply score
+    const points = this.calculateScore(allCapturedCards);
+    this.addScore(currentPlayer, points);
+    this.addOverallScore(currentPlayer, points); // Update overall scores
+    this.state.lastCapturer = currentPlayer;
+
+    console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
+  }
+
+  // Calculate score using current mode
   calculateScore(cards) {
     if (this.currentMode.calculateScore) {
       return this.currentMode.calculateScore(cards);
@@ -292,7 +247,7 @@ class GameEngine {
     return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
   }
 
-  // Add score to current round (unchanged)
+  // Add score to current round
   addScore(playerIndex, points) {
     if (playerIndex === 0) {
       this.state.scores.player += points;
@@ -306,7 +261,7 @@ class GameEngine {
     }
   }
 
-  // Add score to overall total (unchanged)
+  // Add score to overall total
   addOverallScore(playerIndex, points) {
     if (playerIndex === 0) {
       this.state.overallScores.player += points;
@@ -320,91 +275,84 @@ class GameEngine {
     }
   }
 
-  // 🔥 NEW: Smart nextPlayer with CardManager
-  nextPlayer() {
-    let attempts = 0;
-    const maxAttempts = 3;
+  // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
+nextPlayer() {
+  let attempts = 0;
+  const maxAttempts = 3; // Prevent infinite loops
+  
+  do {
+    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+    attempts++;
     
-    do {
-      this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-      attempts++;
-      
-      // 🔥 NEW: Check hands via CardManager
-      const currentPlayerHand = this.cardManager.getCardsInLocation('hands', this.state.currentPlayer);
-      
-      console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${currentPlayerHand.length} cards)`);
-      
-      // If current player has cards, we're good!
-      if (currentPlayerHand.length > 0) {
-        return;
-      }
-      
-      // 🔥 NEW: Check total cards via CardManager
-      const allHands = this.cardManager.getCardsInLocation('hands');
-      const totalCards = allHands[0].length + allHands[1].length + allHands[2].length;
-      
-      if (totalCards === 0) {
-        console.log(`📋 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
-        // Call checkGameEnd with delay
-        setTimeout(() => {
-          if (typeof checkGameEnd === 'function') {
-            checkGameEnd();
-          } else {
-            console.error('🚨 checkGameEnd function not available!');
-          }
-        }, 100);
-        return;
-      }
-      
-    } while (attempts < maxAttempts);
+    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
     
-    console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-  }
+    // If current player has cards, we're good!
+    if (this.state.hands[this.state.currentPlayer].length > 0) {
+      return;
+    }
+    
+    // If no one has cards, end the round
+const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
+if (totalCards === 0) {
+  console.log(`🏁 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
+  // 🔥 FIXED: Call checkGameEnd() with a small delay to let the UI update
+  setTimeout(() => {
+    if (typeof checkGameEnd === 'function') {
+      checkGameEnd();
+    } else {
+      console.error('🚨 checkGameEnd function not available!');
+    }
+  }, 100);
+  return;
+}
+    
+  } while (attempts < maxAttempts);
+  
+  // Safety fallback
+  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
+}
 
-  // Set starting player based on current dealer (unchanged)
-  setStartingPlayer() {
-    this.state.currentPlayer = (this.currentDealer + 1) % 3;
-    
-    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-    console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);
-    console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
-  }
+  // 🔥 NEW: Set starting player based on current dealer
+setStartingPlayer() {
+  // Starting player is to the left of dealer (next clockwise)
+  this.state.currentPlayer = (this.currentDealer + 1) % 3;
+  
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+  console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);
+  console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);
+}
 
-  // 🔥 NEW: Check game end with CardManager
+  // Check if game should end (uses current mode)
   checkGameEnd() {
     if (this.currentMode.checkEndCondition) {
       return this.currentMode.checkEndCondition(this);
     }
     
-    // 🔥 NEW: Check via CardManager
-    const allHands = this.cardManager.getCardsInLocation('hands');
-    const playersWithCards = allHands.filter(hand => hand.length > 0).length;
+    // Default end condition
+    const playersWithCards = this.state.hands.filter(hand => hand.length > 0).length;
     
     if (playersWithCards === 0) {
-      const deckCards = this.cardManager.getCardsInLocation('deck');
-      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${deckCards.length} cards remaining`);
+      console.log(`🎯 ALL PLAYERS OUT OF CARDS - Deck: ${this.state.deck.length} cards remaining`);
       
-      if (deckCards.length === 0) {
+      // 🚨 CRITICAL: Check if deck is empty FIRST
+      if (this.state.deck.length === 0) {
         console.log(`🏆 DECK IS EMPTY - APPLYING JACKPOT AND ENDING GAME!`);
         
         // Apply "Last Combo Takes All" rule
         let jackpotMessage = null;
-        const boardCards = this.cardManager.getCardsInLocation('board');
-        
-        if (this.state.lastCapturer !== null && boardCards.length > 0) {
-          const bonusPoints = this.calculateScore(boardCards);
+        if (this.state.lastCapturer !== null && this.state.board.length > 0) {
+          const bonusPoints = this.calculateScore(this.state.board);
           this.addScore(this.state.lastCapturer, bonusPoints);
           this.addOverallScore(this.state.lastCapturer, bonusPoints);
           
           const playerNames = ['Player', 'Bot 1', 'Bot 2'];
           const lastCapturerName = playerNames[this.state.lastCapturer];
           
-          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${boardCards.length} remaining cards! +${bonusPoints} pts`;
+          jackpotMessage = `🏆 ${lastCapturerName} sweeps ${this.state.board.length} remaining cards! +${bonusPoints} pts`;
           console.log(`🏆 LAST COMBO TAKES ALL: ${jackpotMessage}`);
           
-          // 🔥 NEW: Clear board via CardManager (move to captured)
-          const boardCardIds = boardCards.map(card => card.id);
-          this.cardManager.executeCapture(boardCardIds);
+          // Clear the board after jackpot
+          this.state.board = [];
         }
         
         // Check if anyone reached target score
@@ -424,7 +372,7 @@ class GameEngine {
         }
       } else {
         // Deck has cards, deal new round
-        console.log(`🎮 DECK HAS ${deckCards.length} CARDS - DEALING NEW ROUND`);
+        console.log(`🎮 DECK HAS ${this.state.deck.length} CARDS - DEALING NEW ROUND`);
         return { 
           continueRound: true, 
           reason: 'new_round' 
@@ -435,7 +383,7 @@ class GameEngine {
     return { continue: true };
   }
 
-  // Get ranked players (unchanged)
+  // Get ranked players
   getRankedPlayers() {
     const players = [
       { name: 'Player', score: this.state.scores.player, index: 0, overall: this.state.overallScores.player },
@@ -445,32 +393,9 @@ class GameEngine {
     return players.sort((a, b) => b.score - a.score);
   }
 
-    // 🔥 NEW: Reset combination area via CardManager
+  // Reset combination area
   resetCombination() {
-    console.log('🔄 RESETTING COMBINATION AREA VIA CARDMANAGER');
-    this.clearComboAreas();
-  }
-
-  addToCombination(slot, entry) {
-    this.state.combination[slot].push(entry);
-    this.cardManager.validateCardLocations(); // Ensure tracking
-  }
-
-  removeFromCombination(slot, comboIndex) {
-    this.state.combination[slot].splice(comboIndex, 1);
-    this.cardManager.validateCardLocations();
-  }
-
-  // 🔥 NEW: Perfect card validation via CardManager
-  validateCardCount() {
-    return this.cardManager.validateCardCount('GAMEENGINE_VALIDATION');
-  }
-  
-  // 🔥 NEW: Debug functions
-  debugCardState() {
-    console.log('🔍 GAMEENGINE CARD STATE (via CardManager):');
-    this.cardManager.debugCardDistribution();
-    return this.cardManager.validateCardCount('DEBUG');
+    this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
   }
 }
 

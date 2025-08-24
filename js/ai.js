@@ -5,12 +5,13 @@
 function aiMove(hand, board, difficulty = 'intermediate') {
   console.log(`🤖 LEGENDARY AI ACTIVATED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
   
-  // 🔥 CRITICAL SAFETY CHECK: CardManager validation
+  // 🔥 CRITICAL SAFETY CHECK: Don't try to move with empty hand!
   if (!hand || hand.length === 0) {
     console.log('🚨 AI SAFETY: Bot has no cards - cannot make move');
     return null;
   }
   
+  // 🔥 ADDITIONAL SAFETY: Validate board exists
   if (!board) {
     console.log('🚨 AI SAFETY: Invalid board state');
     return null;

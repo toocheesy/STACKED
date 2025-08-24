@@ -21,20 +21,10 @@ function createDeck() {
 
 function shuffleDeck(deck) {
   const shuffled = [...deck];
-  
-  // 🎴 DOUBLE SHUFFLE for proper randomness
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
-  
-  // Second shuffle pass
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  
-  console.log('🎴 DECK SHUFFLED:', shuffled.slice(0, 5).map(c => c.value + c.suit));
   return shuffled;
 }
 
@@ -416,6 +406,7 @@ titleEl.textContent = `Round ${completedRound} Complete!`;
     if (nextRoundBtn) {
       nextRoundBtn.addEventListener('click', () => {
         modal.close();
+        dealNewRound();
       });
     }
   }
@@ -520,10 +511,34 @@ function showGameOverModal(endResult) {
   }
 }
 
-// function dealNewRound() {
-//   // DEPRECATED: GameStateManager handles new rounds
-//   console.log('🚨 dealNewRound() called - should use GameStateManager instead');
-// }
+function dealNewRound() {
+  // 🔥 FIXED: Use proper dealer rotation from game engine
+  game.currentRound++;
+  
+  try {
+    const newDeck = shuffleDeck(createDeck());
+    const dealResult = dealCards(newDeck, 3, 4, 4);
+    game.state.hands = dealResult.players;
+    game.state.board = dealResult.board;
+    game.state.deck = dealResult.remainingDeck;
+    // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
+    game.state.lastCapturer = null;
+    
+    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('NEW_ROUND', {
+      roundNumber: game.currentRound
+    });
+    
+    ui.render();
+  } catch (e) {
+    console.error('Error dealing new round:', e);
+    
+    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+      message: 'Error dealing cards! Restart the game.'
+    });
+  }
+}
 
 // ============================================================================
 // 🌍 GLOBAL EXPORTS - Make everything available globally
@@ -535,6 +550,7 @@ window.sounds = sounds;
 window.initSounds = initSounds;
 window.showRoundEndModal = showRoundEndModal;
 window.showGameOverModal = showGameOverModal;
+window.dealNewRound = dealNewRound;
 window.parseJackpotMessage = parseJackpotMessage;
 window.createScoreBreakdown = createScoreBreakdown;
 window.createJackpotAnnouncement = createJackpotAnnouncement;
