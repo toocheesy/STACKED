@@ -962,18 +962,18 @@ async function scheduleNextBotTurn() {
     return;
   }
   
-  // 🔥 CRITICAL FIX: Null-safe hand checking
-  const currentPlayerHands = game.state.hands;
-  if (!currentPlayerHands || !currentPlayerHands[game.state.currentPlayer]) {
-    console.log(`🚨 BOT ${game.state.currentPlayer}: Hands array missing - CALLING checkGameEnd()`);
-    setTimeout(() => {
-      console.log(`🎯 CALLING checkGameEnd() because hands are missing`);
-      checkGameEnd();
-    }, 100);
-    return;
-  }
-  
-  if (currentPlayerHands[game.state.currentPlayer].length === 0) {
+  // 🔥 CRITICAL FIX: Use CardManager data access
+const gameState = game.getState();
+if (!gameState || !gameState.hands || !gameState.hands[game.state.currentPlayer]) {
+  console.log(`🚨 BOT ${game.state.currentPlayer}: CardManager hands missing - CALLING checkGameEnd()`);
+  setTimeout(() => {
+    console.log(`🎯 CALLING checkGameEnd() because CardManager hands are missing`);
+    checkGameEnd();
+  }, 100);
+  return;
+}
+
+if (gameState.hands[game.state.currentPlayer].length === 0) {
     console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
     setTimeout(() => {
       console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
