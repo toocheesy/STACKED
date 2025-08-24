@@ -416,7 +416,6 @@ titleEl.textContent = `Round ${completedRound} Complete!`;
     if (nextRoundBtn) {
       nextRoundBtn.addEventListener('click', () => {
         modal.close();
-        dealNewRound();
       });
     }
   }

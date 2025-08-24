@@ -103,20 +103,18 @@ class MessageController {
 
   // 🎯 ENHANCED TURN START - WITH SPECIFIC GUIDANCE
   handleTurnStart(data) {
-    const currentPlayer = this.getCurrentPlayer();
-    const difficulty = this.getBotDifficulty();
+  const currentPlayer = this.getCurrentPlayer();
+  
+  if (currentPlayer === 0) {
+    const handSize = this.getHandSize(0);
+    console.log(`🎯 PLAYER TURN START: Hand size = ${handSize}`); // Debug line
     
-    if (currentPlayer === 0) {
-      const handSize = this.getHandSize(0);
-      if (handSize === 0) {
-        this.showMessage("You're out of cards! Watch the bots finish and learn from their strategies", 'info');
-      } else if (this.educationalMode) {
-        // 🎓 ANALYZE PLAYER'S HAND AND GIVE SPECIFIC GUIDANCE
-        const guidance = this.analyzePlayerHand();
-        this.showMessage(guidance, 'normal');
-      } else {
-        this.showMessage("Your turn! Drag cards to build captures or place one on board to end turn", 'normal');
-      }
+    if (handSize === 0) {
+      this.showMessage("You're out of cards! Watch the bots finish and learn from their strategies", 'info');
+    } else {
+      // Player has cards - show normal turn message
+      this.showMessage("Your turn! Drag cards to build captures or place one on board to end turn", 'normal');
+    }
     } else if (currentPlayer === 1) {
       if (difficulty === 'beginner' || this.educationalMode) {
         this.showMessage("🤖📚 Bot 1 is learning... looking for simple matches and safe moves!", 'bot-turn');
@@ -507,12 +505,12 @@ const board = gameState.board || [];
   }
 
   getHandSize(playerIndex) {
-    if (!this.gameEngine || !this.gameEngine.state || !this.gameEngine.state.hands) {
-      return 0;
-    }
-    const hands = this.gameEngine.state.hands;
-    return hands[playerIndex] ? hands[playerIndex].length : 0;
-  }
+  if (!this.gameEngine) return 0
+  const gameState = this.gameEngine.getState();
+  const hands = gameState.hands;
+  
+  return hands[playerIndex] ? hands[playerIndex].length : 0;
+}
 
   // 🎯 CORE MESSAGE DISPLAY
   showMessage(text, type = 'normal') {
