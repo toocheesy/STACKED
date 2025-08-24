@@ -802,6 +802,7 @@ function checkGameEnd() {
 
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
+  const gameState = game.getState();
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
   if (botTurnInProgress) {
     console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
@@ -817,15 +818,16 @@ async function aiTurn() {
   const playerIndex = game.state.currentPlayer;
   
   // 🛡️ SAFETY GUARD: Check if bot has cards
-  if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {
+const gameState = game.getState();
+if (!gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) {
     console.log(`🏁 BOT ${playerIndex}: No cards left, switching players`);
     game.nextPlayer();
     ui.render();
     
     // Continue to next player if they have cards
     if (game.state.currentPlayer !== 0 && 
-        game.state.hands[game.state.currentPlayer] && 
-        game.state.hands[game.state.currentPlayer].length > 0) {
+        gameState.hands[game.state.currentPlayer] && 
+        gameState.hands[game.state.currentPlayer].length > 0) {
       setTimeout(() => scheduleNextBotTurn(), 1000);
     } else if (game.state.currentPlayer === 0 && game.state.hands[0].length === 0) {
       // Player is also out of cards, find next bot with cards
@@ -893,8 +895,8 @@ async function aiTurn() {
           
           // Schedule next bot turn if current player is a bot
           if (game.state.currentPlayer !== 0 && 
-              game.state.hands[game.state.currentPlayer] && 
-              game.state.hands[game.state.currentPlayer].length > 0) {
+              gameState.hands[game.state.currentPlayer] && 
+              gameState.hands[game.state.currentPlayer].length > 0) {
             console.log(`🤖 SCHEDULING NEXT BOT ${game.state.currentPlayer} AFTER OUT-OF-CARDS`);
             setTimeout(() => scheduleNextBotTurn(), 1000);
           } else {
