@@ -445,10 +445,20 @@ class GameEngine {
     return players.sort((a, b) => b.score - a.score);
   }
 
-  // 🔥 NEW: Reset combination area via CardManager
+    // 🔥 NEW: Reset combination area via CardManager
   resetCombination() {
     console.log('🔄 RESETTING COMBINATION AREA VIA CARDMANAGER');
     this.clearComboAreas();
+  }
+
+  addToCombination(slot, entry) {
+    this.state.combination[slot].push(entry);
+    this.cardManager.validateCardLocations(); // Ensure tracking
+  }
+
+  removeFromCombination(slot, comboIndex) {
+    this.state.combination[slot].splice(comboIndex, 1);
+    this.cardManager.validateCardLocations();
   }
 
   // 🔥 NEW: Perfect card validation via CardManager

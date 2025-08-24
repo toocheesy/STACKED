@@ -1134,35 +1134,36 @@ function handleDrop(e, slot) {
     return;
   }
 
-  // Simple combo logic - let UI handle the visual, GameEngine handles the logic
+  // Handle removal from old slot if coming from combo
   if (game.state.draggedCard.slot !== undefined) {
-    gameState.combination[game.state.draggedCard.slot] = gameState.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
+    game.removeFromCombination(game.state.draggedCard.slot, game.state.draggedCard.comboIndex);
   }
 
   // Handle base replacement
   if (slot === 'base' && gameState.combination.base.length > 0) {
     const existingBase = gameState.combination.base[0];
-    gameState.combination.base = [];
+    game.removeFromCombination('base', 0); // Remove old base
     if (gameState.combination.sum1.length === 0) {
-      gameState.combination.sum1.push(existingBase);
+      game.addToCombination('sum1', existingBase);
     } else if (gameState.combination.sum2.length === 0) {
-      gameState.combination.sum2.push(existingBase);
+      game.addToCombination('sum2', existingBase);
     } else if (gameState.combination.sum3.length === 0) {
-      gameState.combination.sum3.push(existingBase);
+      game.addToCombination('sum3', existingBase);
     } else {
-      gameState.combination.match.push(existingBase);
+      game.addToCombination('match', existingBase);
     }
   }
 
   // Add to new combo area
   const currentPlayer = game.state.currentPlayer;
-  gameState.combination[slot].push({
+  const entry = {
     source: game.state.draggedCard.source,
     index: game.state.draggedCard.index,
     card: game.state.draggedCard.card,
     playerSource: currentPlayer,
     fromBot: currentPlayer !== 0
-  });
+  };
+  game.addToCombination(slot, entry);
 
   game.state.draggedCard = null;
   ui.render();
@@ -1188,7 +1189,7 @@ function handleDropOriginal(e, source, index) {
   if (game.state.draggedCard.slot !== undefined) {
     const oldSlot = game.state.draggedCard.slot;
     const comboIndex = game.state.draggedCard.comboIndex;
-    game.cardManager.removeCardFromLocation(game.state.draggedCard.card.id, 'combo', comboIndex);
+    game.removeFromCombination(oldSlot, comboIndex);
     game.state.draggedCard = null;
     ui.render();
   }
