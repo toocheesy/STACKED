@@ -535,7 +535,6 @@ window.sounds = sounds;
 window.initSounds = initSounds;
 window.showRoundEndModal = showRoundEndModal;
 window.showGameOverModal = showGameOverModal;
-window.dealNewRound = dealNewRound;
 window.parseJackpotMessage = parseJackpotMessage;
 window.createScoreBreakdown = createScoreBreakdown;
 window.createJackpotAnnouncement = createJackpotAnnouncement;
