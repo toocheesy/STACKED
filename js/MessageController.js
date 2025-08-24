@@ -138,8 +138,9 @@ class MessageController {
 
   // 🎓 NEW: ANALYZE PLAYER'S HAND FOR SPECIFIC GUIDANCE
   analyzePlayerHand() {
-    const hand = this.gameEngine.state.hands[0] || [];
-    const board = this.gameEngine.state.board || [];
+    const gameState = this.gameEngine.getState();
+const hand = gameState.hands[0] || [];
+const board = gameState.board || [];
     
     if (hand.length === 0 || board.length === 0) {
       return "🎓 Your turn! Drag cards to build combos or place one on board to end turn";
@@ -281,8 +282,9 @@ class MessageController {
   // 🎓 SUGGEST NEXT CARDS FOR COMBO
   suggestNextCards(baseCard) {
     const baseValue = this.getCardNumericValue(baseCard);
-    const board = this.gameEngine.state.board || [];
-    const hand = this.gameEngine.state.hands[0] || [];
+    const gameState = this.gameEngine.getState();
+const hand = gameState.hands[0] || [];
+const board = gameState.board || [];
     
     // Look for matching cards
     const matchingCards = [...board, ...hand].filter(card => 
@@ -447,8 +449,9 @@ handleComboAnalysis(data) {
 
   // 🎓 GENERATE SPECIFIC HINTS BASED ON GAME STATE
   generateSpecificHint() {
-    const hand = this.gameEngine.state.hands[0] || [];
-    const board = this.gameEngine.state.board || [];
+    const gameState = this.gameEngine.getState();
+const hand = gameState.hands[0] || [];
+const board = gameState.board || [];
     
     // Look for the easiest captures first
     const pairOpportunities = this.findPairOpportunities(hand, board);

@@ -819,7 +819,7 @@ async function aiTurn() {
   
   // 🛡️ SAFETY GUARD: Check if bot has cards
 const gameState = game.getState();
-if (!gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) {
+if (!gameState || !gameState.hands || !gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) {
     console.log(`🏁 BOT ${playerIndex}: No cards left, switching players`);
     game.nextPlayer();
     ui.render();
@@ -852,7 +852,8 @@ if (!gameState.hands[playerIndex] || gameState.hands[playerIndex].length === 0) 
     logBotTurn('START', playerIndex, { action: 'analyzing' });
     
     // Get AI decision
-    const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
+    const gameState = game.getState();
+const move = aiMove(gameState.hands[playerIndex], gameState.board, gameState.settings.botDifficulty);
     
     let result;
     

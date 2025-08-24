@@ -521,34 +521,10 @@ function showGameOverModal(endResult) {
   }
 }
 
-function dealNewRound() {
-  // 🔥 FIXED: Use proper dealer rotation from game engine
-  game.currentRound++;
-  
-  try {
-    const newDeck = shuffleDeck(createDeck());
-    const dealResult = dealCards(newDeck, 3, 4, 4);
-    game.state.hands = dealResult.players;
-    game.state.board = dealResult.board;
-    game.state.deck = dealResult.remainingDeck;
-    // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
-    game.state.lastCapturer = null;
-    
-    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('NEW_ROUND', {
-      roundNumber: game.currentRound
-    });
-    
-    ui.render();
-  } catch (e) {
-    console.error('Error dealing new round:', e);
-    
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: 'Error dealing cards! Restart the game.'
-    });
-  }
-}
+// function dealNewRound() {
+//   // DEPRECATED: GameStateManager handles new rounds
+//   console.log('🚨 dealNewRound() called - should use GameStateManager instead');
+// }
 
 // ============================================================================
 // 🌍 GLOBAL EXPORTS - Make everything available globally
