@@ -962,8 +962,18 @@ async function scheduleNextBotTurn() {
     return;
   }
   
-  if (!game.state.hands[game.state.currentPlayer] || 
-    game.state.hands[game.state.currentPlayer].length === 0) {
+  // 🔥 CRITICAL FIX: Null-safe hand checking
+  const currentPlayerHands = game.state.hands;
+  if (!currentPlayerHands || !currentPlayerHands[game.state.currentPlayer]) {
+    console.log(`🚨 BOT ${game.state.currentPlayer}: Hands array missing - CALLING checkGameEnd()`);
+    setTimeout(() => {
+      console.log(`🎯 CALLING checkGameEnd() because hands are missing`);
+      checkGameEnd();
+    }, 100);
+    return;
+  }
+  
+  if (currentPlayerHands[game.state.currentPlayer].length === 0) {
     console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
     setTimeout(() => {
       console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
@@ -971,38 +981,6 @@ async function scheduleNextBotTurn() {
     }, 100);
     return;
   }
-  
-  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
-  
-  setTimeout(async () => {
-    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
-    await aiTurn();
-  }, 1000);
-}
-
-async function scheduleNextBotTurn() {
-  // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
-  if (botTurnInProgress) {
-    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
-    return;
-  }
-  
-  // 🛡️ SAFETY GUARD: Only for bot players
-  if (game.state.currentPlayer === 0) {
-    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
-    return;
-  }
-  
-  // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled elsewhere!
-  if (!game.state.hands[game.state.currentPlayer] || 
-    game.state.hands[game.state.currentPlayer].length === 0) {
-  console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
-  setTimeout(() => {
-    console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
-    checkGameEnd();
-  }, 100);
-  return;
-}
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
   
