@@ -384,14 +384,15 @@ function logBotTurn(phase, botIndex, details = {}) {
   if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showBotTurns) return;
   
   const botName = ['Human', 'Bot 1', 'Bot 2'][botIndex];
-  const handCount = game.state.hands[botIndex] ? game.state.hands[botIndex].length : 0;
+  const gameState = game.getState();
+const handCount = gameState.hands[botIndex] ? gameState.hands[botIndex].length : 0;
   
   switch(phase) {
     case 'START':
       console.log(`
 🤖 BOT TURN START: ${botName}
 ├─ Cards Available: ${handCount}
-├─ Board Cards: ${game.state.board.length}
+├─ Board Cards: ${gameState.board.length}
 ├─ Turn Flag: ${botTurnInProgress ? 'IN PROGRESS' : 'FREE'}
 └─ Action: ${details.action || 'Determining...'}`);
       break;
@@ -454,7 +455,7 @@ function logTurnChange(from, to, reason) {
   console.log(`
 🔄 TURN CHANGE: ${playerNames[from]} → ${playerNames[to]}
 ├─ Reason: ${reason}
-├─ Cards: [${game.state.hands.map(h => h.length).join(', ')}]
+├─ Cards: [${gameState.hands.map(h => h.length).join(', ')}]
 └─ Bot Flag: ${botTurnInProgress ? '⚠️ SET' : 'CLEAR'}`);
 }
 
