@@ -110,7 +110,7 @@ class GameStateManager {
     if (lastAction === 'place') {
       this.log('🎯 LAST ACTION WAS PLACE - TURN MUST END, FINDING NEXT PLAYER');
       
-      // Find next player in turn order (not the current player who just placed)
+      // Find next player with cards (not the current player who just placed)
       const nextPlayerWithCards = this.findNextPlayerWithCards(snapshot, true); // true = skip current player
       
       if (nextPlayerWithCards !== null) {
@@ -166,30 +166,25 @@ class GameStateManager {
     }
   }
 
-  // 🔍 FIND NEXT PLAYER WITH CARDS (DEALER ORDER)
-  findNextPlayerWithCards(snapshot, skipCurrentPlayer = false) {
-    this.log('🔍 SEARCHING FOR PLAYER WITH CARDS...');
+  // 🔍 FIND NEXT PLAYER WITH CARDS
+  findNextPlayerWithCards(snapshot, skipCurrent = false) {
+    this.log('🔍 FINDING NEXT PLAYER WITH CARDS...');
     
     let playerOrder;
     
-    if (skipCurrentPlayer) {
-  // 🔥 FIXED: After place action, check if current player has cards, then others
-  this.log(`🔄 CHECKING PLAYERS STARTING WITH CURRENT PLAYER`);
-  
-  // Check current player first (who just received turn), then others clockwise
-  playerOrder = [
-    snapshot.currentPlayer,
-    (snapshot.currentPlayer + 1) % 3,
-    (snapshot.currentPlayer + 2) % 3
-  ];
-} 
-    
-    else {
-      // Original logic: Check players in dealer order starting with starting player
+    if (skipCurrent) {
+      // For place: Start with next player after current
       playerOrder = [
-        snapshot.startingPlayer,
-        (snapshot.startingPlayer + 1) % 3,
-        (snapshot.startingPlayer + 2) % 3
+        (snapshot.currentPlayer + 1) % 3,
+        (snapshot.currentPlayer + 2) % 3
+        // 🔥 FIXED: No last resort to current - enforces turn end
+      ];
+    } else {
+      // For capture or default: Start with current player
+      playerOrder = [
+        snapshot.currentPlayer,
+        (snapshot.currentPlayer + 1) % 3,
+        (snapshot.currentPlayer + 2) % 3
       ];
     }
     
