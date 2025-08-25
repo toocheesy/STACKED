@@ -1069,16 +1069,18 @@ window.HintSystem = HintSystem;
 
 // 🎯 CONTINUE TURN - Player found with cards
 function handleContinueTurn(result) {
-  const playerIndex = result.data.playerIndex; // ✅ match GSM
+  const playerIndex = result.data.playerIndex;
   console.log(`✅ CONTINUE TURN: Player ${playerIndex} has cards`);
 
   game.state.currentPlayer = playerIndex;
   ui.render();
-  window.messageController.handleGameEvent('TURN_START');
 
   if (playerIndex !== 0) {
     console.log(`🤖 SCHEDULING BOT ${playerIndex} TURN`);
-    scheduleNextBotTurn(); // ✅ delegate; internal delay already applied
+    // 🔥 FIX: Call aiTurn directly instead of scheduleNextBotTurn
+    setTimeout(() => aiTurn(), 1000);
+  } else {
+    window.messageController.handleGameEvent('TURN_START');
   }
 }
 
@@ -1236,33 +1238,32 @@ window.resumeNextRound = resumeNextRound;
 // Initialize the game
 initGame();
 
-// Add after initGame() or before handleEndRound()
 function handleGameStateResult(result) {
   console.log(`🎯 HANDLING STATE: ${result.state}`);
-  if (result.state === gameStateManager.STATES.CONTINUE_TURN) {
-  const previousPlayer = game.state.currentPlayer; // 🔥 FIXED: Track for change
-  game.state.currentPlayer = result.data.playerIndex;
-  if (result.data.playerIndex !== previousPlayer) {
-    game.state.lastAction = null; // 🔥 FIXED: Clear on player switch to prevent skip
-  }
-  if (result.data.playerIndex !== 0) {
-    scheduleNextBotTurn(result.data.playerIndex);
-  } else {
-    window.messageController.handleGameEvent('TURN_START');
-    ui.render();
-  }
-} else if (result.state === gameStateManager.STATES.DEAL_NEW_HAND) {
-  // ✅ In-round deal only
-  handleDealNewHand(result);
-} else if (result.state === gameStateManager.STATES.END_ROUND) {
-
-    resumeNextRound(result.data);
-  } else if (result.state === gameStateManager.STATES.END_ROUND) {
-    handleEndRound(result);
-  } else if (result.state === gameStateManager.STATES.END_GAME) {
-    handleEndGame(result);
-  } else if (result.state === gameStateManager.STATES.ERROR) {
-    handleGameStateError(result);
+  
+  switch(result.state) {
+    case gameStateManager.STATES.CONTINUE_TURN:
+      handleContinueTurn(result);
+      break;
+      
+    case gameStateManager.STATES.DEAL_NEW_HAND:
+      handleDealNewHand(result);
+      break;
+      
+    case gameStateManager.STATES.END_ROUND:
+      handleEndRound(result);
+      break;
+      
+    case gameStateManager.STATES.END_GAME:
+      handleEndGame(result);
+      break;
+      
+    case gameStateManager.STATES.ERROR:
+      handleGameStateError(result);
+      break;
+      
+    default:
+      console.error(`🚨 UNKNOWN STATE: ${result.state}`);
   }
 }
 

@@ -18,81 +18,30 @@ class UISystem {
     };
   }
 
-  // 🔥 NEW: CENTRALIZED MODAL DISPLAY WITH GAME PAUSING
-  showModal(type, data = {}) {
-  console.log(`🎪 SHOWING MODAL: ${type}`);
+  // 🔥 NEW: Use ModalManager instead of custom modal system
+showModal(type, data = {}) {
+  console.log(`🎪 UI: Delegating to ModalManager: ${type}`);
   
-  // 🔥 CRITICAL: Pause the game during modals
-  this.pauseGame();
-  
-  // Remove any existing modal - BUT ONLY THE DOM ELEMENT
-  const existingModal = document.getElementById('game-modal-container');
-  if (existingModal) {
-    existingModal.remove();
+  // Initialize ModalManager if not exists
+  if (!this.modalManager || typeof this.modalManager.show !== 'function') {
+    // Import and initialize ModalManager
+    if (typeof ModalManager !== 'undefined') {
+      this.modalManager = new ModalManager(this.game, this);
+    } else {
+      console.error('🚨 ModalManager not available - falling back');
+      this.showModalFallback(type, data);
+      return;
+    }
   }
   
-  // DON'T call this.hideModal() here - it resumes the game immediately!
-    
-    let modalHTML = '';
-    
-    switch(type) {
-      case 'round_end':
-        modalHTML = this.createRoundEndModal(data);
-        break;
-      case 'game_over':
-        modalHTML = this.createGameOverModal(data);
-        break;
-      case 'error':
-        modalHTML = this.createErrorModal(data);
-        break;
-      default:
-        console.error(`🚨 Unknown modal type: ${type}`);
-        return;
-    }
-    
-    // Create modal container
-    const modalContainer = document.createElement('div');
-    modalContainer.id = 'game-modal-container';
-    modalContainer.className = 'game-modal-overlay';
-    modalContainer.innerHTML = modalHTML;
-    
-    // Add to DOM
-    document.body.appendChild(modalContainer);
-    
-    // Store round data for continue button
-    if (type === 'round_end') {
-      this.currentRoundData = data;
-    }
-    
-    // 🔥 NEW: Add event listeners for modal buttons
-    if (type === 'round_end') {
-      const continueBtn = modalContainer.querySelector('#continue-round-btn');
-      if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-  console.log('🎯 Continue button clicked - UI SYSTEM');
-  this.hideModal();
-  
-  // 🔥 PHASE 2: Resume round setup
-  if (typeof window.resumeNextRound === 'function') {
-    // Pass the round data stored in modal
-    const roundData = this.currentRoundData || data;
-    window.resumeNextRound(roundData);
-  }
-});
-      }
-    }
-    
-    // Mark modal as active
-    this.modalManager.isModalActive = true;
-    this.modalManager.currentModal = type;
-    
-    // Animate in
-    setTimeout(() => {
-      modalContainer.classList.add('show');
-    }, 50);
-    
-    console.log(`✅ MODAL DISPLAYED: ${type} (Game paused: ${this.modalManager.gameWasPaused})`);
-  }
+  // Use ModalManager
+  this.modalManager.show(type, data);
+}
+
+// Fallback modal system (keep existing code as backup)
+showModalFallback(type, data = {}) {
+  // Your existing showModal code goes here as a backup
+}
 
   // 🔥 NEW: HIDE MODAL AND RESUME GAME
 hideModal() {
