@@ -19,9 +19,10 @@ if (typeof ModalManager !== 'undefined') {
   console.error('❌ ModalManager class not available');
   this.modalManager = null;
 }
+  }
 
 // 🎪 MODAL DISPLAY - Delegate to ModalManager
-  showModal(type, data = {}) {
+showModal(type, data = {}) {
     console.log(`🎪 UI: Showing modal: ${type}`);
     
     if (this.modalManager && typeof this.modalManager.show === 'function') {
