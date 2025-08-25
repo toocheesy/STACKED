@@ -302,8 +302,12 @@ let ui = null;
 let botModal = null;
 let modeSelector = null;
 
+// Ensure GSM reference for state constants
+const gameStateManager = window.gameStateManager;
+
 // 🎯 CENTRALIZED BOT TURN MANAGEMENT
 let botTurnInProgress = false;
+
 
 /* 
  * 🔍 CLEAN DEBUG LOGGING SYSTEM
@@ -608,22 +612,15 @@ console.log('🎯 LAST ACTION SET TO: capture');
   });
   
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-
-  if (game.state.hands[0].length > 0) {
-    game.state.currentPlayer = 0;
-    // 🎯 SEND TURN START EVENT
-    window.messageController.handleGameEvent('TURN_START');
-  } else {
-    game.state.currentPlayer = 1;
-    // 🎯 SEND PLAYER OUT OF CARDS EVENT
-    window.messageController.handleGameEvent('PLAYER_OUT_OF_CARDS');
-    setTimeout(async () => await scheduleNextBotTurn(), 1000);
-  }
   
-  ui.render();
+    ui.render();
   playSound('capture');
-  checkGameEnd();
+
+  // 🔁 Centralized state progression via GameStateManager
+  const result = window.gameStateManager.determineGameState(game);
+  handleGameStateResult(result);
 }
+
 
 // 🎯 UPDATED handleResetPlayArea() WITH MESSAGE EVENTS
 function handleResetPlayArea() {
@@ -692,19 +689,14 @@ console.log('🎯 LAST ACTION SET TO: place');
       cardName: `${handCard.value}${handCard.suit}`
     });
     
-    const playerCards = game.state.hands[0].length;
-    if (playerCards > 0) {
-      game.nextPlayer();
-    } else {
-      game.nextPlayer();
-    }
-    
-    ui.render();
-    checkGameEnd();
-    
-    if (game.state.currentPlayer !== 0) {
-      setTimeout(async () => await scheduleNextBotTurn(), 100);
-    }
+    game.nextPlayer();
+     
+        ui.render();
+
+    // Centralized state progression
+    const gs = window.gameStateManager.determineGameState(game);
+    handleGameStateResult(gs);
+
     
   } catch (error) {
     console.error('Error in card placement:', error);
@@ -781,31 +773,14 @@ async function aiTurn() {
   const playerIndex = game.state.currentPlayer;
   
   // 🛡️ SAFETY GUARD: Check if bot has cards
-  if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {
-    console.log(`🏁 BOT ${playerIndex}: No cards left, switching players`);
-    game.nextPlayer();
+    if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {
+    console.log(`🏁 BOT ${playerIndex}: No cards left`);
     ui.render();
-    
-    // Continue to next player if they have cards
-    if (game.state.currentPlayer !== 0 && 
-        game.state.hands[game.state.currentPlayer] && 
-        game.state.hands[game.state.currentPlayer].length > 0) {
-      setTimeout(() => scheduleNextBotTurn(), 1000);
-    } else if (game.state.currentPlayer === 0 && game.state.hands[0].length === 0) {
-      // Player is also out of cards, find next bot with cards
-      let nextBot = 1;
-      while (nextBot < 3 && (!game.state.hands[nextBot] || game.state.hands[nextBot].length === 0)) {
-        nextBot++;
-      }
-      if (nextBot < 3) {
-        game.state.currentPlayer = nextBot;
-        setTimeout(() => scheduleNextBotTurn(), 1000);
-      } else {
-        checkGameEnd();
-      }
-    }
+    const gs = window.gameStateManager.determineGameState(game);
+    handleGameStateResult(gs);
     return;
   }
+
 
   // 🎯 SET BOT TURN FLAG
   botTurnInProgress = true;
@@ -847,44 +822,16 @@ async function aiTurn() {
         
         // Bot captured, check if they can continue
         const remainingCards = game.state.hands[playerIndex].length;
-        if (remainingCards > 0) {
-          console.log(`🔄 BOT ${playerIndex}: Has ${remainingCards} cards left, continuing turn`);
-          setTimeout(() => scheduleNextBotTurn(), 1500);
-        } else {
-          console.log(`🏁 BOT ${playerIndex}: Out of cards after capture`);
-          game.nextPlayer();
-          ui.render();
-          
-          // Schedule next bot turn if current player is a bot
-          if (game.state.currentPlayer !== 0 && 
-              game.state.hands[game.state.currentPlayer] && 
-              game.state.hands[game.state.currentPlayer].length > 0) {
-            console.log(`🤖 SCHEDULING NEXT BOT ${game.state.currentPlayer} AFTER OUT-OF-CARDS`);
-            setTimeout(() => scheduleNextBotTurn(), 1000);
-          } else {
-            // All players out or it's human turn - check game state
-            setTimeout(() => checkGameEnd(), 100);
-          }
-        }
+                // Always delegate progression to GameStateManager
+        const gs = window.gameStateManager.determineGameState(game);
+        handleGameStateResult(gs);
+
       } else if (result.action === 'place') {
-        // Bot placed card, switch to next player
-        console.log(`🔄 BOT ${playerIndex}: Placed card, switching players`);
-        
-        // Update current player BEFORE calling checkGameEnd
-        game.nextPlayer();
+                // Centralize turn flow after a place
         ui.render();
-        
-        console.log(`🎯 AFTER PLACE: Current player is now ${game.state.currentPlayer}`);
-        
-        // Handle next player logic
-        if (game.state.currentPlayer !== 0) {
-          console.log(`🤖 NEXT PLAYER IS BOT ${game.state.currentPlayer} - SCHEDULING TURN`);
-          setTimeout(() => scheduleNextBotTurn(), 1000);
-        } else {
-          console.log(`👤 HUMAN PLAYER'S TURN - SENDING TURN START EVENT`);
-          // Send turn start event for human
-          window.messageController.handleGameEvent('TURN_START');
-        }
+        const gs = window.gameStateManager.determineGameState(game);
+        handleGameStateResult(gs);
+
       }
     } else {
       console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
@@ -894,10 +841,11 @@ async function aiTurn() {
         console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
         result = await botModal.placeCard(fallbackCard, playerIndex);
         if (result.success) {
-          game.nextPlayer();
           ui.render();
-          checkGameEnd();
+          const gs = window.gameStateManager.determineGameState(game);
+          handleGameStateResult(gs);
         }
+
       }
     }
     
@@ -925,48 +873,6 @@ async function scheduleNextBotTurn() {
     console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
     return;
   }
-  
-  if (!game.state.hands[game.state.currentPlayer] || 
-    game.state.hands[game.state.currentPlayer].length === 0) {
-    console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
-    setTimeout(() => {
-      console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
-      checkGameEnd();
-    }, 100);
-    return;
-  }
-  
-  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
-  
-  setTimeout(async () => {
-    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
-    await aiTurn();
-  }, 1000);
-}
-
-async function scheduleNextBotTurn() {
-  // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
-  if (botTurnInProgress) {
-    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
-    return;
-  }
-  
-  // 🛡️ SAFETY GUARD: Only for bot players
-  if (game.state.currentPlayer === 0) {
-    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
-    return;
-  }
-  
-  // 🔥 CRITICAL FIX: DON'T call checkGameEnd() here - it's handled elsewhere!
-  if (!game.state.hands[game.state.currentPlayer] || 
-    game.state.hands[game.state.currentPlayer].length === 0) {
-  console.log(`🚨 BOT ${game.state.currentPlayer}: No cards to schedule turn - CALLING checkGameEnd()`);
-  setTimeout(() => {
-    console.log(`🎯 CALLING checkGameEnd() because Bot ${game.state.currentPlayer} has no cards`);
-    checkGameEnd();
-  }, 100);
-  return;
-}
   
   console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
   
@@ -1163,24 +1069,19 @@ window.HintSystem = HintSystem;
 
 // 🎯 CONTINUE TURN - Player found with cards
 function handleContinueTurn(result) {
-  const playerIndex = result.nextPlayer;
+  const playerIndex = result.data.playerIndex; // ✅ match GSM
   console.log(`✅ CONTINUE TURN: Player ${playerIndex} has cards`);
-  
-  // Set the current player
+
   game.state.currentPlayer = playerIndex;
-  
-  // Update UI
   ui.render();
-  
-  // Send turn start event to message controller
   window.messageController.handleGameEvent('TURN_START');
-  
-  // If it's a bot, schedule their turn
+
   if (playerIndex !== 0) {
     console.log(`🤖 SCHEDULING BOT ${playerIndex} TURN`);
-    setTimeout(() => scheduleNextBotTurn(), 1000);
+    scheduleNextBotTurn(); // ✅ delegate; internal delay already applied
   }
 }
+
 
 // 🎴 DEAL NEW HAND - Same dealer, same starting player
 function handleDealNewHand(result) {
@@ -1335,48 +1236,31 @@ window.resumeNextRound = resumeNextRound;
 // Initialize the game
 initGame();
 
-// 🔥 OVERRIDE OLD MODAL FUNCTIONS TO USE NEW CENTRALIZED SYSTEM
-function showRoundEndModal(data) {
-  console.log('🔄 REDIRECTING OLD ROUND END MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    newRound: data.newRound || game.currentRound,
-    oldDealer: game.currentDealer === 0 ? 2 : game.currentDealer - 1,
-    newDealer: game.currentDealer
-  };
-  
-  ui.showModal('round_end', modalData);
-}
+// Add after initGame() or before handleEndRound()
+function handleGameStateResult(result) {
+  console.log(`🎯 HANDLING STATE: ${result.state}`);
+  if (result.state === gameStateManager.STATES.CONTINUE_TURN) {
+    game.state.currentPlayer = result.data.playerIndex;
+    if (result.data.playerIndex !== 0) {
+      scheduleNextBotTurn();
+    } else {
+      window.messageController.handleGameEvent('TURN_START');
+      ui.render();
+    }
+  } else if (result.state === gameStateManager.STATES.DEAL_NEW_HAND) {
+  // ✅ In-round deal only
+  handleDealNewHand(result);
+} else if (result.state === gameStateManager.STATES.END_ROUND) {
 
-function showGameOverModal(data) {
-  console.log('🔄 REDIRECTING OLD GAME OVER MODAL TO NEW SYSTEM');
-  
-  // Convert old data format to new format if needed  
-  const modalData = {
-    scores: data.scores || game.state.scores,
-    jackpot: { 
-      hasJackpot: data.message ? true : false,
-      message: data.message,
-      winnerName: data.message ? data.message.split(' ')[1] : null,
-      points: data.message ? parseInt(data.message.match(/\+(\d+)/)?.[1]) : 0
-    },
-    winner: data.winner || 0,
-    winnerName: data.winner || 'Player',
-    winnerScore: data.winnerScore || 0
-  };
-  
-  ui.showModal('game_over', modalData);
+    resumeNextRound(result.data);
+  } else if (result.state === gameStateManager.STATES.END_ROUND) {
+    handleEndRound(result);
+  } else if (result.state === gameStateManager.STATES.END_GAME) {
+    handleEndGame(result);
+  } else if (result.state === gameStateManager.STATES.ERROR) {
+    handleGameStateError(result);
+  }
 }
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET
 window.gameIsPaused = false;
-// Make resumeNextRound globally available
-window.resumeNextRound = resumeNextRound;
