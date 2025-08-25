@@ -10,232 +10,32 @@ class UISystem {
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
     
-    // 🔥 NEW: Modal management system
-    this.modalManager = {
-      isModalActive: false,
-      currentModal: null,
-      gameWasPaused: false
-    };
-  }
+    // NEW - proper ModalManager integration
+if (typeof ModalManager !== 'undefined') {
+  this.modalManager = new ModalManager(this.game, this);
+  this.modalManager.ensureModalStyling();
+  console.log('✅ ModalManager initialized in UI constructor');
+} else {
+  console.error('❌ ModalManager class not available');
+  this.modalManager = null;
+}
 
-  // 🔥 NEW: Use ModalManager instead of custom modal system
-showModal(type, data = {}) {
-  console.log(`🎪 UI: Delegating to ModalManager: ${type}`);
-  
-  // Initialize ModalManager if not exists
-  if (!this.modalManager || typeof this.modalManager.show !== 'function') {
-    // Import and initialize ModalManager
-    if (typeof ModalManager !== 'undefined') {
-      this.modalManager = new ModalManager(this.game, this);
+// 🎪 MODAL DISPLAY - Delegate to ModalManager
+  showModal(type, data = {}) {
+    console.log(`🎪 UI: Showing modal: ${type}`);
+    
+    if (this.modalManager && typeof this.modalManager.show === 'function') {
+      return this.modalManager.show(type, data);
     } else {
-      console.error('🚨 ModalManager not available - falling back');
-      this.showModalFallback(type, data);
-      return;
+      console.error('❌ ModalManager not initialized properly');
+      return false;
     }
-  }
-  
-  // Use ModalManager
-  this.modalManager.show(type, data);
-}
-
-// Fallback modal system (keep existing code as backup)
-showModalFallback(type, data = {}) {
-  // Your existing showModal code goes here as a backup
-}
-
-  // 🔥 NEW: HIDE MODAL AND RESUME GAME
-hideModal() {
-  const existingModal = document.getElementById('game-modal-container');
-  if (existingModal) {
-    existingModal.classList.add('hide');
-    setTimeout(() => {
-      existingModal.remove();
-    }, 300);
-  }
-  
-  // 🔥 CRITICAL: Resume the game after modal closes
-  this.resumeGame();
-  
-  this.modalManager.isModalActive = false;
-  this.modalManager.currentModal = null;
-  
-  console.log('🎪 MODAL HIDDEN - Game resumed');
-}
-
-  // 🔥 NEW: PAUSE GAME DURING MODALS
-  pauseGame() {
-    // Set global pause flag
-    window.gameIsPaused = true;
-    
-    // Disable all game interactions
-    const gameContainer = document.querySelector('.table');
-    if (gameContainer) {
-      gameContainer.style.pointerEvents = 'none';
-      gameContainer.style.opacity = '0.7';
-    }
-    
-    // Stop any bot turn scheduling
-    if (window.botTurnInProgress) {
-      this.modalManager.gameWasPaused = true;
-    }
-    
-    console.log('⏸️ GAME PAUSED for modal');
-  }
-
-  // 🔥 NEW: RESUME GAME AFTER MODAL
-  resumeGame() {
-    // Clear global pause flag
-    window.gameIsPaused = false;
-    
-    // Re-enable game interactions
-    const gameContainer = document.querySelector('.table');
-    if (gameContainer) {
-      gameContainer.style.pointerEvents = 'auto';
-      gameContainer.style.opacity = '1';
-    }
-    
-    // Resume bot turns if they were paused
-    if (this.modalManager.gameWasPaused && game.state.currentPlayer !== 0) {
-      console.log('🤖 RESUMING BOT TURN AFTER MODAL');
-      setTimeout(() => {
-        if (typeof scheduleNextBotTurn === 'function') {
-          scheduleNextBotTurn();
-        }
-      }, 500);
-    }
-    
-    this.modalManager.gameWasPaused = false;
-    console.log('▶️ GAME RESUMED after modal');
-  }
-
-  // 🔥 NEW: CREATE ROUND END MODAL
-  createRoundEndModal(data) {
-    const { scores, jackpot, newRound, oldDealer, newDealer } = data;
-    
-    let jackpotHTML = '';
-    if (jackpot && jackpot.hasJackpot) {
-      jackpotHTML = `
-        <div class="jackpot-announcement">
-          🏆 <strong>${jackpot.winnerName}</strong> sweeps the board!<br>
-          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
-        </div>
-      `;
-    }
-    
-    const dealerNames = ['Player', 'Bot 1', 'Bot 2'];
-    
-    return `
-      <div class="game-modal round-end-modal">
-        <div class="modal-header">
-          <h2>🏁 Round ${newRound - 1} Complete!</h2>
-        </div>
-        <div class="modal-content">
-          ${jackpotHTML}
-          <div class="round-scores">
-            <h3>Round Scores:</h3>
-            <div class="score-grid">
-              <div class="score-item ${scores.player >= scores.bot1 && scores.player >= scores.bot2 ? 'winner' : ''}">
-                <span class="player-name">Player</span>
-                <span class="player-score">${scores.player} pts</span>
-              </div>
-              <div class="score-item ${scores.bot1 >= scores.player && scores.bot1 >= scores.bot2 ? 'winner' : ''}">
-                <span class="player-name">Bot 1</span>
-                <span class="player-score">${scores.bot1} pts</span>
-              </div>
-              <div class="score-item ${scores.bot2 >= scores.player && scores.bot2 >= scores.bot1 ? 'winner' : ''}">
-                <span class="player-name">Bot 2</span>
-                <span class="player-score">${scores.bot2} pts</span>
-              </div>
-            </div>
-          </div>
-          <div class="round-info">
-            <p><strong>Round ${newRound}</strong> starting...</p>
-            <p>New dealer: <strong>${dealerNames[newDealer]}</strong></p>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button id="continue-round-btn" class="continue-btn">Continue Game →</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // 🔥 NEW: CREATE GAME OVER MODAL
-  createGameOverModal(data) {
-    const { scores, jackpot, winner, winnerName, winnerScore } = data;
-    
-    let jackpotHTML = '';
-    if (jackpot && jackpot.hasJackpot) {
-      jackpotHTML = `
-        <div class="jackpot-announcement">
-          🏆 Final sweep by <strong>${jackpot.winnerName}</strong>!<br>
-          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
-        </div>
-      `;
-    }
-    
-    return `
-      <div class="game-modal game-over-modal">
-        <div class="modal-header">
-          <h2>🎉 Game Over!</h2>
-        </div>
-        <div class="modal-content">
-          <div class="winner-announcement">
-            <h3>🏆 ${winnerName} Wins!</h3>
-            <p class="winner-score">${winnerScore} points</p>
-          </div>
-          ${jackpotHTML}
-          <div class="final-scores">
-            <h3>Final Scores:</h3>
-            <div class="score-grid">
-              <div class="score-item ${winner === 0 ? 'winner' : ''}">
-                <span class="player-name">Player</span>
-                <span class="player-score">${scores.player} pts</span>
-              </div>
-              <div class="score-item ${winner === 1 ? 'winner' : ''}">
-                <span class="player-name">Bot 1</span>
-                <span class="player-score">${scores.bot1} pts</span>
-              </div>
-              <div class="score-item ${winner === 2 ? 'winner' : ''}">
-                <span class="player-name">Bot 2</span>
-                <span class="player-score">${scores.bot2} pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-actions">
-          <button onclick="initGame()" class="restart-btn">Play Again</button>
-          <button onclick="window.location.href='index.html'" class="home-btn">Home</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // 🔥 NEW: CREATE ERROR MODAL
-  createErrorModal(data) {
-    return `
-      <div class="game-modal error-modal">
-        <div class="modal-header">
-          <h2>⚠️ Game Error</h2>
-        </div>
-        <div class="modal-content">
-          <p>${data.userMessage || 'An error occurred during gameplay.'}</p>
-          <details>
-            <summary>Technical Details</summary>
-            <pre>${data.technicalDetails || 'No details available'}</pre>
-          </details>
-        </div>
-        <div class="modal-actions">
-          <button onclick="initGame()" class="restart-btn">Restart Game</button>
-        </div>
-      </div>
-    `;
   }
 
   // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
   render() {
     // 🔥 NEW: Don't render if modal is active
-    if (this.modalManager.isModalActive) {
+    if (this.modalManager && this.modalManager.isModalActive()) {
       console.log('🎪 SKIPPING RENDER: Modal is active');
       return;
     }
