@@ -97,8 +97,6 @@ setStartingPlayer() {
   console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);  
   console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);  
 }
-    return { ...this.state };
-  }
 
   // Validate capture using current mode or standard rules
   validateCapture(areaCards, baseValue, baseCard, areaName) {
