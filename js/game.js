@@ -85,11 +85,18 @@ if (this.currentMode.init) {
   this.currentMode.init(this);
 }
 
-console.log(`🎮 ${gameMode.name} initialized successfully`);
-  }
+console.log(`🎮 ${gameMode.name} initialized successfully`);  
+}  
 
-  // Get current game state (read-only)
-  getState() {
+// 🔥 RESTORED: Pure starting player setter for init - no flow control!  
+setStartingPlayer() {  
+  // Starting player is to the left of dealer (next clockwise)  
+  this.state.currentPlayer = (this.currentDealer + 1) % 3;  
+    
+  const playerNames = ['Player', 'Bot 1', 'Bot 2'];  
+  console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);  
+  console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);  
+}
     return { ...this.state };
   }
 
