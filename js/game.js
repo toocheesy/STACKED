@@ -96,10 +96,14 @@ setStartingPlayer() {
   const playerNames = ['Player', 'Bot 1', 'Bot 2'];  
   console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);  
   console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);  
-}
+}  
 
-  // Validate capture using current mode or standard rules
-  validateCapture(areaCards, baseValue, baseCard, areaName) {
+// 🔥 RESTORED: Pure state getter for read-only access - no mutations!  
+getState() {  
+  return { ...this.state };  // Spread for shallow copy safety  
+}  
+
+validateCapture(areaCards, baseValue, baseCard, areaName) {
     // Check if mode has custom validation
     if (this.currentMode.validateCapture) {
       const modeResult = this.currentMode.validateCapture(areaCards, baseValue, baseCard, areaName);
