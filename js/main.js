@@ -879,7 +879,7 @@ async function scheduleNextBotTurn() {
   setTimeout(async () => {
     console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
     await aiTurn();
-  }, 1000);
+  }, 3000);
 }
 
 function playSound(type) {
