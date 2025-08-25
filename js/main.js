@@ -690,7 +690,7 @@ console.log('🎯 LAST ACTION SET TO: place');
     });
     
     game.nextPlayer();
-     
+
         ui.render();
 
     // Centralized state progression
@@ -1240,14 +1240,18 @@ initGame();
 function handleGameStateResult(result) {
   console.log(`🎯 HANDLING STATE: ${result.state}`);
   if (result.state === gameStateManager.STATES.CONTINUE_TURN) {
-    game.state.currentPlayer = result.data.playerIndex;
-    if (result.data.playerIndex !== 0) {
-      scheduleNextBotTurn();
-    } else {
-      window.messageController.handleGameEvent('TURN_START');
-      ui.render();
-    }
-  } else if (result.state === gameStateManager.STATES.DEAL_NEW_HAND) {
+  const previousPlayer = game.state.currentPlayer; // 🔥 FIXED: Track for change
+  game.state.currentPlayer = result.data.playerIndex;
+  if (result.data.playerIndex !== previousPlayer) {
+    game.state.lastAction = null; // 🔥 FIXED: Clear on player switch to prevent skip
+  }
+  if (result.data.playerIndex !== 0) {
+    scheduleNextBotTurn(result.data.playerIndex);
+  } else {
+    window.messageController.handleGameEvent('TURN_START');
+    ui.render();
+  }
+} else if (result.state === gameStateManager.STATES.DEAL_NEW_HAND) {
   // ✅ In-round deal only
   handleDealNewHand(result);
 } else if (result.state === gameStateManager.STATES.END_ROUND) {
