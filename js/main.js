@@ -616,7 +616,7 @@ console.log('🎯 LAST ACTION SET TO: capture');
     ui.render();
   playSound('capture');
 
-  // 🔁 Centralized state progression via GameStateManager
+  // ✅ LET GAMESTATEMANAGER DECIDE WHAT HAPPENS NEXT:
   const result = window.gameStateManager.determineGameState(game);
   handleGameStateResult(result);
 }
@@ -676,20 +676,18 @@ function handleBoardDrop(e) {
     
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
-window.cardIntelligence.updateCardsSeen([handCard]);
-game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
-game.state.draggedCard = null;
+    window.cardIntelligence.updateCardsSeen([handCard]);
+    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    game.state.draggedCard = null;
 
 // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER
-game.state.lastAction = 'place';
-console.log('🎯 LAST ACTION SET TO: place');
+  game.state.lastAction = 'place';
+  console.log('🎯 LAST ACTION SET TO: place');
     
     // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CARD_PLACED', {
       cardName: `${handCard.value}${handCard.suit}`
     });
-    
-    game.nextPlayer();
 
         ui.render();
 

@@ -284,43 +284,6 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
     }
   }
 
-  // Advance to next player - SMART VERSION THAT SKIPS EMPTY HANDS
-nextPlayer() {
-  let attempts = 0;
-  const maxAttempts = 3; // Prevent infinite loops
-  
-  do {
-    this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-    attempts++;
-    
-    console.log(`🔄 NEXT PLAYER: ${this.state.currentPlayer} (Hand: ${this.state.hands[this.state.currentPlayer].length} cards)`);
-    
-    // If current player has cards, we're good!
-    if (this.state.hands[this.state.currentPlayer].length > 0) {
-      return;
-    }
-    
-    // If no one has cards, end the round
-const totalCards = this.state.hands[0].length + this.state.hands[1].length + this.state.hands[2].length;
-if (totalCards === 0) {
-  console.log(`🏁 ALL PLAYERS OUT OF CARDS - ROUND COMPLETE`);
-  // 🔥 FIXED: Call checkGameEnd() with a small delay to let the UI update
-  setTimeout(() => {
-    if (typeof checkGameEnd === 'function') {
-      checkGameEnd();
-    } else {
-      console.error('🚨 checkGameEnd function not available!');
-    }
-  }, 100);
-  return;
-}
-    
-  } while (attempts < maxAttempts);
-  
-  // Safety fallback
-  console.log(`🚨 SAFETY FALLBACK: No players with cards found, ending round`);
-}
-
   // Get ranked players
   getRankedPlayers() {
     const players = [
