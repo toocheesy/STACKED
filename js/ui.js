@@ -493,9 +493,15 @@ showModal(type, data = {}) {
   // Helper methods
   // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
   isCardInPlayArea(index, source, playerIndex = null) {
-  // For now, just return false to make all cards draggable
-  // We'll fix the hiding logic later
-  return false;
+  // Check if this specific card is in any combo area
+  return Object.values(this.game.state.combination).some(area => 
+    area.some(entry => 
+      entry.source === source && 
+      entry.index === index &&
+      // For hand cards, only hide if current player put them there
+      (source !== 'hand' || entry.playerSource === this.game.state.currentPlayer)
+    )
+  );
 }
 
   createCardElement(card, index, type) {
