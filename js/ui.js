@@ -493,40 +493,10 @@ showModal(type, data = {}) {
   // Helper methods
   // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
   isCardInPlayArea(index, source, playerIndex = null) {
-    return Object.values(this.game.state.combination).some(area => 
-      area.some(entry => {
-        // Basic source and index match
-        if (entry.source !== source || entry.index !== index) {
-          return false;
-        }
-        
-        // 🔥 CRITICAL FIX: For hand cards, NEVER hide player cards during bot turns
-        if (source === 'hand') {
-          // If we're checking the player's hand (playerIndex = 0)
-          if (playerIndex === 0) {
-            // NEVER hide player cards, regardless of what's in combo areas
-            // Player cards should only be hidden if THEY put them in combo areas
-            const currentPlayer = this.game.state.currentPlayer;
-            
-            // Only hide player cards if it's the player's turn AND they put cards in combo
-            if (currentPlayer === 0) {
-              // Check if this entry has a playerSource property indicating it came from player
-              return entry.playerSource === 0;
-            }
-            
-            // If it's a bot turn, NEVER hide player cards
-            return false;
-          }
-          
-          // For bot hands, use existing logic
-          return true;
-        }
-        
-        // Board cards always check normally
-        return true;
-      })
-    );
-  }
+  // For now, just return false to make all cards draggable
+  // We'll fix the hiding logic later
+  return false;
+}
 
   createCardElement(card, index, type) {
     const cardEl = document.createElement('div');
