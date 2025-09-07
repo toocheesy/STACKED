@@ -156,7 +156,7 @@ showModal(type, data = {}) {
 
     // Validate combinations
     this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
-
+  }
     // Add event listeners
     const areas = [
       { el: baseEl, slot: 'base' },
@@ -266,12 +266,6 @@ showModal(type, data = {}) {
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
-      areaEl.addEventListener('dragover', (e) => e.preventDefault());
-    areaEl.addEventListener('drop', (e) => {
-      console.log('🎯 DROP IN AREA:', slotName);
-      e.preventDefault();
-      window.handleDrop(e, slotName);
-    });
 }
       areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
     } else {
@@ -279,7 +273,14 @@ showModal(type, data = {}) {
       areaEl.style.border = '2px dashed #ccc';
       areaEl.style.height = '110px';
     }
+    areaEl.addEventListener('dragover', (e) => e.preventDefault());
+    areaEl.addEventListener('drop', (e) => {
+      console.log('🎯 DROP IN AREA:', slotName);
+      e.preventDefault();
+      window.handleDrop(e, slotName);
+    });
   }
+
 
   // 🔥 NEW: Calculate sum total for sum areas
   calculateSumTotal(cards) {
