@@ -20,22 +20,14 @@ analyzeAllPossibleCaptures() {
   }
 
   const playerHand = this.game.state.hands[0];
-  const board = this.game.state.board;
-
-  console.log(`🎯 ANALYZING HINTS using CARD INTELLIGENCE: ${playerHand.length} hand cards vs ${board.length} board cards`);
-
-  // 🔥 USE CARD INTELLIGENCE SYSTEM!
-  if (!window.cardIntelligence) {
-    console.warn('⚠️ Card Intelligence not available - falling back to basic detection');
-    return this.basicHintDetection(playerHand, board);
+  const board = this.game.state.board;// 🔥 USE CARD INTELLIGENCE SYSTEM!
+  if (!window.cardIntelligence) {return this.basicHintDetection(playerHand, board);
   }
 
   // Get the best capture from Card Intelligence
   const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
   
-  if (bestCapture) {
-    console.log(`🧠 CARD INTELLIGENCE FOUND: ${bestCapture.evaluation.reasoning}`);
-    return [this.convertToHintFormat(bestCapture)];
+  if (bestCapture) {return [this.convertToHintFormat(bestCapture)];
   }
 
   // If no captures found, check all cards for any possible captures
@@ -141,10 +133,7 @@ basicHintDetection(playerHand, board) {
   }
 
   // 🎯 MAIN HINT DISPLAY FUNCTION
-  showHint() {
-    console.log(`🎯 HINT REQUESTED!`);
-    
-    // Clear any existing hints
+  showHint() {// Clear any existing hints
     this.clearHints();
     
     // Find all possible captures
@@ -156,10 +145,7 @@ basicHintDetection(playerHand, board) {
     }
 
     // Get the best hint
-    const bestHint = captures[0];
-    console.log(`🏆 BEST HINT: ${bestHint.description} (${bestHint.score} pts)`);
-    
-    // Show the hint
+    const bestHint = captures[0];// Show the hint
     this.displayHintPopup(bestHint);
     this.highlightHintCards(bestHint);
     
@@ -236,9 +222,7 @@ basicHintDetection(playerHand, board) {
       }
     });
     
-    this.highlightedCards = highlightedElements;
-    console.log(`✨ HIGHLIGHTED: ${highlightedElements.length} cards`);
-  }
+    this.highlightedCards = highlightedElements;}
 
   // 🚫 NO HINTS AVAILABLE MESSAGE
   showNoHintsMessage() {
@@ -280,18 +264,9 @@ basicHintDetection(playerHand, board) {
     });
     
     this.highlightedCards = [];
-    this.currentHints = [];
-    
-    console.log(`🧹 HINTS CLEARED`);
-  }
+    this.currentHints = [];}
 
-  // 🔧 DEBUG: Show all possible captures
-  debugAllCaptures() {
-    const captures = this.analyzeAllPossibleCaptures();
-    console.log(`🔍 DEBUG: Found ${captures.length} possible captures:`);
-    captures.forEach((capture, index) => {
-      console.log(`${index + 1}. ${capture.description} (${capture.score} pts)`);
-    });
+  // 🔧 DEBUG: Show all possible captures);
     return captures;
   }
 }
@@ -316,160 +291,33 @@ let botTurnInProgress = false;
  */
 
 // 🎯 CLEAN LOGGING CONFIGURATION
-const DEBUG_CONFIG = {
-  enabled: true,
-  showGameState: true,
-  showBotTurns: true,
-  showDecisions: true,
-  showCardCounts: true
-};
+
 
 // 🎮 CLEAN GAME STATE LOGGER
-function logGameState(checkNumber, reason = '') {
-  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showGameState) return;
-  
-  const state = game.getState();
-  const handCounts = state.hands.map(hand => hand ? hand.length : 0);
-  const totalCards = handCounts.reduce((sum, count) => sum + count, 0);
-  const boardCount = state.board ? state.board.length : 0;
-  const deckCount = state.deck ? state.deck.length : 0;
-  const totalGameCards = totalCards + boardCount + deckCount;
-  
-  console.log(`
-🎮 GAME STATE CHECK #${checkNumber} ${reason ? `(${reason})` : ''}
-┌─ CARDS ────────────────────────────────────────────────────────
-│  Hands: [${handCounts.join(', ')}] = ${totalCards} total
-│  Board: ${boardCount} cards
-│  Deck:  ${deckCount} cards  
-│  TOTAL: ${totalGameCards}/52 cards ${totalGameCards !== 52 ? '⚠️ MISMATCH!' : '✅'}
-├─ PLAYERS ─────────────────────────────────────────────────────
-│  Current: Player ${state.currentPlayer} (${['Human', 'Bot 1', 'Bot 2'][state.currentPlayer]})
-│  Dealer: Player ${game.currentDealer} (${['Human', 'Bot 1', 'Bot 2'][game.currentDealer]})
-│  Last Action: ${state.lastAction || 'none'}
-│  Last Capturer: ${state.lastCapturer !== null ? state.lastCapturer : 'none'}
-├─ SCORES ──────────────────────────────────────────────────────
-│  Player: ${state.scores.player}  |  Bot 1: ${state.scores.bot1}  |  Bot 2: ${state.scores.bot2}
-│  Round: ${game.currentRound}  |  Target: ${state.settings.targetScore}
-└────────────────────────────────────────────────────────────────`);
-}
+
 
 // 🤖 BOT TURN TRACKER
-function logBotTurn(phase, botIndex, details = {}) {
-  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showBotTurns) return;
-  
-  const botName = ['Human', 'Bot 1', 'Bot 2'][botIndex];
-  const handCount = game.state.hands[botIndex] ? game.state.hands[botIndex].length : 0;
-  
-  switch(phase) {
-    case 'START':
-      console.log(`
-🤖 BOT TURN START: ${botName}
-├─ Cards Available: ${handCount}
-├─ Board Cards: ${game.state.board.length}
-├─ Turn Flag: ${botTurnInProgress ? 'IN PROGRESS' : 'FREE'}
-└─ Action: ${details.action || 'Determining...'}`);
-      break;
-      
-    case 'ACTION':
-      console.log(`
-🎯 BOT ACTION: ${botName} → ${details.action}
-├─ Card: ${details.card || 'unknown'}
-├─ Target: ${details.target || 'board'}
-└─ Remaining: ${details.remaining || handCount - 1} cards`);
-      break;
-      
-    case 'END':
-      console.log(`
-✅ BOT TURN END: ${botName}
-├─ Result: ${details.result || 'SUCCESS'}
-├─ Cards Left: ${handCount}
-├─ Next Player: ${details.nextPlayer !== undefined ? details.nextPlayer : 'TBD'}
-└─ Turn Flag: ${botTurnInProgress ? '⚠️ STILL SET' : 'CLEARED'}`);
-      break;
-      
-    case 'ERROR':
-      console.log(`
-🚨 BOT TURN ERROR: ${botName}
-├─ Error: ${details.error}
-├─ Cards: ${handCount}
-├─ Turn Flag: ${botTurnInProgress ? '⚠️ STUCK' : 'OK'}
-└─ Recovery: ${details.recovery || 'Unknown'}`);
-      break;
-  }
+
 }
 
 // 🎯 GAME STATE MANAGER DECISION LOGGER
-function logGSMDecision(attempt, snapshot, decision) {
-  if (!DEBUG_CONFIG.enabled || !DEBUG_CONFIG.showDecisions) return;
-  
-  console.log(`
-🎯 GAME STATE MANAGER DECISION #${attempt}
-┌─ INPUT ────────────────────────────────────────────────────────
-│  Hands: [${snapshot.handSizes.join(', ')}] = ${snapshot.totalCardsInHands} total
-│  Deck: ${snapshot.deckSize} | Board: ${snapshot.boardSize}
-│  Current Player: ${snapshot.currentPlayer} | Last Action: ${snapshot.gameEngine.state.lastAction || 'none'}
-│  Last Capturer: ${snapshot.lastCapturer !== null ? snapshot.lastCapturer : 'none'}
-├─ ANALYSIS ────────────────────────────────────────────────────
-│  Can Deal New Hand: ${snapshot.deckSize >= 12 ? 'YES' : 'NO'} (need 12, have ${snapshot.deckSize})
-│  Players With Cards: ${snapshot.handSizes.map((size, i) => size > 0 ? i : null).filter(i => i !== null).join(', ') || 'NONE'}
-│  Highest Score: ${Math.max(snapshot.currentScores.player, snapshot.currentScores.bot1, snapshot.currentScores.bot2)}/${snapshot.targetScore}
-├─ DECISION ────────────────────────────────────────────────────
-│  STATE: ${decision.state}
-│  REASON: ${decision.data?.reason || 'Not provided'}
-│  NEXT PLAYER: ${decision.nextPlayer !== undefined ? decision.nextPlayer : 'N/A'}
-└────────────────────────────────────────────────────────────────`);
-}
+
 
 // 🔄 TURN MANAGEMENT LOGGER
-function logTurnChange(from, to, reason) {
-  if (!DEBUG_CONFIG.enabled) return;
-  
-  const playerNames = ['Human', 'Bot 1', 'Bot 2'];
-  console.log(`
-🔄 TURN CHANGE: ${playerNames[from]} → ${playerNames[to]}
-├─ Reason: ${reason}
-├─ Cards: [${game.state.hands.map(h => h.length).join(', ')}]
-└─ Bot Flag: ${botTurnInProgress ? '⚠️ SET' : 'CLEAR'}`);
-}
+
 
 // 🚨 ERROR LOGGER
-function logError(category, error, context = {}) {
-  console.log(`
-🚨 ERROR: ${category}
-├─ Message: ${error.message || error}
-├─ Context: ${JSON.stringify(context, null, 2)}
-└─ Stack: ${error.stack ? error.stack.split('\n')[0] : 'No stack'}`);
-}
+
 
 // 🎯 CRITICAL CHECKPOINT LOGGER
-function logCheckpoint(name, data = {}) {
-  if (!DEBUG_CONFIG.enabled) return;
-  
-  console.log(`
-🎯 CHECKPOINT: ${name}
-├─ Time: ${new Date().toLocaleTimeString()}
-├─ Data: ${JSON.stringify(data, null, 2)}
-└────────────────────────────────────────────────────────────────`);
-}
+
 
 // 🔧 LOGGING CONTROL FUNCTIONS
-function enableDebugLogging() {
-  DEBUG_CONFIG.enabled = true;
-  console.log('🔍 DEBUG LOGGING ENABLED');
-}
 
-function disableDebugLogging() {
-  DEBUG_CONFIG.enabled = false;
-  console.log('🔇 DEBUG LOGGING DISABLED');
-}
 
-function setLogLevel(gameState = true, botTurns = true, decisions = true, cardCounts = true) {
-  DEBUG_CONFIG.showGameState = gameState;
-  DEBUG_CONFIG.showBotTurns = botTurns;
-  DEBUG_CONFIG.showDecisions = decisions;
-  DEBUG_CONFIG.showCardCounts = cardCounts;
-  console.log('🔧 LOG LEVELS UPDATED:', DEBUG_CONFIG);
-}
+
+
+
 
 // Initialize game systems
 function initGameSystems() {
@@ -489,10 +337,7 @@ function startGame(modeName = 'classic', settings = {}) {
   Object.assign(settings, modeSettings);
   
   game.initGame(selectedMode, settings);
-  ui.render();
-  
-  console.log(`🎮 ${selectedMode.name} started with ${settings.botDifficulty} AI`);
-}
+  ui.render();}
 
 // Main initialization
 function initGame() {
@@ -522,9 +367,7 @@ function initGame() {
   startGame(modeSelector.currentMode || 'classic', gameSettings);
 
 // 🔥 CRITICAL FIX: Schedule bot turn if bot goes first
-if (game.state.currentPlayer !== 0) {
-  console.log(`🤖 GAME STARTS WITH BOT ${game.state.currentPlayer} - SCHEDULING FIRST TURN`);
-  setTimeout(() => scheduleNextBotTurn(), 1000);
+if (game.state.currentPlayer !== 0) {setTimeout(() => scheduleNextBotTurn(), 1000);
 }
 
 // Clear localStorage after game starts
@@ -597,10 +440,7 @@ function handleSubmit() {
 window.cardIntelligence.updateCardsSeen(allCapturedCards);
 
 // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER  
-game.state.lastAction = 'capture';
-console.log('🎯 LAST ACTION SET TO: capture');
-    
-  if (game.currentMode.onCapture) {
+game.state.lastAction = 'capture';if (game.currentMode.onCapture) {
     game.currentMode.onCapture(game, allCapturedCards);
   }
   
@@ -681,10 +521,7 @@ function handleBoardDrop(e) {
     game.state.draggedCard = null;
 
 // 🔥 TRACK LAST ACTION - CRITICAL FOR GAME STATE MANAGER
-  game.state.lastAction = 'place';
-  console.log('🎯 LAST ACTION SET TO: place');
-    
-    // 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
+  game.state.lastAction = 'place';// 🎯 SEND CARD PLACED EVENT TO MESSAGE CONTROLLER
     window.messageController.handleGameEvent('CARD_PLACED', {
       cardName: `${handCard.value}${handCard.suit}`
     });
@@ -696,9 +533,7 @@ function handleBoardDrop(e) {
     handleGameStateResult(gs);
 
     
-  } catch (error) {
-    console.error('Error in card placement:', error);
-    game.state.draggedCard = null;
+  } catch (error) {game.state.draggedCard = null;
     ui.render();
   }
 }
@@ -711,11 +546,7 @@ function checkGameEnd() {
   logGameState(++checkGameEndCount, 'checkGameEnd() called');
   
   // 🔥 USE NEW GAME STATE MANAGER
-  const result = window.gameStateManager.determineGameState(game);
-  
-  console.log(`🎯 GAME STATE RESULT: ${result.state}`);
-  
-  // Handle each possible state
+  const result = window.gameStateManager.determineGameState(game);// Handle each possible state
   switch(result.state) {
     case 'CONTINUE_TURN':
       handleContinueTurn(result);
@@ -737,9 +568,7 @@ function checkGameEnd() {
       handleGameStateError(result);
       break;
       
-    default:
-      console.error(`🚨 UNKNOWN GAME STATE: ${result.state}`);
-      handleGameStateError({
+    default:handleGameStateError({
         data: {
           message: `Unknown game state: ${result.state}`,
           userMessage: 'Game encountered an unknown state. Please restart.',
@@ -757,23 +586,17 @@ function checkGameEnd() {
 // 🔥 COMPLETELY REWRITTEN: aiTurn() - CENTRALIZED TURN MANAGEMENT
 async function aiTurn() {
   // 🛡️ SAFETY GUARD: Only one bot turn at a time
-  if (botTurnInProgress) {
-    console.log('🚨 BOT TURN ALREADY IN PROGRESS - SKIPPING');
-    return;
+  if (botTurnInProgress) {return;
   }
 
   // 🛡️ SAFETY GUARD: Only run for bot players
-  if (game.state.currentPlayer === 0) {
-    console.log('🚨 AI TURN CALLED FOR HUMAN PLAYER - SKIPPING');
-    return;
+  if (game.state.currentPlayer === 0) {return;
   }
 
   const playerIndex = game.state.currentPlayer;
   
   // 🛡️ SAFETY GUARD: Check if bot has cards
-    if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {
-    console.log(`🏁 BOT ${playerIndex}: No cards left`);
-    ui.render();
+    if (!game.state.hands[playerIndex] || game.state.hands[playerIndex].length === 0) {ui.render();
     const gs = window.gameStateManager.determineGameState(game);
     handleGameStateResult(gs);
     return;
@@ -791,20 +614,13 @@ async function aiTurn() {
     
     let result;
     
-    if (move && move.action === 'capture') {
-      console.log(`🤖 BOT ${playerIndex}: Attempting capture`);
-      result = await botModal.executeCapture(move, playerIndex);
+    if (move && move.action === 'capture') {result = await botModal.executeCapture(move, playerIndex);
     } else {
-      const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];
-      console.log(`🤖 BOT ${playerIndex}: Placing card ${cardToPlace.value}${cardToPlace.suit}`);
-      result = await botModal.placeCard(cardToPlace, playerIndex);
+      const cardToPlace = move ? move.handCard : game.state.hands[playerIndex][0];result = await botModal.placeCard(cardToPlace, playerIndex);
     }
     
     // 🔥 CRITICAL FIX: ALWAYS CLEAR BOT TURN FLAG BEFORE BRANCHING LOGIC
-    botTurnInProgress = false;
-    console.log('🔥 BOT TURN FLAG CLEARED AFTER ACTION');
-    
-    // 🎯 HANDLE RESULT AND MANAGE TURNS
+    botTurnInProgress = false;// 🎯 HANDLE RESULT AND MANAGE TURNS
     if (result.success) {
       logBotTurn('END', playerIndex, { result: 'SUCCESS', nextPlayer: game.state.currentPlayer });
       
@@ -831,13 +647,9 @@ async function aiTurn() {
         handleGameStateResult(gs);
 
       }
-    } else {
-      console.error(`🚨 BOT ${playerIndex}: Action failed - ${result.reason}`);
-      // Fallback: place first card
+    } else {// Fallback: place first card
       const fallbackCard = game.state.hands[playerIndex][0];
-      if (fallbackCard) {
-        console.log(`🔄 BOT ${playerIndex}: Fallback - placing first card`);
-        result = await botModal.placeCard(fallbackCard, playerIndex);
+      if (fallbackCard) {result = await botModal.placeCard(fallbackCard, playerIndex);
         if (result.success) {
           ui.render();
           const gs = window.gameStateManager.determineGameState(game);
@@ -847,13 +659,8 @@ async function aiTurn() {
       }
     }
     
-  } catch (error) {
-    console.error(`🚨 CRITICAL ERROR in aiTurn for Bot ${playerIndex}:`, error);
-    // 🔥 CRITICAL: Always clear flag on error
-    botTurnInProgress = false;
-    console.log('🔥 BOT TURN FLAG CLEARED AFTER ERROR');
-    
-    // Emergency fallback: switch to next player
+  } catch (error) {// 🔥 CRITICAL: Always clear flag on error
+    botTurnInProgress = false;// Emergency fallback: switch to next player
     game.nextPlayer();
     ui.render();
   }
@@ -861,38 +668,25 @@ async function aiTurn() {
 
 async function scheduleNextBotTurn() {
   // 🛡️ SAFETY GUARD: Prevent duplicate scheduling
-  if (botTurnInProgress) {
-    console.log('🚨 BOT TURN ALREADY SCHEDULED - SKIPPING');
-    return;
+  if (botTurnInProgress) {return;
   }
   
   // 🛡️ SAFETY GUARD: Only for bot players
-  if (game.state.currentPlayer === 0) {
-    console.log('🚨 SCHEDULE CALLED FOR HUMAN PLAYER - SKIPPING');
-    return;
-  }
-  
-  console.log(`⏰ SCHEDULING: Bot ${game.state.currentPlayer} turn in 1000ms`);
-  
-  setTimeout(async () => {
-    console.log(`🤖 EXECUTING SCHEDULED TURN for Bot ${game.state.currentPlayer}`);
-    await aiTurn();
+  if (game.state.currentPlayer === 0) {return;
+  }setTimeout(async () => {await aiTurn();
   }, 3000);
 }
 
 function playSound(type) {
   if (game.state.settings.soundEffects === 'on' && window.sounds && window.sounds[type]) {
-    window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
-  }
+    window.sounds[type].play().catch(e =>}
 }
 
 // Drag and drop handlers
 function handleDragStart(e, source, index) {
   // 🔥 NEW: Block all interactions during modals
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
-    e.preventDefault();
-    console.log('🚨 BLOCKING DRAG: Game is paused or modal is active');
-    return;
+    e.preventDefault();return;
   }
   
   if (game.state.currentPlayer !== 0) return;
@@ -921,15 +715,11 @@ function handleDrop(e, slot) {
   e.preventDefault();
   
   // 🔥 NEW: Block all interactions during modals or game pause
-  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
-    console.log('🚨 BLOCKING DROP: Game is paused or modal is active');
-    return;
+  if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {return;
   }
   
   // 🔥 CRITICAL FIX: Block ALL drag operations during bot turns
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚨 BLOCKING DROP: Bot turn in progress');
-    return;
+  if (game.state.currentPlayer !== 0) {return;
   }
   
   if (!game.state.draggedCard) return;
@@ -964,11 +754,7 @@ game.state.combination[slot].push({
   card: game.state.draggedCard.card,
   playerSource: currentPlayer, // 🔥 NEW: Track which player added this card
   fromBot: currentPlayer !== 0  // 🔥 NEW: Flag for consistency with bot system
-});
-
-console.log(`👤 PLAYER CARD ENTRY: Player ${currentPlayer} adding ${game.state.draggedCard.card.value}${game.state.draggedCard.card.suit} from ${game.state.draggedCard.source}[${game.state.draggedCard.index}] to ${slot}`);
-
-  game.state.draggedCard = null;
+});game.state.draggedCard = null;
 
   // 🎓 SEND COMBO ASSISTANCE EVENT FOR BEGINNERS
   if (window.messageController && window.messageController.educationalMode) {
@@ -990,9 +776,7 @@ function handleDropOriginal(e, source, index) {
   e.preventDefault();
   
   // 🔥 CRITICAL FIX: Block during bot turns
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚨 BLOCKING ORIGINAL DROP: Bot turn in progress');
-    return;
+  if (game.state.currentPlayer !== 0) {return;
   }
   
   if (!game.state.draggedCard) return;
@@ -1021,9 +805,7 @@ function handleTouchDrop(e, targetType, data) {
 
 // 🎯 LEGENDARY HINT FUNCTION
 function provideHint() {
-  if (game.state.currentPlayer !== 0) {
-    console.log('🚫 HINT: Not player turn');
-    return;
+  if (game.state.currentPlayer !== 0) {return;
   }
   
   // Initialize hint system if not exists
@@ -1067,15 +849,10 @@ window.HintSystem = HintSystem;
 
 // 🎯 CONTINUE TURN - Player found with cards
 function handleContinueTurn(result) {
-  const playerIndex = result.data.playerIndex;
-  console.log(`✅ CONTINUE TURN: Player ${playerIndex} has cards`);
-
-  game.state.currentPlayer = playerIndex;
+  const playerIndex = result.data.playerIndex;game.state.currentPlayer = playerIndex;
   ui.render();
 
-  if (playerIndex !== 0) {
-    console.log(`🤖 SCHEDULING BOT ${playerIndex} TURN`);
-    // 🔥 FIX: Call aiTurn directly instead of scheduleNextBotTurn
+  if (playerIndex !== 0) {// 🔥 FIX: Call aiTurn directly instead of scheduleNextBotTurn
     setTimeout(() => aiTurn(), 1000);
   } else {
     window.messageController.handleGameEvent('TURN_START');
@@ -1084,10 +861,7 @@ function handleContinueTurn(result) {
 
 
 // 🎴 DEAL NEW HAND - Same dealer, same starting player
-function handleDealNewHand(result) {
-  console.log(`✅ DEAL NEW HAND: Deck has ${result.data.deckSize} cards`);
-  
-  try {
+function handleDealNewHand(result) {try {
     // Deal new cards (existing function)
     const dealResult = dealCards(game.state.deck, 3, 4, 0);
     game.state.hands = dealResult.players;
@@ -1095,11 +869,7 @@ function handleDealNewHand(result) {
     
     // Keep same starting player as beginning of round
     game.state.currentPlayer = result.data.startingPlayer;
-    game.state.lastCapturer = null;
-    
-    console.log(`🎮 NEW HAND DEALT - Starting player: ${['Player', 'Bot 1', 'Bot 2'][result.data.startingPlayer]}`);
-    
-    // Send new hand event to message controller
+    game.state.lastCapturer = null;// Send new hand event to message controller
 window.messageController.handleGameEvent('NEW_HAND', {
   handNumber: Math.floor((52 - game.state.deck.length) / 12),
   roundNumber: game.currentRound
@@ -1109,28 +879,18 @@ window.messageController.handleGameEvent('NEW_HAND', {
     ui.render();
     
     // If starting player is a bot, schedule their turn
-    if (result.data.startingPlayer !== 0) {
-      console.log(`🤖 NEW HAND STARTS WITH BOT ${result.data.startingPlayer} - SCHEDULING TURN`);
-      setTimeout(() => scheduleNextBotTurn(), 1000);
+    if (result.data.startingPlayer !== 0) {setTimeout(() => scheduleNextBotTurn(), 1000);
     }
     
-  } catch (error) {
-    console.error('🚨 ERROR DEALING NEW HAND:', error);
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
+  } catch (error) {window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: 'Error dealing new hand! Please restart the game.'
     });
   }
 }
 
 // 🔄 END ROUND - Apply jackpot and show modal (PHASE 1 ONLY)
-function handleEndRound(result) {
-  console.log(`✅ END ROUND: Moving to round ${result.data.newRound}`);
-  
-  // PHASE 1: Apply jackpot and show modal - NO SETUP
-  if (result.data.jackpot.hasJackpot) {
-    console.log(`🏆 APPLYING JACKPOT: ${result.data.jackpot.message}`);
-    
-    // Apply jackpot to game engine scores
+function handleEndRound(result) {// PHASE 1: Apply jackpot and show modal - NO SETUP
+  if (result.data.jackpot.hasJackpot) {// Apply jackpot to game engine scores
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -1151,14 +911,8 @@ function handleEndRound(result) {
 }
 
 // 🔥 NEW: PHASE 2 - Complete round setup when continue clicked
-function resumeNextRound(roundData) {
-  console.log(`🔄 RESUMING ROUND ${roundData.newRound} AFTER CONTINUE`);
-  
-  // Create new deck for new round
-  game.state.deck = createDeck();
-  console.log(`🔄 NEW DECK CREATED FOR ROUND ${roundData.newRound}: ${game.state.deck.length} cards`);
-
-  // Set up new round properly
+function resumeNextRound(roundData) {// Create new deck for new round
+  game.state.deck = createDeck();// Set up new round properly
   const newStartingPlayer = (roundData.newDealer + 1) % 3;
   game.state.currentPlayer = newStartingPlayer;
 
@@ -1166,36 +920,19 @@ function resumeNextRound(roundData) {
   const dealResult = dealCards(game.state.deck, 3, 4, 4);
   game.state.hands = dealResult.players;
   game.state.deck = dealResult.remainingDeck;
-  game.state.board = dealResult.board;
-
-  console.log(`🎮 NEW ROUND SETUP: Dealer=${roundData.newDealer}, Starting=${newStartingPlayer}, Current=${game.state.currentPlayer}`);
-  console.log(`🎮 NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
-
-  // Apply round and dealer from GameStateManager
+  game.state.board = dealResult.board;// Apply round and dealer from GameStateManager
   game.currentRound = roundData.newRound;
-  game.currentDealer = roundData.newDealer;
-  
-  console.log(`🔄 DEALER ROTATED: ${['Player', 'Bot 1', 'Bot 2'][roundData.oldDealer]} → ${['Player', 'Bot 1', 'Bot 2'][roundData.newDealer]}`);
-  
-  // Update UI after setup
+  game.currentDealer = roundData.newDealer;// Update UI after setup
   ui.render();
 
   // Schedule first turn if starting player is bot
-  if (newStartingPlayer !== 0) {
-    console.log(`🤖 SCHEDULING BOT ${newStartingPlayer} TURN AFTER RESUME`);
-    setTimeout(() => scheduleNextBotTurn(), 1000);
+  if (newStartingPlayer !== 0) {setTimeout(() => scheduleNextBotTurn(), 1000);
   }
 }
 
 // 🏆 END GAME - Show game over modal
-function handleEndGame(result) {
-  console.log(`✅ END GAME: ${result.data.winnerName} wins with ${result.data.winnerScore} points!`);
-  
-  // Apply jackpot to game scores if it exists
-  if (result.data.jackpot.hasJackpot) {
-    console.log(`🏆 FINAL JACKPOT: ${result.data.jackpot.message}`);
-    
-    // Apply jackpot to game engine scores
+function handleEndGame(result) {// Apply jackpot to game scores if it exists
+  if (result.data.jackpot.hasJackpot) {// Apply jackpot to game engine scores
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -1217,11 +954,7 @@ function handleEndGame(result) {
 }
 
 // 🚨 HANDLE GAME STATE ERROR
-function handleGameStateError(result) {
-  console.error(`🚨 GAME STATE ERROR: ${result.data.message}`);
-  console.error(`🔍 TECHNICAL DETAILS:`, result.data.technicalDetails);
-  
-  // 🔥 NEW: Use centralized modal system
+function handleGameStateError(result) {// 🔥 NEW: Use centralized modal system
   ui.showModal('error', result.data);
   
   // Also send error to message controller
@@ -1236,10 +969,7 @@ window.resumeNextRound = resumeNextRound;
 // Initialize the game
 initGame();
 
-function handleGameStateResult(result) {
-  console.log(`🎯 HANDLING STATE: ${result.state}`);
-  
-  switch(result.state) {
+function handleGameStateResult(result) {switch(result.state) {
     case gameStateManager.STATES.CONTINUE_TURN:
       handleContinueTurn(result);
       break;
@@ -1260,9 +990,7 @@ function handleGameStateResult(result) {
       handleGameStateError(result);
       break;
       
-    default:
-      console.error(`🚨 UNKNOWN STATE: ${result.state}`);
-  }
+    default:}
 }
 
 // 🔥 ENSURE GLOBAL VARIABLES ARE SET

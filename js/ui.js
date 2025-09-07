@@ -521,7 +521,10 @@ showModal(type, data = {}) {
     cardEl.setAttribute('draggable', 'true');
     cardEl.setAttribute('data-index', index);
     cardEl.setAttribute('data-type', type);
-    cardEl.addEventListener('dragstart', (e) => window.handleDragStart(e, type, index));
+    cardEl.addEventListener('dragstart', (e) => {
+  console.log('🎯 DRAG START: From type=', type, 'index=', index, 'card=', e.target.textContent);  // NEW LOG: Track source
+  window.handleDragStart(e, type, index);  // Existing
+});
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
