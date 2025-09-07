@@ -167,10 +167,14 @@ showModal(type, data = {}) {
     ];
 
     areas.forEach(({ el, slot }) => {
-      el.addEventListener('dragover', (e) => e.preventDefault());
-      el.addEventListener('drop', (e) => window.handleDrop(e, slot));
-      el.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'combo', slot));
-    });
+  console.log('🎯 ATTACHING DROP LISTENER TO:', slot, el); // ADD THIS
+  el.addEventListener('dragover', (e) => e.preventDefault());
+  el.addEventListener('drop', (e) => {
+    console.log('🎯 COMBO DROP FIRED!', slot); // ADD THIS
+    window.handleDrop(e, slot);
+  });
+  el.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'combo', slot));
+});
   }
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
