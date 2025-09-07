@@ -1,15 +1,26 @@
 /* 
- * STACKED! - Mobile Landscape First CSS
- * Revolutionary 5-area combo system optimized for landscape gaming
- * Preserves all advanced features while fixing mobile sizing issues
+ * ============================================================================
+ * STACKED! - CLEAN & ORGANIZED CSS
+ * Mobile Landscape First Design with Revolutionary 5-Area Combo System
+ * ============================================================================
  */
 
-/* Global Reset and Base Styles */
+/* ============================================================================
+ * 1. GLOBAL RESET & BASE STYLES
+ * ============================================================================ */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: 'Cabin', Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  touch-action: manipulation;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -19,9 +30,16 @@ body {
   height: 100vh;
   width: 100vw;
   position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
 }
 
-/* 📱 FORCE LANDSCAPE ORIENTATION */
+/* ============================================================================
+ * 2. LANDSCAPE ORIENTATION CONTROL
+ * ============================================================================ */
 .orientation-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -47,10 +65,13 @@ body {
   }
 }
 
-/* 🎮 MAIN GAME CONTAINER - LANDSCAPE GRID */
+/* ============================================================================
+ * 3. MAIN GAME CONTAINER GRID
+ * ============================================================================ */
 .game-container {
   width: 100vw;
   height: 100vh;
+  max-width: 100vw;
   display: grid;
   grid-template-rows: 70px 1fr 90px;
   grid-template-columns: 1fr 300px;
@@ -63,9 +84,17 @@ body {
     radial-gradient(circle at 80% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
     linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
   border: 4px solid #8B5A2B;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overscroll-behavior: contain;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
-/* 📊 STATUS BAR */
+/* ============================================================================
+ * 4. STATUS BAR SECTION
+ * ============================================================================ */
 .status-bar {
   grid-area: status-bar;
   display: flex;
@@ -74,6 +103,7 @@ body {
   padding: 12px 20px;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.3) 0%, rgba(74, 43, 23, 0.3) 100%);
   border-bottom: 3px solid #8B5A2B;
+  transform: translateZ(0);
 }
 
 .bot-indicators {
@@ -150,6 +180,8 @@ body {
   font-weight: bold;
   transition: all 0.2s ease;
   min-width: 60px;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .action-btn:hover {
@@ -169,7 +201,9 @@ body {
   border-color: #4A7043;
 }
 
-/* 🎮 GAME AREA */
+/* ============================================================================
+ * 5. GAME AREA SECTION
+ * ============================================================================ */
 .game-area {
   grid-area: game-area;
   position: relative;
@@ -195,7 +229,6 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* 🎯 GAME TABLE (Preserving your existing board structure) */
 .table {
   width: 380px;
   height: 240px;
@@ -230,7 +263,6 @@ body {
   justify-items: center;
 }
 
-/* Dealer indicator */
 .dealer-indicator {
   position: absolute;
   bottom: 10px;
@@ -261,7 +293,9 @@ body {
   border: 1px solid #8B5A2B;
 }
 
-/* 👤 PLAYER HAND */
+/* ============================================================================
+ * 6. PLAYER HAND SECTION
+ * ============================================================================ */
 .player-hand {
   grid-area: player-hand;
   display: flex;
@@ -269,20 +303,24 @@ body {
   justify-content: center;
   gap: 10px;
   padding: 15px 20px;
-  background: linear-gradient(135deg, rgba(74, 112, 67, 0.2) 0%, rgba(44, 64, 39, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(74, 112, 67, 0.8) 0%, rgba(44, 64, 39, 0.8) 100%);
   border-top: 3px solid #4A7043;
+  z-index: 10;
 }
 
-/* 🎪 COMBO BUILDER AREA */
+/* ============================================================================
+ * 7. COMBO BUILDER AREA (5-Area System)
+ * ============================================================================ */
 .combo-area {
   grid-area: combo-area;
-  background: linear-gradient(135deg, rgba(139, 90, 43, 0.3) 0%, rgba(74, 43, 23, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(74, 43, 23, 0.4) 100%);
   border-left: 4px solid #8B5A2B;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 15px;
   overflow-y: auto;
+  transform: translateZ(0);
 }
 
 .combo-title {
@@ -313,7 +351,6 @@ body {
   margin-bottom: 4px;
 }
 
-/* 🎯 COMBO SLOTS (Your 5-area system) */
 .base-area, .sum-area, .match-area {
   width: 65px;
   height: 90px;
@@ -328,7 +365,7 @@ body {
   position: relative;
   transition: all 0.3s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
-  overflow: visible; /* Allow cards to stack */
+  overflow: visible;
 }
 
 .base-area {
@@ -341,7 +378,7 @@ body {
   justify-content: center;
 }
 
-/* 🟢 VALID COMBO STYLING */
+/* Valid combo styling */
 .base-area.valid, .sum-area.valid, .match-area.valid {
   border-color: #4A7043;
   box-shadow: 0 0 15px rgba(74, 112, 67, 0.8);
@@ -350,15 +387,11 @@ body {
 }
 
 @keyframes validPulse {
-  0%, 100% { 
-    box-shadow: 0 0 15px rgba(74, 112, 67, 0.8); 
-  }
-  50% { 
-    box-shadow: 0 0 25px rgba(74, 112, 67, 1); 
-  }
+  0%, 100% { box-shadow: 0 0 15px rgba(74, 112, 67, 0.8); }
+  50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
 }
 
-/* 🎯 DRAG HOVER EFFECTS */
+/* Hover effects */
 .base-area:hover, .sum-area:hover, .match-area:hover {
   border-color: #D2A679;
   transform: translateY(-2px);
@@ -371,7 +404,9 @@ body {
   transform: scale(1.02);
 }
 
-/* 🃏 CARD STYLES */
+/* ============================================================================
+ * 8. CARD STYLES
+ * ============================================================================ */
 .card {
   width: 58px;
   height: 82px;
@@ -389,6 +424,10 @@ body {
   user-select: none;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   position: relative;
+  min-height: 44px;
+  min-width: 44px;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .card:hover {
@@ -410,7 +449,7 @@ body {
   color: #2C1810;
 }
 
-/* Cards in combo areas (fanned stacking) */
+/* Cards in combo areas - fanned stacking */
 .base-area .card, .sum-area .card, .match-area .card {
   width: 55px;
   height: 75px;
@@ -419,30 +458,24 @@ body {
 }
 
 .base-area .card:nth-child(1), .sum-area .card:nth-child(1), .match-area .card:nth-child(1) {
-  top: 4px;
-  left: 4px;
-  z-index: 1;
+  top: 4px; left: 4px; z-index: 1;
 }
 
 .base-area .card:nth-child(2), .sum-area .card:nth-child(2), .match-area .card:nth-child(2) {
-  top: 8px;
-  left: 6px;
-  z-index: 2;
+  top: 8px; left: 6px; z-index: 2;
 }
 
 .base-area .card:nth-child(3), .sum-area .card:nth-child(3), .match-area .card:nth-child(3) {
-  top: 12px;
-  left: 8px;
-  z-index: 3;
+  top: 12px; left: 8px; z-index: 3;
 }
 
 .base-area .card:nth-child(n+4), .sum-area .card:nth-child(n+4), .match-area .card:nth-child(n+4) {
-  top: 16px;
-  left: 10px;
-  z-index: 4;
+  top: 16px; left: 10px; z-index: 4;
 }
 
-/* 🎬 MODAL ACTIONS */
+/* ============================================================================
+ * 9. MODAL BUTTONS & ACTIONS
+ * ============================================================================ */
 .modal-actions {
   display: flex;
   flex-direction: column;
@@ -466,10 +499,14 @@ body {
   background: linear-gradient(135deg, #6B4226 0%, #4A2B17 100%);
   color: #D2A679;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  font-size: 16px !important; /* Prevents iOS zoom */
 }
 
 .modal-btn.primary {
-  background: linear-gradient(135d, #D2A679 0%, #B88A5A 100%);
+  background: linear-gradient(135deg, #D2A679 0%, #B88A5A 100%);
   color: #331E0F;
   border-color: #8B5A2B;
   box-shadow: 0 4px 8px rgba(139, 90, 43, 0.4);
@@ -486,91 +523,9 @@ body {
   transform: none;
 }
 
-/* 📱 RESPONSIVE BREAKPOINTS */
-@media (max-width: 1024px) {
-  .game-container {
-    grid-template-columns: 1fr 280px;
-  }
-  
-  .combo-area {
-    padding: 15px;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 60px;
-    height: 85px;
-  }
-  
-  .table {
-    width: 350px;
-    height: 220px;
-  }
-}
-
-@media (max-width: 896px) {
-  .status-bar {
-    padding: 10px 15px;
-  }
-  
-  .scores {
-    min-width: 180px;
-    font-size: 12px;
-  }
-  
-  .game-container {
-    grid-template-columns: 1fr 260px;
-    grid-template-rows: 65px 1fr 85px;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 55px;
-    height: 78px;
-  }
-  
-  .card {
-    width: 52px;
-    height: 75px;
-    font-size: 12px;
-  }
-  
-  .table {
-    width: 320px;
-    height: 200px;
-  }
-  
-  .board {
-    max-width: 280px;
-    gap: 4px;
-    grid-template-columns: repeat(auto-fit, minmax(50px, 55px));
-    grid-auto-rows: 75px;
-  }
-}
-
-@media (max-width: 768px) {
-  .combo-area {
-    padding: 12px;
-  }
-  
-  .combo-title {
-    font-size: 16px;
-  }
-  
-  .action-btn {
-    font-size: 10px;
-    padding: 6px 10px;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 50px;
-    height: 70px;
-  }
-  
-  .capture-row {
-    gap: 8px;
-  }
-}
-
-/* 🎭 MODAL STYLES (Preserving your existing modals) */
+/* ============================================================================
+ * 10. MODAL DIALOGS
+ * ============================================================================ */
 dialog {
   border: none;
   border-radius: 12px;
@@ -626,7 +581,6 @@ dialog::backdrop {
   margin-bottom: 5px;
 }
 
-/* 🎊 SCOREBOARD STYLES */
 .scoreboard {
   margin: 20px 0;
 }
@@ -652,10 +606,8 @@ dialog::backdrop {
 
 .confetti-container {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   pointer-events: none;
   overflow: hidden;
 }
@@ -668,272 +620,77 @@ dialog::backdrop {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* 
- * MOBILE ZOOM FIXES for iPhone 13 Pro Max and other devices
- * Add these rules to your existing styles.css or replace the responsive section
- */
+/* ============================================================================
+ * 11. MOBILE RESPONSIVE BREAKPOINTS
+ * ============================================================================ */
 
-/* 📱 ENHANCED VIEWPORT AND ZOOM CONTROLS */
-html {
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  touch-action: manipulation;
-}
-
-body {
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: transparent;
-  overscroll-behavior: none;
-}
-
-/* 🎯 SPECIFIC IPHONE 13 PRO MAX OPTIMIZATION (430x932 landscape = 932x430) */
-@media screen and (max-width: 932px) and (max-height: 430px) and (orientation: landscape) {
+/* Large tablets and small desktops */
+@media (max-width: 1024px) {
   .game-container {
-    grid-template-rows: 55px 1fr 75px;
-    grid-template-columns: 1fr 220px;
-    border: 2px solid #8B5A2B; /* Thinner border */
-  }
-  
-  .status-bar {
-    padding: 6px 12px;
-    font-size: 11px;
-  }
-  
-  .bot-indicator {
-    padding: 4px 8px;
-    font-size: 10px;
-    min-width: 65px;
-  }
-  
-  .scores {
-    padding: 6px 12px;
-    font-size: 11px;
-    min-width: 150px;
-  }
-  
-  .deck-info {
-    padding: 4px 8px;
-    font-size: 10px;
-    min-width: 55px;
-  }
-  
-  .action-btn {
-    padding: 4px 8px;
-    font-size: 9px;
-    min-width: 45px;
-  }
-  
-  .table {
-    width: 280px;
-    height: 160px;
-  }
-  
-  .board {
-    max-width: 250px;
-    gap: 3px;
-    padding: 8px;
-    grid-template-columns: repeat(auto-fit, minmax(45px, 50px));
-    grid-auto-rows: 65px;
-  }
-  
-  .card {
-    width: 45px;
-    height: 65px;
-    font-size: 10px;
+    grid-template-columns: 1fr 280px;
   }
   
   .combo-area {
-    padding: 8px;
-  }
-  
-  .combo-title {
-    font-size: 14px;
-    padding-bottom: 6px;
+    padding: 15px;
   }
   
   .base-area, .sum-area, .match-area {
-    width: 42px;
-    height: 60px;
-  }
-  
-  .base-area .card, .sum-area .card, .match-area .card {
-    width: 38px;
-    height: 55px;
-    font-size: 9px;
-  }
-  
-  .combo-header {
-    font-size: 10px;
-  }
-  
-  .capture-row {
-    gap: 4px;
-  }
-  
-  .current-player {
-    font-size: 11px;
-    padding: 4px 10px;
-    top: 8px;
-  }
-  
-  .game-message {
-    font-size: 9px;
-    padding: 4px 8px;
-    bottom: 8px;
-  }
-  
-  .modal-btn {
-    padding: 6px 10px;
-    font-size: 10px;
-  }
-}
-
-/* 🎯 EXTRA SMALL LANDSCAPE DEVICES (covers smaller phones) */
-@media screen and (max-width: 850px) and (max-height: 400px) and (orientation: landscape) {
-  .game-container {
-    grid-template-rows: 50px 1fr 70px;
-    grid-template-columns: 1fr 200px;
-  }
-  
-  .status-bar {
-    padding: 4px 10px;
+    width: 60px;
+    height: 85px;
   }
   
   .table {
-    width: 260px;
-    height: 140px;
-  }
-  
-  .board {
-    max-width: 220px;
-    grid-template-columns: repeat(auto-fit, minmax(40px, 45px));
-    grid-auto-rows: 60px;
-  }
-  
-  .card {
-    width: 40px;
-    height: 58px;
-    font-size: 9px;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 38px;
-    height: 55px;
+    width: 350px;
+    height: 220px;
   }
 }
 
-/* 🎯 PREVENT ZOOM ON INPUTS AND SELECTS */
-input, select, textarea, button {
-  font-size: 16px !important; /* Prevents iOS zoom */
-  touch-action: manipulation;
-}
-
-/* 🎯 BETTER TOUCH TARGETS FOR MOBILE */
-.card, .action-btn, .modal-btn {
-  min-height: 44px; /* iOS recommended minimum */
-  min-width: 44px;
-}
-
-/* 🎯 LANDSCAPE-SPECIFIC CARD SIZING */
-@media screen and (orientation: landscape) and (max-height: 500px) {
-  .card {
-    transition: transform 0.1s ease; /* Faster animations on mobile */
-  }
-  
-  .card:hover {
-    transform: translateY(-2px); /* Reduced hover effect for touch */
-  }
-}
-
-/* 🔧 FORCE HARDWARE ACCELERATION */
-.game-container, .card, .combo-area, .status-bar {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
-}
-
-/* 📱 DISABLE BOUNCE SCROLLING */
-.game-container {
-  overscroll-behavior: contain;
-  -webkit-overscroll-behavior: contain;
-}
-
-/* 🎯 COMPACT EVERYTHING FOR TIGHT MOBILE LANDSCAPE */
-@media screen and (max-width: 900px) and (max-height: 450px) and (orientation: landscape) {
-  .top-right-info {
-    gap: 6px;
-  }
-  
-  .bot-indicators {
-    gap: 8px;
-  }
-  
-  .player-hand {
-    padding: 8px 15px;
-    gap: 6px;
-  }
-  
-  .dealer-indicator {
-    font-size: 9px;
-    padding: 2px 8px;
-  }
-}
-
-/* 
- * ULTRA-COMPACT MOBILE FIX
- * Add this to the bottom of your styles.css to override everything
- */
-
-/* 📱 FORCE ULTRA-COMPACT FOR ALL MOBILE LANDSCAPE */
+/* Standard mobile landscape (iPhone 13 Pro Max and similar) */
 @media screen and (orientation: landscape) and (max-width: 1000px) {
   .game-container {
-    grid-template-rows: 45px 1fr 65px !important;
-    grid-template-columns: 1fr 180px !important; /* Much narrower combo area */
+    grid-template-rows: 45px 1fr 75px !important;
+    grid-template-columns: 1fr 160px !important;
     border: 1px solid #8B5A2B !important;
-    gap: 0 !important;
   }
   
-  /* SUPER COMPACT STATUS BAR */
   .status-bar {
-    padding: 3px 8px !important;
+    padding: 8px 15px !important;
     font-size: 10px !important;
   }
   
   .bot-indicator {
-    padding: 2px 6px !important;
+    padding: 3px 6px !important;
     font-size: 9px !important;
-    min-width: 55px !important;
+    min-width: 50px !important;
   }
   
   .scores {
     padding: 4px 8px !important;
-    font-size: 10px !important;
-    min-width: 120px !important;
+    font-size: 9px !important;
+    min-width: 100px !important;
   }
   
   .deck-info {
-    padding: 2px 6px !important;
-    font-size: 9px !important;
-    min-width: 45px !important;
+    padding: 3px 6px !important;
+    font-size: 8px !important;
+    min-width: 40px !important;
   }
   
   .action-btn {
-    padding: 2px 4px !important;
-    font-size: 8px !important;
-    min-width: 35px !important;
+    padding: 3px 5px !important;
+    font-size: 7px !important;
+    min-width: 30px !important;
   }
   
-  /* COMPACT GAME AREA */
   .table {
-    width: 240px !important;
-    height: 130px !important;
+    width: 220px !important;
+    height: 120px !important;
   }
   
   .board {
-    max-width: 200px !important;
-    gap: 2px !important;
-    padding: 4px !important;
+    max-width: 180px !important;
+    gap: 3px !important;
+    padding: 6px !important;
     grid-template-columns: repeat(auto-fit, minmax(35px, 40px)) !important;
     grid-auto-rows: 50px !important;
   }
@@ -944,156 +701,20 @@ input, select, textarea, button {
     font-size: 8px !important;
   }
   
-  /* ULTRA-COMPACT COMBO AREA */
-  .combo-area {
-    padding: 4px !important;
-    gap: 6px !important;
-  }
-  
-  .combo-title {
-    font-size: 11px !important;
-    padding-bottom: 3px !important;
-    margin-bottom: 3px !important;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 32px !important;
-    height: 45px !important;
-  }
-  
-  .base-area .card, .sum-area .card, .match-area .card {
-    width: 28px !important;
-    height: 40px !important;
-    font-size: 7px !important;
-  }
-  
-  .combo-header {
-    font-size: 8px !important;
-    margin-bottom: 1px !important;
-  }
-  
-  .capture-row {
-    gap: 2px !important;
-  }
-  
-  /* COMPACT PLAYER HAND */
   .player-hand {
-    padding: 4px 8px !important;
+    padding: 6px 8px !important;
     gap: 4px !important;
-  }
-  
-  /* COMPACT MESSAGES */
-  .current-player {
-    font-size: 9px !important;
-    padding: 2px 6px !important;
-    top: 2px !important;
-  }
-  
-  .game-message {
-    font-size: 8px !important;
-    padding: 2px 6px !important;
-    bottom: 2px !important;
-    max-width: 200px !important;
-  }
-  
-  /* COMPACT MODAL BUTTONS */
-  .modal-btn {
-    padding: 4px 6px !important;
-    font-size: 8px !important;
-  }
-  
-  .modal-actions {
-    gap: 4px !important;
-    margin-top: 6px !important;
-    padding-top: 6px !important;
-  }
-  
-  /* HIDE SOME ELEMENTS TO SAVE SPACE IF NEEDED */
-  .dealer-indicator {
-    display: none !important; /* Hide dealer indicator on tiny screens */
-  }
-}
-
-/* 🔧 EMERGENCY SUPER-TINY MODE FOR VERY SMALL SCREENS */
-@media screen and (orientation: landscape) and (max-width: 850px) {
-  .game-container {
-    grid-template-columns: 1fr 160px !important; /* Even narrower */
-  }
-  
-  .combo-area {
-    padding: 2px !important;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 28px !important;
-    height: 40px !important;
-  }
-  
-  .table {
-    width: 200px !important;
-    height: 110px !important;
-  }
-  
-  .board {
-    max-width: 160px !important;
-    grid-template-columns: repeat(auto-fit, minmax(30px, 35px)) !important;
-    grid-auto-rows: 45px !important;
-  }
-  
-  .card {
-    width: 30px !important;
-    height: 45px !important;
-    font-size: 7px !important;
-  }
-}
-
-/* 🎯 ENSURE NO HORIZONTAL OVERFLOW */
-html, body {
-  overflow-x: hidden !important;
-  max-width: 100vw !important;
-}
-
-.game-container {
-  max-width: 100vw !important;
-  overflow-x: hidden !important;
-}
-
-/* 
- * PLAYER CARDS & COMBO BUILDER POSITION FIX
- * Add to bottom of styles.css to override
- */
-
-/* 📱 MOBILE LANDSCAPE FIXES */
-@media screen and (orientation: landscape) and (max-width: 1000px) {
-  
-  /* 🎯 FIX PLAYER HAND VISIBILITY */
-  .player-hand {
-    background: rgba(74, 112, 67, 0.8) !important; /* More transparent */
-    border-top: 2px solid #4A7043 !important;
-    padding: 8px 15px !important;
-    gap: 6px !important;
-    z-index: 10 !important; /* Ensure it's on top */
   }
   
   .player-hand .card {
     width: 40px !important;
     height: 60px !important;
     font-size: 10px !important;
-    background: linear-gradient(135deg, #F5E8C7 0%, #E8D5B7 100%) !important;
-    border: 2px solid #4A2B17 !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
   }
   
-  /* 🎯 MOVE COMBO BUILDER MORE TO THE LEFT */
-  .game-container {
-    grid-template-columns: 1fr 160px !important; /* Even narrower combo area */
-  }
-  
-  /* 🎯 COMPACT COMBO BUILDER */
   .combo-area {
     padding: 6px !important;
     gap: 8px !important;
-    background: rgba(139, 90, 43, 0.4) !important; /* More transparent */
   }
   
   .combo-title {
@@ -1121,48 +742,34 @@ html, body {
     gap: 3px !important;
   }
   
-  /* 🎯 MODAL BUTTONS */
-  .modal-actions {
-    gap: 6px !important;
-    margin-top: 8px !important;
-  }
-  
   .modal-btn {
     padding: 6px 8px !important;
     font-size: 9px !important;
   }
   
-  /* 🎯 ADJUST GAME BOARD TO GIVE MORE SPACE */
-  .table {
-    width: 220px !important;
-    height: 120px !important;
+  .current-player {
+    font-size: 8px !important;
+    padding: 3px 6px !important;
+    top: 5px !important;
   }
   
-  .board {
-    max-width: 180px !important;
-    gap: 3px !important;
-    padding: 6px !important;
-  }
-  
-  /* 🎯 FIX GAME MESSAGE POSITION */
   .game-message {
-    bottom: 75px !important; /* Move above player hand */
-    background: rgba(0, 0, 0, 0.9) !important;
-    font-size: 9px !important;
-    padding: 4px 8px !important;
-    max-width: 180px !important;
+    font-size: 8px !important;
+    padding: 3px 6px !important;
+    bottom: 75px !important;
+    max-width: 160px !important;
   }
   
-  /* 🎯 ENSURE PLAYER HAND IS ALWAYS VISIBLE */
-  .game-container {
-    grid-template-rows: 45px 1fr 75px !important; /* Taller player hand area */
+  .dealer-indicator {
+    font-size: 9px !important;
+    padding: 2px 8px !important;
   }
 }
 
-/* 🔧 EXTRA SMALL SCREENS */
+/* Extra small landscape devices */
 @media screen and (orientation: landscape) and (max-width: 850px) {
   .game-container {
-    grid-template-columns: 1fr 140px !important; /* Even more compact */
+    grid-template-columns: 1fr 140px !important;
   }
   
   .combo-area {
@@ -1179,3 +786,13 @@ html, body {
   }
 }
 
+/* Landscape-specific optimizations */
+@media screen and (orientation: landscape) and (max-height: 500px) {
+  .card {
+    transition: transform 0.1s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-2px);
+  }
+}
