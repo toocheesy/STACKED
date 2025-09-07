@@ -166,17 +166,6 @@ showModal(type, data = {}) {
       { el: matchEl, slot: 'match' }
     ];
 
-    areas.forEach(({ el, slot }) => {
-      console.log('🎯 ATTACHING DROP LISTENER TO:', slot, el);
-      el.addEventListener('dragover', (e) => e.preventDefault());
-      el.addEventListener('drop', (e) => {
-        console.log('🎯 COMBO DROP FIRED!', slot);
-        window.handleDrop(e, slot);
-      });
-      el.addEventListener('touchend', (e) => window.handleTouchDrop(e, 'combo', slot));
-    });
-  }
-
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
     let validCaptures = [];
     let isAnyValid = false;
@@ -277,6 +266,13 @@ showModal(type, data = {}) {
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
+      areaEl.addEventListener('dragover', (e) => e.preventDefault());
+    areaEl.addEventListener('drop', (e) => {
+      console.log('🎯 DROP IN AREA:', slotName);
+      e.preventDefault();
+      window.handleDrop(e, slotName);
+    });
+}
       areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
     } else {
       areaEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
