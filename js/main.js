@@ -435,6 +435,7 @@ function handleResetPlayArea() {
 }
 
 function handleBoardDrop(e) {
+  console.log('🎯 BOARD DROP EVENT FIRED!');
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
 
@@ -674,6 +675,7 @@ function handleDragEnd(e) {
 }
 
 function handleDrop(e, slot) {
+  console.log('🎯 DROP EVENT FIRED!', slot);
   e.preventDefault();
   console.log('🎯 DROP ATTEMPT on slot:', slot);
 
