@@ -266,11 +266,6 @@ basicHintDetection(playerHand, board) {
     this.highlightedCards = [];
     this.currentHints = [];}
 
-  // 🔧 DEBUG: Show all possible captures);
-    return captures;
-  }
-}
-
 // Global game instance
 let game = null;
 let ui = null;
