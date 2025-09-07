@@ -638,18 +638,25 @@ function playSound(type) {
 }
 
 function handleDragStart(e, source, index) {
+  console.log('🎯 DRAG START:', source, index, 'Current player:', game.state.currentPlayer);
 
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
     e.preventDefault();
-return;
+    console.log('❌ DRAG BLOCKED: Game paused or modal active');
+    return;
   }
 
-  if (game.state.currentPlayer !== 0) return;
+  if (game.state.currentPlayer !== 0) {
+    console.log('❌ DRAG BLOCKED: Not player turn (current:', game.state.currentPlayer, ')');
+    return;
+  }
+  
   game.state.draggedCard = {
     source,
     index,
     card: source === 'hand' ? game.state.hands[0][index] : game.state.board[index]
   };
+  console.log('✅ DRAGGED CARD SET:', game.state.draggedCard);
   e.target.classList.add('selected');
 }
 
@@ -668,18 +675,24 @@ function handleDragEnd(e) {
 
 function handleDrop(e, slot) {
   e.preventDefault();
-
+  console.log('🎯 DROP ATTEMPT on slot:', slot);
 
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
-return;
+    console.log('❌ DROP BLOCKED: Game paused or modal');
+    return;
   }
-
 
   if (game.state.currentPlayer !== 0) {
-return;
+    console.log('❌ DROP BLOCKED: Not player turn');
+    return;
   }
 
-  if (!game.state.draggedCard) return;
+  if (!game.state.draggedCard) {
+    console.log('❌ DROP BLOCKED: No dragged card');
+    return;
+  }
+  
+  console.log('✅ DROP PROCEEDING with card:', game.state.draggedCard);
 
   if (game.state.draggedCard.slot !== undefined) {
     game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
