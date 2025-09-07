@@ -1057,3 +1057,124 @@ html, body {
   max-width: 100vw !important;
   overflow-x: hidden !important;
 }
+
+/* 
+ * PLAYER CARDS & COMBO BUILDER POSITION FIX
+ * Add to bottom of styles.css to override
+ */
+
+/* 📱 MOBILE LANDSCAPE FIXES */
+@media screen and (orientation: landscape) and (max-width: 1000px) {
+  
+  /* 🎯 FIX PLAYER HAND VISIBILITY */
+  .player-hand {
+    background: rgba(74, 112, 67, 0.8) !important; /* More transparent */
+    border-top: 2px solid #4A7043 !important;
+    padding: 8px 15px !important;
+    gap: 6px !important;
+    z-index: 10 !important; /* Ensure it's on top */
+  }
+  
+  .player-hand .card {
+    width: 40px !important;
+    height: 60px !important;
+    font-size: 10px !important;
+    background: linear-gradient(135deg, #F5E8C7 0%, #E8D5B7 100%) !important;
+    border: 2px solid #4A2B17 !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4) !important;
+  }
+  
+  /* 🎯 MOVE COMBO BUILDER MORE TO THE LEFT */
+  .game-container {
+    grid-template-columns: 1fr 160px !important; /* Even narrower combo area */
+  }
+  
+  /* 🎯 COMPACT COMBO BUILDER */
+  .combo-area {
+    padding: 6px !important;
+    gap: 8px !important;
+    background: rgba(139, 90, 43, 0.4) !important; /* More transparent */
+  }
+  
+  .combo-title {
+    font-size: 12px !important;
+    padding-bottom: 4px !important;
+  }
+  
+  .base-area, .sum-area, .match-area {
+    width: 35px !important;
+    height: 50px !important;
+    border: 1px dashed #8B5A2B !important;
+  }
+  
+  .base-area .card, .sum-area .card, .match-area .card {
+    width: 32px !important;
+    height: 45px !important;
+    font-size: 8px !important;
+  }
+  
+  .combo-header {
+    font-size: 9px !important;
+  }
+  
+  .capture-row {
+    gap: 3px !important;
+  }
+  
+  /* 🎯 MODAL BUTTONS */
+  .modal-actions {
+    gap: 6px !important;
+    margin-top: 8px !important;
+  }
+  
+  .modal-btn {
+    padding: 6px 8px !important;
+    font-size: 9px !important;
+  }
+  
+  /* 🎯 ADJUST GAME BOARD TO GIVE MORE SPACE */
+  .table {
+    width: 220px !important;
+    height: 120px !important;
+  }
+  
+  .board {
+    max-width: 180px !important;
+    gap: 3px !important;
+    padding: 6px !important;
+  }
+  
+  /* 🎯 FIX GAME MESSAGE POSITION */
+  .game-message {
+    bottom: 75px !important; /* Move above player hand */
+    background: rgba(0, 0, 0, 0.9) !important;
+    font-size: 9px !important;
+    padding: 4px 8px !important;
+    max-width: 180px !important;
+  }
+  
+  /* 🎯 ENSURE PLAYER HAND IS ALWAYS VISIBLE */
+  .game-container {
+    grid-template-rows: 45px 1fr 75px !important; /* Taller player hand area */
+  }
+}
+
+/* 🔧 EXTRA SMALL SCREENS */
+@media screen and (orientation: landscape) and (max-width: 850px) {
+  .game-container {
+    grid-template-columns: 1fr 140px !important; /* Even more compact */
+  }
+  
+  .combo-area {
+    padding: 4px !important;
+  }
+  
+  .base-area, .sum-area, .match-area {
+    width: 30px !important;
+    height: 45px !important;
+  }
+  
+  .capture-row {
+    gap: 2px !important;
+  }
+}
