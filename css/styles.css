@@ -957,3 +957,23 @@ dialog::backdrop {
     height: 105px;
   }
 }
+
+/* Dealer integration enhancements: Merge and position under dealer */
+.bot-indicator.dealer:after,
+.scores.dealer:after {
+  content: "Deals - Deck: " attr(data-deck);
+  display: block;
+  font-size: 12px;
+  font-weight: normal;
+  padding-top: 4px;
+  text-align: center;
+  color: inherit;
+  opacity: 0.9;
+  line-height: 1.2;
+}
+
+.dealer-indicator {
+  display: none !important; /* Hide old floating version to avoid duplication */
+}
+
+/* Mobile adjustments remain untouched - this cascades nicely */
