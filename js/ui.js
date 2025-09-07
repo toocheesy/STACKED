@@ -156,7 +156,7 @@ showModal(type, data = {}) {
 
     // Validate combinations
     this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
-  }
+}
     // Add event listeners
     const areas = [
       { el: baseEl, slot: 'base' },
@@ -208,14 +208,13 @@ showModal(type, data = {}) {
   renderArea(areaEl, cards, slotName, placeholderText) {
     areaEl.innerHTML = '';
     
-    // 🔥 NEW: Add live sum totals for sum areas - BEAUTIFUL VERSION
+    // Add live sum totals for sum areas
     if (slotName.startsWith('sum') && cards.length > 0) {
       const sumTotal = this.calculateSumTotal(cards);
       const sumDisplay = document.createElement('div');
       sumDisplay.className = 'sum-total-display';
       sumDisplay.textContent = `[${sumTotal}]`;
       
-      // Make sure parent has relative positioning and overflow visible
       areaEl.style.position = 'relative';
       areaEl.style.overflow = 'visible';
       
@@ -242,7 +241,6 @@ showModal(type, data = {}) {
       
       areaEl.appendChild(sumDisplay);
     } else {
-      // Ensure relative positioning is always set for sum areas
       if (slotName.startsWith('sum')) {
         areaEl.style.position = 'relative';
         areaEl.style.overflow = 'visible';
@@ -266,20 +264,21 @@ showModal(type, data = {}) {
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
-}
       areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
     } else {
       areaEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
       areaEl.style.border = '2px dashed #ccc';
       areaEl.style.height = '110px';
     }
+    
+    // Add event listeners at the END, outside all if/else blocks
     areaEl.addEventListener('dragover', (e) => e.preventDefault());
     areaEl.addEventListener('drop', (e) => {
       console.log('🎯 DROP IN AREA:', slotName);
       e.preventDefault();
       window.handleDrop(e, slotName);
     });
-  }
+}
 
 
   // 🔥 NEW: Calculate sum total for sum areas
