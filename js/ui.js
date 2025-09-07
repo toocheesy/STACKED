@@ -157,14 +157,6 @@ showModal(type, data = {}) {
     // Validate combinations
     this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
 }
-    // Add event listeners
-    const areas = [
-      { el: baseEl, slot: 'base' },
-      { el: sum1El, slot: 'sum1' },
-      { el: sum2El, slot: 'sum2' },
-      { el: sum3El, slot: 'sum3' },
-      { el: matchEl, slot: 'match' }
-    ];
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
     let validCaptures = [];
