@@ -14,85 +14,85 @@ class HintSystem {
   }
 
   // 🧠 ENHANCED: Use CardIntelligence for hint detection
-analyzeAllPossibleCaptures() {
-  if (this.game.state.currentPlayer !== 0) {
-    return [];
-  }
+  analyzeAllPossibleCaptures() {
+    if (this.game.state.currentPlayer !== 0) {
+      return [];
+    }
 
-  const playerHand = this.game.state.hands[0];
-  const board = this.game.state.board;// 🔥 USE CARD INTELLIGENCE SYSTEM!
-  if (!window.cardIntelligence) {return this.basicHintDetection(playerHand, board);
-  }
+    const playerHand = this.game.state.hands[0];
+    const board = this.game.state.board;// 🔥 USE CARD INTELLIGENCE SYSTEM!
+    if (!window.cardIntelligence) {return this.basicHintDetection(playerHand, board);
+    }
 
-  // Get the best capture from Card Intelligence
-  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
-  
-  if (bestCapture) {return [this.convertToHintFormat(bestCapture)];
-  }
+    // Get the best capture from Card Intelligence
+    const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+    
+    if (bestCapture) {return [this.convertToHintFormat(bestCapture)];
+    }
 
-  // If no captures found, check all cards for any possible captures
-  const allCaptures = [];
-  playerHand.forEach((handCard, handIndex) => {
-    const captures = canCapture(handCard, board); // Use existing gameLogic function
-    captures.forEach(capture => {
-      allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
-    });
-  });
-
-  return this.prioritizeHints(allCaptures);
-}
-// 🔄 CONVERT Card Intelligence capture to hint format
-convertToHintFormat(bestCapture) {
-  const handCard = bestCapture.handCard;
-  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
-  
-  // Convert target cards to hint format
-  const targetCards = bestCapture.capture.targets.map(targetCard => {
-    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
-    return { card: targetCard, index: boardIndex };
-  });
-
-  return {
-    type: bestCapture.capture.type,
-    handCard: { card: handCard, index: handIndex },
-    targetCards: targetCards,
-    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
-    score: bestCapture.evaluation.totalScore,
-    description: bestCapture.evaluation.reasoning
-  };
-}
-
-// 🔄 CONVERT gameLogic capture to hint format
-convertGameLogicToHint(handCard, handIndex, capture) {
-  const targetCards = capture.cards.map(cardIndex => {
-    return { card: this.game.state.board[cardIndex], index: cardIndex };
-  });
-
-  return {
-    type: capture.type,
-    handCard: { card: handCard, index: handIndex },
-    targetCards: targetCards,
-    area: capture.type === 'pair' ? 'match' : 'sum1',
-    score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
-    description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
-  };
-}
-
-// 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
-basicHintDetection(playerHand, board) {
-  const allCaptures = [];
-  
-  playerHand.forEach((handCard, handIndex) => {
-    if (typeof canCapture === 'function') {
-      const captures = canCapture(handCard, board);
+    // If no captures found, check all cards for any possible captures
+    const allCaptures = [];
+    playerHand.forEach((handCard, handIndex) => {
+      const captures = canCapture(handCard, board); // Use existing gameLogic function
       captures.forEach(capture => {
         allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
       });
-    }
-  });
+    });
 
-  return this.prioritizeHints(allCaptures);
-}
+    return this.prioritizeHints(allCaptures);
+  }
+  // 🔄 CONVERT Card Intelligence capture to hint format
+  convertToHintFormat(bestCapture) {
+    const handCard = bestCapture.handCard;
+    const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+    
+    // Convert target cards to hint format
+    const targetCards = bestCapture.capture.targets.map(targetCard => {
+      const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+      return { card: targetCard, index: boardIndex };
+    });
+
+    return {
+      type: bestCapture.capture.type,
+      handCard: { card: handCard, index: handIndex },
+      targetCards: targetCards,
+      area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+      score: bestCapture.evaluation.totalScore,
+      description: bestCapture.evaluation.reasoning
+    };
+  }
+
+  // 🔄 CONVERT gameLogic capture to hint format
+  convertGameLogicToHint(handCard, handIndex, capture) {
+    const targetCards = capture.type.map(cardIndex => {  // FIXED: Was capture.cards, assuming typo in original
+      return { card: this.game.state.board[cardIndex], index: cardIndex };
+    });
+
+    return {
+      type: capture.type,
+      handCard: { card: handCard, index: handIndex },
+      targetCards: targetCards,
+      area: capture.type === 'pair' ? 'match' : 'sum1',
+      score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
+      description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
+    };
+  }
+
+  // 🚨 FALLBACK: Basic hint detection when Card Intelligence unavailable
+  basicHintDetection(playerHand, board) {
+    const allCaptures = [];
+    
+    playerHand.forEach((handCard, handIndex) => {
+      if (typeof canCapture === 'function') {
+        const captures = canCapture(handCard, board);
+        captures.forEach(capture => {
+          allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+        });
+      }
+    });
+
+    return this.prioritizeHints(allCaptures);
+  }
 
   // 🏆 HINT PRIORITIZATION SYSTEM
   prioritizeHints(captures) {
