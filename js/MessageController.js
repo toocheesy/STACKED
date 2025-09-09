@@ -513,24 +513,19 @@ handleComboAnalysis(data) {
 
   // 🎯 CORE MESSAGE DISPLAY
 
-// Replace the showMessage method in MessageController.js with this:
-
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
   
-  // 🔥 FIX: Target the current-player element (where "Your Turn" appears)
-  let messageEl = document.getElementById('current-player') 
-    || document.querySelector('.current-player')
-    || document.getElementById('message') 
-    || document.querySelector('.game-message');
+  // 🔥 TARGET ONLY THE CURRENT-PLAYER ELEMENT (the "Your Turn" box)
+  const messageEl = document.getElementById('current-player') 
+    || document.querySelector('.current-player');
     
   if (messageEl) {
     messageEl.textContent = text;
     messageEl.className = `current-player game-message ${type}`;
-    messageEl.style.display = 'block';
-    console.log('✅ MESSAGE DISPLAYED:', text);
+    console.log('✅ MESSAGE DISPLAYED IN YOUR TURN BOX:', text);
   } else {
-    console.error('❌ Message element not found! Looking for #current-player');
+    console.error('❌ Current-player element not found!');
   }
   
   this.playMessageSound(type);

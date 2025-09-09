@@ -277,23 +277,6 @@ body {
   border: 2px solid #8B5A2B;
 }
 
-.game-message {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
-  border: 1px solid #8B5A2B;
-  border-radius: 8px;
-  padding: 12px 20px;
-  color: #D2A679;
-  font-weight: bold;
-  text-align: center;
-  max-width: 600px;
-  z-index: 500;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
 /* ============================================================================
  * 6. PLAYER HAND SECTION
  * ============================================================================ */
