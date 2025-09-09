@@ -804,10 +804,14 @@ function handleTouchStart(e, source, data) {
 }
 
 function handleTouchEnd(e) {
+  console.log('🚨 TOUCH END CALLED!', e);
   if (game.state.currentPlayer !== 0) return;
   e.preventDefault();
   
-  if (!touchDragData || !touchStartPosition) return;
+  if (!touchDragData || !touchStartPosition) {
+    console.log('❌ NO TOUCH DATA:', touchDragData, touchStartPosition);
+    return;
+  }
   
   // Get touch end position
   const touchEndPosition = {
@@ -815,22 +819,32 @@ function handleTouchEnd(e) {
     y: e.changedTouches[0].clientY
   };
   
+  console.log('🎯 TOUCH END POSITION:', touchEndPosition);
+  
   // Find what element we're over
   const elementBelow = document.elementFromPoint(
     touchEndPosition.x, 
     touchEndPosition.y
   );
   
+  console.log('🎯 ELEMENT BELOW:', elementBelow);
+  
   if (!elementBelow) {
+    console.log('❌ NO ELEMENT BELOW');
     touchDragData = null;
     return;
   }
   
   // Check if we're over a valid drop zone
   const comboArea = elementBelow.closest('.combo-slot');
+  console.log('🎯 COMBO AREA FOUND:', comboArea);
+  
   if (comboArea) {
     const slotName = comboArea.getAttribute('data-slot');
+    console.log('🎯 DROPPING ON SLOT:', slotName);
     handleTouchDropOnCombo(slotName);
+  } else {
+    console.log('❌ NOT OVER COMBO AREA');
   }
   
   // Clear touch data
