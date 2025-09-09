@@ -130,9 +130,6 @@ showModal(type, data = {}) {
     }
   }
 
-  // ... [Continue with all the other existing methods] ...
-  // [The rest of the UISystem class methods remain exactly the same]
-  
   renderComboArea() {
     const comboAreaEl = document.getElementById('combination-area');
     let captureTypeMessage = "No cards in play areas.";
@@ -147,16 +144,16 @@ showModal(type, data = {}) {
     
     if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) return;
 
-    // Render each area
-    this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
-    this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
-    this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
-    this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
-    this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
+    // 🔥 FIXED: Store the element references that renderArea() returns
+    const newBaseEl = this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
+    const newSum1El = this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
+    const newSum2El = this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
+    const newSum3El = this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
+    const newMatchEl = this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
 
-    // Validate combinations
-    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
-}
+    // Validate combinations using the NEW element references
+    this.validateAndStyleComboArea(newBaseEl, newSum1El, newSum2El, newSum3El, newMatchEl);
+  }
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
     let validCaptures = [];
@@ -263,14 +260,32 @@ showModal(type, data = {}) {
       areaEl.style.height = '110px';
     }
     
-    // Add event listeners at the END, outside all if/else blocks
-    areaEl.addEventListener('dragover', (e) => e.preventDefault());
-    areaEl.addEventListener('drop', (e) => {
-      console.log('🎯 DROP IN AREA:', slotName);
+    // 🔥 CRITICAL FIX: Add event listeners EVERY TIME renderArea is called
+    // Remove any existing listeners first to prevent duplicates
+    const newAreaEl = areaEl.cloneNode(true);
+    areaEl.parentNode.replaceChild(newAreaEl, areaEl);
+    
+    // Add fresh event listeners
+    newAreaEl.addEventListener('dragover', (e) => {
       e.preventDefault();
+      console.log(`🎯 DRAGOVER: ${slotName}`);
+    });
+    
+    newAreaEl.addEventListener('drop', (e) => {
+      console.log(`🎯 DROP EVENT FIRED ON: ${slotName}`);
+      e.preventDefault();
+      e.stopPropagation();
       window.handleDrop(e, slotName);
     });
-}
+    
+    newAreaEl.addEventListener('touchend', (e) => {
+      console.log(`🎯 TOUCH DROP ON: ${slotName}`);
+      e.preventDefault();
+      window.handleTouchDrop(e, 'combo', slotName);
+    });
+    
+    return newAreaEl; // Return the new element so calling code can update references
+  }
 
 
   // 🔥 NEW: Calculate sum total for sum areas
