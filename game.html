@@ -69,36 +69,42 @@
       <!-- Player cards will be rendered here by your existing ui.js -->
     </div>
 
-    <!-- Combo Builder Area (preserving your 5-area system) -->
-    <div class="combo-area">
-      <div class="combo-title">🎪 COMBO BUILDER</div>
+    <!-- Combo Builder Area (FIXED - matching ui.js expectations) -->
+    <div class="combination-area" id="combination-area">
+      <div class="modal-title">Combo Builder 🎯</div>
+      <div class="modal-toast-container" id="modal-toast-container"></div>
       
-      <!-- Base Card (preserving your existing structure) -->
+      <!-- Base Card Area (Top) -->
       <div class="combo-section">
         <div class="combo-header">Base Card</div>
-        <div class="base-area" data-slot="base" id="base-area"></div>
+        <div class="combo-slot base-area" data-slot="base"></div>
       </div>
-
-      <!-- Sum Areas (preserving your 3-area system) -->
-      <div class="combo-section">
-        <div class="combo-header">Sum Combos</div>
-        <div class="capture-row">
-          <div class="sum-area" data-slot="sum1" id="sum1-area"></div>
-          <div class="sum-area" data-slot="sum2" id="sum2-area"></div>
-          <div class="sum-area" data-slot="sum3" id="sum3-area"></div>
+      
+      <!-- Capture Areas (Bottom Row) -->
+      <div class="capture-row">
+        <div class="combo-section">
+          <div class="combo-header">Sum</div>
+          <div class="combo-slot sum-area" data-slot="sum1"></div>
+        </div>
+        <div class="combo-section">
+          <div class="combo-header">Sum</div>
+          <div class="combo-slot sum-area" data-slot="sum2"></div>
+        </div>
+        <div class="combo-section">
+          <div class="combo-header">Sum</div>
+          <div class="combo-slot sum-area" data-slot="sum3"></div>
+        </div>
+        <div class="combo-section">
+          <div class="combo-header">Match</div>
+          <div class="combo-slot match-area" data-slot="match"></div>
         </div>
       </div>
-
-      <!-- Match Area (preserving your existing structure) -->
-      <div class="combo-section">
-        <div class="combo-header">Match Cards</div>
-        <div class="match-area" data-slot="match" id="match-area"></div>
-      </div>
-
-      <!-- Combo Action Buttons (preserving your modal system) -->
+      
+      <!-- Modal Action Buttons -->
       <div class="modal-actions">
-        <button class="modal-btn primary" id="submit-move-btn" disabled>Submit Move</button>
-        <button class="modal-btn" id="reset-play-area-btn">Reset Play Area</button>
+        <button id="submit-btn" class="modal-btn primary">Submit Move</button>
+        <button id="reset-play-area-btn" class="modal-btn secondary">Reset Play Area</button>
+        <button id="hint-btn" class="modal-btn secondary">Hint</button>
       </div>
     </div>
   </div>
