@@ -510,7 +510,7 @@ handleComboAnalysis(data) {
     const hands = this.gameEngine.state.hands;
     return hands[playerIndex] ? hands[playerIndex].length : 0;
   }
-  
+
 // 🎯 CORE MESSAGE DISPLAY - FIXED VERSION
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
@@ -638,17 +638,21 @@ playMessageSound(type) {
 
   // 🔥 REPLACE THE handleBotThinking() FUNCTION IN MessageController.js WITH THIS FASTER VERSION:
 
+// 🔥 REPLACE THE handleBotThinking() FUNCTION:
 handleBotThinking(data) {
   const botNumber = data.botNumber || this.getCurrentPlayer();
   const difficulty = this.getBotDifficulty();
   
-  // 🔥 CRITICAL FIX: MUCH SHORTER TIMEOUT FOR BOT MESSAGES
+  // 🔥 CLEAR ANY EXISTING TIMEOUT FIRST
   if (this.currentTimeout) {
     clearTimeout(this.currentTimeout);
     this.currentTimeout = null;
   }
   
-  if (difficulty === 'beginner' || this.educationalMode) {
+  if (difficulty === 'legendary') {
+    this.showMessage(`🧠⚡ Bot ${botNumber} (Legendary) is calculating optimal strategy...`, 'bot-turn');
+    // 🔥 NO TIMEOUT - LET THE BOT ACTION COMPLETE NATURALLY
+  } else if (difficulty === 'beginner' || this.educationalMode) {
     const thinkingMessages = [
       `🤖📚 Bot ${botNumber} is checking for simple pairs...`,
       `🤖📚 Bot ${botNumber} is doing the math for sums...`,
@@ -656,28 +660,11 @@ handleBotThinking(data) {
     ];
     const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
     this.showMessage(randomMessage, 'bot-turn');
-    
-    // 🔥 MUCH SHORTER TIMEOUT - UPDATE FASTER
-    this.currentTimeout = setTimeout(() => {
-      this.forceRefresh();
-    }, 500); // Only 500ms instead of longer delays
-    
-  } else if (difficulty === 'legendary') {
-    this.showMessage(`🧠⚡ Bot ${botNumber} (Legendary) is calculating optimal strategy...`, 'bot-turn');
-    
-    // 🔥 SHORTER TIMEOUT FOR LEGENDARY TOO
-    this.currentTimeout = setTimeout(() => {
-      this.forceRefresh();
-    }, 800);
-    
   } else {
     this.showMessage(`🤖 Bot ${botNumber} is thinking...`, 'bot-turn');
-    
-    // 🔥 SHORTER TIMEOUT FOR INTERMEDIATE
-    this.currentTimeout = setTimeout(() => {
-      this.forceRefresh();
-    }, 600);
   }
+  
+  // 🔥 NO forceRefresh() TIMEOUT - eliminates conflicts!
 }
 
   handlePlayerOutOfCards(data) {

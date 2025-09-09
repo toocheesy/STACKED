@@ -35,8 +35,8 @@ showModal(type, data = {}) {
 
   // 🔥 COMPLETE render() method with renderBotCardCounts() call added
 render() {
-  // 🔥 NEW: Don't render if modal is active
-  if (this.modalManager && this.modalManager.isModalActive()) {
+  // 🔥 ALLOW RENDER DURING ROUND_END MODALS
+  if (this.modalManager.isActive() && this.modalManager.getCurrentModal() !== 'round_end') {
     console.log('🎪 SKIPPING RENDER: Modal is active');
     return;
   }
