@@ -34,9 +34,14 @@ showModal(type, data = {}) {
   }
 
   // 🔥 COMPLETE render() method with renderBotCardCounts() call added
+// 🔥 SAFE VERSION WITH PROPER ERROR CHECKING:
 render() {
-  // 🔥 ALLOW RENDER DURING ROUND_END MODALS
-  if (this.modalManager.isActive() && this.modalManager.getCurrentModal() !== 'round_end') {
+  // 🔥 SAFE MODAL CHECK WITH FALLBACKS
+  if (this.modalManager && 
+      typeof this.modalManager.isActive === 'function' && 
+      this.modalManager.isActive() && 
+      this.modalManager.getCurrentModal && 
+      this.modalManager.getCurrentModal() !== 'round_end') {
     console.log('🎪 SKIPPING RENDER: Modal is active');
     return;
   }
@@ -55,15 +60,15 @@ render() {
   this.renderHands();
   this.renderBotHands();
   this.renderScores();
-  this.renderBotCardCounts(); // 🔥 ADDED: Bot card count updates
+  this.renderBotCardCounts();
   this.renderDealerIndicator();
   this.updateSubmitButton();
   
-  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+  // 🎯 ENHANCED: COMBO ASSISTANCE LOGIC
   const comboStatus = this.getComboAreaStatus();
 
   if (comboStatus.hasCards) {
-    // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
+    // 🎯 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
     if (window.messageController && window.messageController.educationalMode) {
       this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
     } else if (window.messageController) {
