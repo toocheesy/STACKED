@@ -486,44 +486,39 @@ renderBotCardCounts() {
   }
 }
 
-  // 🔥 REPLACE renderDealerIndicator() FUNCTION:
+  // 🔥 REPLACE renderDealerIndicator() FUNCTION in ui.js:
 renderDealerIndicator() {
   const state = this.game.getState();
   const deckCount = state.deck ? state.deck.length : 0;
   const currentDealer = state.currentDealer !== undefined ? state.currentDealer : 0;
   
-  // Find the deck indicator element (grey box)
-  const deckIndicatorEl = document.querySelector('.deck-indicator, #deck-indicator, [data-deck]');
-  
-  if (deckIndicatorEl) {
-    // Update deck indicator to show dealer info
-    deckIndicatorEl.textContent = `Dealer: ${currentDealer === 0 ? 'Player' : `Bot ${currentDealer}`}`;
-    deckIndicatorEl.classList.add('dealer-active');
-    console.log(`✅ Dealer indicator updated: Player ${currentDealer} is dealer`);
-  } else {
-    console.warn('⚠️ Deck indicator element not found');
-  }
-  
-  // Remove existing dealer classes
+  // Remove existing dealer classes from all elements
   const allIndicators = document.querySelectorAll('.bot-indicator, .scores');
   allIndicators.forEach(el => {
     el.classList.remove('dealer');
     el.removeAttribute('data-deck');
   });
   
-  // Add dealer class to appropriate element
+  // Add dealer class to appropriate element based on current dealer
   let dealerElement = null;
+  
   if (currentDealer === 0) {
+    // Player is dealer - use scores element
     dealerElement = document.querySelector('.scores');
   } else if (currentDealer === 1) {
+    // Bot 1 is dealer - use bot1-indicator
     dealerElement = document.querySelector('.bot1-indicator');
   } else if (currentDealer === 2) {
+    // Bot 2 is dealer - use bot2-indicator  
     dealerElement = document.querySelector('.bot2-indicator');
   }
   
   if (dealerElement) {
     dealerElement.classList.add('dealer');
     dealerElement.setAttribute('data-deck', deckCount);
+    console.log(`✅ Dealer indicator set for player ${currentDealer} with deck ${deckCount}`);
+  } else {
+    console.warn(`⚠️ No dealer element found for player ${currentDealer}`);
   }
 }
 
