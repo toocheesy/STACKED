@@ -764,18 +764,127 @@ return;
   }
 }
 
+// 📱 WORKING TOUCH EVENT HANDLERS
+let touchDragData = null;
+let touchStartPosition = null;
+
 function handleTouchStart(e, source, data) {
   if (game.state.currentPlayer !== 0) return;
   e.preventDefault();
+  
+  // Store what we're dragging
+  if (source === 'hand') {
+    touchDragData = {
+      type: 'hand',
+      index: data,
+      card: game.state.hands[0][data]
+    };
+  } else if (source === 'board') {
+    touchDragData = {
+      type: 'board', 
+      index: data,
+      card: game.state.board[data]
+    };
+  } else if (source === 'combo') {
+    touchDragData = {
+      type: 'combo',
+      slot: data.slot,
+      comboIndex: data.comboIndex,
+      card: game.state.combination[data.slot][data.comboIndex]
+    };
+  }
+  
+  // Store touch position
+  touchStartPosition = {
+    x: e.touches[0].clientX,
+    y: e.touches[0].clientY
+  };
+  
+  console.log('🎯 TOUCH START:', touchDragData);
 }
 
 function handleTouchEnd(e) {
   if (game.state.currentPlayer !== 0) return;
   e.preventDefault();
+  
+  if (!touchDragData || !touchStartPosition) return;
+  
+  // Get touch end position
+  const touchEndPosition = {
+    x: e.changedTouches[0].clientX,
+    y: e.changedTouches[0].clientY
+  };
+  
+  // Find what element we're over
+  const elementBelow = document.elementFromPoint(
+    touchEndPosition.x, 
+    touchEndPosition.y
+  );
+  
+  if (!elementBelow) {
+    touchDragData = null;
+    return;
+  }
+  
+  // Check if we're over a valid drop zone
+  const comboArea = elementBelow.closest('.combo-slot');
+  if (comboArea) {
+    const slotName = comboArea.getAttribute('data-slot');
+    handleTouchDropOnCombo(slotName);
+  }
+  
+  // Clear touch data
+  touchDragData = null;
+  touchStartPosition = null;
+}
+
+function handleTouchDropOnCombo(slotName) {
+  if (!touchDragData) return;
+  
+  console.log(`🎯 TOUCH DROP ON COMBO: ${slotName}`, touchDragData);
+  
+  // Simulate the drag and drop logic
+  if (touchDragData.type === 'combo') {
+    // Remove from old combo position
+    game.state.combination[touchDragData.slot] = 
+      game.state.combination[touchDragData.slot].filter((_, i) => i !== touchDragData.comboIndex);
+  }
+  
+  // Handle base area replacement logic (same as handleDrop)
+  if (slotName === 'base' && game.state.combination.base.length > 0) {
+    const existingBase = game.state.combination.base[0];
+    game.state.combination.base = [];
+    if (game.state.combination.sum1.length === 0) {
+      game.state.combination.sum1.push(existingBase);
+    } else if (game.state.combination.sum2.length === 0) {
+      game.state.combination.sum2.push(existingBase);
+    } else if (game.state.combination.sum3.length === 0) {
+      game.state.combination.sum3.push(existingBase);
+    } else {
+      game.state.combination.match.push(existingBase);
+    }
+  }
+  
+  // Add to new position
+  const cardEntry = {
+    card: touchDragData.card,
+    source: touchDragData.type === 'combo' ? touchDragData.card.source : touchDragData.type,
+    index: touchDragData.type === 'combo' ? touchDragData.card.index : touchDragData.index,
+    playerSource: 0
+  };
+  
+  game.state.combination[slotName].push(cardEntry);
+  
+  // Re-render the UI
+  ui.render();
+  
+  console.log('✅ TOUCH DROP COMPLETE');
 }
 
 function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
+  // This function can stay simple since handleTouchEnd handles the logic
+  console.log('🎯 TOUCH DROP EVENT:', targetType, data);
 }
 
 function provideHint() {
