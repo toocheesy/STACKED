@@ -486,36 +486,44 @@ renderBotCardCounts() {
   }
 }
 
-  renderDealerIndicator() {
-  // Get current state safely
+  // 🔥 REPLACE renderDealerIndicator() FUNCTION:
+renderDealerIndicator() {
   const state = this.game.getState();
   const deckCount = state.deck ? state.deck.length : 0;
-  const currentDealer = state.currentDealer || 0; // Default to player if undefined
+  const currentDealer = state.currentDealer !== undefined ? state.currentDealer : 0;
   
-  // Remove existing dealer class from all possible elements
+  // Find the deck indicator element (grey box)
+  const deckIndicatorEl = document.querySelector('.deck-indicator, #deck-indicator, [data-deck]');
+  
+  if (deckIndicatorEl) {
+    // Update deck indicator to show dealer info
+    deckIndicatorEl.textContent = `Dealer: ${currentDealer === 0 ? 'Player' : `Bot ${currentDealer}`}`;
+    deckIndicatorEl.classList.add('dealer-active');
+    console.log(`✅ Dealer indicator updated: Player ${currentDealer} is dealer`);
+  } else {
+    console.warn('⚠️ Deck indicator element not found');
+  }
+  
+  // Remove existing dealer classes
   const allIndicators = document.querySelectorAll('.bot-indicator, .scores');
   allIndicators.forEach(el => {
     el.classList.remove('dealer');
-    el.removeAttribute('data-deck'); // Clean up old data
+    el.removeAttribute('data-deck');
   });
   
-  // Determine the target element based on dealer
+  // Add dealer class to appropriate element
   let dealerElement = null;
-  if (currentDealer === 0) { // Player (assuming index 0 is human)
+  if (currentDealer === 0) {
     dealerElement = document.querySelector('.scores');
-  } else if (currentDealer === 1) { // Bot1
+  } else if (currentDealer === 1) {
     dealerElement = document.querySelector('.bot1-indicator');
-  } else if (currentDealer === 2) { // Bot2
+  } else if (currentDealer === 2) {
     dealerElement = document.querySelector('.bot2-indicator');
   }
   
-  // Add class and data if element exists
   if (dealerElement) {
     dealerElement.classList.add('dealer');
     dealerElement.setAttribute('data-deck', deckCount);
-    console.log(`✅ Dealer indicator set for player ${currentDealer} with deck ${deckCount}`);
-  } else {
-    console.warn(`⚠️ No dealer element found for player ${currentDealer}`);
   }
 }
 

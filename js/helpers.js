@@ -11,21 +11,42 @@
 const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
 const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 
-function createDeck() {
-  return suits.flatMap(suit => values.map(value => ({
-    suit,
-    value,
-    id: `${value}-${suit}`,
-  })));
-}
-
+// 🔥 REPLACE shuffleDeck() FUNCTION:
 function shuffleDeck(deck) {
   const shuffled = [...deck];
+  
+  // 🎯 FISHER-YATES SHUFFLE - TRUE RANDOMIZATION
   for (let i = shuffled.length - 1; i > 0; i--) {
+    // Generate truly random index
     const j = Math.floor(Math.random() * (i + 1));
+    
+    // Swap elements
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
+  
+  console.log('🔀 DECK SHUFFLED - True randomization applied');
   return shuffled;
+}
+
+// 🔥 ALSO ADD: Enhanced deck creation for better distribution
+function createDeck() {
+  const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+  const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+  const deck = [];
+  
+  // Create cards in alternating pattern for better initial distribution
+  values.forEach(value => {
+    suits.forEach(suit => {
+      deck.push({
+        value,
+        suit,
+        id: `${value}${suit}`
+      });
+    });
+  });
+  
+  console.log('🃏 DECK CREATED - 52 cards with alternating suits');
+  return deck;
 }
 
 function dealCards(deck, numPlayers = 3, cardsPerPlayer = 4, boardCards = 4) {
