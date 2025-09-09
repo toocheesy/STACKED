@@ -129,27 +129,31 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🔧 DEBUG VERSION OF renderComboArea()
+  // 🔧 SMART FIX - Work with your existing beautiful HTML
   renderComboArea() {
     console.log('🔍 STARTING renderComboArea()');
     
-    const comboAreaEl = document.getElementById('combination-area');
+    // Try your actual HTML structure first
+    let comboAreaEl = document.querySelector('.combo-area');
+    
+    // Fallback to old structure if needed
+    if (!comboAreaEl) {
+      comboAreaEl = document.getElementById('combination-area');
+    }
     
     if (!comboAreaEl) {
-      console.error('❌ #combination-area element not found in DOM!');
-      console.log('🔍 Available elements with "combination" in ID:', 
-        Array.from(document.querySelectorAll('[id*="combination"]')).map(el => el.id));
+      console.error('❌ Combo area element not found! Looking for .combo-area or #combination-area');
       return;
     }
     
-    console.log('✅ Found combination-area element:', comboAreaEl);
+    console.log('✅ Found combo area element:', comboAreaEl);
 
-    // Check for each slot individually
-    const baseEl = comboAreaEl.querySelector('[data-slot="base"]');
-    const sum1El = comboAreaEl.querySelector('[data-slot="sum1"]');
-    const sum2El = comboAreaEl.querySelector('[data-slot="sum2"]');
-    const sum3El = comboAreaEl.querySelector('[data-slot="sum3"]');
-    const matchEl = comboAreaEl.querySelector('[data-slot="match"]');
+    // Work with your actual HTML structure - individual IDs
+    const baseEl = document.getElementById('base-area');
+    const sum1El = document.getElementById('sum1-area');
+    const sum2El = document.getElementById('sum2-area');
+    const sum3El = document.getElementById('sum3-area');
+    const matchEl = document.getElementById('match-area');
     
     console.log('🔍 Element check results:');
     console.log('  Base element:', baseEl ? '✅ FOUND' : '❌ MISSING');
@@ -158,14 +162,6 @@ showModal(type, data = {}) {
     console.log('  Sum3 element:', sum3El ? '✅ FOUND' : '❌ MISSING');
     console.log('  Match element:', matchEl ? '✅ FOUND' : '❌ MISSING');
     
-    // Show all data-slot elements we can find
-    const allSlotElements = comboAreaEl.querySelectorAll('[data-slot]');
-    console.log('🔍 All elements with data-slot:', Array.from(allSlotElements).map(el => ({
-      tag: el.tagName,
-      classes: el.className,
-      slot: el.getAttribute('data-slot')
-    })));
-    
     if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) {
       console.error('❌ One or more combo slots not found!');
       return;
@@ -173,7 +169,7 @@ showModal(type, data = {}) {
 
     console.log('✅ All combo elements found, proceeding with render...');
 
-    // Render each area (no cloning, just clean event management)
+    // Render each area using your actual element structure
     this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
     this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
     this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
