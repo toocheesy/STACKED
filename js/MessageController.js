@@ -510,8 +510,8 @@ handleComboAnalysis(data) {
     const hands = this.gameEngine.state.hands;
     return hands[playerIndex] ? hands[playerIndex].length : 0;
   }
-
-  // 🎯 CORE MESSAGE DISPLAY
+  
+// 🎯 CORE MESSAGE DISPLAY - FIXED VERSION
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
   
@@ -527,30 +527,9 @@ showMessage(text, type = 'normal') {
   
   this.playMessageSound(type);
 }
-  
-  // Hide current-player indicator when showing messages
-  const currentPlayerEl = document.querySelector('.current-player');
-  if (currentPlayerEl && currentPlayerEl !== messageEl) {
-    currentPlayerEl.style.display = 'none';
-  
-  
-  playMessageSound(type) {
-  if (typeof playSound === 'function') {
-    switch(type) {
-      case 'success':
-      case 'combo-success':
-        playSound('capture');
-        break;
-      case 'error':
-        playSound('invalid');
-        break;
-      case 'game-over':
-        playSound('winner');
-        break;
-    }
-  }
-}
 
+// 🔊 SEPARATE SOUND FUNCTION - FIXED
+playMessageSound(type) {
   // Check if global playSound function exists
   if (typeof playSound === 'function') {
     switch(type) {
