@@ -513,19 +513,17 @@ handleComboAnalysis(data) {
 
   // 🎯 CORE MESSAGE DISPLAY
   showMessage(text, type = 'normal') {
-    console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
+  // Try multiple possible message containers
+  const messageEl = document.getElementById('smart-message') 
+    || document.getElementById('message') 
+    || document.querySelector('.smart-message')
+    || document.querySelector('.game-message');
     
-    if (this.messageElement) {
-      this.messageElement.textContent = text;
-      this.messageElement.className = `smart-message ${type}`;
-    }
-    
-    if (this.regularMessageElement) {
-      this.regularMessageElement.style.display = 'none';
-    }
-    
-    this.playMessageSound(type);
+  if (messageEl) {
+    messageEl.textContent = text;
+    messageEl.className = `smart-message ${type}`;
   }
+}
 
   playMessageSound(type) {
     if (typeof playSound === 'function') {

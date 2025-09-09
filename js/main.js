@@ -793,13 +793,14 @@ return;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const submitBtn = document.getElementById('submit-btn');
-  const restartBtn = document.getElementById('restart-btn');
-  const resetBtn = document.getElementById('reset-play-area-btn');
+  // Try multiple possible button selectors
+  const submitBtn = document.getElementById('submit-btn') 
+    || document.getElementById('submit-move-btn');
+  const resetBtn = document.getElementById('reset-play-area-btn') 
+    || document.getElementById('reset-btn');
   const hintBtn = document.getElementById('hint-btn');
 
   if (submitBtn) submitBtn.addEventListener('click', handleSubmit);
-  if (restartBtn) restartBtn.addEventListener('click', initGame);
   if (resetBtn) resetBtn.addEventListener('click', handleResetPlayArea);
   if (hintBtn) hintBtn.addEventListener('click', provideHint);
 });
