@@ -1,7 +1,7 @@
 /* 
  * UI Rendering System for STACKED!
  * Handles all DOM manipulation and rendering
- * 🔥 FIXED: Centralized modal system with game pausing
+ * 🔥 FIXED: Centralized modal system with game pausing + WORKING DRAG/DROP
  */
 
 class UISystem {
@@ -75,7 +75,6 @@ showModal(type, data = {}) {
     }
   }
 
-  // Rest of the UISystem methods remain the same...
   renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
@@ -130,11 +129,14 @@ showModal(type, data = {}) {
     }
   }
 
+  // 🔥 COMPLETELY FIXED COMBO AREA RENDERING
   renderComboArea() {
     const comboAreaEl = document.getElementById('combination-area');
-    let captureTypeMessage = "No cards in play areas.";
     
-    if (!comboAreaEl) return;
+    if (!comboAreaEl) {
+      console.error('❌ Combo area element not found!');
+      return;
+    }
 
     const baseEl = comboAreaEl.querySelector('[data-slot="base"]');
     const sum1El = comboAreaEl.querySelector('[data-slot="sum1"]');
@@ -142,17 +144,20 @@ showModal(type, data = {}) {
     const sum3El = comboAreaEl.querySelector('[data-slot="sum3"]');
     const matchEl = comboAreaEl.querySelector('[data-slot="match"]');
     
-    if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) return;
+    if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) {
+      console.error('❌ One or more combo slots not found!');
+      return;
+    }
 
-    // 🔥 FIXED: Store the element references that renderArea() returns
-    const newBaseEl = this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
-    const newSum1El = this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
-    const newSum2El = this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
-    const newSum3El = this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
-    const newMatchEl = this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
+    // Render each area (no cloning, just clean event management)
+    this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
+    this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
+    this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
+    this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
+    this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
 
-    // Validate combinations using the NEW element references
-    this.validateAndStyleComboArea(newBaseEl, newSum1El, newSum2El, newSum3El, newMatchEl);
+    // Validate combinations
+    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
   }
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
@@ -194,7 +199,9 @@ showModal(type, data = {}) {
     }
   }
 
+  // 🔥 COMPLETELY REWRITTEN RENDERAREA - NO MORE DOM CLONING ISSUES
   renderArea(areaEl, cards, slotName, placeholderText) {
+    // Clear content but preserve the element
     areaEl.innerHTML = '';
     
     // Add live sum totals for sum areas
@@ -236,6 +243,7 @@ showModal(type, data = {}) {
       }
     }
     
+    // Add cards to the area
     if (cards.length > 0) {
       cards.forEach((comboEntry, comboIndex) => {
         const card = comboEntry.card;
@@ -260,35 +268,48 @@ showModal(type, data = {}) {
       areaEl.style.height = '110px';
     }
     
-    // 🔥 CRITICAL FIX: Add event listeners EVERY TIME renderArea is called
-    // Remove any existing listeners first to prevent duplicates
-    const newAreaEl = areaEl.cloneNode(true);
-    areaEl.parentNode.replaceChild(newAreaEl, areaEl);
+    // 🔥 CRITICAL FIX: Ensure drop events work by removing and re-adding listeners properly
+    // Remove old event listeners using proper cleanup
+    if (areaEl._boundDragOver) {
+      areaEl.removeEventListener('dragover', areaEl._boundDragOver);
+    }
+    if (areaEl._boundDrop) {
+      areaEl.removeEventListener('drop', areaEl._boundDrop);
+    }
+    if (areaEl._boundTouchEnd) {
+      areaEl.removeEventListener('touchend', areaEl._boundTouchEnd);
+    }
     
-    // Add fresh event listeners
-    newAreaEl.addEventListener('dragover', (e) => {
+    // Create new bound functions
+    areaEl._boundDragOver = (e) => {
       e.preventDefault();
       console.log(`🎯 DRAGOVER: ${slotName}`);
-    });
+    };
     
-    newAreaEl.addEventListener('drop', (e) => {
-      console.log(`🎯 DROP EVENT FIRED ON: ${slotName}`);
+    areaEl._boundDrop = (e) => {
+      console.log(`🔥 DROP EVENT FIRED ON: ${slotName}`);
       e.preventDefault();
       e.stopPropagation();
       window.handleDrop(e, slotName);
-    });
+    };
     
-    newAreaEl.addEventListener('touchend', (e) => {
+    areaEl._boundTouchEnd = (e) => {
       console.log(`🎯 TOUCH DROP ON: ${slotName}`);
       e.preventDefault();
       window.handleTouchDrop(e, 'combo', slotName);
-    });
+    };
     
-    return newAreaEl; // Return the new element so calling code can update references
+    // Add fresh event listeners
+    areaEl.addEventListener('dragover', areaEl._boundDragOver);
+    areaEl.addEventListener('drop', areaEl._boundDrop);
+    areaEl.addEventListener('touchend', areaEl._boundTouchEnd);
+    
+    console.log(`✅ AREA EVENTS BOUND: ${slotName} - dragover, drop, touchend`);
+    
+    return areaEl;
   }
 
-
-  // 🔥 NEW: Calculate sum total for sum areas
+  // Calculate sum total for sum areas
   calculateSumTotal(cards) {
     return cards.reduce((total, comboEntry) => {
       const card = comboEntry.card;
@@ -440,8 +461,6 @@ showModal(type, data = {}) {
   } else {
     console.warn(`⚠️ No dealer element found for player ${currentDealer}`);
   }
-  
-  // No need to create/append new element - CSS handles display!
 }
 
   updateSubmitButton() {
@@ -457,18 +476,14 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🎯 UPDATED updateMessage() - NOW USES MESSAGE CONTROLLER
+  // Message controller integration
   updateMessage() {
-    // 🔥 MESSAGE CONTROLLER HANDLES EVERYTHING NOW!
-    // The MessageController will handle all message updates through events
-    
-    // Only keep this for backwards compatibility - but it should rarely be called
+    // Message controller handles everything now
     if (window.messageController) {
       window.messageController.forceRefresh();
     }
   }
 
-  // 🎯 INTEGRATE WITH MESSAGE CONTROLLER
   initMessageController() {
     if (window.messageController && this.game) {
       window.messageController.connect(this.game);
@@ -476,7 +491,6 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🎯 SEND MESSAGE EVENTS TO CONTROLLER
   sendMessageEvent(eventType, data = {}) {
     if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
       window.messageController.handleGameEvent(eventType, data);
@@ -485,7 +499,6 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🎓 NEW: ENHANCED COMBO AREA STATUS WITH DETAILED INFO
   getComboAreaStatus() {
     const combo = this.game.state.combination;
     const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
@@ -508,7 +521,6 @@ showModal(type, data = {}) {
   }
 
   // Helper methods
-  // 🔥 BULLETPROOF FIXED: Player-aware card tracking with proper player isolation
   isCardInPlayArea(index, source, playerIndex = null) {
   // Check if this specific card is in any combo area
   return Object.values(this.game.state.combination).some(area => 
@@ -529,8 +541,8 @@ showModal(type, data = {}) {
     cardEl.setAttribute('data-index', index);
     cardEl.setAttribute('data-type', type);
     cardEl.addEventListener('dragstart', (e) => {
-  console.log('🎯 DRAG START: From type=', type, 'index=', index, 'card=', e.target.textContent);  // NEW LOG: Track source
-  window.handleDragStart(e, type, index);  // Existing
+  console.log('🎯 DRAG START: From type=', type, 'index=', index, 'card=', e.target.textContent);
+  window.handleDragStart(e, type, index);
 });
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
