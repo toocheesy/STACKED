@@ -793,16 +793,46 @@ return;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Try multiple possible button selectors
+  // 🔥 FIX: Try multiple possible button selectors to match your HTML
+  
+  // Submit button - try both status bar and combo area buttons
   const submitBtn = document.getElementById('submit-btn') 
     || document.getElementById('submit-move-btn');
+  
+  // Reset button - try both possible IDs
   const resetBtn = document.getElementById('reset-play-area-btn') 
     || document.getElementById('reset-btn');
+    
+  // Hint button
   const hintBtn = document.getElementById('hint-btn');
 
-  if (submitBtn) submitBtn.addEventListener('click', handleSubmit);
-  if (resetBtn) resetBtn.addEventListener('click', handleResetPlayArea);
-  if (hintBtn) hintBtn.addEventListener('click', provideHint);
+  // Debug logging
+  console.log('🔍 BUTTON CHECK:');
+  console.log('  Submit button:', submitBtn ? '✅ FOUND' : '❌ MISSING');
+  console.log('  Reset button:', resetBtn ? '✅ FOUND' : '❌ MISSING');
+  console.log('  Hint button:', hintBtn ? '✅ FOUND' : '❌ MISSING');
+
+  // Attach event listeners
+  if (submitBtn) {
+    submitBtn.addEventListener('click', handleSubmit);
+    console.log('✅ Submit button event attached');
+  } else {
+    console.error('❌ Submit button not found!');
+  }
+  
+  if (resetBtn) {
+    resetBtn.addEventListener('click', handleResetPlayArea);
+    console.log('✅ Reset button event attached');
+  } else {
+    console.error('❌ Reset button not found!');
+  }
+  
+  if (hintBtn) {
+    hintBtn.addEventListener('click', provideHint);
+    console.log('✅ Hint button event attached');
+  } else {
+    console.error('❌ Hint button not found!');
+  }
 });
 
 window.handleDragStart = handleDragStart;

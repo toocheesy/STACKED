@@ -443,17 +443,18 @@ showModal(type, data = {}) {
   }
 
   renderScores() {
-  // Update to match your actual HTML structure
-  const playerScoreEl = document.getElementById('player-score') 
-    || document.querySelector('.player-score');
-  const bot1ScoreEl = document.getElementById('bot1-score') 
-    || document.querySelector('.bot1-score');
-  const bot2ScoreEl = document.getElementById('bot2-score') 
-    || document.querySelector('.bot2-score');
-  
-  if (playerScoreEl) playerScoreEl.textContent = `Player: ${this.game.state.scores.player} pts`;
-  if (bot1ScoreEl) bot1ScoreEl.textContent = `Bot 1: ${this.game.state.scores.bot1} pts`;
-  if (bot2ScoreEl) bot2ScoreEl.textContent = `Bot 2: ${this.game.state.scores.bot2} pts`;
+  // 🔥 FIX: Work with your actual single scores element
+  const scoresEl = document.getElementById('scores');
+  if (scoresEl) {
+    scoresEl.textContent = `Player: ${this.game.state.scores.player} | Bot1: ${this.game.state.scores.bot1} | Bot2: ${this.game.state.scores.bot2}`;
+    console.log('✅ SCORES UPDATED:', {
+      player: this.game.state.scores.player,
+      bot1: this.game.state.scores.bot1,
+      bot2: this.game.state.scores.bot2
+    });
+  } else {
+    console.error('❌ Scores element not found!');
+  }
 }
 
   renderDealerIndicator() {
