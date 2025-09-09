@@ -513,21 +513,28 @@ handleComboAnalysis(data) {
 
   // 🎯 CORE MESSAGE DISPLAY
 
+// Replace the showMessage method in MessageController.js with this:
+
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
   
-  // 🔥 FIX: Target the game-message element in the game area, not bottom UI
-  const messageEl = document.getElementById('message') 
-    || document.querySelector('.game-message')
-    || document.getElementById('current-player');
+  // 🔥 FIX: Target the current-player element (where "Your Turn" appears)
+  let messageEl = document.getElementById('current-player') 
+    || document.querySelector('.current-player')
+    || document.getElementById('message') 
+    || document.querySelector('.game-message');
     
   if (messageEl) {
     messageEl.textContent = text;
-    messageEl.className = `game-message ${type}`;
+    messageEl.className = `current-player game-message ${type}`;
+    messageEl.style.display = 'block';
     console.log('✅ MESSAGE DISPLAYED:', text);
   } else {
-    console.error('❌ Message element not found! Looking for #message or .game-message');
+    console.error('❌ Message element not found! Looking for #current-player');
   }
+  
+  this.playMessageSound(type);
+}
   
   // Hide current-player indicator when showing messages
   const currentPlayerEl = document.querySelector('.current-player');
@@ -535,7 +542,27 @@ showMessage(text, type = 'normal') {
     currentPlayerEl.style.display = 'none';
   }
   
-  this.playMessageSound(type);
+  playMessageSound(type) {
+
+  // Check if global playSound function exists
+  if (typeof playSound === 'function') {
+    switch(type) {
+      case 'success':
+      case 'combo-success':
+        playSound('capture');
+        break;
+      case 'error':
+        playSound('invalid');
+        break;
+      case 'game-over':
+        playSound('winner');
+        break;
+      default:
+        // No sound for other message types
+        break;
+    }
+  }
+  // If playSound doesn't exist, just continue silently
 }
 
   // 🎯 KEEP ALL OTHER EXISTING FUNCTIONS
