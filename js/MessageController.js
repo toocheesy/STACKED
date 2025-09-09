@@ -516,17 +516,20 @@ handleComboAnalysis(data) {
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
   
-  // 🔥 TARGET ONLY THE CURRENT-PLAYER ELEMENT (the "Your Turn" box)
-  const messageEl = document.getElementById('current-player') 
-    || document.querySelector('.current-player');
-    
-  if (messageEl) {
-    messageEl.textContent = text;
-    messageEl.className = `current-player game-message ${type}`;
-    console.log('✅ MESSAGE DISPLAYED IN YOUR TURN BOX:', text);
+  // 🔥 ONLY target the current-player element (the "Your Turn" box)
+  const currentPlayerEl = document.getElementById('current-player');
+  
+  if (currentPlayerEl) {
+    currentPlayerEl.textContent = text;
+    currentPlayerEl.className = `current-player ${type}`;
+    console.log('✅ MESSAGE REPLACED YOUR TURN:', text);
   } else {
-    console.error('❌ Current-player element not found!');
+    console.error('❌ #current-player element not found!');
   }
+  
+  // Hide any other message elements that might be showing
+  const otherMessages = document.querySelectorAll('.game-message:not(#current-player)');
+  otherMessages.forEach(el => el.style.display = 'none');
   
   this.playMessageSound(type);
 }
