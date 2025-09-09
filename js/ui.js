@@ -33,47 +33,48 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🎯 ENHANCED render() FUNCTION - WITH COMBO ASSISTANCE TRIGGERS
-  render() {
-    // 🔥 NEW: Don't render if modal is active
-    if (this.modalManager && this.modalManager.isModalActive()) {
-      console.log('🎪 SKIPPING RENDER: Modal is active');
-      return;
-    }
-    
-    const state = this.game.getState();
-    
-    // Connect message controller if not already connected
-    if (window.messageController && !window.messageController.gameEngine) {
-      this.initMessageController();
-    }
-    
-    this.renderDeckCount();
-    this.renderTable();
-    this.renderComboArea();
-    this.renderBoard();
-    this.renderHands();
-    this.renderBotHands();
-    this.renderScores();
-    this.renderDealerIndicator();
-    this.updateSubmitButton();
-    
-    // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
-    const comboStatus = this.getComboAreaStatus();
-
-    if (comboStatus.hasCards) {
-      // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
-      if (window.messageController && window.messageController.educationalMode) {
-        this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
-      } else if (window.messageController) {
-        this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
-      }
-    } else if (state.currentPlayer === 0) {
-      this.sendMessageEvent('TURN_START');
-    } else {
-      this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
-    }
+  // 🔥 COMPLETE render() method with renderBotCardCounts() call added
+render() {
+  // 🔥 NEW: Don't render if modal is active
+  if (this.modalManager && this.modalManager.isModalActive()) {
+    console.log('🎪 SKIPPING RENDER: Modal is active');
+    return;
   }
+  
+  const state = this.game.getState();
+  
+  // Connect message controller if not already connected
+  if (window.messageController && !window.messageController.gameEngine) {
+    this.initMessageController();
+  }
+  
+  this.renderDeckCount();
+  this.renderTable();
+  this.renderComboArea();
+  this.renderBoard();
+  this.renderHands();
+  this.renderBotHands();
+  this.renderScores();
+  this.renderBotCardCounts(); // 🔥 ADDED: Bot card count updates
+  this.renderDealerIndicator();
+  this.updateSubmitButton();
+  
+  // 🎓 ENHANCED: COMBO ASSISTANCE LOGIC
+  const comboStatus = this.getComboAreaStatus();
+
+  if (comboStatus.hasCards) {
+    // 🎓 TRIGGER COMBO ANALYSIS FOR BEGINNERS (SAFE CHECK)
+    if (window.messageController && window.messageController.educationalMode) {
+      this.sendMessageEvent('COMBO_ANALYSIS', comboStatus);
+    } else if (window.messageController) {
+      this.sendMessageEvent('CARDS_IN_COMBO', comboStatus);
+    }
+  } else if (state.currentPlayer === 0) {
+    this.sendMessageEvent('TURN_START');
+  } else {
+    this.sendMessageEvent('BOT_THINKING', { botNumber: state.currentPlayer });
+  }
+}
 
   renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
@@ -348,6 +349,29 @@ showModal(type, data = {}) {
       return total + value;
     }, 0);
   }
+
+  // Add this method to your UISystem class in ui.js
+renderBotCardCounts() {
+  // Update bot card count displays
+  const bot1CardsEl = document.getElementById('bot1-cards');
+  const bot2CardsEl = document.getElementById('bot2-cards');
+  
+  if (bot1CardsEl) {
+    const bot1Count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
+    bot1CardsEl.textContent = `${bot1Count} cards`;
+    console.log('✅ BOT 1 CARD COUNT UPDATED:', bot1Count);
+  }
+  
+  if (bot2CardsEl) {
+    const bot2Count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
+    bot2CardsEl.textContent = `${bot2Count} cards`;
+    console.log('✅ BOT 2 CARD COUNT UPDATED:', bot2Count);
+  }
+}
+
+// Then add this call to your main render() method
+// Find the render() method and add this line after renderScores():
+// this.renderBotCardCounts();
 
   renderBoard() {
     const boardEl = document.getElementById('board');

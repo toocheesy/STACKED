@@ -512,35 +512,31 @@ handleComboAnalysis(data) {
   }
 
   // 🎯 CORE MESSAGE DISPLAY
-  showMessage(text, type = 'normal') {
-  // Try multiple possible message containers
-  const messageEl = document.getElementById('smart-message') 
-    || document.getElementById('message') 
-    || document.querySelector('.smart-message')
-    || document.querySelector('.game-message');
+
+showMessage(text, type = 'normal') {
+  console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
+  
+  // 🔥 FIX: Target the game-message element in the game area, not bottom UI
+  const messageEl = document.getElementById('message') 
+    || document.querySelector('.game-message')
+    || document.getElementById('current-player');
     
   if (messageEl) {
     messageEl.textContent = text;
-    messageEl.className = `smart-message ${type}`;
+    messageEl.className = `game-message ${type}`;
+    console.log('✅ MESSAGE DISPLAYED:', text);
+  } else {
+    console.error('❌ Message element not found! Looking for #message or .game-message');
   }
+  
+  // Hide current-player indicator when showing messages
+  const currentPlayerEl = document.querySelector('.current-player');
+  if (currentPlayerEl && currentPlayerEl !== messageEl) {
+    currentPlayerEl.style.display = 'none';
+  }
+  
+  this.playMessageSound(type);
 }
-
-  playMessageSound(type) {
-    if (typeof playSound === 'function') {
-      switch(type) {
-        case 'success':
-        case 'combo-success':
-          playSound('capture');
-          break;
-        case 'error':
-          playSound('invalid');
-          break;
-        case 'game-over':
-          playSound('winner');
-          break;
-      }
-    }
-  }
 
   // 🎯 KEEP ALL OTHER EXISTING FUNCTIONS
   handleCaptureSuccess(data) {
