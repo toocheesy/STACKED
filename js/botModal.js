@@ -58,13 +58,7 @@ this.game.state.combination[targetSlot].push(cardEntry);
 // Give DOM time to update
 await this.delay(800);
 
-// 🔥 BULLETPROOF: Only render after animation completes
-this.ui.render();
-
-// 🔥 FIX: Only render once after all combo building is done
-this.ui.render();
-
-// 🔥 FIX: Only render after animation delay
+// 🔧 PERFORMANCE FIX: Only render once at the end
 this.ui.render();
     
     // Verify card was placed correctly
