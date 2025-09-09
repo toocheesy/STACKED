@@ -129,25 +129,49 @@ showModal(type, data = {}) {
     }
   }
 
-  // 🔥 COMPLETELY FIXED COMBO AREA RENDERING
+  // 🔧 DEBUG VERSION OF renderComboArea()
   renderComboArea() {
+    console.log('🔍 STARTING renderComboArea()');
+    
     const comboAreaEl = document.getElementById('combination-area');
     
     if (!comboAreaEl) {
-      console.error('❌ Combo area element not found!');
+      console.error('❌ #combination-area element not found in DOM!');
+      console.log('🔍 Available elements with "combination" in ID:', 
+        Array.from(document.querySelectorAll('[id*="combination"]')).map(el => el.id));
       return;
     }
+    
+    console.log('✅ Found combination-area element:', comboAreaEl);
 
+    // Check for each slot individually
     const baseEl = comboAreaEl.querySelector('[data-slot="base"]');
     const sum1El = comboAreaEl.querySelector('[data-slot="sum1"]');
     const sum2El = comboAreaEl.querySelector('[data-slot="sum2"]');
     const sum3El = comboAreaEl.querySelector('[data-slot="sum3"]');
     const matchEl = comboAreaEl.querySelector('[data-slot="match"]');
     
+    console.log('🔍 Element check results:');
+    console.log('  Base element:', baseEl ? '✅ FOUND' : '❌ MISSING');
+    console.log('  Sum1 element:', sum1El ? '✅ FOUND' : '❌ MISSING');
+    console.log('  Sum2 element:', sum2El ? '✅ FOUND' : '❌ MISSING');
+    console.log('  Sum3 element:', sum3El ? '✅ FOUND' : '❌ MISSING');
+    console.log('  Match element:', matchEl ? '✅ FOUND' : '❌ MISSING');
+    
+    // Show all data-slot elements we can find
+    const allSlotElements = comboAreaEl.querySelectorAll('[data-slot]');
+    console.log('🔍 All elements with data-slot:', Array.from(allSlotElements).map(el => ({
+      tag: el.tagName,
+      classes: el.className,
+      slot: el.getAttribute('data-slot')
+    })));
+    
     if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) {
       console.error('❌ One or more combo slots not found!');
       return;
     }
+
+    console.log('✅ All combo elements found, proceeding with render...');
 
     // Render each area (no cloning, just clean event management)
     this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
@@ -158,6 +182,8 @@ showModal(type, data = {}) {
 
     // Validate combinations
     this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
+    
+    console.log('✅ renderComboArea() completed successfully');
   }
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
