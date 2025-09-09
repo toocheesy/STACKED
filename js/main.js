@@ -835,24 +835,58 @@ function handleTouchEnd(e) {
     return;
   }
   
-  // ✅ FIXED: Look for actual combo area classes
+  // ✅ CHECK FOR COMBO AREAS FIRST
   const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') || 
                    elementBelow.closest('[data-slot]') ||
                    (elementBelow.hasAttribute('data-slot') ? elementBelow : null);
   
-  console.log('🎯 COMBO AREA FOUND:', comboArea);
-  
   if (comboArea) {
     const slotName = comboArea.getAttribute('data-slot');
-    console.log('🎯 DROPPING ON SLOT:', slotName);
+    console.log('🎯 DROPPING ON COMBO SLOT:', slotName);
     handleTouchDropOnCombo(slotName);
-  } else {
-    console.log('❌ NOT OVER COMBO AREA - Element classes:', elementBelow.className);
+  } 
+  // ✅ NEW: CHECK FOR BOARD DROP
+  else if (elementBelow.closest('.board') || elementBelow.classList.contains('board')) {
+    console.log('🎯 DROPPING ON BOARD');
+    handleTouchDropOnBoard();
+  } 
+  else {
+    console.log('❌ NOT OVER DROP ZONE - Element classes:', elementBelow.className);
   }
   
   // Clear touch data
   touchDragData = null;
   touchStartPosition = null;
+}
+
+function handleTouchDropOnBoard() {
+  if (!touchDragData) return;
+  
+  console.log('🎯 TOUCH DROP ON BOARD:', touchDragData);
+  
+  // Simulate the board drop logic (same as handleDropOriginal for board)
+  if (touchDragData.type === 'hand') {
+    // Place card from hand to board
+    const sourceCard = touchDragData.card;
+    
+    // Add to board
+    game.state.board.push(sourceCard);
+    
+    // Remove from hand
+    game.state.hands[0][touchDragData.index] = null;
+    
+    // Set last action
+    game.state.lastAction = 'place';
+    
+    console.log('✅ TOUCH BOARD DROP COMPLETE');
+    
+    // Re-render and continue game
+    ui.render();
+    
+    // Let GameStateManager handle what happens next
+    const result = window.gameStateManager.determineGameState(game);
+    handleGameStateResult(result);
+  }
 }
 
 function handleTouchDropOnCombo(slotName) {
