@@ -512,11 +512,9 @@ handleComboAnalysis(data) {
   }
 
   // 🎯 CORE MESSAGE DISPLAY
-
 showMessage(text, type = 'normal') {
   console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
   
-  // 🔥 ONLY target the current-player element (the "Your Turn" box)
   const currentPlayerEl = document.getElementById('current-player');
   
   if (currentPlayerEl) {
@@ -526,10 +524,6 @@ showMessage(text, type = 'normal') {
   } else {
     console.error('❌ #current-player element not found!');
   }
-  
-  // Hide any other message elements that might be showing
-  const otherMessages = document.querySelectorAll('.game-message:not(#current-player)');
-  otherMessages.forEach(el => el.style.display = 'none');
   
   this.playMessageSound(type);
 }
@@ -541,6 +535,21 @@ showMessage(text, type = 'normal') {
   }
   
   playMessageSound(type) {
+  if (typeof playSound === 'function') {
+    switch(type) {
+      case 'success':
+      case 'combo-success':
+        playSound('capture');
+        break;
+      case 'error':
+        playSound('invalid');
+        break;
+      case 'game-over':
+        playSound('winner');
+        break;
+    }
+  }
+}
 
   // Check if global playSound function exists
   if (typeof playSound === 'function') {

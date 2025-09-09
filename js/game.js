@@ -103,6 +103,11 @@ getState() {
   return { ...this.state };  // Spread for shallow copy safety  
 }  
 
+nextPlayer() {
+  this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
+  console.log(`🎯 NEXT PLAYER: ${this.state.currentPlayer}`);
+}
+
 validateCapture(areaCards, baseValue, baseCard, areaName) {
     // Check if mode has custom validation
     if (this.currentMode.validateCapture) {
