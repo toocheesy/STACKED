@@ -835,8 +835,11 @@ function handleTouchEnd(e) {
     return;
   }
   
-  // Check if we're over a valid drop zone
-  const comboArea = elementBelow.closest('.combo-slot');
+  // ✅ FIXED: Look for actual combo area classes
+  const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') || 
+                   elementBelow.closest('[data-slot]') ||
+                   (elementBelow.hasAttribute('data-slot') ? elementBelow : null);
+  
   console.log('🎯 COMBO AREA FOUND:', comboArea);
   
   if (comboArea) {
@@ -844,7 +847,7 @@ function handleTouchEnd(e) {
     console.log('🎯 DROPPING ON SLOT:', slotName);
     handleTouchDropOnCombo(slotName);
   } else {
-    console.log('❌ NOT OVER COMBO AREA');
+    console.log('❌ NOT OVER COMBO AREA - Element classes:', elementBelow.className);
   }
   
   // Clear touch data
