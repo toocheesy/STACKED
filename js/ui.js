@@ -36,6 +36,11 @@ showModal(type, data = {}) {
   // 🔥 COMPLETE render() method with renderBotCardCounts() call added
 // 🔥 SAFE VERSION WITH PROPER ERROR CHECKING:
 render() {
+  // Reset render optimization for player turns
+  if (this.game?.state?.currentPlayer === 0) {
+    this.resetRenderFlags();
+  }
+
   // 🔥 SAFE MODAL CHECK WITH FALLBACKS
   if (this.modalManager && 
       typeof this.modalManager.isActive === 'function' && 
@@ -135,9 +140,21 @@ render() {
     }
   }
 
+  // Reset render flags when player turn starts
+resetRenderFlags() {
+  this._comboAreaRendered = false;
+  this._botHandsRendered = false;  // ADD THIS LINE
+}
+
   // 🔧 SMART FIX - Work with your existing beautiful HTML
   renderComboArea() {
-    console.log('🔍 STARTING renderComboArea()');
+  // 🔧 PERFORMANCE FIX: Skip unnecessary re-renders
+  if (this._comboAreaRendered && this.game?.state?.currentPlayer !== 0) {
+    console.log('⏭️ SKIPPING: Combo area already rendered for bot turn');
+    return;
+  }
+
+  console.log('🔍 STARTING renderComboArea()');
     
     // Try your actual HTML structure first
     let comboAreaEl = document.querySelector('.combo-area');
@@ -184,6 +201,9 @@ render() {
 
     // Validate combinations
     this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
+    
+    // Mark as rendered to prevent unnecessary re-renders
+    this._comboAreaRendered = true;
     
     console.log('✅ renderComboArea() completed successfully');
   }
@@ -327,10 +347,10 @@ render() {
       window.handleTouchDrop(e, 'combo', slotName);
     };
     
-    // Add fresh event listeners
-    areaEl.addEventListener('dragover', areaEl._boundDragOver);
-    areaEl.addEventListener('drop', areaEl._boundDrop);
-    areaEl.addEventListener('touchend', areaEl._boundTouchEnd);
+    // Add fresh event listeners with passive options
+areaEl.addEventListener('dragover', areaEl._boundDragOver, { passive: false });
+areaEl.addEventListener('drop', areaEl._boundDrop, { passive: false });
+areaEl.addEventListener('touchend', areaEl._boundTouchEnd, { passive: true });
     
     console.log(`✅ AREA EVENTS BOUND: ${slotName} - dragover, drop, touchend`);
     
@@ -423,6 +443,10 @@ renderBotCardCounts() {
   }
 
   renderBotHands() {
+  // Skip if already rendered and no changes
+  if (this._botHandsRendered && this.game?.state?.currentPlayer !== 0) {
+    return;
+  }
     const bot1HandEl = document.getElementById('bot1-hand');
     const bot2HandEl = document.getElementById('bot2-hand');
     
@@ -469,6 +493,9 @@ renderBotCardCounts() {
         bot2HandEl.appendChild(cardEl);
       }
     }
+    
+    // At the end, add:
+    this._botHandsRendered = true;
   }
 
   renderScores() {
