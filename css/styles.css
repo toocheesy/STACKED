@@ -1112,27 +1112,25 @@ dialog::backdrop {
   }
 }
 
-/* 🔥 REPLACE the existing dealer CSS with this BIGGER version: */
+/* Enhanced dealer indication - make it more visible */
 .bot-indicator.dealer::after,
 .scores.dealer::after {
   content: " 🃏 Deals - " attr(data-deck) " cards";
   display: block;
-  font-size: 14px; /* 🔥 INCREASED from 10px */
-  font-weight: bold; /* 🔥 Made bold for visibility */
-  padding-top: 4px;
+  font-size: 10px;
+  font-weight: normal;
+  padding-top: 2px;
   text-align: center;
   color: #FFD700;
   opacity: 1;
-  line-height: 1.2;
-  border-top: 2px solid rgba(255, 215, 0, 0.5); /* 🔥 Thicker border */
-  margin-top: 5px;
-  padding-top: 5px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* 🔥 Added text shadow */
+  line-height: 1.1;
+  border-top: 1px solid rgba(255, 215, 0, 0.3);
+  margin-top: 3px;
+  padding-top: 3px;
 }
 
-/* Make dealer element even more visible */
+/* Make dealer element more visible */
 .dealer {
   border-color: #FFD700 !important;
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.7) !important; /* 🔥 Stronger glow */
-  transform: scale(1.02); /* 🔥 Slight size increase */
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5) !important;
 }
