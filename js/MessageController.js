@@ -532,7 +532,7 @@ showMessage(text, type = 'normal') {
   const currentPlayerEl = document.querySelector('.current-player');
   if (currentPlayerEl && currentPlayerEl !== messageEl) {
     currentPlayerEl.style.display = 'none';
-  }
+  
   
   playMessageSound(type) {
   if (typeof playSound === 'function') {
