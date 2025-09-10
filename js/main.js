@@ -285,8 +285,6 @@ function debugError(...args) {
   }
 }
 
-}
-
 let game = null;
 let ui = null;
 let botModal = null;
