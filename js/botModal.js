@@ -4,6 +4,25 @@
  * 🎯 PURPOSE: Visual bot action simulator that reports results to main.js
  */
 
+// 🔧 PRODUCTION DEBUG TOGGLE
+const DEBUG_CONFIG = {
+  BOT_ACTIONS: false,     // Set to false for production
+  ERRORS: true,
+  SETUP: true,
+};
+
+function debugLog(category, ...args) {
+  if (DEBUG_CONFIG[category]) {
+    console.log(...args);
+  }
+}
+
+function debugError(...args) {
+  if (DEBUG_CONFIG.ERRORS) {
+    console.error(...args);
+  }
+}
+
 class BotModalInterface {
   constructor(gameEngine, uiSystem) {
     this.game = gameEngine;
@@ -214,7 +233,7 @@ this.game.executeCapture(baseCard, validCaptures, allCapturedCards);
 
 // 🔥 TRACK BOT LAST ACTION - CRITICAL FOR GAME STATE MANAGER
 this.game.state.lastAction = 'capture';
-console.log('🎯 BOT LAST ACTION SET TO: capture');
+debugLog('BOT_ACTIONS', '🎯 BOT LAST ACTION SET TO: capture');
 
 // Track captured cards for AI intelligence
 if (window.cardIntelligence) {
@@ -303,7 +322,7 @@ console.log(`✅ REMOVED: ${handCard.value}${handCard.suit} from Bot ${playerInd
 
 // 🔥 TRACK BOT LAST ACTION - CRITICAL FOR GAME STATE MANAGER
 this.game.state.lastAction = 'place';
-console.log('🎯 BOT LAST ACTION SET TO: place');
+debugLog('BOT_ACTIONS', '🎯 BOT LAST ACTION SET TO: place');
       
       // STEP 3: Add to board IMMEDIATELY
       this.game.state.board.push(handCard);
