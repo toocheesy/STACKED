@@ -6,6 +6,28 @@
 
 class UISystem {
   constructor(gameEngine) {
+    // 🔧 PRODUCTION DEBUG TOGGLE
+    const DEBUG_CONFIG = {
+      UI_RENDERING: false,     // Set to false for production
+      ERRORS: true,
+      SETUP: true,
+    };
+
+    function debugLog(category, ...args) {
+      if (DEBUG_CONFIG[category]) {
+        console.log(...args);
+      }
+    }
+
+    function debugError(...args) {
+      if (DEBUG_CONFIG.ERRORS) {
+        console.error(...args);
+      }
+    }
+
+    // Make debug functions available to the class
+    this.debugLog = debugLog;
+    this.debugError = debugError;
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     this.draggableCombo = new DraggableModal('combination-area');
@@ -150,7 +172,7 @@ resetRenderFlags() {
   renderComboArea() {
   // 🔧 PERFORMANCE FIX: Skip unnecessary re-renders
   if (this._comboAreaRendered && this.game?.state?.currentPlayer !== 0) {
-    console.log('⏭️ SKIPPING: Combo area already rendered for bot turn');
+    debugLog('UI_RENDERING', '⏭️ SKIPPING: Combo area already rendered for bot turn');
     return;
   }
 
@@ -384,13 +406,13 @@ renderBotCardCounts() {
   if (bot1CardsEl) {
     const bot1Count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
     bot1CardsEl.textContent = `${bot1Count} cards`;
-    console.log('✅ BOT 1 CARD COUNT UPDATED:', bot1Count);
+    debugLog('UI_RENDERING', '✅ BOT 1 CARD COUNT UPDATED:', bot1Count);
   }
   
   if (bot2CardsEl) {
     const bot2Count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
     bot2CardsEl.textContent = `${bot2Count} cards`;
-    console.log('✅ BOT 2 CARD COUNT UPDATED:', bot2Count);
+    debugLog('UI_RENDERING', '✅ BOT 2 CARD COUNT UPDATED:', bot2Count);
   }
 }
 
@@ -503,7 +525,7 @@ renderBotCardCounts() {
   const scoresEl = document.getElementById('scores');
   if (scoresEl) {
     scoresEl.textContent = `Player: ${this.game.state.scores.player} | Bot1: ${this.game.state.scores.bot1} | Bot2: ${this.game.state.scores.bot2}`;
-    console.log('✅ SCORES UPDATED:', {
+    debugLog('UI_RENDERING', '✅ SCORES UPDATED:', {
       player: this.game.state.scores.player,
       bot1: this.game.state.scores.bot1,
       bot2: this.game.state.scores.bot2

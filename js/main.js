@@ -266,6 +266,24 @@ basicHintDetection(playerHand, board) {
 
 }
 
+// 🔧 PRODUCTION DEBUG TOGGLE - ADD AFTER HINTSYSTEM CLASS
+const DEBUG_CONFIG = {
+  GAME_FLOW: false,        // Set to false for production
+  ERRORS: true,           // Always keep errors
+  BUTTON_SETUP: true,     // Always keep button confirmations  
+};
+
+function debugLog(category, ...args) {
+  if (DEBUG_CONFIG[category]) {
+    console.log(...args);
+  }
+}
+
+function debugError(...args) {
+  if (DEBUG_CONFIG.ERRORS) {
+    console.error(...args);
+  }
+}
 
 }
 
@@ -639,7 +657,7 @@ function playSound(type) {
 }
 
 function handleDragStart(e, source, index) {
-  console.log('🎯 DRAG START:', source, index, 'Current player:', game.state.currentPlayer);
+  debugLog('GAME_FLOW', '🎯 DRAG START:', source, index, 'Current player:', game.state.currentPlayer);
 
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
     e.preventDefault();
@@ -694,7 +712,7 @@ function handleDrop(e, slot) {
     return;
   }
   
-  console.log('✅ DROP PROCEEDING with card:', game.state.draggedCard);
+  debugLog('GAME_FLOW', '✅ DROP PROCEEDING with card:', game.state.draggedCard);
 
   if (game.state.draggedCard.slot !== undefined) {
     game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
@@ -800,7 +818,7 @@ function handleTouchStart(e, source, data) {
     y: e.touches[0].clientY
   };
   
-  console.log('🎯 TOUCH START:', touchDragData);
+  debugLog('GAME_FLOW', '🎯 TOUCH START:', touchDragData);
 }
 
 function handleTouchEnd(e) {
@@ -819,7 +837,7 @@ function handleTouchEnd(e) {
     y: e.changedTouches[0].clientY
   };
   
-  console.log('🎯 TOUCH END POSITION:', touchEndPosition);
+  debugLog('GAME_FLOW', '🎯 TOUCH END POSITION:', touchEndPosition);
   
   // Find what element we're over
   const elementBelow = document.elementFromPoint(
@@ -862,7 +880,7 @@ function handleTouchEnd(e) {
 function handleTouchDropOnBoard() {
   if (!touchDragData) return;
   
-  console.log('🎯 TOUCH DROP ON BOARD:', touchDragData);
+  debugLog('GAME_FLOW', '🎯 TOUCH DROP ON BOARD:', touchDragData);
   
   // Simulate the board drop logic (same as handleDropOriginal for board)
   if (touchDragData.type === 'hand') {
@@ -878,7 +896,7 @@ function handleTouchDropOnBoard() {
     // Set last action
     game.state.lastAction = 'place';
     
-    console.log('✅ TOUCH BOARD DROP COMPLETE');
+    debugLog('GAME_FLOW', '✅ TOUCH BOARD DROP COMPLETE');
     
     // Re-render and continue game
     ui.render();
@@ -929,13 +947,13 @@ function handleTouchDropOnCombo(slotName) {
   // Re-render the UI
   ui.render();
   
-  console.log('✅ TOUCH DROP COMPLETE');
+  debugLog('GAME_FLOW', '✅ TOUCH DROP COMPLETE');
 }
 
 function handleTouchDrop(e, targetType, data) {
   e.preventDefault();
   // This function can stay simple since handleTouchEnd handles the logic
-  console.log('🎯 TOUCH DROP EVENT:', targetType, data);
+  debugLog('GAME_FLOW', '🎯 TOUCH DROP EVENT:', targetType, data);
 }
 
 function provideHint() {
