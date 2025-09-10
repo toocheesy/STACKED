@@ -660,8 +660,8 @@ renderDealerIndicator() {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
-    cardEl.addEventListener('touchend', window.handleTouchEnd);
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
+    cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: false });
   }
 }
 
