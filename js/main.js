@@ -7,7 +7,6 @@ class HintSystem {
     this.highlightedCards = [];
   }
 
-
 analyzeAllPossibleCaptures() {
   if (this.game.state.currentPlayer !== 0) {
     return [];
@@ -263,9 +262,8 @@ basicHintDetection(playerHand, board) {
 
     this.highlightedCards = [];
     this.currentHints = [];
-
+  }
 }
-
 // 🔧 PRODUCTION DEBUG TOGGLE - ADD AFTER HINTSYSTEM CLASS
 const DEBUG_CONFIG = {
   GAME_FLOW: false,        // Set to false for production
