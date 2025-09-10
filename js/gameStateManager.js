@@ -8,7 +8,7 @@
 class GameStateManager {
   constructor() {
     this.maxSafetyAttempts = 3;
-    this.debugMode = true; // Set to false to reduce logging
+    this.debugMode = false; // PRODUCTION: Set to false to reduce logging
     
     // Game state constants
     this.STATES = {
