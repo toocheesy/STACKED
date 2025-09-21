@@ -88,15 +88,21 @@ if (this.currentMode.init) {
 console.log(`🎮 ${gameMode.name} initialized successfully`);  
 }  
 
-// 🔥 RESTORED: Pure starting player setter for init - no flow control!  
-setStartingPlayer() {  
-  // Starting player is to the left of dealer (next clockwise)  
-  this.state.currentPlayer = (this.currentDealer + 1) % 3;  
-    
-  const playerNames = ['Player', 'Bot 1', 'Bot 2'];  
-  console.log(`🎯 DEALER: ${playerNames[this.currentDealer]}`);  
-  console.log(`🎯 STARTING PLAYER: ${playerNames[this.state.currentPlayer]} (left of dealer)`);  
-}  
+// Set the starting player based on dealer position (traditional casino rules)
+setStartingPlayer() {
+  // In casino games, the player to the LEFT of dealer goes first
+  // With 3 players (0, 1, 2), next player clockwise is (dealer + 1) % 3
+  this.state.currentPlayer = (this.currentDealer + 1) % 3;
+  
+  console.log(`🎯 DEALER: ${this.getPlayerName(this.currentDealer)}`);
+  console.log(`🎯 STARTING PLAYER: ${this.getPlayerName(this.state.currentPlayer)} (left of dealer)`);
+}
+
+// Helper function to get player names
+getPlayerName(playerIndex) {
+  const names = ['Player', 'Bot 1', 'Bot 2'];
+  return names[playerIndex];
+} 
 
 // 🔥 RESTORED: Pure state getter for read-only access - no mutations!  
 getState() {  

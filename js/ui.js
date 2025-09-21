@@ -628,6 +628,48 @@ renderDealerIndicator() {
     };
   }
 
+  renderBotComboCard(card, targetSlot, isFromBot = true) {
+  const areaEl = document.getElementById(`${targetSlot}-area`);
+  if (!areaEl) return;
+  
+  // Create visible bot card
+  const cardEl = document.createElement('div');
+  cardEl.className = `card bot-combo-card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+  cardEl.textContent = `${card.value}${this.suitSymbols[card.suit]}`;
+  
+  // Style for bot cards
+  cardEl.style.cssText = `
+    border: 3px solid #FFD700 !important;
+    background: linear-gradient(135deg, #FFF8DC, #F0E68C) !important;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.6) !important;
+    font-weight: bold !important;
+    position: relative !important;
+    transform: scale(1.05) !important;
+    z-index: 100 !important;
+  `;
+  
+  // Add "BOT" indicator
+  const botIndicator = document.createElement('div');
+  botIndicator.textContent = 'BOT';
+  botIndicator.style.cssText = `
+    position: absolute !important;
+    top: -8px !important;
+    right: -8px !important;
+    background: #FF6B6B !important;
+    color: white !important;
+    font-size: 8px !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: bold !important;
+    z-index: 101 !important;
+  `;
+  
+  cardEl.appendChild(botIndicator);
+  areaEl.appendChild(cardEl);
+  
+  return cardEl;
+}
+
   highlightBotComboArea(targetSlot) {
   const areaEl = document.getElementById(`${targetSlot}-area`);
   if (areaEl) {
@@ -640,6 +682,22 @@ renderDealerIndicator() {
       areaEl.style.backgroundColor = '';
     }, 1500);
   }
+}
+
+cleanupBotComboVisuals() {
+  // Remove all bot combo cards
+  const botCards = document.querySelectorAll('.bot-combo-card');
+  botCards.forEach(card => card.remove());
+  
+  // Clear any lingering highlights
+  const areas = ['base', 'sum1', 'sum2', 'sum3', 'match'];
+  areas.forEach(area => {
+    const areaEl = document.getElementById(`${area}-area`);
+    if (areaEl) {
+      areaEl.style.border = '';
+      areaEl.style.backgroundColor = '';
+    }
+  });
 }
 
   // Helper methods

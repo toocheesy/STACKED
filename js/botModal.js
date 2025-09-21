@@ -71,15 +71,16 @@ debugLog('BOT_ACTIONS', `🤖 BOT CARD ENTRY: Player ${currentPlayer} adding ${c
     // Add card to combo WITHOUT removing from source
 this.game.state.combination[targetSlot].push(cardEntry);
 
+// 🔧 NEW: Show the actual bot card visually
+this.ui.renderBotComboCard(card, targetSlot, true);
+
 // 🔧 NEW: Highlight the bot combo area
 this.ui.highlightBotComboArea(targetSlot);
 
-// 🔧 NEW: Show bot combo building step-by-step
-this.ui.render();
 debugLog('BOT_ACTIONS', `🎯 BOT COMBO: ${targetSlot} now has ${this.game.state.combination[targetSlot].length} cards`);
 
 // Give time to see the combo building
-await this.delay(800);
+await this.delay(1200); // Increased delay to see bot cards
 
 // Final render to ensure consistency
 this.ui.render();
@@ -280,14 +281,14 @@ if (window.cardIntelligence) {
     }
 
     // Reset combination state
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-    // 🎯 REMOVED: All turn management logic - let main.js handle turns!
-    
-    this.ui.render();
-    playSound('capture');
-    return true;
-  }
+// 🔧 NEW: Clean up bot combo card visuals
+this.cleanupBotComboVisuals();
+
+this.ui.render();
+playSound('capture');
+return true;
 
   // 🔥 FIXED: botResetModal() - Clean reset without card corruption
   async botResetModal() {
