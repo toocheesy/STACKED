@@ -283,12 +283,13 @@ if (window.cardIntelligence) {
     // Reset combination state
 this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
-// 🔧 NEW: Clean up bot combo card visuals
+// Clean up bot combo card visuals
 this.cleanupBotComboVisuals();
 
 this.ui.render();
 playSound('capture');
 return true;
+}
 
   // 🔥 FIXED: botResetModal() - Clean reset without card corruption
   async botResetModal() {
