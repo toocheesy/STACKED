@@ -264,24 +264,6 @@ basicHintDetection(playerHand, board) {
     this.currentHints = [];
   }
 }
-// 🔧 PRODUCTION DEBUG TOGGLE - ADD AFTER HINTSYSTEM CLASS
-const DEBUG_CONFIG = {
-  GAME_FLOW: false,        // Set to false for production
-  ERRORS: true,           // Always keep errors
-  BUTTON_SETUP: true,     // Always keep button confirmations  
-};
-
-function debugLog(category, ...args) {
-  if (DEBUG_CONFIG[category]) {
-    console.log(...args);
-  }
-}
-
-function debugError(...args) {
-  if (DEBUG_CONFIG.ERRORS) {
-    console.error(...args);
-  }
-}
 
 let game = null;
 let ui = null;
