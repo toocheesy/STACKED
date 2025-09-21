@@ -6,7 +6,7 @@
 
 // 🔧 PRODUCTION DEBUG TOGGLE
 const DEBUG_CONFIG = {
-  BOT_ACTIONS: false,     // Set to false for production
+  BOT_ACTIONS: true,     // Set to false for production
   ERRORS: true,
   SETUP: true,
 };
@@ -71,13 +71,17 @@ debugLog('BOT_ACTIONS', `🤖 BOT CARD ENTRY: Player ${currentPlayer} adding ${c
     // Add card to combo WITHOUT removing from source
 this.game.state.combination[targetSlot].push(cardEntry);
 
-// 🔥 BULLETPROOF: Don't render during combo building to prevent visual conflicts
-// this.ui.render(); // ← REMOVED TO PREVENT UI CHAOS
+// 🔧 NEW: Highlight the bot combo area
+this.ui.highlightBotComboArea(targetSlot);
 
-// Give DOM time to update
+// 🔧 NEW: Show bot combo building step-by-step
+this.ui.render();
+debugLog('BOT_ACTIONS', `🎯 BOT COMBO: ${targetSlot} now has ${this.game.state.combination[targetSlot].length} cards`);
+
+// Give time to see the combo building
 await this.delay(800);
 
-// 🔧 PERFORMANCE FIX: Only render once at the end
+// Final render to ensure consistency
 this.ui.render();
     
     // Verify card was placed correctly
@@ -121,8 +125,20 @@ this.ui.render();
       debugLog('BOT_ACTIONS', `🤖 BOT: Modal reset complete`);
       
       // STEP 2: Place base card with verification
-      debugLog('BOT_ACTIONS', `🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
-      const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+debugLog('BOT_ACTIONS', `🤖 BOT: Placing base card ${baseCard.value}${baseCard.suit}`);
+const baseSuccess = await this.botDragCardToSlot(baseCard, 'hand', handIndex, 'base');
+
+// 🔧 NEW: Send message about bot combo building
+if (window.messageController?.handleGameEvent) {
+  window.messageController.handleGameEvent('CARDS_IN_COMBO', {
+    hasCards: true,
+    cardCount: 1,
+    hasBase: true,
+    baseCard: baseCard,
+    sumCards: 0,
+    matchCards: 0
+  });
+}
       
       if (!baseSuccess || this.game.state.combination.base.length !== 1) {
         debugLog('BOT_ACTIONS', `🚨 BOT: Base card failed to place! Count: ${this.game.state.combination.base.length}`);
@@ -132,13 +148,31 @@ this.ui.render();
       debugLog('BOT_ACTIONS', `✅ BOT: Base card verified in place`);
       
       // STEP 3: Add target cards one by one with verification
-      for (const targetCard of move.capture.targets) {
-        const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-        if (boardIndex !== -1) {
-          debugLog('BOT_ACTIONS', `🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
-          await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
-        }
-      }
+for (const targetCard of move.capture.targets) {
+  const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+  if (boardIndex !== -1) {
+    debugLog('BOT_ACTIONS', `🤖 BOT: Adding target card ${targetCard.value}${targetCard.suit}`);
+    await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+    
+    // 🔧 NEW: Update combo status message
+    const currentCount = this.game.state.combination.base.length + 
+                        this.game.state.combination.sum1.length + 
+                        this.game.state.combination.sum2.length + 
+                        this.game.state.combination.sum3.length + 
+                        this.game.state.combination.match.length;
+    
+    if (window.messageController?.handleGameEvent) {
+      window.messageController.handleGameEvent('CARDS_IN_COMBO', {
+        hasCards: true,
+        cardCount: currentCount,
+        hasBase: true,
+        baseCard: baseCard,
+        sumCards: currentCount - 1,
+        matchCards: 0
+      });
+    }
+  }
+}
       
       // STEP 4: Final verification before submit
       const baseCount = this.game.state.combination.base.length;

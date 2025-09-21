@@ -628,15 +628,34 @@ renderDealerIndicator() {
     };
   }
 
+  highlightBotComboArea(targetSlot) {
+  const areaEl = document.getElementById(`${targetSlot}-area`);
+  if (areaEl) {
+    areaEl.style.border = '3px solid #FFD700'; // Gold border for bot combo
+    areaEl.style.backgroundColor = 'rgba(255, 215, 0, 0.1)'; // Light gold background
+    
+    // Remove highlight after a delay
+    setTimeout(() => {
+      areaEl.style.border = '';
+      areaEl.style.backgroundColor = '';
+    }, 1500);
+  }
+}
+
   // Helper methods
   isCardInPlayArea(index, source, playerIndex = null) {
+  // Only hide hand cards for the current player during their own turn
+  if (source === 'hand' && this.game.state.currentPlayer !== 0) {
+    return false; // Never hide hand cards during bot turns
+  }
+  
   // Check if this specific card is in any combo area
   return Object.values(this.game.state.combination).some(area => 
     area.some(entry => 
       entry.source === source && 
       entry.index === index &&
       // For hand cards, only hide if current player put them there
-      (source !== 'hand' || entry.playerSource === this.game.state.currentPlayer)
+      (source !== 'hand' || entry.playerSource === 0) // Only hide for human player
     )
   );
 }
