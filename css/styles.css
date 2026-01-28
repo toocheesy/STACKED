@@ -152,6 +152,7 @@ body {
   align-items: center;
 }
 
+/* NOTE: .deck-info is currently hidden (see section 14) - styles kept for potential future use */
 .deck-info {
   background: linear-gradient(135deg, #4A4A4A 0%, #2C2C2C 100%);
   color: #CCCCCC;
@@ -213,20 +214,13 @@ body {
   padding: 20px;
 }
 
+/* Base positioning for current-player - visual styles in section 13 */
 .current-player {
   position: absolute;
   top: 15px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(139, 90, 43, 0.9);
-  color: #F5E8C7;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: bold;
   z-index: 100;
-  border: 2px solid #8B5A2B;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
 }
 
 .table {
@@ -263,6 +257,7 @@ body {
   justify-items: center;
 }
 
+/* NOTE: .dealer-indicator is hidden (see section 14) - dealer info now shown in status bar */
 .dealer-indicator {
   position: absolute;
   bottom: 10px;
@@ -474,7 +469,7 @@ body {
   padding: 10px 16px;
   border: 2px solid #4A2B17;
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px !important; /* Prevents iOS zoom */
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -486,7 +481,6 @@ body {
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
-  font-size: 16px !important; /* Prevents iOS zoom */
 }
 
 .modal-btn.primary {
@@ -511,12 +505,11 @@ body {
  * 10. MODAL DIALOGS
  * ============================================================================ */
 dialog {
-  border: none;
+  border: 3px solid #8B5A2B;
   border-radius: 12px;
   background: linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
   color: #D2A679;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-  border: 3px solid #8B5A2B;
 }
 
 dialog::backdrop {
@@ -942,69 +935,9 @@ dialog::backdrop {
   }
 }
 
-/* Dealer integration enhancements: Merge and position under dealer */
-.bot-indicator.dealer:after,
-.scores.dealer:after {
-  content: "Deals - Deck: " attr(data-deck);
-  display: block;
-  font-size: 12px;
-  font-weight: normal;
-  padding-top: 4px;
-  text-align: center;
-  color: inherit;
-  opacity: 0.9;
-  line-height: 1.2;
-}
-
-.dealer-indicator {
-  display: none !important; /* Hide old floating version to avoid duplication */
-}
-
-/* Mobile adjustments remain untouched - this cascades nicely */
-
-/* Add this to your styles.css to fix message positioning */
-
-.game-message {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  color: #331E0F;
-  padding: 8px 16px;
-  border-radius: 6px;
-  border: 2px solid #8B5A2B;
-  font-weight: bold;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  margin: 8px auto;
-  max-width: 400px;
-  font-size: 1rem;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
-  display: block;
-}
-
-/* Different message types */
-.game-message.success {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(74,112,67,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
-  color: #F5E8C7;
-}
-
-.game-message.error {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(165,42,42,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
-  color: #F5E8C7;
-}
-
-.game-message.bot-turn {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(139,90,43,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  color: #F5E8C7;
-}
-
-/* Hide current player indicator when message is shown */
+/* Game message and current-player shared styling */
+.game-message,
 .current-player {
-  display: none;
-}
-
-/* Add this to your styles.css to style the current-player element as a message area */
-
-.current-player,
-.current-player.game-message {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   color: #331E0F;
   padding: 8px 16px;
@@ -1020,24 +953,27 @@ dialog::backdrop {
   display: block;
 }
 
-/* Different message types for current-player */
-.current-player.game-message.success {
+/* Message type variants */
+.game-message.success,
+.current-player.success {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(74,112,67,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
 }
 
-.current-player.game-message.error {
+.game-message.error,
+.current-player.error {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(165,42,42,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
 }
 
-.current-player.game-message.bot-turn {
+.game-message.bot-turn,
+.current-player.bot-turn {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(139,90,43,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
 }
 
 /* ============================================================================
- * 13. HINT SYSTEM STYLING - MISSING SECTION
+ * 13. HINT SYSTEM STYLING
  * ============================================================================ */
 
 /* Hint Popup - Higher z-index than board cards */
@@ -1118,10 +1054,8 @@ dialog::backdrop {
   display: block;
   font-size: 16px;
   font-weight: bold;
-  padding-top: 4px;
   text-align: center;
   color: #FFD700;
-  opacity: 1;
   line-height: 1.2;
   border-top: 2px solid rgba(255, 215, 0, 0.5);
   margin-top: 4px;
@@ -1149,8 +1083,9 @@ dialog::backdrop {
 }
 
 /* ============================================================================
- * 14. HIDE REDUNDANT DECK INFO
+ * 14. HIDDEN ELEMENTS (info moved to status bar dealer indicators)
  * ============================================================================ */
-.deck-info {
+.deck-info,
+.dealer-indicator {
   display: none !important;
 }
