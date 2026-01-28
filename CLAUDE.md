@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a unique 5-area combo system. First to 500 points wins.
 
-**Live Site:** https://stacked-orcin.vercel.app/
+**Live Site:** https://toocheesy.github.io/STACKED
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
 
 ## Development

@@ -254,7 +254,7 @@ Educational Markets: Explore learning-focused distribution
 
 🔗 Links & Resources
 🎮 Play the Game
-🌐 Live Demo: https://stack-delta-taupe.vercel.app/
+🌐 Live Demo: https://toocheesy.github.io/STACKED
 📚 Documentation
 
 Game Rules: Complete STACKED! official rules included
