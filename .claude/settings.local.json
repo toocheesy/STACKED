@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix bugs and remove dead code\n\n- Fix sort typo in classic.js \\(a.sort -> a.score\\)\n- Remove duplicate functions in classic.js\n- Fix speed.js board length bug \\(capture count before clearing\\)\n- Fix botModal.js method call \\(this.ui.cleanupBotComboVisuals\\)\n- Remove unused checkGameEndCount, canBotCapture, debugCardState\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

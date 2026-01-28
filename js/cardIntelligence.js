@@ -12,8 +12,6 @@ class CardIntelligenceSystem {
     this.TOTAL_CARDS_PER_VALUE = 4; // 4 suits per value
     
     this.reset();
-    
-    console.log('🧠 CARD INTELLIGENCE SYSTEM INITIALIZED - AI BRAIN ONLINE!');
   }
   
   reset() {
@@ -40,7 +38,6 @@ class CardIntelligenceSystem {
     });
     
     this.updateGamePhase();
-    console.log(`🔍 CARDS TRACKED: ${cards.length} new cards, Total seen: ${this.totalCardsDealt}`);
   }
   
   // 📊 Calculate how many cards of each value are still "out there"
@@ -55,8 +52,6 @@ class CardIntelligenceSystem {
     let totalRisk = 0;
     let riskFactors = [];
     
-    console.log(`🎯 RISK ANALYSIS: Placing ${cardToPlace.value} with ${currentBoard.length} board cards`);
-    
     // Check each board card for potential combo risks
     for (const boardCard of currentBoard) {
       const risks = this.analyzeCombinationRisks(cardToPlace, boardCard);
@@ -69,9 +64,7 @@ class CardIntelligenceSystem {
     // Adjust risk based on game phase
     const phaseMultiplier = this.getPhaseRiskMultiplier();
     totalRisk *= phaseMultiplier;
-    
-    console.log(`🎯 TOTAL RISK: ${totalRisk.toFixed(1)}% (Phase: ${this.gamePhase})`);
-    
+
     return {
       riskScore: Math.min(100, totalRisk),
       riskFactors: riskFactors,
@@ -129,9 +122,7 @@ class CardIntelligenceSystem {
   
   // 🎯 STRATEGIC: Find best capture from available options
   findBestCapture(handCards, boardCards, personality = 'calculator') {
-    // 🔥 SAFETY CHECK: Don't try to capture if hand is empty
     if (!handCards || handCards.length === 0) {
-      console.log('🚨 AI SAFETY: No cards in hand for captures');
       return null;
     }
     
@@ -162,10 +153,7 @@ class CardIntelligenceSystem {
     // Sort by evaluation score (best first)
     allCaptures.sort((a, b) => b.evaluation.totalScore - a.evaluation.totalScore);
     
-    const bestCapture = allCaptures[0];
-    console.log(`🎯 BEST CAPTURE: ${bestCapture.handCard.value} → ${bestCapture.evaluation.totalScore} pts (${bestCapture.evaluation.reasoning})`);
-    
-    return bestCapture;
+    return allCaptures[0];
   }
   
   // 📊 Evaluate a specific capture opportunity
@@ -204,9 +192,7 @@ class CardIntelligenceSystem {
   
   // 🎯 STRATEGIC: Find safest card to place when no captures available
   findSafestCardToPlace(handCards, boardCards, personality = 'calculator') {
-    // 🔥 CRITICAL SAFETY CHECK: Don't try to place cards if hand is empty!
     if (!handCards || handCards.length === 0) {
-      console.log('🚨 AI SAFETY: No cards in hand to place');
       return null;
     }
     
@@ -215,9 +201,7 @@ class CardIntelligenceSystem {
     for (let i = 0; i < handCards.length; i++) {
       const handCard = handCards[i];
       
-      // 🔥 ADDITIONAL SAFETY: Make sure the card exists
       if (!handCard) {
-        console.log(`🚨 AI SAFETY: Invalid card at index ${i}`);
         continue;
       }
       
@@ -236,19 +220,14 @@ class CardIntelligenceSystem {
       });
     }
     
-    // 🔥 SAFETY CHECK: Make sure we have valid placements
     if (placements.length === 0) {
-      console.log('🚨 AI SAFETY: No valid placements found');
       return null;
     }
-    
+
     // Sort by placement score (safest first)
     placements.sort((a, b) => b.placementScore - a.placementScore);
-    
-    const safestPlacement = placements[0];
-    console.log(`🛡️ SAFEST PLACEMENT: ${safestPlacement.handCard.value} (Risk: ${safestPlacement.riskAnalysis.riskScore.toFixed(1)}%, Value: ${safestPlacement.valueScore})`);
-    
-    return safestPlacement;
+
+    return placements[0];
   }
   
   // 💎 Calculate strategic value of holding vs playing a card

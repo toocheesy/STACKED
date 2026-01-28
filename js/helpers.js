@@ -24,7 +24,6 @@ function shuffleDeck(deck) {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   
-  console.log('🔀 DECK SHUFFLED - True randomization applied');
   return shuffled;
 }
 
@@ -45,7 +44,6 @@ function createDeck() {
     });
   });
   
-  console.log('🃏 DECK CREATED - 52 cards with alternating suits');
   return deck;
 }
 
@@ -100,39 +98,31 @@ function canCapture(handCard, board) {
   const handValue = handCard.value === 'A' ? 1 : (parseInt(handCard.value) || valueMap[handCard.value]);
   const isFaceCard = ['J', 'Q', 'K'].includes(handCard.value);
 
-  console.log(`🔍 CHECKING CAPTURES: ${handCard.value}${handCard.suit} (value=${handValue}) vs ${board.length} board cards`);
-
   // 🎯 PAIR CAPTURES: Find exact matches
   board.forEach((card, index) => {
     if (card.value === handCard.value) {
-      captures.push({ 
-        type: 'pair', 
-        cards: [index], 
+      captures.push({
+        type: 'pair',
+        cards: [index],
         target: card,
         handCard: handCard,
         score: 10 // Base score for pairs
       });
-      console.log(`✅ PAIR FOUND: ${handCard.value}${handCard.suit} matches ${card.value}${card.suit} at index ${index}`);
     }
   });
 
   // 🎯 SUM CAPTURES: Only for number cards and Aces (NOT face cards)
   if (!isFaceCard && !isNaN(handValue)) {
-    console.log(`🔍 CHECKING SUM CAPTURES for ${handCard.value} (value=${handValue})`);
-    
-    // Find all possible combinations that sum to handValue
     const boardNumerics = board.map((card, idx) => {
       const cardValue = card.value === 'A' ? 1 : parseInt(card.value);
       return {
-        value: isNaN(cardValue) ? null : cardValue, // Face cards return null
+        value: isNaN(cardValue) ? null : cardValue,
         idx: idx,
         card: card
       };
-    }).filter(item => item.value !== null); // Only include number cards and Aces
-    
-    console.log(`🔍 Board numerics:`, boardNumerics.map(item => `${item.card.value}(${item.value})`));
-    
-    // Check single card sums (most common)
+    }).filter(item => item.value !== null);
+
+    // Check single card sums
     boardNumerics.forEach(boardItem => {
       if (boardItem.value === handValue) {
         captures.push({
@@ -140,13 +130,12 @@ function canCapture(handCard, board) {
           cards: [boardItem.idx],
           targets: [boardItem.card],
           handCard: handCard,
-          score: 8 // Sum captures worth slightly less than pairs
+          score: 8
         });
-        console.log(`✅ SUM FOUND: ${handCard.value}(${handValue}) = ${boardItem.card.value}(${boardItem.value})`);
       }
     });
-    
-    // Check two-card sums (like 2+3=5)
+
+    // Check two-card sums
     for (let i = 0; i < boardNumerics.length; i++) {
       for (let j = i + 1; j < boardNumerics.length; j++) {
         const sum = boardNumerics[i].value + boardNumerics[j].value;
@@ -156,14 +145,13 @@ function canCapture(handCard, board) {
             cards: [boardNumerics[i].idx, boardNumerics[j].idx],
             targets: [boardNumerics[i].card, boardNumerics[j].card],
             handCard: handCard,
-            score: 12 // Multi-card sums worth more
+            score: 12
           });
-          console.log(`✅ TWO-CARD SUM: ${handCard.value}(${handValue}) = ${boardNumerics[i].card.value}(${boardNumerics[i].value}) + ${boardNumerics[j].card.value}(${boardNumerics[j].value})`);
         }
       }
     }
-    
-    // Check three-card sums (like 1+2+2=5)
+
+    // Check three-card sums
     for (let i = 0; i < boardNumerics.length; i++) {
       for (let j = i + 1; j < boardNumerics.length; j++) {
         for (let k = j + 1; k < boardNumerics.length; k++) {
@@ -174,16 +162,14 @@ function canCapture(handCard, board) {
               cards: [boardNumerics[i].idx, boardNumerics[j].idx, boardNumerics[k].idx],
               targets: [boardNumerics[i].card, boardNumerics[j].card, boardNumerics[k].card],
               handCard: handCard,
-              score: 15 // Three-card sums worth most
+              score: 15
             });
-            console.log(`✅ THREE-CARD SUM: ${handCard.value}(${handValue}) = ${boardNumerics[i].card.value} + ${boardNumerics[j].card.value} + ${boardNumerics[k].card.value}`);
           }
         }
       }
     }
   }
 
-  console.log(`🎯 TOTAL CAPTURES FOUND: ${captures.length} for ${handCard.value}${handCard.suit}`);
   return captures;
 }
 
@@ -274,7 +260,6 @@ function initSounds() {
     audio.preload = 'auto';
     audio.volume = 0.7;
   });
-  console.log('🔊 Sound system initialized');
 }
 
 // Modal Systems (🏆 ENHANCED WITH EPIC JACKPOT DISPLAY!)
@@ -298,23 +283,17 @@ function createConfetti() {
 // 🏆 EPIC JACKPOT PARSER - Extracts winner and bonus from message
 function parseJackpotMessage(message) {
   if (!message) return null;
-  
-  console.log(`🏆 PARSING JACKPOT MESSAGE: "${message}"`);
-  
-  // Parse messages like "🏆 Player sweeps 3 remaining cards! +45 pts"
+
   const jackpotMatch = message.match(/🏆\s+(\w+(?:\s+\d+)?)\s+sweeps\s+(\d+)\s+remaining\s+cards!\s+\+(\d+)\s+pts/);
-  
+
   if (jackpotMatch) {
-    const result = {
+    return {
       winner: jackpotMatch[1],
       cardsCount: parseInt(jackpotMatch[2]),
       bonusPoints: parseInt(jackpotMatch[3])
     };
-    console.log(`✅ JACKPOT PARSED:`, result);
-    return result;
   }
-  
-  console.log(`❌ NO JACKPOT PATTERN FOUND`);
+
   return null;
 }
 
@@ -399,8 +378,6 @@ window.createConfetti = createConfetti;
 // Make sure playSound function exists globally (referenced in main.js)
 window.playSound = function(type) {
   if (window.sounds && window.sounds[type]) {
-    window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
+    window.sounds[type].play().catch(() => {});
   }
 };
-
-console.log('🔥 HELPERS.JS LOADED - All utilities consolidated and ready!');

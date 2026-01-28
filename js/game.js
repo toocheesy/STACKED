@@ -33,7 +33,6 @@ class GameEngine {
 
   // Initialize game with specified mode
   initGame(gameMode, settings = {}) {
-    console.log(`🎮 Initializing ${gameMode.name}`);
     
     // Set current mode
     this.currentMode = gameMode;
@@ -85,7 +84,6 @@ if (this.currentMode.init) {
   this.currentMode.init(this);
 }
 
-console.log(`🎮 ${gameMode.name} initialized successfully`);  
 }  
 
 // Set the starting player based on dealer position (traditional casino rules)
@@ -93,9 +91,6 @@ setStartingPlayer() {
   // In casino games, the player to the LEFT of dealer goes first
   // With 3 players (0, 1, 2), next player clockwise is (dealer + 1) % 3
   this.state.currentPlayer = (this.currentDealer + 1) % 3;
-  
-  console.log(`🎯 DEALER: ${this.getPlayerName(this.currentDealer)}`);
-  console.log(`🎯 STARTING PLAYER: ${this.getPlayerName(this.state.currentPlayer)} (left of dealer)`);
 }
 
 // Helper function to get player names
@@ -111,7 +106,6 @@ getState() {
 
 nextPlayer() {
   this.state.currentPlayer = (this.state.currentPlayer + 1) % 3;
-  console.log(`🎯 NEXT PLAYER: ${this.state.currentPlayer}`);
 }
 
 validateCapture(areaCards, baseValue, baseCard, areaName) {
@@ -208,7 +202,6 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
 
   // Execute capture and update scores
   executeCapture(baseCard, validCaptures, allCapturedCards) {
-    console.log(`🎯 EXECUTING CAPTURE - Base: ${baseCard.card.value}${baseCard.card.suit}`);
     
     const cardsToRemove = {
       board: [],
@@ -249,8 +242,6 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
     this.addScore(currentPlayer, points);
     this.addOverallScore(currentPlayer, points); // Update overall scores
     this.state.lastCapturer = currentPlayer;
-
-    console.log(`✅ CAPTURE COMPLETE: ${allCapturedCards.length} cards, ${points} points`);
   }
 
   // Calculate score using current mode
@@ -271,13 +262,10 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
   addScore(playerIndex, points) {
     if (playerIndex === 0) {
       this.state.scores.player += points;
-      console.log(`🎯 PLAYER SCORED: +${points} pts (Round Total: ${this.state.scores.player})`);
     } else if (playerIndex === 1) {
       this.state.scores.bot1 += points;
-      console.log(`🎯 BOT 1 SCORED: +${points} pts (Round Total: ${this.state.scores.bot1})`);
     } else if (playerIndex === 2) {
       this.state.scores.bot2 += points;
-      console.log(`🎯 BOT 2 SCORED: +${points} pts (Round Total: ${this.state.scores.bot2})`);
     }
   }
 
@@ -285,13 +273,10 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
   addOverallScore(playerIndex, points) {
     if (playerIndex === 0) {
       this.state.overallScores.player += points;
-      console.log(`🎯 PLAYER OVERALL: +${points} pts (Total: ${this.state.overallScores.player})`);
     } else if (playerIndex === 1) {
       this.state.overallScores.bot1 += points;
-      console.log(`🎯 BOT 1 OVERALL: +${points} pts (Total: ${this.state.overallScores.bot1})`);
     } else if (playerIndex === 2) {
       this.state.overallScores.bot2 += points;
-      console.log(`🎯 BOT 2 OVERALL: +${points} pts (Total: ${this.state.overallScores.bot2})`);
     }
   }
 
