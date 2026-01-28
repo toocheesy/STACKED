@@ -284,7 +284,7 @@ if (window.cardIntelligence) {
 this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
 // Clean up bot combo card visuals
-this.cleanupBotComboVisuals();
+this.ui.cleanupBotComboVisuals();
 
 this.ui.render();
 playSound('capture');
@@ -393,32 +393,6 @@ debugLog('BOT_ACTIONS', '🚨 BOT LAST ACTION SET TO: place');
   // 🎯 HELPER: Delay function for animations
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  // 🎯 HELPER: Check if bot can capture
-  canBotCapture(hand, board) {
-    return hand.length > 0 && board.length > 0;
-  }
-
-  // 🎯 DEBUG: Card state tracking
-  debugCardState() {
-    debugLog('BOT_ACTIONS', `🔍 CARD STATE DEBUG:`);
-    debugLog('BOT_ACTIONS', `   Player hand: ${this.game.state.hands[0].length} cards`);
-    debugLog('BOT_ACTIONS', `   Bot 1 hand: ${this.game.state.hands[1].length} cards`);
-    debugLog('BOT_ACTIONS', `   Bot 2 hand: ${this.game.state.hands[2].length} cards`);
-    debugLog('BOT_ACTIONS', `   Board: ${this.game.state.board.length} cards`);
-    debugLog('BOT_ACTIONS', `   Deck: ${this.game.state.deck.length} cards`);
-    
-    const totalCards = this.game.state.hands[0].length + 
-                      this.game.state.hands[1].length + 
-                      this.game.state.hands[2].length + 
-                      this.game.state.board.length + 
-                      this.game.state.deck.length;
-    debugLog('BOT_ACTIONS', `   TOTAL CARDS: ${totalCards} (should be 52)`);
-    
-    if (totalCards !== 52) {
-      console.error(`🚨 CARD COUNT MISMATCH! Missing ${52 - totalCards} cards!`);
-    }
   }
 }
 

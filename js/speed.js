@@ -191,19 +191,22 @@ const SpeedMode = {
 
   applyLastComboTakesAll(gameEngine) {
     if (gameEngine.state.lastCapturer !== null && gameEngine.state.board.length > 0) {
+      // Store card count BEFORE clearing the board
+      const cardsCount = gameEngine.state.board.length;
       const bonusPoints = this.calculateScore(gameEngine.state.board);
       gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
-      
+
       const playerNames = ['Player', 'Bot 1', 'Bot 2'];
       const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
-      
+
       console.log(`🏆 SPEED SWEEP: ${lastCapturerName} gets ${bonusPoints} bonus points!`);
       gameEngine.state.board = [];
-      
+
       return {
-        message: `⚡ ${lastCapturerName} speed-sweeps ${gameEngine.state.board.length} cards! +${bonusPoints} pts`,
+        message: `⚡ ${lastCapturerName} speed-sweeps ${cardsCount} cards! +${bonusPoints} pts`,
         points: bonusPoints,
-        player: lastCapturerName
+        player: lastCapturerName,
+        cardsCount: cardsCount
       };
     }
     return null;

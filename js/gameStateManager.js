@@ -45,10 +45,7 @@ class GameStateManager {
         
         // Determine what should happen next
         const result = this.analyzeGameState(snapshot, gameEngine);
-        
-        // NEW: Clean decision logging
-        //logGSMDecision(attempts, snapshot, result);
-        
+
         this.log(`✅ GAME STATE DETERMINED: ${result.state}`);
         return result;
         

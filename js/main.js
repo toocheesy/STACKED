@@ -487,8 +487,6 @@ game.state.draggedCard = null;
   }
 }
 
-let checkGameEndCount = 0;
-
 function checkGameEnd() {
 
   const result = window.gameStateManager.determineGameState(game);
