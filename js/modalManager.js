@@ -25,12 +25,10 @@ class ModalManager {
       CONFIRM: 'confirm'
     };
     
-    console.log('🎪 MODAL MANAGER INITIALIZED - Clean modal system ready!');
   }
 
   // 🎯 MAIN MODAL DISPLAY FUNCTION
   show(type, data = {}) {
-    console.log(`🎪 SHOWING MODAL: ${type}`);
     
     // Close any existing modal first
     if (this.activeModal) {
@@ -56,15 +54,14 @@ class ModalManager {
     
     // Track active modal
     this.activeModal = type;
-    
+
     // Animate in
     setTimeout(() => {
       if (this.modalContainer) {
         this.modalContainer.classList.add('show');
       }
     }, 50);
-    
-    console.log(`✅ MODAL DISPLAYED: ${type}`);
+
     return true;
   }
 
@@ -73,8 +70,6 @@ class ModalManager {
     if (!this.activeModal || !this.modalContainer) {
       return;
     }
-    
-    console.log(`🎪 HIDING MODAL: ${this.activeModal}`);
     
     // Animate out
     this.modalContainer.classList.add('hide');
@@ -91,8 +86,6 @@ class ModalManager {
       
       // Resume game
       this.resumeGame();
-      
-      console.log('🎪 MODAL HIDDEN - Game resumed');
     }, 300);
   }
 
@@ -398,8 +391,6 @@ class ModalManager {
     if (window.botTurnInProgress) {
       this.gameWasPaused = true;
     }
-    
-    console.log('⏸️ GAME PAUSED for modal');
   }
 
   // ▶️ RESUME GAME AFTER MODAL
@@ -416,14 +407,12 @@ class ModalManager {
     
     // Resume bot turns if they were paused
     if (this.gameWasPaused && typeof scheduleNextBotTurn === 'function') {
-      console.log('🤖 RESUMING BOT TURN AFTER MODAL');
       setTimeout(() => {
         scheduleNextBotTurn();
       }, 500);
     }
-    
+
     this.gameWasPaused = false;
-    console.log('▶️ GAME RESUMED after modal');
   }
 
   // 🔍 UTILITY FUNCTIONS
@@ -606,5 +595,3 @@ document.addEventListener('DOMContentLoaded', () => {
     window.modalManager.ensureModalStyling();
   }
 });
-
-console.log('🎪 MODAL MANAGER CLASS READY - Import and initialize with game systems!');
