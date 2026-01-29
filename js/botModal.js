@@ -6,9 +6,9 @@
 
 // 🔧 PRODUCTION DEBUG TOGGLE
 const DEBUG_CONFIG = {
-  BOT_ACTIONS: true,     // Set to false for production
+  BOT_ACTIONS: false,    // Set to false for production
   ERRORS: true,
-  SETUP: true,
+  SETUP: false,
 };
 
 function debugLog(category, ...args) {

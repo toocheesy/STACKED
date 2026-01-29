@@ -431,7 +431,6 @@ function handleResetPlayArea() {
 }
 
 function handleBoardDrop(e) {
-  console.log('🎯 BOARD DROP EVENT FIRED!');
   e.preventDefault();
   if (game.state.currentPlayer !== 0 || !game.state.draggedCard) return;
 
@@ -633,16 +632,12 @@ function playSound(type) {
 }
 
 function handleDragStart(e, source, index) {
-  debugLog('GAME_FLOW', '🎯 DRAG START:', source, index, 'Current player:', game.state.currentPlayer);
-
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
     e.preventDefault();
-    console.log('❌ DRAG BLOCKED: Game paused or modal active');
     return;
   }
 
   if (game.state.currentPlayer !== 0) {
-    console.log('❌ DRAG BLOCKED: Not player turn (current:', game.state.currentPlayer, ')');
     return;
   }
   
@@ -651,7 +646,6 @@ function handleDragStart(e, source, index) {
     index,
     card: source === 'hand' ? game.state.hands[0][index] : game.state.board[index]
   };
-  console.log('✅ DRAGGED CARD SET:', game.state.draggedCard);
   e.target.classList.add('selected');
 }
 
@@ -669,26 +663,19 @@ function handleDragEnd(e) {
 }
 
 function handleDrop(e, slot) {
-  console.log('🎯 DROP EVENT FIRED!', slot);
   e.preventDefault();
-  console.log('🎯 DROP ATTEMPT on slot:', slot);
 
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
-    console.log('❌ DROP BLOCKED: Game paused or modal');
     return;
   }
 
   if (game.state.currentPlayer !== 0) {
-    console.log('❌ DROP BLOCKED: Not player turn');
     return;
   }
 
   if (!game.state.draggedCard) {
-    console.log('❌ DROP BLOCKED: No dragged card');
     return;
   }
-  
-  debugLog('GAME_FLOW', '✅ DROP PROCEEDING with card:', game.state.draggedCard);
 
   if (game.state.draggedCard.slot !== undefined) {
     game.state.combination[game.state.draggedCard.slot] = game.state.combination[game.state.draggedCard.slot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
@@ -798,54 +785,42 @@ function handleTouchStart(e, source, data) {
 }
 
 function handleTouchEnd(e) {
-  console.log('🚨 TOUCH END CALLED!', e);
   if (game.state.currentPlayer !== 0) return;
   e.preventDefault();
-  
+
   if (!touchDragData || !touchStartPosition) {
-    console.log('❌ NO TOUCH DATA:', touchDragData, touchStartPosition);
     return;
   }
-  
+
   // Get touch end position
   const touchEndPosition = {
     x: e.changedTouches[0].clientX,
     y: e.changedTouches[0].clientY
   };
-  
-  debugLog('GAME_FLOW', '🎯 TOUCH END POSITION:', touchEndPosition);
-  
+
   // Find what element we're over
   const elementBelow = document.elementFromPoint(
-    touchEndPosition.x, 
+    touchEndPosition.x,
     touchEndPosition.y
   );
-  
-  console.log('🎯 ELEMENT BELOW:', elementBelow);
-  
+
   if (!elementBelow) {
-    console.log('❌ NO ELEMENT BELOW');
     touchDragData = null;
     return;
   }
-  
+
   // ✅ CHECK FOR COMBO AREAS FIRST
-  const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') || 
+  const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') ||
                    elementBelow.closest('[data-slot]') ||
                    (elementBelow.hasAttribute('data-slot') ? elementBelow : null);
-  
+
   if (comboArea) {
     const slotName = comboArea.getAttribute('data-slot');
-    console.log('🎯 DROPPING ON COMBO SLOT:', slotName);
     handleTouchDropOnCombo(slotName);
-  } 
+  }
   // ✅ NEW: CHECK FOR BOARD DROP
   else if (elementBelow.closest('.board') || elementBelow.classList.contains('board')) {
-    console.log('🎯 DROPPING ON BOARD');
     handleTouchDropOnBoard();
-  } 
-  else {
-    console.log('❌ NOT OVER DROP ZONE - Element classes:', elementBelow.className);
   }
   
   // Clear touch data
@@ -885,8 +860,6 @@ function handleTouchDropOnBoard() {
 
 function handleTouchDropOnCombo(slotName) {
   if (!touchDragData) return;
-  
-  console.log(`🎯 TOUCH DROP ON COMBO: ${slotName}`, touchDragData);
   
   // Simulate the drag and drop logic
   if (touchDragData.type === 'combo') {
@@ -960,30 +933,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hint button
   const hintBtn = document.getElementById('hint-btn');
 
-  // Debug logging
-  console.log('🔍 BUTTON CHECK:');
-  console.log('  Submit button:', submitBtn ? '✅ FOUND' : '❌ MISSING');
-  console.log('  Reset button:', resetBtn ? '✅ FOUND' : '❌ MISSING');
-  console.log('  Hint button:', hintBtn ? '✅ FOUND' : '❌ MISSING');
-
   // Attach event listeners
   if (submitBtn) {
     submitBtn.addEventListener('click', handleSubmit);
-    console.log('✅ Submit button event attached');
   } else {
     console.error('❌ Submit button not found!');
   }
-  
+
   if (resetBtn) {
     resetBtn.addEventListener('click', handleResetPlayArea);
-    console.log('✅ Reset button event attached');
   } else {
     console.error('❌ Reset button not found!');
   }
-  
+
   if (hintBtn) {
     hintBtn.addEventListener('click', provideHint);
-    console.log('✅ Hint button event attached');
   } else {
     console.error('❌ Hint button not found!');
   }
@@ -1081,9 +1045,6 @@ function resumeNextRound(roundData) {
   game.state.hands = dealResult.players;
   game.state.deck = dealResult.remainingDeck;
   game.state.board = dealResult.board;
-
-console.log(` NEW CARDS DEALT: Hands=[${game.state.hands.map(h => h.length)}], Board=${game.state.board.length}, Deck=${game.state.deck.length}`);
-
 
   game.currentRound = roundData.newRound;
   game.currentDealer = roundData.newDealer;

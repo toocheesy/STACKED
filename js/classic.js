@@ -54,8 +54,6 @@ const ClassicMode = {
       const playerNames = ['Player', 'Bot 1', 'Bot 2'];
       const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
       
-      console.log(`🏆 LAST COMBO TAKES ALL: ${lastCapturerName} sweeps ${cardsCount} remaining cards! +${bonusPoints} pts`);
-      
       // Clear the board AFTER creating the message
       gameEngine.state.board = [];
       
@@ -105,12 +103,10 @@ const ClassicMode = {
   onRoundEnd(gameEngine) {
     // 🔥 FIXED: GameStateManager now handles dealer rotation
     // This function only handles mode-specific round end logic
-    console.log(`🔄 CLASSIC MODE: Round ended, GameStateManager handling dealer rotation`);
   },
 
   onGameEnd(gameEngine) {
-    const winner = this.getWinner(gameEngine);
-    console.log(`🏆 Game Complete! Winner: ${winner.name} (${winner.score} pts)`);
+    // Game end handled by GameStateManager
   },
 
   getCustomUI() {

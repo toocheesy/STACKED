@@ -36,7 +36,6 @@ class UISystem {
 if (typeof ModalManager !== 'undefined') {
   this.modalManager = new ModalManager(this.game, this);
   this.modalManager.ensureModalStyling();
-  console.log('✅ ModalManager initialized in UI constructor');
 } else {
   console.error('❌ ModalManager class not available');
   this.modalManager = null;
@@ -45,8 +44,6 @@ if (typeof ModalManager !== 'undefined') {
 
 // 🎪 MODAL DISPLAY - Delegate to ModalManager
 showModal(type, data = {}) {
-    console.log(`🎪 UI: Showing modal: ${type}`);
-    
     if (this.modalManager && typeof this.modalManager.show === 'function') {
       return this.modalManager.show(type, data);
     } else {
@@ -64,12 +61,11 @@ render() {
   }
 
   // 🔥 SAFE MODAL CHECK WITH FALLBACKS
-  if (this.modalManager && 
-      typeof this.modalManager.isActive === 'function' && 
-      this.modalManager.isActive() && 
-      this.modalManager.getCurrentModal && 
+  if (this.modalManager &&
+      typeof this.modalManager.isActive === 'function' &&
+      this.modalManager.isActive() &&
+      this.modalManager.getCurrentModal &&
       this.modalManager.getCurrentModal() !== 'round_end') {
-    console.log('🎪 SKIPPING RENDER: Modal is active');
     return;
   }
   
@@ -172,26 +168,21 @@ resetRenderFlags() {
   renderComboArea() {
   // 🔧 PERFORMANCE FIX: Skip unnecessary re-renders
   if (this._comboAreaRendered && this.game?.state?.currentPlayer !== 0) {
-    debugLog('UI_RENDERING', '⏭️ SKIPPING: Combo area already rendered for bot turn');
     return;
   }
 
-  console.log('🔍 STARTING renderComboArea()');
-    
     // Try your actual HTML structure first
     let comboAreaEl = document.querySelector('.combo-area');
-    
+
     // Fallback to old structure if needed
     if (!comboAreaEl) {
       comboAreaEl = document.getElementById('combination-area');
     }
-    
+
     if (!comboAreaEl) {
       console.error('❌ Combo area element not found! Looking for .combo-area or #combination-area');
       return;
     }
-    
-    console.log('✅ Found combo area element:', comboAreaEl);
 
     // Work with your actual HTML structure - individual IDs
     const baseEl = document.getElementById('base-area');
@@ -199,20 +190,11 @@ resetRenderFlags() {
     const sum2El = document.getElementById('sum2-area');
     const sum3El = document.getElementById('sum3-area');
     const matchEl = document.getElementById('match-area');
-    
-    console.log('🔍 Element check results:');
-    console.log('  Base element:', baseEl ? '✅ FOUND' : '❌ MISSING');
-    console.log('  Sum1 element:', sum1El ? '✅ FOUND' : '❌ MISSING');
-    console.log('  Sum2 element:', sum2El ? '✅ FOUND' : '❌ MISSING');
-    console.log('  Sum3 element:', sum3El ? '✅ FOUND' : '❌ MISSING');
-    console.log('  Match element:', matchEl ? '✅ FOUND' : '❌ MISSING');
-    
+
     if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) {
       console.error('❌ One or more combo slots not found!');
       return;
     }
-
-    console.log('✅ All combo elements found, proceeding with render...');
 
     // Render each area using your actual element structure
     this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
@@ -226,8 +208,6 @@ resetRenderFlags() {
     
     // Mark as rendered to prevent unnecessary re-renders
     this._comboAreaRendered = true;
-    
-    console.log('✅ renderComboArea() completed successfully');
   }
 
   validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
@@ -353,28 +333,23 @@ resetRenderFlags() {
     // Create new bound functions
     areaEl._boundDragOver = (e) => {
       e.preventDefault();
-      console.log(`🎯 DRAGOVER: ${slotName}`);
     };
-    
+
     areaEl._boundDrop = (e) => {
-      console.log(`🔥 DROP EVENT FIRED ON: ${slotName}`);
       e.preventDefault();
       e.stopPropagation();
       window.handleDrop(e, slotName);
     };
-    
+
     areaEl._boundTouchEnd = (e) => {
-      console.log(`🎯 TOUCH DROP ON: ${slotName}`);
       e.preventDefault();
       window.handleTouchDrop(e, 'combo', slotName);
     };
-    
+
     // Add fresh event listeners with passive options
 areaEl.addEventListener('dragover', areaEl._boundDragOver, { passive: false });
 areaEl.addEventListener('drop', areaEl._boundDrop, { passive: false });
 areaEl.addEventListener('touchend', areaEl._boundTouchEnd, { passive: true });
-    
-    console.log(`✅ AREA EVENTS BOUND: ${slotName} - dragover, drop, touchend`);
     
     return areaEl;
   }
@@ -452,9 +427,6 @@ renderBotCardCounts() {
       
       const isInPlayArea = this.isCardInPlayArea(index, 'hand', 0);
       if (isInPlayArea || !card) {
-        if (isInPlayArea) {
-          console.log(`🔍 UI DEBUG: Hiding player card at position ${index} - found in combo area`);
-        }
         this.createEmptyCardSlot(cardEl, index, 'hand');
       } else {
         this.setupCardElement(cardEl, card, index, 'hand');
@@ -565,9 +537,6 @@ renderDealerIndicator() {
   if (dealerElement) {
     dealerElement.classList.add('dealer');
     dealerElement.setAttribute('data-deck', deckCount);
-    console.log(`✅ Dealer indicator set for player ${currentDealer} with deck ${deckCount}`);
-  } else {
-    console.warn(`⚠️ No dealer element found for player ${currentDealer}`);
   }
 }
 
@@ -595,15 +564,12 @@ renderDealerIndicator() {
   initMessageController() {
     if (window.messageController && this.game) {
       window.messageController.connect(this.game);
-      console.log('🎯 UI: Message Controller connected!');
     }
   }
 
   sendMessageEvent(eventType, data = {}) {
     if (window.messageController && typeof window.messageController.handleGameEvent === 'function') {
       window.messageController.handleGameEvent(eventType, data);
-    } else {
-      console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
     }
   }
 
@@ -726,7 +692,6 @@ cleanupBotComboVisuals() {
     cardEl.setAttribute('data-index', index);
     cardEl.setAttribute('data-type', type);
     cardEl.addEventListener('dragstart', (e) => {
-  console.log('🎯 DRAG START: From type=', type, 'index=', index, 'card=', e.target.textContent);
   window.handleDragStart(e, type, index);
 });
     cardEl.addEventListener('dragend', window.handleDragEnd);

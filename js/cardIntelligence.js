@@ -322,13 +322,7 @@ class CardIntelligenceSystem {
   
   // 🔍 Debug function to see AI's current knowledge
   debugCardKnowledge() {
-    console.log('🧠 AI CARD KNOWLEDGE:');
-    this.CARD_VALUES.forEach(value => {
-      const seen = this.playedCards[value];
-      const remaining = this.getRemainingCards(value);
-      console.log(`   ${value}: ${seen} seen, ${remaining} remaining`);
-    });
-    console.log(`   Game Phase: ${this.gamePhase} (${this.totalCardsDealt} cards played)`);
+    // Debug function - logs stripped for production
   }
 }
 

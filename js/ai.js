@@ -3,23 +3,18 @@
 // 🔥 FIXED: Beginner bots now ALWAYS check captures first!
 
 function aiMove(hand, board, difficulty = 'intermediate') {
-  console.log(`🤖 LEGENDARY AI ACTIVATED: Difficulty=${difficulty}, Hand=${hand.length}, Board=${board.length}`);
-  
   // 🔥 CRITICAL SAFETY CHECK: Don't try to move with empty hand!
   if (!hand || hand.length === 0) {
-    console.log('🚨 AI SAFETY: Bot has no cards - cannot make move');
     return null;
   }
-  
+
   // 🔥 ADDITIONAL SAFETY: Validate board exists
   if (!board) {
-    console.log('🚨 AI SAFETY: Invalid board state');
     return null;
   }
-  
+
   // 🧠 USE CARD INTELLIGENCE FOR STRATEGIC DECISIONS
   if (!window.cardIntelligence) {
-    console.warn('⚠️ Card Intelligence not loaded - falling back to basic AI');
     return basicAiMove(hand, board, difficulty);
   }
   
@@ -39,27 +34,20 @@ function aiMove(hand, board, difficulty = 'intermediate') {
     // Legendary: Adaptive intelligence that changes based on game state
     personality = 'adaptive';
   }
-  
-  console.log(`🧠 AI PERSONALITY: ${personality.toUpperCase()}`);
-  
+
   // 🎯 PHASE 1: LOOK FOR CAPTURES (Strategic Analysis) - NOW HAPPENS FOR ALL DIFFICULTIES!
   const bestCapture = window.cardIntelligence.findBestCapture(hand, board, personality);
   
   if (bestCapture) {
-    console.log(`🎯 CAPTURE FOUND: ${bestCapture.handCard.value}${bestCapture.handCard.suit} → ${bestCapture.evaluation.totalScore} pts`);
-    
     // 🧠 STRATEGIC DECISION: Should we take this capture?
     const shouldCapture = evaluateCaptureDecision(bestCapture, personality, difficulty);
-    
+
     if (shouldCapture) {
       // 🎓 BEGINNER BEHAVIOR: Even with a good capture, sometimes act "beginner-like"
       if (difficulty === 'beginner' && Math.random() < beginnerRandomChance) {
-        console.log(`🎓 BEGINNER: Found good capture but acting beginner-like - placing random card`);
         const randomCard = hand[Math.floor(Math.random() * hand.length)];
         return { action: 'place', handCard: randomCard };
       }
-      
-      console.log(`✅ TAKING CAPTURE: ${bestCapture.evaluation.reasoning}`);
       return {
         action: 'capture',
         handCard: bestCapture.handCard,
@@ -69,28 +57,20 @@ function aiMove(hand, board, difficulty = 'intermediate') {
           targets: bestCapture.capture.targets || bestCapture.capture.cards.map(idx => board[idx])
         }
       };
-    } else {
-      console.log(`🤔 DECLINING CAPTURE: Strategic reasons`);
     }
   }
   
   // 🎯 PHASE 2: NO GOOD CAPTURES - STRATEGIC PLACEMENT
   const safestPlacement = window.cardIntelligence.findSafestCardToPlace(hand, board, personality);
-  
+
   if (safestPlacement && safestPlacement.handCard) {
-    console.log(`🛡️ STRATEGIC PLACEMENT: ${safestPlacement.handCard.value}${safestPlacement.handCard.suit}`);
-    console.log(`   Risk: ${safestPlacement.riskAnalysis.riskScore.toFixed(1)}% | Recommendation: ${safestPlacement.riskAnalysis.recommendation}`);
-    
     return { action: 'place', handCard: safestPlacement.handCard };
   }
-  
+
   // 🚨 FALLBACK: Emergency placement if card intelligence fails
-  console.warn('🚨 AI FALLBACK: Card Intelligence failed, using emergency placement');
-  
   // 🔥 SAFETY FALLBACK: Make sure we still have cards before emergency placement
   if (hand && hand.length > 0) {
     const emergencyCard = hand[0]; // Just take the first card
-    console.log(`🚨 EMERGENCY PLACEMENT: ${emergencyCard.value}${emergencyCard.suit}`);
     return { action: 'place', handCard: emergencyCard };
   }
   
@@ -103,15 +83,13 @@ function aiMove(hand, board, difficulty = 'intermediate') {
 function evaluateCaptureDecision(captureOption, personality, difficulty) {
   // 🔥 SAFETY CHECK: Make sure we have a valid capture option
   if (!captureOption || !captureOption.evaluation) {
-    console.log('🚨 AI SAFETY: Invalid capture option');
     return false;
   }
-  
+
   const evaluation = captureOption.evaluation;
-  
+
   // Base threshold: Always take high-value captures
   if (evaluation.basePoints >= 25) {
-    console.log(`💎 HIGH VALUE CAPTURE: ${evaluation.basePoints} pts - TAKING IT!`);
     return true;
   }
   
@@ -141,16 +119,12 @@ function evaluateCaptureDecision(captureOption, personality, difficulty) {
 
 // 🚨 FALLBACK FUNCTION (in case Card Intelligence fails)
 function basicAiMove(hand, board, difficulty) {
-  console.log(`🚨 BASIC AI FALLBACK: ${difficulty}`);
-  
   // 🔥 SAFETY CHECK: Validate inputs for basic AI too
   if (!hand || hand.length === 0) {
-    console.log('🚨 BASIC AI SAFETY: No cards in hand');
     return null;
   }
-  
+
   if (!board) {
-    console.log('🚨 BASIC AI SAFETY: Invalid board');
     board = []; // Use empty board for basic AI
   }
   
@@ -195,13 +169,12 @@ function basicAiMove(hand, board, difficulty) {
   } catch (error) {
     console.error('🚨 Error in basic AI placement logic:', error);
   }
-  
+
   // 🚨 ULTIMATE FALLBACK: If everything fails, just place first card
   if (hand && hand.length > 0) {
-    console.log('🚨 ULTIMATE FALLBACK: Placing first card');
     return { action: 'place', handCard: hand[0] };
   }
-  
+
   console.error('🚨 CRITICAL: Basic AI cannot make any move');
   return null;
 }

@@ -12,7 +12,6 @@ class ModeSelector {
   // Register a new game mode
   registerMode(modeId, modeObject) {
     this.availableModes[modeId] = modeObject;
-    console.log(`🎮 Registered mode: ${modeObject.name}`);
   }
 
   // Get all available modes
@@ -83,11 +82,9 @@ class ModeSelector {
         
         const modeId = option.dataset.mode;
         this.currentMode = modeId;
-        
+
         // Update dynamic settings based on selected mode
         this.updateDynamicSettings(modeId);
-        
-        console.log(`🎮 Selected mode: ${this.availableModes[modeId].name}`);
       });
     });
   }

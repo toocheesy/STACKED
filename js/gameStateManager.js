@@ -9,17 +9,15 @@ class GameStateManager {
   constructor() {
     this.maxSafetyAttempts = 3;
     this.debugMode = false; // PRODUCTION: Set to false to reduce logging
-    
+
     // Game state constants
     this.STATES = {
       CONTINUE_TURN: 'CONTINUE_TURN',
-      DEAL_NEW_HAND: 'DEAL_NEW_HAND', 
+      DEAL_NEW_HAND: 'DEAL_NEW_HAND',
       END_ROUND: 'END_ROUND',
       END_GAME: 'END_GAME',
       ERROR: 'ERROR'
     };
-    
-    console.log('🎯 GAME STATE MANAGER INITIALIZED - ULTIMATE FLOW CONTROL READY!');
   }
 
   // 🎯 MAIN FUNCTION: Determines what should happen next in the game

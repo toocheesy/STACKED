@@ -13,7 +13,6 @@ class MessageController {
     this.lastBotAction = null;
     this.comboGuidanceActive = false; // Track if we're actively guiding a combo
     
-    console.log('🎯 COMBO ASSISTANT MESSAGE CONTROLLER INITIALIZED - READY TO TEACH!');
   }
 
   // 🔥 CONNECT TO GAME ENGINE
@@ -23,16 +22,11 @@ class MessageController {
     // 🎓 AUTO-ENABLE EDUCATIONAL MODE FOR BEGINNER DIFFICULTY
     if (gameEngine.state.settings.botDifficulty === 'beginner') {
       this.educationalMode = true;
-      console.log('🎓 EDUCATIONAL MODE ACTIVATED - COMBO ASSISTANT READY!');
     }
-    
-    console.log('🎯 MESSAGE CONTROLLER CONNECTED TO GAME ENGINE!');
   }
 
   // 🎯 MAIN EVENT HANDLER - WITH COMBO ASSISTANCE
   handleGameEvent(eventType, data = {}) {
-    console.log(`🎯 MESSAGE EVENT: ${eventType}`, data);
-    
     // Clear any existing timeout
     if (this.currentTimeout) {
       clearTimeout(this.currentTimeout);
@@ -96,7 +90,6 @@ class MessageController {
         this.handleResetCombo(data);
         break;
       default:
-        console.warn(`🚨 Unknown message event: ${eventType}`);
         this.showDefaultMessage();
     }
   }
@@ -513,18 +506,15 @@ handleComboAnalysis(data) {
 
 // 🎯 CORE MESSAGE DISPLAY - FIXED VERSION
 showMessage(text, type = 'normal') {
-  console.log(`🎯 SHOWING MESSAGE: "${text}" (${type})`);
-  
   const currentPlayerEl = document.getElementById('current-player');
-  
+
   if (currentPlayerEl) {
     currentPlayerEl.textContent = text;
     currentPlayerEl.className = `current-player ${type}`;
-    console.log('✅ MESSAGE REPLACED YOUR TURN:', text);
   } else {
     console.error('❌ #current-player element not found!');
   }
-  
+
   this.playMessageSound(type);
 }
 
@@ -758,14 +748,12 @@ handleBotThinking(data) {
   }
 
   forceRefresh() {
-    console.log('🎯 FORCE REFRESH MESSAGE');
     this.comboGuidanceActive = false;
     this.handleGameEvent('TURN_START');
   }
 
   toggleEducationalMode() {
     this.educationalMode = !this.educationalMode;
-    console.log(`🎓 Educational Mode: ${this.educationalMode ? 'ON' : 'OFF'}`);
     this.forceRefresh();
   }
 
@@ -795,17 +783,10 @@ handleBotThinking(data) {
         animation.parentNode.removeChild(animation);
       }
     }, 2000);
-    
-    console.log(`🎆 SCORE ANIMATION: +${points} pts for player ${playerIndex}`);
   }
 
   debugState() {
-    console.log('🎯 COMBO ASSISTANT DEBUG:');
-    console.log('  Current Player:', this.getCurrentPlayer());
-    console.log('  Bot Difficulty:', this.getBotDifficulty());
-    console.log('  Educational Mode:', this.educationalMode);
-    console.log('  Combo Guidance Active:', this.comboGuidanceActive);
-    console.log('  Hand Sizes:', [this.getHandSize(0), this.getHandSize(1), this.getHandSize(2)]);
+    // Debug function - logs stripped for production
   }
 
   // 🍞 MODAL TOAST NOTIFICATION SYSTEM
@@ -831,8 +812,6 @@ handleBotThinking(data) {
         }
       }, 300);
     }, duration);
-
-    console.log(`🍞 MODAL TOAST: ${message} (${type})`);
   }
 }
 

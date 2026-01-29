@@ -44,7 +44,6 @@ const SpeedMode = {
 
   // Initialize speed mode
   init(gameEngine) {
-    console.log('⚡ Initializing Speed Mode');
     gameEngine.state.settings.targetScore = this.config.targetScore;
     gameEngine.state.settings.cardSpeed = 'fast';
     
@@ -120,7 +119,6 @@ const SpeedMode = {
   },
 
   timeUp(gameEngine) {
-    console.log('⏰ TIME UP! Ending round...');
     this.stopTimer();
     return this.forceRoundEnd(gameEngine);
   },
@@ -129,7 +127,6 @@ const SpeedMode = {
     const playerHandSize = gameEngine.state.hands[0].length;
     if (playerHandSize > 0) {
       gameEngine.addScore(0, -playerHandSize * 5);
-      console.log(`⚡ SPEED PENALTY: Player loses ${playerHandSize * 5} points for cards in hand`);
     }
     
     return {
@@ -144,8 +141,7 @@ const SpeedMode = {
     const baseScore = cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
     const timeBonus = Math.floor((this.timer.remaining / this.config.timeLimit) * baseScore * 0.5);
     const totalScore = Math.floor(baseScore * this.config.bonusMultiplier) + timeBonus;
-    
-    console.log(`⚡ SPEED CAPTURE: Base: ${baseScore}, Time Bonus: ${timeBonus}, Total: ${totalScore}`);
+
     return totalScore;
   },
 
@@ -199,7 +195,6 @@ const SpeedMode = {
       const playerNames = ['Player', 'Bot 1', 'Bot 2'];
       const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
 
-      console.log(`🏆 SPEED SWEEP: ${lastCapturerName} gets ${bonusPoints} bonus points!`);
       gameEngine.state.board = [];
 
       return {
@@ -227,8 +222,6 @@ const SpeedMode = {
   },
 
   onCapture(gameEngine, capturedCards) {
-    console.log(`⚡ Speed capture: ${capturedCards.length} cards in ${this.timer.remaining}s remaining`);
-    
     const bonus = Math.floor((this.timer.remaining / this.config.timeLimit) * 50);
     if (bonus > 0) {
       this.showSpeedBonus(bonus);
@@ -261,15 +254,11 @@ const SpeedMode = {
   },
 
   onRoundEnd(gameEngine) {
-    console.log('⚡ SPEED MODE: Round ending, resetting timer');
     this.stopTimer();
     this.timer.remaining = this.config.timeLimit;
-    
-    console.log('⚡ Speed Mode round end handling complete');
-    
+
     setTimeout(() => {
       if (gameEngine.currentRound <= this.config.maxRounds) {
-        console.log('⚡ RESTARTING TIMER FOR NEW ROUND');
         this.startTimer(gameEngine);
       }
     }, 2000);
@@ -277,8 +266,6 @@ const SpeedMode = {
 
   onGameEnd(gameEngine) {
     this.stopTimer();
-    const winner = this.getWinner(gameEngine);
-    console.log(`⚡ Speed Mode Complete! Winner: ${winner.name} with ${winner.score} points in ${gameEngine.currentRound} rounds`);
     
     const timerEl = document.getElementById('speed-timer');
     if (timerEl) {
