@@ -61,6 +61,7 @@ js/
   ai.js               - AI move decisions
   cardIntelligence.js - AI card memory and strategy
   botModal.js         - Bot move visualization (plays through the UI)
+  hintSystem.js       - Hint analysis and display
   helpers.js          - Deck creation, shuffle, sounds, utilities
   MessageController.js - In-game hint/guidance messages
   modalManager.js     - Modal dialogs (game over, round end, etc.)

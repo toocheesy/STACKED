@@ -1,7 +1,6 @@
-/* 
- * 🔥 CONSOLIDATED HELPERS FOR STACKED! - ALL UTILITIES IN ONE PLACE
- * Contains: Deck Management + Game Logic + UI Utilities + Modal Systems
- * Consolidation: deck.js + gameLogic.js + utils.js → helpers.js
+/*
+ * STACKED! Helpers
+ * Deck management, game logic, UI utilities, sound system
  */
 
 // ============================================================================
@@ -274,117 +273,12 @@ function unlockAudio() {
 document.addEventListener('click', unlockAudio);
 document.addEventListener('touchstart', unlockAudio);
 
-// Modal Systems (🏆 ENHANCED WITH EPIC JACKPOT DISPLAY!)
-function rankPlayers(gameEngine) {
-  return gameEngine.getRankedPlayers();
-}
-
-function createConfetti() {
-  const container = document.getElementById('confetti-container');
-  if (!container) return;
-  container.innerHTML = '';
-  for (let i = 0; i < 50; i++) {
-    const confetti = document.createElement('div');
-    confetti.className = 'confetti';
-    confetti.style.left = `${Math.random() * 100}%`;
-    confetti.style.animationDelay = `${Math.random() * 2}s`;
-    container.appendChild(confetti);
-  }
-}
-
-// 🏆 EPIC JACKPOT PARSER - Extracts winner and bonus from message
-function parseJackpotMessage(message) {
-  if (!message) return null;
-
-  const jackpotMatch = message.match(/🏆\s+(\w+(?:\s+\d+)?)\s+sweeps\s+(\d+)\s+remaining\s+cards!\s+\+(\d+)\s+pts/);
-
-  if (jackpotMatch) {
-    return {
-      winner: jackpotMatch[1],
-      cardsCount: parseInt(jackpotMatch[2]),
-      bonusPoints: parseInt(jackpotMatch[3])
-    };
-  }
-
-  return null;
-}
-
-// 🎯 CLEAN SCORE BREAKDOWN - Much more subtle
-function createScoreBreakdown(player, jackpotInfo) {
-  const isJackpotWinner = jackpotInfo && jackpotInfo.winner === player.name;
-  
-  if (!isJackpotWinner) {
-    return `<span class="scoreboard-score">${player.score} pts</span>`;
-  }
-  
-  const baseScore = player.score - jackpotInfo.bonusPoints;
-  return `
-    <div class="jackpot-winner-score-clean">
-      <span class="final-score-clean">${player.score} pts</span>
-      <span class="score-breakdown-clean">
-        (${baseScore} + <span class="jackpot-bonus-small">🏆${jackpotInfo.bonusPoints}</span>)
-      </span>
-    </div>
-  `;
-}
-
-// 🎉 CLEAN & PROFESSIONAL JACKPOT ANNOUNCEMENT
-function createJackpotAnnouncement(jackpotInfo) {
-  if (!jackpotInfo) return '';
-  
-  return `
-    <div class="jackpot-announcement-clean">
-      <span class="jackpot-icon-small">🏆</span>
-      <span class="jackpot-text">
-        <strong>${jackpotInfo.winner}</strong> swept ${jackpotInfo.cardsCount} remaining cards! 
-        <span class="jackpot-bonus-clean">+${jackpotInfo.bonusPoints} pts</span>
-      </span>
-    </div>
-  `;
-}
-
-function dealNewRound() {
-  // 🔥 FIXED: Use proper dealer rotation from game engine
-  game.currentRound++;
-  
-  try {
-    const newDeck = shuffleDeck(createDeck());
-    const dealResult = dealCards(newDeck, 3, 4, 4);
-    game.state.hands = dealResult.players;
-    game.state.board = dealResult.board;
-    game.state.deck = dealResult.remainingDeck;
-    // 🔥 FIXED: Don't override currentPlayer - rotateDealerClockwise() already set it correctly
-    game.state.lastCapturer = null;
-    
-    // 🎯 SEND NEW ROUND EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('NEW_ROUND', {
-      roundNumber: game.currentRound
-    });
-    
-    ui.render();
-  } catch (e) {
-    console.error('Error dealing new round:', e);
-    
-    // 🎯 SEND ERROR EVENT TO MESSAGE CONTROLLER
-    window.messageController.handleGameEvent('CAPTURE_ERROR', {
-      message: 'Error dealing cards! Restart the game.'
-    });
-  }
-}
-
 // ============================================================================
-// 🌍 GLOBAL EXPORTS - Make everything available globally
+// 🌍 GLOBAL EXPORTS
 // ============================================================================
 
-// Make utility classes globally available
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
-window.dealNewRound = dealNewRound;
-window.parseJackpotMessage = parseJackpotMessage;
-window.createScoreBreakdown = createScoreBreakdown;
-window.createJackpotAnnouncement = createJackpotAnnouncement;
-window.rankPlayers = rankPlayers;
-window.createConfetti = createConfetti;
 
 // Global playSound - main.js defines a local version with settings check
 window.playSound = function(type) {

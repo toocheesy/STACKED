@@ -76,7 +76,8 @@ Scripts in `game.html` MUST load in this exact sequence:
 8. classic.js/speed.js - Game modes
 9. ai.js/botModal.js   - AI systems
 10. ui.js              - Rendering
-11. main.js            - MUST BE LAST (initializes everything)
+11. hintSystem.js      - Hint analysis and display
+12. main.js            - MUST BE LAST (initializes everything)
 ```
 
 ---
@@ -135,6 +136,7 @@ All systems exposed via `window.`:
 | `cardIntelligence.js` | Strategic AI brain, difficulty levels |
 | `botModal.js` | Bot move visualization |
 | `ui.js` | Rendering, DOM manipulation |
+| `hintSystem.js` | Hint analysis and display |
 | `helpers.js` | Deck, game logic, utilities, sounds |
 | `MessageController.js` | Educational guidance messages |
 | `modalManager.js` | Modal dialogs |
