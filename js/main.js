@@ -1057,7 +1057,7 @@ function handleEndRound(result) {
 
 function resumeNextRound(roundData) {
 
-  game.state.deck = createDeck();
+  game.state.deck = shuffleDeck(createDeck());
 
   const newStartingPlayer = (roundData.newDealer + 1) % 3;
   game.state.currentPlayer = newStartingPlayer;
