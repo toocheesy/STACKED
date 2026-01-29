@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a unique 5-area combo system. First to 500 points wins.
+STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 500 points wins.
 
 **Live Site:** https://toocheesy.github.io/STACKED
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
@@ -22,7 +22,7 @@ python -m http.server 8000
 
 Open `index.html` for homepage or `game.html` directly to play.
 
-**Deployment:** Vercel with auto-deploy on push to main.
+**Deployment:** GitHub Pages (push to main).
 
 ---
 
@@ -32,10 +32,9 @@ Open `index.html` for homepage or `game.html` directly to play.
 - **CAPTURE = Turn continues** (player can capture again)
 - **PLACE = Turn ends immediately** (no exceptions)
 
-### 5-Area Combo Builder
+### 4-Area Combo Builder
 - **Base Card** (required) - sets target value, can come from hand OR board
-- **Sum1, Sum2, Sum3** - cards that ADD UP to base value
-- **Match** - cards with SAME value as base
+- **Combo 1, Combo 2, Combo 3** - cards that add up to OR match base value (pairs and sums both accepted in any slot)
 
 ### Capture Requirements
 - Every capture needs cards from BOTH hand AND board
@@ -55,7 +54,7 @@ Open `index.html` for homepage or `game.html` directly to play.
 ## LOCKED DECISIONS (DO NOT CHANGE)
 
 1. **Vanilla JavaScript** - No frameworks
-2. **5-Area Combo System** - Base + Sum1/Sum2/Sum3 + Match
+2. **4-Area Combo System** - Base + Combo 1/2/3 (all slots accept pairs and sums)
 3. **Turn Flow** - Capture continues, Place ends
 4. **GameStateManager** - Single source of truth for game flow
 5. **Face Card Rule** - K, Q, J pairs only, no sums
@@ -109,10 +108,9 @@ Scripts in `game.html` MUST load in this exact sequence:
 ```javascript
 game.state.combination = {
   base: [],   // Exactly 1 card required for valid capture
-  sum1: [],   // Cards summing to base value
-  sum2: [],
-  sum3: [],
-  match: []   // Cards matching base value (pairs)
+  sum1: [],   // Combo 1 - accepts pairs or sums
+  sum2: [],   // Combo 2
+  sum3: []    // Combo 3
 }
 ```
 
@@ -171,4 +169,4 @@ TC (the developer) prefers:
 ## Git
 
 Repository: https://github.com/toocheesy/STACKED.git
-Push to main triggers Vercel deploy.
+Push to main triggers GitHub Pages deploy.
