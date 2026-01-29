@@ -247,7 +247,7 @@ class DraggableModal {
   }
 }
 
-// Sound System (KEPT)
+// Sound System
 const sounds = {
   capture: new Audio('./audio/capture.mp3'),
   invalid: new Audio('./audio/invalid.mp3'),
@@ -255,12 +255,11 @@ const sounds = {
   jackpot: new Audio('./audio/jackpot.mp3')
 };
 
-function initSounds() {
-  Object.values(sounds).forEach(audio => {
-    audio.preload = 'auto';
-    audio.volume = 0.7;
-  });
-}
+// Initialize sounds immediately
+Object.values(sounds).forEach(audio => {
+  audio.preload = 'auto';
+  audio.volume = 0.7;
+});
 
 // Modal Systems (🏆 ENHANCED WITH EPIC JACKPOT DISPLAY!)
 function rankPlayers(gameEngine) {
@@ -367,7 +366,6 @@ function dealNewRound() {
 // Make utility classes globally available
 window.DraggableModal = DraggableModal;
 window.sounds = sounds;
-window.initSounds = initSounds;
 window.dealNewRound = dealNewRound;
 window.parseJackpotMessage = parseJackpotMessage;
 window.createScoreBreakdown = createScoreBreakdown;
@@ -375,9 +373,10 @@ window.createJackpotAnnouncement = createJackpotAnnouncement;
 window.rankPlayers = rankPlayers;
 window.createConfetti = createConfetti;
 
-// Make sure playSound function exists globally (referenced in main.js)
+// Global playSound - respects mute setting, main.js overrides this with settings-aware version
 window.playSound = function(type) {
   if (window.sounds && window.sounds[type]) {
+    window.sounds[type].currentTime = 0;
     window.sounds[type].play().catch(() => {});
   }
 };

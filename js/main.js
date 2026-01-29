@@ -312,7 +312,7 @@ initGameSystems();
   const gameSettings = {
     botDifficulty: storedDifficulty,
     cardSpeed: 'fast',
-    soundEffects: 'off',
+    soundEffects: 'on',
     targetScore: 500
   };
 
@@ -467,6 +467,7 @@ function handleBoardDrop(e) {
     game.state.draggedCard = null;
 
   game.state.lastAction = 'place';
+  playSound('capture');
 
     window.messageController.handleGameEvent('CARD_PLACED', {
       cardName: `${handCard.value}${handCard.suit}`
@@ -639,9 +640,19 @@ function showLastCapture(playerName, cards, points) {
 }
 
 function playSound(type) {
-  if (game.state.settings.soundEffects === 'on' && window.sounds && window.sounds[type]) {
+  if (game && game.state && game.state.settings && game.state.settings.soundEffects !== 'on') return;
+  if (window.sounds && window.sounds[type]) {
+    window.sounds[type].currentTime = 0;
     window.sounds[type].play().catch(() => {});
   }
+}
+
+function toggleSound() {
+  if (!game || !game.state || !game.state.settings) return;
+  const s = game.state.settings;
+  s.soundEffects = s.soundEffects === 'on' ? 'off' : 'on';
+  const btn = document.getElementById('sound-toggle-btn');
+  if (btn) btn.textContent = s.soundEffects === 'on' ? '🔊' : '🔇';
 }
 
 function handleDragStart(e, source, index) {
@@ -841,23 +852,24 @@ function handleTouchEnd(e) {
 
 function handleTouchDropOnBoard() {
   if (!touchDragData) return;
-  
+
   debugLog('GAME_FLOW', '🎯 TOUCH DROP ON BOARD:', touchDragData);
-  
+
   // Simulate the board drop logic (same as handleDropOriginal for board)
   if (touchDragData.type === 'hand') {
     // Place card from hand to board
     const sourceCard = touchDragData.card;
-    
+
     // Add to board
     game.state.board.push(sourceCard);
-    
+
     // Remove from hand
     game.state.hands[0][touchDragData.index] = null;
-    
+
     // Set last action
     game.state.lastAction = 'place';
-    
+    playSound('capture');
+
     debugLog('GAME_FLOW', '✅ TOUCH BOARD DROP COMPLETE');
     
     // Re-render and continue game
@@ -990,6 +1002,7 @@ game.state.currentPlayer = playerIndex;
 
 function handleDealNewHand(result) {
 try {
+    playSound('capture');
 
     const dealResult = dealCards(game.state.deck, 3, 4, 0);
     game.state.hands = dealResult.players;
@@ -1022,7 +1035,7 @@ window.messageController.handleGameEvent('CAPTURE_ERROR', {
 function handleEndRound(result) {
 
   if (result.data.jackpot.hasJackpot) {
-
+    playSound('jackpot');
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -1069,7 +1082,7 @@ setTimeout(() => scheduleNextBotTurn(), 1000);
 function handleEndGame(result) {
 
   if (result.data.jackpot.hasJackpot) {
-
+    playSound('jackpot');
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -1078,6 +1091,7 @@ function handleEndGame(result) {
     game.state.board = [];
   }
 
+  playSound('winner');
 
   if (game.currentMode.onGameEnd) {
     game.currentMode.onGameEnd(game);
@@ -1103,6 +1117,7 @@ console.error(` TECHNICAL DETAILS:`, result.data.technicalDetails);
 }
 
 window.resumeNextRound = resumeNextRound;
+window.toggleSound = toggleSound;
 
 initGame();
 

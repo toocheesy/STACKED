@@ -114,7 +114,7 @@ const SpeedMode = {
     }
     
     if (window.playSound) {
-      playSound('warning');
+      playSound('invalid');
     }
   },
 

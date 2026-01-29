@@ -233,7 +233,8 @@ body {
   transform: none;
 }
 
-.hint-btn {
+.hint-btn,
+.sound-btn {
   background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
   border-color: #4A7043;
 }
