@@ -80,7 +80,7 @@ this.ui.highlightBotComboArea(targetSlot);
 debugLog('BOT_ACTIONS', `🎯 BOT COMBO: ${targetSlot} now has ${this.game.state.combination[targetSlot].length} cards`);
 
 // Give time to see the combo building
-await this.delay(1200); // Increased delay to see bot cards
+await this.delay(1800);
 
 // Final render to ensure consistency
 this.ui.render();
@@ -204,7 +204,7 @@ for (const targetCard of move.capture.targets) {
   // 🔥 FIXED: botSubmitCapture() - PURE UI ACTION, NO TURN SCHEDULING
   async botSubmitCapture() {
     debugLog('BOT_ACTIONS', `🤖 BOT: Attempting to submit capture`);
-    await this.delay(300);
+    await this.delay(500);
 
     const success = this.executeBotSubmit();
     
@@ -299,8 +299,8 @@ return true;
     this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     
     this.ui.render();
-    await this.delay(500);
-    
+    await this.delay(750);
+
     // Verify all areas are empty
     const totalCards = this.game.state.combination.base.length +
                       this.game.state.combination.sum1.length +
@@ -342,7 +342,7 @@ return true;
     debugLog('BOT_ACTIONS', `🤖 BOT ${playerIndex}: PLACING ${handCard.value}${handCard.suit} on board`);
     
     try {
-      await this.delay(500);
+      await this.delay(750);
 
       // STEP 1: Verify card exists in bot's hand
       const cardIndex = this.game.state.hands[playerIndex].findIndex(c => c && c.id === handCard.id);
