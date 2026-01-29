@@ -633,6 +633,32 @@ dialog::backdrop {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+.jackpot-announcement {
+  background: linear-gradient(145deg, #FFD700, #FFA500);
+  color: #331E0F;
+  padding: 12px 15px;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+  border: 2px solid #DAA520;
+}
+
+.jackpot-announcement .jackpot-points {
+  font-size: 1.1rem;
+  color: #8B0000;
+}
+
+.jackpot-announcement.neutral {
+  background: linear-gradient(145deg, #5a4a3a, #4A2B17);
+  color: #D2A679;
+  border-color: #8B5A2B;
+}
+
+.jackpot-announcement.neutral .jackpot-points {
+  color: #D2A679;
+}
+
 /* ============================================================================
  * 11. MOBILE RESPONSIVE BREAKPOINTS
  * ============================================================================ */

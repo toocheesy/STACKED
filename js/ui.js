@@ -189,28 +189,26 @@ resetRenderFlags() {
     const sum1El = document.getElementById('sum1-area');
     const sum2El = document.getElementById('sum2-area');
     const sum3El = document.getElementById('sum3-area');
-    const matchEl = document.getElementById('match-area');
 
-    if (!(baseEl && sum1El && sum2El && sum3El && matchEl)) {
-      console.error('❌ One or more combo slots not found!');
+    if (!(baseEl && sum1El && sum2El && sum3El)) {
+      console.error('One or more combo slots not found!');
       return;
     }
 
-    // Render each area using your actual element structure
+    // Render each area
     this.renderArea(baseEl, this.game.state.combination.base, 'base', 'Base Card');
-    this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Sum Cards');
-    this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Sum Cards');
-    this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Sum Cards');
-    this.renderArea(matchEl, this.game.state.combination.match, 'match', 'Matching Cards');
+    this.renderArea(sum1El, this.game.state.combination.sum1, 'sum1', 'Combo 1');
+    this.renderArea(sum2El, this.game.state.combination.sum2, 'sum2', 'Combo 2');
+    this.renderArea(sum3El, this.game.state.combination.sum3, 'sum3', 'Combo 3');
 
     // Validate combinations
-    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl);
+    this.validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El);
     
     // Mark as rendered to prevent unnecessary re-renders
     this._comboAreaRendered = true;
   }
 
-  validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El, matchEl) {
+  validateAndStyleComboArea(baseEl, sum1El, sum2El, sum3El) {
     let validCaptures = [];
     let isAnyValid = false;
 
@@ -218,12 +216,10 @@ resetRenderFlags() {
       const baseCard = this.game.state.combination.base[0];
       const baseValue = parseInt(baseCard.card.value) || 1;
 
-      // Validate each area using game engine
       const areas = [
-        { el: sum1El, cards: this.game.state.combination.sum1, name: 'Sum Area 1' },
-        { el: sum2El, cards: this.game.state.combination.sum2, name: 'Sum Area 2' },
-        { el: sum3El, cards: this.game.state.combination.sum3, name: 'Sum Area 3' },
-        { el: matchEl, cards: this.game.state.combination.match, name: 'Match Area' }
+        { el: sum1El, cards: this.game.state.combination.sum1, name: 'Combo 1' },
+        { el: sum2El, cards: this.game.state.combination.sum2, name: 'Combo 2' },
+        { el: sum3El, cards: this.game.state.combination.sum3, name: 'Combo 3' }
       ];
 
       areas.forEach(({ el, cards, name }) => {
@@ -245,7 +241,7 @@ resetRenderFlags() {
         baseEl.classList.remove('valid-combo');
       }
     } else {
-      [baseEl, sum1El, sum2El, sum3El, matchEl].forEach(el => el.classList.remove('valid-combo'));
+      [baseEl, sum1El, sum2El, sum3El].forEach(el => el.classList.remove('valid-combo'));
     }
   }
 
@@ -544,10 +540,9 @@ renderDealerIndicator() {
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
       const hasBaseCard = this.game.state.combination.base.length === 1;
-      const hasAnyCaptureCards = this.game.state.combination.sum1.length > 0 || 
-                               this.game.state.combination.sum2.length > 0 || 
-                               this.game.state.combination.sum3.length > 0 || 
-                               this.game.state.combination.match.length > 0;
+      const hasAnyCaptureCards = this.game.state.combination.sum1.length > 0 ||
+                               this.game.state.combination.sum2.length > 0 ||
+                               this.game.state.combination.sum3.length > 0;
       
       submitBtn.disabled = !(this.game.state.currentPlayer === 0 && hasBaseCard && hasAnyCaptureCards);
     }
@@ -575,21 +570,19 @@ renderDealerIndicator() {
 
   getComboAreaStatus() {
     const combo = this.game.state.combination;
-    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length;
-    
+    const totalCards = combo.base.length + combo.sum1.length + combo.sum2.length + combo.sum3.length;
+
     return {
       hasCards: totalCards > 0,
       cardCount: totalCards,
       hasBase: combo.base.length > 0,
       baseCard: combo.base.length > 0 ? combo.base[0].card : null,
-      sumCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
-      matchCards: combo.match.length,
+      comboCards: combo.sum1.length + combo.sum2.length + combo.sum3.length,
       comboData: {
         base: combo.base,
         sum1: combo.sum1,
         sum2: combo.sum2,
-        sum3: combo.sum3,
-        match: combo.match
+        sum3: combo.sum3
       }
     };
   }
@@ -656,7 +649,7 @@ cleanupBotComboVisuals() {
   botCards.forEach(card => card.remove());
   
   // Clear any lingering highlights
-  const areas = ['base', 'sum1', 'sum2', 'sum3', 'match'];
+  const areas = ['base', 'sum1', 'sum2', 'sum3'];
   areas.forEach(area => {
     const areaEl = document.getElementById(`${area}-area`);
     if (areaEl) {

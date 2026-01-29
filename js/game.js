@@ -12,7 +12,7 @@ class GameEngine {
       hands: [[], [], []], // Player, Bot 1, Bot 2
       scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
       overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
-      combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
+      combination: { base: [], sum1: [], sum2: [], sum3: [] },
       currentPlayer: 0,
       settings: {
         cardSpeed: 'fast',
@@ -70,7 +70,7 @@ class GameEngine {
     
     // Reset current round scores, preserve overall scores
 this.state.scores = { player: 0, bot1: 0, bot2: 0 };
-this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+this.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
 this.state.draggedCard = null;
 this.state.selectedCard = null;
 this.currentRound = 1;
@@ -292,7 +292,7 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
 
   // Reset combination area
   resetCombination() {
-    this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    this.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
   }
 }
 

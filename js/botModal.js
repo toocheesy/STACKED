@@ -104,8 +104,7 @@ this.ui.render();
       const totalCardsInCombo = this.game.state.combination.base.length +
                                this.game.state.combination.sum1.length +
                                this.game.state.combination.sum2.length +
-                               this.game.state.combination.sum3.length +
-                               this.game.state.combination.match.length;
+                               this.game.state.combination.sum3.length;
                                
       if (totalCardsInCombo > 0) {
         debugLog('BOT_ACTIONS', `🤖 BOT: Combo areas occupied (${totalCardsInCombo} cards), clearing first`);
@@ -137,7 +136,7 @@ if (window.messageController?.handleGameEvent) {
     hasBase: true,
     baseCard: baseCard,
     sumCards: 0,
-    matchCards: 0
+    comboCards: 0
   });
 }
       
@@ -159,8 +158,7 @@ for (const targetCard of move.capture.targets) {
     const currentCount = this.game.state.combination.base.length + 
                         this.game.state.combination.sum1.length + 
                         this.game.state.combination.sum2.length + 
-                        this.game.state.combination.sum3.length + 
-                        this.game.state.combination.match.length;
+                        this.game.state.combination.sum3.length;
     
     if (window.messageController?.handleGameEvent) {
       window.messageController.handleGameEvent('CARDS_IN_COMBO', {
@@ -169,7 +167,7 @@ for (const targetCard of move.capture.targets) {
         hasBase: true,
         baseCard: baseCard,
         sumCards: currentCount - 1,
-        matchCards: 0
+        comboCards: 0
       });
     }
   }
@@ -177,10 +175,9 @@ for (const targetCard of move.capture.targets) {
       
       // STEP 4: Final verification before submit
       const baseCount = this.game.state.combination.base.length;
-      const captureCount = this.game.state.combination.sum1.length + 
-                          this.game.state.combination.sum2.length + 
-                          this.game.state.combination.sum3.length + 
-                          this.game.state.combination.match.length;
+      const captureCount = this.game.state.combination.sum1.length +
+                          this.game.state.combination.sum2.length +
+                          this.game.state.combination.sum3.length;
                           
       debugLog('BOT_ACTIONS', `🤖 BOT: Final check - Base: ${baseCount}, Captures: ${captureCount}`);
       
@@ -237,8 +234,7 @@ for (const targetCard of move.capture.targets) {
     const captureAreas = [
       { name: 'sum1', cards: this.game.state.combination.sum1 },
       { name: 'sum2', cards: this.game.state.combination.sum2 },
-      { name: 'sum3', cards: this.game.state.combination.sum3 },
-      { name: 'match', cards: this.game.state.combination.match }
+      { name: 'sum3', cards: this.game.state.combination.sum3 }
     ];
 
     for (const area of captureAreas) {
@@ -281,7 +277,7 @@ if (window.cardIntelligence) {
     }
 
     // Reset combination state
-this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
 
 // Clean up bot combo card visuals
 this.ui.cleanupBotComboVisuals();
@@ -296,7 +292,7 @@ return true;
     debugLog('BOT_ACTIONS', `🤖 BOT: Resetting modal - clearing ALL areas`);
     
     // Clean reset: Clear combo areas without touching source arrays
-    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
     
     this.ui.render();
     await this.delay(750);
@@ -305,15 +301,14 @@ return true;
     const totalCards = this.game.state.combination.base.length +
                       this.game.state.combination.sum1.length +
                       this.game.state.combination.sum2.length +
-                      this.game.state.combination.sum3.length +
-                      this.game.state.combination.match.length;
-                      
+                      this.game.state.combination.sum3.length;
+
     debugLog('BOT_ACTIONS', `🤖 BOT: Modal reset complete - ${totalCards} cards remaining in combo areas`);
     
     if (totalCards > 0) {
       debugLog('BOT_ACTIONS', `🚨 BOT: Warning - combo areas not fully cleared!`);
       // Force clear again
-      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
       this.ui.render();
     }
     
@@ -371,7 +366,7 @@ debugLog('BOT_ACTIONS', '🚨 BOT LAST ACTION SET TO: place');
       debugLog('BOT_ACTIONS', `✅ ADDED: ${handCard.value}${handCard.suit} to board (${this.game.state.board.length} cards total)`);
       
       // STEP 4: Clear combo areas
-      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+      this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
       debugLog('BOT_ACTIONS', `✅ CLEARED: All combo areas`);
       
       // STEP 5: Update UI immediately

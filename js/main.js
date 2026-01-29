@@ -52,7 +52,7 @@ convertToHintFormat(bestCapture) {
     type: bestCapture.capture.type,
     handCard: { card: handCard, index: handIndex },
     targetCards: targetCards,
-    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+    area: 'sum1',
     score: bestCapture.evaluation.totalScore,
     description: bestCapture.evaluation.reasoning
   };
@@ -67,7 +67,7 @@ convertGameLogicToHint(handCard, handIndex, capture) {
     type: capture.type,
     handCard: { card: handCard, index: handIndex },
     targetCards: targetCards,
-    area: capture.type === 'pair' ? 'match' : 'sum1',
+    area: 'sum1',
     score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
     description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
   };
@@ -349,8 +349,7 @@ function handleSubmit() {
   const captureAreas = [
     { name: 'sum1', cards: game.state.combination.sum1 },
     { name: 'sum2', cards: game.state.combination.sum2 },
-    { name: 'sum3', cards: game.state.combination.sum3 },
-    { name: 'match', cards: game.state.combination.match }
+    { name: 'sum3', cards: game.state.combination.sum3 }
   ];
 
   for (const area of captureAreas) {
@@ -362,10 +361,9 @@ function handleSubmit() {
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
         const areaNames = {
-          'sum1': 'Sum Area 1',
-          'sum2': 'Sum Area 2',
-          'sum3': 'Sum Area 3',
-          'match': 'Match Area'
+          'sum1': 'Combo 1',
+          'sum2': 'Combo 2',
+          'sum3': 'Combo 3'
         };
 
         window.messageController.handleGameEvent('CAPTURE_ERROR', {
@@ -402,7 +400,7 @@ if (game.currentMode.onCapture) {
     cardsCount: allCapturedCards.length
   });
 
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
 
     ui.render();
   playSound('capture');
@@ -423,7 +421,7 @@ function handleResetPlayArea() {
     }
   });
 
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
 
 
   window.messageController.handleGameEvent('RESET_COMBO');
@@ -465,7 +463,7 @@ function handleBoardDrop(e) {
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
     window.cardIntelligence.updateCardsSeen([handCard]);
-    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
     game.state.draggedCard = null;
 
   game.state.lastAction = 'place';
@@ -629,22 +627,15 @@ await aiTurn();
   }, 3000);
 }
 
-let lastCaptureTimer = null;
 function showLastCapture(playerName, cards, points) {
   const suitSymbols = { Hearts: '\u2665', Diamonds: '\u2666', Clubs: '\u2663', Spades: '\u2660' };
   const el = document.getElementById('last-capture-display');
   if (!el) return;
 
-  if (lastCaptureTimer) clearTimeout(lastCaptureTimer);
-
   const cardStr = cards.map(c => c.value + (suitSymbols[c.suit] || '')).join(' + ');
   el.innerHTML = '<span class="capture-label">Last Capture</span>' +
     '<span class="capture-detail">' + playerName + ': ' + cardStr + ' (' + points + ' pts)</span>';
   el.classList.add('visible');
-
-  lastCaptureTimer = setTimeout(() => {
-    el.classList.remove('visible');
-  }, 4000);
 }
 
 function playSound(type) {
@@ -712,8 +703,6 @@ function handleDrop(e, slot) {
       game.state.combination.sum2.push(existingBase);
     } else if (game.state.combination.sum3.length === 0) {
       game.state.combination.sum3.push(existingBase);
-    } else {
-      game.state.combination.match.push(existingBase);
     }
   }
 
@@ -832,7 +821,7 @@ function handleTouchEnd(e) {
   }
 
   // ✅ CHECK FOR COMBO AREAS FIRST
-  const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') ||
+  const comboArea = elementBelow.closest('.base-area, .sum-area') ||
                    elementBelow.closest('[data-slot]') ||
                    (elementBelow.hasAttribute('data-slot') ? elementBelow : null);
 
@@ -900,8 +889,6 @@ function handleTouchDropOnCombo(slotName) {
       game.state.combination.sum2.push(existingBase);
     } else if (game.state.combination.sum3.length === 0) {
       game.state.combination.sum3.push(existingBase);
-    } else {
-      game.state.combination.match.push(existingBase);
     }
   }
   

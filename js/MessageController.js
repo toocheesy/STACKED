@@ -225,9 +225,7 @@ class MessageController {
     if (slot === 'base') {
       this.showMessage(`🎓 Great start! ${cardName} is now your BASE card. Now find matching cards or numbers that add up to ${this.getCardNumericValue(data.card) || 'it'}!`, 'combo-guidance');
     } else if (slot.includes('sum')) {
-      this.showMessage(`🎓 Good! Added ${cardName} to sum area. Keep adding cards that add up to your base card!`, 'combo-guidance');
-    } else if (slot === 'match') {
-      this.showMessage(`🎓 Perfect! Added ${cardName} to match area. Look for more cards with the same value!`, 'combo-guidance');
+      this.showMessage(`🎓 Good! Added ${cardName} to combo area. Keep adding cards that match or add up to your base card!`, 'combo-guidance');
     }
     
     // Auto-analyze the current combo state after a short delay
@@ -242,27 +240,22 @@ class MessageController {
     
     const combo = this.gameEngine.state.combination;
     const hasBase = combo.base.length > 0;
-    const hasCaptureCards = combo.sum1.length + combo.sum2.length + combo.sum3.length + combo.match.length > 0;
-    
+    const hasCaptureCards = combo.sum1.length + combo.sum2.length + combo.sum3.length > 0;
+
     if (hasBase && hasCaptureCards) {
-      // Try to validate and give specific feedback
       const baseCard = combo.base[0];
       const baseValue = this.getCardNumericValue(baseCard.card);
-      
-      // Check what type of combo they're building
-      if (combo.match.length > 0) {
-        const allMatch = combo.match.every(entry => entry.card.value === baseCard.card.value);
-        if (allMatch) {
-          this.showMessage(`🎓 Excellent PAIR combo! All ${baseCard.card.value}s match. Click 'Submit Move' to capture!`, 'combo-success');
-        } else {
-          this.showMessage(`🎓 Hmm, not all cards match ${baseCard.card.value}. For pairs, all cards need the same value!`, 'combo-guidance');
-        }
-      } else if (combo.sum1.length > 0 || combo.sum2.length > 0 || combo.sum3.length > 0) {
-        if (baseValue && baseValue <= 10) {
-          this.showMessage(`🎓 Building a SUM combo! Make sure your sum cards add up to ${baseValue}. Try the math!`, 'combo-guidance');
-        } else {
-          this.showMessage(`🎓 Face cards (J, Q, K) can only make pairs, not sums. Try the match area instead!`, 'combo-guidance');
-        }
+
+      // Check if all combo cards match the base (pair) or sum to it
+      const allComboCards = [...combo.sum1, ...combo.sum2, ...combo.sum3];
+      const allMatch = allComboCards.every(entry => entry.card.value === baseCard.card.value);
+
+      if (allMatch) {
+        this.showMessage(`🎓 Excellent PAIR combo! All ${baseCard.card.value}s match. Click 'Submit Move' to capture!`, 'combo-success');
+      } else if (baseValue && baseValue <= 10) {
+        this.showMessage(`🎓 Building a combo! Make sure your cards add up to ${baseValue} or match it. Try the math!`, 'combo-guidance');
+      } else {
+        this.showMessage(`🎓 Face cards (J, Q, K) can only make pairs, not sums. Look for matching values!`, 'combo-guidance');
       }
     } else if (hasBase && !hasCaptureCards) {
       const baseCard = combo.base[0];
@@ -366,13 +359,15 @@ handleComboAnalysis(data) {
 
   // 🎓 IDENTIFY COMBO TYPE FOR CELEBRATION
   identifyComboType(combo) {
-    if (combo.match.length > 0) {
-      return combo.match.length === 1 ? 'PAIR' : 'MULTI-PAIR';
-    } else if (combo.sum1.length > 0 || combo.sum2.length > 0 || combo.sum3.length > 0) {
-      const totalSumCards = combo.sum1.length + combo.sum2.length + combo.sum3.length;
-      return totalSumCards === 1 ? 'SUM' : 'MULTI-SUM';
+    const totalComboCards = combo.sum1.length + combo.sum2.length + combo.sum3.length;
+    if (totalComboCards === 0) return 'COMBO';
+
+    const allCards = [...combo.sum1, ...combo.sum2, ...combo.sum3];
+    const baseCard = combo.base.length > 0 ? combo.base[0].card : null;
+    if (baseCard && allCards.every(entry => entry.card.value === baseCard.value)) {
+      return totalComboCards === 1 ? 'PAIR' : 'MULTI-PAIR';
     }
-    return 'COMBO';
+    return totalComboCards === 1 ? 'SUM' : 'MULTI-SUM';
   }
 
   // 🎯 ENHANCED CAPTURE ERROR - SPECIFIC ASSISTANCE
