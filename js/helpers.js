@@ -255,11 +255,24 @@ const sounds = {
   jackpot: new Audio('./audio/jackpot.mp3')
 };
 
-// Initialize sounds immediately
 Object.values(sounds).forEach(audio => {
   audio.preload = 'auto';
   audio.volume = 0.7;
 });
+
+// Unlock audio on first user interaction (browser autoplay policy)
+let audioUnlocked = false;
+function unlockAudio() {
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  Object.values(sounds).forEach(audio => {
+    audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
+  });
+  document.removeEventListener('click', unlockAudio);
+  document.removeEventListener('touchstart', unlockAudio);
+}
+document.addEventListener('click', unlockAudio);
+document.addEventListener('touchstart', unlockAudio);
 
 // Modal Systems (🏆 ENHANCED WITH EPIC JACKPOT DISPLAY!)
 function rankPlayers(gameEngine) {
@@ -373,10 +386,12 @@ window.createJackpotAnnouncement = createJackpotAnnouncement;
 window.rankPlayers = rankPlayers;
 window.createConfetti = createConfetti;
 
-// Global playSound - respects mute setting, main.js overrides this with settings-aware version
+// Global playSound - main.js defines a local version with settings check
 window.playSound = function(type) {
   if (window.sounds && window.sounds[type]) {
     window.sounds[type].currentTime = 0;
-    window.sounds[type].play().catch(() => {});
+    window.sounds[type].play().catch(e => {
+      console.warn('Sound play failed:', type, e.message);
+    });
   }
 };

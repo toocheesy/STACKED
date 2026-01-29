@@ -643,7 +643,11 @@ function playSound(type) {
   if (game && game.state && game.state.settings && game.state.settings.soundEffects !== 'on') return;
   if (window.sounds && window.sounds[type]) {
     window.sounds[type].currentTime = 0;
-    window.sounds[type].play().catch(() => {});
+    window.sounds[type].play().catch(e => {
+      console.warn('Sound play failed:', type, e.message);
+    });
+  } else {
+    console.warn('Sound not found:', type, '| sounds loaded:', !!window.sounds);
   }
 }
 
