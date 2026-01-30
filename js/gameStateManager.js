@@ -80,7 +80,7 @@ class GameStateManager {
       // Scores
       currentScores: { ...state.scores },
       overallScores: { ...state.overallScores },
-      targetScore: state.settings ? state.settings.targetScore : 500,
+      targetScore: state.settings ? state.settings.targetScore : 300,
       
       // Game metadata
       currentRound: gameEngine.currentRound,

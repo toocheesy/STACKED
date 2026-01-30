@@ -8,6 +8,21 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <!-- Quick Rules Overlay (first visit) -->
+  <div id="quick-rules-overlay" class="quick-rules-overlay" style="display: none;">
+    <div class="quick-rules-backdrop"></div>
+    <div class="quick-rules-modal">
+      <h2 class="quick-rules-heading">Quick Rules</h2>
+      <div class="quick-rules-body">
+        <p><strong>GOAL:</strong> First to 300 points wins</p>
+        <p><strong>YOUR TURN:</strong> CAPTURE (turn continues) or PLACE (ends turn)</p>
+        <p><strong>CAPTURES:</strong> Match pairs (K+K) or add numbers (3+7=10)</p>
+        <p><strong>THAT'S IT:</strong> You'll figure out the rest. Have fun!</p>
+      </div>
+      <button id="dismiss-rules-btn" class="dismiss-rules-btn">Got it!</button>
+    </div>
+  </div>
+
   <!-- Force landscape orientation message -->
   <div class="orientation-overlay">
     🔄 Please rotate your device to landscape mode for the best STACKED! experience
@@ -121,7 +136,7 @@
       </div>
       <div class="modal-body">
         <h3>Objective:</h3>
-        <p>Be the first player to reach 500 points by capturing cards through strategic combinations!</p>
+        <p>Be the first player to reach 300 points by capturing cards through strategic combinations!</p>
         
         <h3>How to Play:</h3>
         <ul>

@@ -9,7 +9,7 @@ const ClassicMode = {
   initialized: false,
   
   config: {
-    targetScore: 500,
+    targetScore: 300,
     maxRounds: null,
     timeLimit: null,
     enableHints: true,
@@ -123,7 +123,7 @@ const ClassicMode = {
       targetScore: {
         type: 'select',
         options: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
-        default: 500,
+        default: 300,
         label: 'Target Score'
       },
       enableHints: {

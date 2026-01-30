@@ -17,7 +17,7 @@ class GameEngine {
       settings: {
         cardSpeed: 'fast',
         soundEffects: 'off',
-        targetScore: 500,
+        targetScore: 300,
         bot1Personality: 'calvin',
         bot2Personality: 'calvin'
       },

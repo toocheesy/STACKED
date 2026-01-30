@@ -66,6 +66,78 @@ body {
 }
 
 /* ============================================================================
+ * 2B. QUICK RULES OVERLAY (first visit)
+ * ============================================================================ */
+.quick-rules-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quick-rules-backdrop {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.quick-rules-modal {
+  position: relative;
+  background: #331E0F;
+  border: 3px solid #8B5A2B;
+  border-radius: 15px;
+  padding: 30px 35px;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
+
+.quick-rules-heading {
+  color: #D4A44A;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 18px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+.quick-rules-body p {
+  color: #D2A679;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.quick-rules-body p strong {
+  color: #D4A44A;
+}
+
+.dismiss-rules-btn {
+  margin-top: 20px;
+  padding: 10px 32px;
+  background: linear-gradient(135deg, #8B5A2B, #A0692E);
+  color: #F5E8C7;
+  border: 2px solid #D4A44A;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.dismiss-rules-btn:hover {
+  background: linear-gradient(135deg, #A0692E, #B8782F);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(212, 164, 74, 0.3);
+}
+
+/* ============================================================================
  * 3. MAIN GAME CONTAINER GRID
  * ============================================================================ */
 .game-container {

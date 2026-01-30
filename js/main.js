@@ -315,7 +315,7 @@ initGameSystems();
     bot2Personality: storedBot2,
     cardSpeed: 'fast',
     soundEffects: 'off',
-    targetScore: 500
+    targetScore: 300
   };
 
   startGame(modeSelector.currentMode || 'classic', gameSettings);
@@ -953,8 +953,21 @@ return;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 🔥 FIX: Try multiple possible button selectors to match your HTML
-  
+  // Show quick rules overlay on first visit
+  if (!localStorage.getItem('hasPlayedBefore')) {
+    const overlay = document.getElementById('quick-rules-overlay');
+    if (overlay) {
+      overlay.style.display = 'flex';
+      const dismissBtn = document.getElementById('dismiss-rules-btn');
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => {
+          overlay.style.display = 'none';
+          localStorage.setItem('hasPlayedBefore', 'true');
+        });
+      }
+    }
+  }
+
   // Submit button - try both status bar and combo area buttons
   const submitBtn = document.getElementById('submit-btn') 
     || document.getElementById('submit-move-btn');

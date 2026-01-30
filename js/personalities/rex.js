@@ -237,8 +237,8 @@ const Rex = {
     ];
     const maxOpponent = Math.max(...opponentScores);
 
-    // Opponent near 500: denial mode
-    if (maxOpponent >= 400) return 'denial';
+    // Opponent near 300: denial mode
+    if (maxOpponent >= 250) return 'denial';
 
     // Rex leads by 100+: conservative
     if ((myScore - maxOpponent) >= 100) return 'conservative';
