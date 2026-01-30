@@ -12,7 +12,7 @@ class GameEngine {
       hands: [[], [], []], // Player, Bot 1, Bot 2
       scores: { player: 0, bot1: 0, bot2: 0 }, // Current round scores
       overallScores: { player: 0, bot1: 0, bot2: 0 }, // Accumulated scores
-      combination: { base: [], sum1: [], sum2: [], sum3: [] },
+      combination: { base: [], sum1: [], sum2: [], sum3: [], match: [] },
       currentPlayer: 0,
       settings: {
         cardSpeed: 'fast',
