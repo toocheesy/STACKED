@@ -396,6 +396,7 @@ if (game.currentMode.onCapture) {
 
 
   const points = game.calculateScore(allCapturedCards);
+  showLastCapture('Player', allCapturedCards, points);
   window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
     points: points,
     cardsCount: allCapturedCards.length
@@ -566,10 +567,13 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
 if (result.action === 'capture') {
 
         if (window.messageController && move && move.capture) {
-          const actualPoints = game.calculateScore([move.handCard, ...move.capture.targets]);
+          const capturedCards = [move.handCard, ...move.capture.targets];
+          const actualPoints = game.calculateScore(capturedCards);
+          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
+          showLastCapture(playerNames[playerIndex], capturedCards, actualPoints);
           window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
             points: actualPoints,
-            cardsCount: move.capture.targets.length + 1
+            cardsCount: capturedCards.length
           });
         }
 
@@ -623,6 +627,17 @@ return;
 setTimeout(async () => {
 await aiTurn();
   }, 3000);
+}
+
+function showLastCapture(playerName, cards, points) {
+  const suitSymbols = { Hearts: '\u2665', Diamonds: '\u2666', Clubs: '\u2663', Spades: '\u2660' };
+  const el = document.getElementById('last-capture-display');
+  if (!el) return;
+
+  const cardStr = cards.map(c => c.value + (suitSymbols[c.suit] || '')).join(' + ');
+  el.innerHTML = '<span class="capture-label">Last Capture</span>' +
+    '<span class="capture-detail">' + playerName + ': ' + cardStr + ' (' + points + ' pts)</span>';
+  el.classList.add('visible');
 }
 
 function playSound(type) {
