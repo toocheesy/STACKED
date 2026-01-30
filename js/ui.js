@@ -374,20 +374,17 @@ areaEl.addEventListener('touchend', areaEl._boundTouchEnd, { passive: true });
 
   // Add this method to your UISystem class in ui.js
 renderBotCardCounts() {
-  // Update bot card count displays
   const bot1CardsEl = document.getElementById('bot1-cards');
   const bot2CardsEl = document.getElementById('bot2-cards');
-  
+
   if (bot1CardsEl) {
     const bot1Count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
     bot1CardsEl.textContent = `${bot1Count} cards`;
-    debugLog('UI_RENDERING', '✅ BOT 1 CARD COUNT UPDATED:', bot1Count);
   }
-  
+
   if (bot2CardsEl) {
     const bot2Count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
     bot2CardsEl.textContent = `${bot2Count} cards`;
-    debugLog('UI_RENDERING', '✅ BOT 2 CARD COUNT UPDATED:', bot2Count);
   }
 }
 
@@ -493,17 +490,25 @@ renderBotCardCounts() {
   }
 
   renderScores() {
-  // 🔥 FIX: Work with your actual single scores element
-  const scoresEl = document.getElementById('scores');
-  if (scoresEl) {
-    scoresEl.textContent = `Player: ${this.game.state.scores.player} | Bot1: ${this.game.state.scores.bot1} | Bot2: ${this.game.state.scores.bot2}`;
-    debugLog('UI_RENDERING', '✅ SCORES UPDATED:', {
-      player: this.game.state.scores.player,
-      bot1: this.game.state.scores.bot1,
-      bot2: this.game.state.scores.bot2
-    });
-  } else {
-    console.error('❌ Scores element not found!');
+  const scores = this.game.state.scores;
+
+  // Update individual score elements
+  const playerScoreEl = document.getElementById('player-score');
+  const bot1ScoreEl = document.getElementById('bot1-score');
+  const bot2ScoreEl = document.getElementById('bot2-score');
+  const bot1NameEl = document.getElementById('bot1-name');
+  const bot2NameEl = document.getElementById('bot2-name');
+
+  if (playerScoreEl) playerScoreEl.textContent = `${scores.player} pts`;
+  if (bot1ScoreEl) bot1ScoreEl.textContent = `${scores.bot1} pts`;
+  if (bot2ScoreEl) bot2ScoreEl.textContent = `${scores.bot2} pts`;
+
+  // Update bot names from personality
+  if (bot1NameEl && window.messageController) {
+    bot1NameEl.textContent = window.messageController.getBotDisplayName(1);
+  }
+  if (bot2NameEl && window.messageController) {
+    bot2NameEl.textContent = window.messageController.getBotDisplayName(2);
   }
 }
 
@@ -513,24 +518,21 @@ renderDealerIndicator() {
   const deckCount = state.deck ? state.deck.length : 0;
   const currentDealer = state.currentDealer !== undefined ? state.currentDealer : 0;
   
-  // Remove existing dealer classes from all elements
-  const allIndicators = document.querySelectorAll('.bot-indicator, .scores');
+  // Remove existing dealer classes from all stat blocks
+  const allIndicators = document.querySelectorAll('.stat-block');
   allIndicators.forEach(el => {
     el.classList.remove('dealer');
     el.removeAttribute('data-deck');
   });
-  
+
   // Add dealer class to appropriate element based on current dealer
   let dealerElement = null;
-  
+
   if (currentDealer === 0) {
-    // Player is dealer - use scores element
-    dealerElement = document.querySelector('.scores');
+    dealerElement = document.querySelector('.player-stat');
   } else if (currentDealer === 1) {
-    // Bot 1 is dealer - use bot1-indicator
     dealerElement = document.querySelector('.bot1-indicator');
   } else if (currentDealer === 2) {
-    // Bot 2 is dealer - use bot2-indicator  
     dealerElement = document.querySelector('.bot2-indicator');
   }
   

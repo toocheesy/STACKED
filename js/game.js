@@ -18,7 +18,8 @@ class GameEngine {
         cardSpeed: 'fast',
         soundEffects: 'off',
         targetScore: 500,
-        botDifficulty: 'intermediate'
+        bot1Personality: 'calvin',
+        bot2Personality: 'calvin'
       },
       draggedCard: null,
       selectedCard: null,

@@ -106,21 +106,44 @@ body {
   transform: translateZ(0);
 }
 
-.bot-indicators {
+.player-stats {
   display: flex;
-  gap: 15px;
+  gap: 10px;
 }
 
-.bot-indicator {
-  padding: 8px 12px;
+.stat-block {
+  padding: 6px 12px;
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
   border: 2px solid #8B5A2B;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   text-align: center;
-  min-width: 85px;
+  min-width: 90px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-name {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-score {
+  font-size: 14px;
+}
+
+.stat-cards {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.player-stat {
+  color: #F5E8C7;
+  border-color: #D2A679;
 }
 
 .bot1-indicator {
@@ -169,18 +192,6 @@ body {
   color: #F5E8C7;
 }
 
-.scores {
-  background: linear-gradient(135deg, #D2A679 0%, #B88A5A 100%);
-  color: #331E0F;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: bold;
-  text-align: center;
-  border: 3px solid #8B5A2B;
-  min-width: 220px;
-  font-size: 14px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
-}
 
 .top-right-info {
   display: flex;
@@ -671,17 +682,15 @@ dialog::backdrop {
     font-size: 10px !important;
   }
   
-  .bot-indicator {
+  .stat-block {
     padding: 3px 6px !important;
     font-size: 9px !important;
     min-width: 50px !important;
   }
-  
-  .scores {
-    padding: 4px 8px !important;
-    font-size: 9px !important;
-    min-width: 100px !important;
-  }
+
+  .stat-name { font-size: 8px !important; }
+  .stat-score { font-size: 10px !important; }
+  .stat-cards { font-size: 7px !important; }
   
   .deck-info {
     padding: 3px 6px !important;
@@ -828,17 +837,15 @@ dialog::backdrop {
     font-size: 16px; /* Better readability */
   }
 
-  .bot-indicator {
-    padding: 10px 15px;
-    font-size: 15px;
+  .stat-block {
+    padding: 8px 14px;
+    font-size: 14px;
     min-width: 100px;
   }
 
-  .scores {
-    padding: 12px 25px;
-    font-size: 16px;
-    min-width: 250px;
-  }
+  .stat-name { font-size: 13px; }
+  .stat-score { font-size: 16px; }
+  .stat-cards { font-size: 11px; }
 
   .deck-info {
     padding: 10px 15px;
@@ -1085,31 +1092,18 @@ dialog::backdrop {
 }
 
 /* Enhanced dealer indication - make it more visible */
-.bot-indicator.dealer::after,
-.scores.dealer::after {
+.stat-block.dealer::after {
   display: block;
-  font-size: 16px;
+  font-size: 10px;
   font-weight: bold;
   text-align: center;
   color: #FFD700;
   line-height: 1.2;
-  border-top: 2px solid rgba(255, 215, 0, 0.5);
-  margin-top: 4px;
-  padding-top: 4px;
+  border-top: 1px solid rgba(255, 215, 0, 0.5);
+  margin-top: 2px;
+  padding-top: 2px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-}
-
-/* Specific dealer text for each player */
-.scores.dealer::after {
-  content: "PLAYER Deals - " attr(data-deck) " cards";
-}
-
-.bot1-indicator.dealer::after {
-  content: "BOT 1 Deals - " attr(data-deck) " cards";
-}
-
-.bot2-indicator.dealer::after {
-  content: "BOT 2 Deals - " attr(data-deck) " cards";
+  content: "DEALER - " attr(data-deck) " left";
 }
 
 /* Make dealer element more visible */

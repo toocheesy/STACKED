@@ -16,22 +16,24 @@
   <div class="game-container">
     <!-- Status Bar -->
     <div class="status-bar">
-      <div class="bot-indicators">
-        <div class="bot-indicator bot1-indicator">
-          🤖 BOT 1<br>
-          <span id="bot1-cards">4 cards</span>
+      <div class="player-stats">
+        <div class="stat-block player-stat">
+          <span class="stat-name">You</span>
+          <span class="stat-score" id="player-score">0 pts</span>
         </div>
-        <div class="bot-indicator bot2-indicator">
-          🤖 BOT 2<br>
-          <span id="bot2-cards">4 cards</span>
+        <div class="stat-block bot1-indicator">
+          <span class="stat-name" id="bot1-name">Bot 1</span>
+          <span class="stat-score" id="bot1-score">0 pts</span>
+          <span class="stat-cards" id="bot1-cards">4 cards</span>
+        </div>
+        <div class="stat-block bot2-indicator">
+          <span class="stat-name" id="bot2-name">Bot 2</span>
+          <span class="stat-score" id="bot2-score">0 pts</span>
+          <span class="stat-cards" id="bot2-cards">4 cards</span>
         </div>
       </div>
 
       <div class="last-capture-display" id="last-capture-display"></div>
-
-      <div class="scores" id="scores">
-        Player: 0 | Bot1: 0 | Bot2: 0
-      </div>
       
       <div class="top-right-info">
         <div class="deck-info">
@@ -154,6 +156,11 @@
 
   <!-- Core Dependencies -->
   <script src="js/cardIntelligence.js"></script>
+
+  <!-- AI Personalities -->
+  <script src="js/personalities/calvin.js"></script>
+  <script src="js/personalities/nina.js"></script>
+  <script src="js/personalities/rex.js"></script>
 
   <!-- 🎯 GAME STATE MANAGER (CRITICAL FOR GAME FLOW!) -->
   <script src="js/gameStateManager.js"></script>

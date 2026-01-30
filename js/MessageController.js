@@ -18,11 +18,6 @@ class MessageController {
   // 🔥 CONNECT TO GAME ENGINE
   connect(gameEngine) {
     this.gameEngine = gameEngine;
-    
-    // 🎓 AUTO-ENABLE EDUCATIONAL MODE FOR BEGINNER DIFFICULTY
-    if (gameEngine.state.settings.botDifficulty === 'beginner') {
-      this.educationalMode = true;
-    }
   }
 
   // 🎯 MAIN EVENT HANDLER - WITH COMBO ASSISTANCE
@@ -97,34 +92,27 @@ class MessageController {
   // 🎯 ENHANCED TURN START - WITH SPECIFIC GUIDANCE
   handleTurnStart(data) {
     const currentPlayer = this.getCurrentPlayer();
-    const difficulty = this.getBotDifficulty();
-    
+
     if (currentPlayer === 0) {
       const handSize = this.getHandSize(0);
       if (handSize === 0) {
         this.showMessage("You're out of cards! Watch the bots finish and learn from their strategies", 'info');
       } else if (this.educationalMode) {
-        // 🎓 ANALYZE PLAYER'S HAND AND GIVE SPECIFIC GUIDANCE
         const guidance = this.analyzePlayerHand();
         this.showMessage(guidance, 'normal');
       } else {
         this.showMessage("Your turn! Drag cards to build captures or place one on board to end turn", 'normal');
       }
-    } else if (currentPlayer === 1) {
-      if (difficulty === 'beginner' || this.educationalMode) {
-        this.showMessage("🤖📚 Bot 1 is learning... looking for simple matches and safe moves!", 'bot-turn');
-      } else if (difficulty === 'legendary') {
-        this.showMessage("🧠⚡ Bot 1 (Legendary) is calculating advanced strategies...", 'bot-turn');
+    } else {
+      const displayName = this.getBotDisplayName(currentPlayer);
+      const personality = this.getBotPersonality(currentPlayer);
+
+      if (personality === 'calvin') {
+        this.showMessage(`${displayName} is crunching the numbers...`, 'bot-turn');
+      } else if (personality === 'rex') {
+        this.showMessage(`${displayName} is scanning for weaknesses...`, 'bot-turn');
       } else {
-        this.showMessage("🤖 Bot 1's turn...", 'bot-turn');
-      }
-    } else if (currentPlayer === 2) {
-      if (difficulty === 'beginner' || this.educationalMode) {
-        this.showMessage("🤖📚 Bot 2 is practicing... thinking about which cards are safest to play!", 'bot-turn');
-      } else if (difficulty === 'legendary') {
-        this.showMessage("🧠⚡ Bot 2 (Legendary) is analyzing the perfect move...", 'bot-turn');
-      } else {
-        this.showMessage("🤖 Bot 2's turn...", 'bot-turn');
+        this.showMessage(`${displayName}'s turn...`, 'bot-turn');
       }
     }
   }
@@ -325,7 +313,8 @@ class MessageController {
         this.showMessage("Build your combo and click 'Submit Move' or reset to try again", 'normal');
       }
     } else {
-      this.showMessage(`🤖 Bot ${currentPlayer} is building a combo...`, 'bot-turn');
+      const displayName = this.getBotDisplayName(currentPlayer);
+      this.showMessage(`${displayName} is building a combo...`, 'bot-turn');
     }
   }
 
@@ -360,7 +349,8 @@ handleComboAnalysis(data) {
         this.showMessage("✅ Valid combo! Click 'Submit Move' to capture these cards", 'success');
       }
     } else {
-      this.showMessage(`🤖 Bot ${currentPlayer} found a valid combo!`, 'bot-turn');
+      const displayName = this.getBotDisplayName(currentPlayer);
+      this.showMessage(`${displayName} found a valid combo!`, 'bot-turn');
     }
   }
 
@@ -482,11 +472,27 @@ handleComboAnalysis(data) {
     return symbols[suit] || '';
   }
 
-  getBotDifficulty() {
+  getBotPersonality(playerIndex) {
     if (!this.gameEngine || !this.gameEngine.state || !this.gameEngine.state.settings) {
-      return 'intermediate';
+      return 'nina';
     }
-    return this.gameEngine.state.settings.botDifficulty;
+    if (playerIndex === 1) return this.gameEngine.state.settings.bot1Personality || 'nina';
+    if (playerIndex === 2) return this.gameEngine.state.settings.bot2Personality || 'nina';
+    return 'nina';
+  }
+
+  getBotDisplayName(playerIndex) {
+    const name = this.getBotPersonality(playerIndex);
+    const bot = typeof getPersonality === 'function' ? getPersonality(name) : null;
+    if (!bot) return `Bot ${playerIndex}`;
+
+    // If both bots share the same personality, append bot number to distinguish
+    const otherIndex = playerIndex === 1 ? 2 : 1;
+    const otherName = this.getBotPersonality(otherIndex);
+    if (name === otherName) {
+      return `${bot.name} #${playerIndex}`;
+    }
+    return bot.name;
   }
 
   getCurrentPlayer() {
@@ -553,8 +559,7 @@ playMessageSound(type) {
     this.showScoreAnimation(currentPlayer, points);
     
     // 🍞 SHOW MODAL TOAST NOTIFICATION FOR ALL PLAYERS
-    const playerNames = ['You', 'Bot 1', 'Bot 2'];
-    const playerName = playerNames[currentPlayer];
+    const playerName = currentPlayer === 0 ? 'You' : this.getBotDisplayName(currentPlayer);
     
     if (points >= 50) {
       this.showModalToast(`🎉 ${playerName}: +${points} pts!`, 'jackpot');
@@ -571,7 +576,8 @@ playMessageSound(type) {
         this.showMessage(`🎉 Capture successful! +${points} points (${cardsCount} cards)`, 'success');
       }
     } else {
-      this.showMessage(`🤖 Bot ${currentPlayer} captured ${cardsCount} cards for ${points} points!`, 'bot-turn');
+      const botName = this.getBotDisplayName(currentPlayer);
+      this.showMessage(`${botName} captured ${cardsCount} cards for ${points} points!`, 'bot-turn');
     }
     
     this.currentTimeout = setTimeout(() => {
@@ -605,7 +611,8 @@ playMessageSound(type) {
         this.showMessage(`Card placed on board. Turn ending...`, 'normal');
       }
     } else {
-      this.showMessage(`🤖 Bot ${currentPlayer} placed ${cardName} on board`, 'bot-turn');
+      const botName = this.getBotDisplayName(currentPlayer);
+      this.showMessage(`${botName} placed ${cardName} on board`, 'bot-turn');
     }
   }
 
@@ -631,30 +638,26 @@ playMessageSound(type) {
 // 🔥 REPLACE THE handleBotThinking() FUNCTION:
 handleBotThinking(data) {
   const botNumber = data.botNumber || this.getCurrentPlayer();
-  const difficulty = this.getBotDifficulty();
-  
-  // 🔥 CLEAR ANY EXISTING TIMEOUT FIRST
+  const displayName = this.getBotDisplayName(botNumber);
+  const personality = this.getBotPersonality(botNumber);
+
   if (this.currentTimeout) {
     clearTimeout(this.currentTimeout);
     this.currentTimeout = null;
   }
-  
-  if (difficulty === 'legendary') {
-    this.showMessage(`🧠⚡ Bot ${botNumber} (Legendary) is calculating optimal strategy...`, 'bot-turn');
-    // 🔥 NO TIMEOUT - LET THE BOT ACTION COMPLETE NATURALLY
-  } else if (difficulty === 'beginner' || this.educationalMode) {
-    const thinkingMessages = [
-      `🤖📚 Bot ${botNumber} is checking for simple pairs...`,
-      `🤖📚 Bot ${botNumber} is doing the math for sums...`,
-      `🤖📚 Bot ${botNumber} is being careful with valuable cards...`
+
+  if (personality === 'calvin') {
+    const msgs = [
+      `${displayName} is checking for simple pairs...`,
+      `${displayName} is doing the math for sums...`,
+      `${displayName} is being careful with valuable cards...`
     ];
-    const randomMessage = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
-    this.showMessage(randomMessage, 'bot-turn');
+    this.showMessage(msgs[Math.floor(Math.random() * msgs.length)], 'bot-turn');
+  } else if (personality === 'rex') {
+    this.showMessage(`${displayName} is calculating optimal strategy...`, 'bot-turn');
   } else {
-    this.showMessage(`🤖 Bot ${botNumber} is thinking...`, 'bot-turn');
+    this.showMessage(`${displayName} is thinking...`, 'bot-turn');
   }
-  
-  // 🔥 NO forceRefresh() TIMEOUT - eliminates conflicts!
 }
 
   handlePlayerOutOfCards(data) {
@@ -701,12 +704,13 @@ handleBotThinking(data) {
     
     let message = '';
     
+    const displayName = this.getBotDisplayName(currentPlayer);
     if (captureType === 'pair') {
-      message = `🎓 Bot ${currentPlayer} found a PAIR! ${explanation} (+${points} pts) - See how they matched same values?`;
+      message = `${displayName} found a PAIR! ${explanation} (+${points} pts) - See how they matched same values?`;
     } else if (captureType === 'sum') {
-      message = `🎓 Bot ${currentPlayer} made a SUM! ${explanation} (+${points} pts) - Notice the math: they added up to the target!`;
+      message = `${displayName} made a SUM! ${explanation} (+${points} pts) - Notice the math: they added up to the target!`;
     } else {
-      message = `🎓 Bot ${currentPlayer} captured ${data.cardsCount || 0} cards! ${explanation} (+${points} pts)`;
+      message = `${displayName} captured ${data.cardsCount || 0} cards! ${explanation} (+${points} pts)`;
     }
     
     this.showMessage(message, 'bot-educational');
@@ -721,7 +725,8 @@ handleBotThinking(data) {
     const cardName = data.cardName || 'card';
     const reason = data.reason || '';
     
-    let message = `🎓 Bot ${currentPlayer} placed ${cardName}`;
+    const displayName = this.getBotDisplayName(currentPlayer);
+    let message = `${displayName} placed ${cardName}`;
     if (reason) {
       message += ` - ${reason}`;
     }
@@ -743,7 +748,8 @@ handleBotThinking(data) {
         this.showMessage("Your turn! Drag cards to build captures or place one on board to end turn", 'normal');
       }
     } else {
-      this.showMessage(`🤖 Bot ${currentPlayer}'s turn...`, 'bot-turn');
+      const displayName = this.getBotDisplayName(currentPlayer);
+      this.showMessage(`${displayName}'s turn...`, 'bot-turn');
     }
   }
 

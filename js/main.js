@@ -302,7 +302,8 @@ function initGame() {
 initGameSystems();
 
 
-  const storedDifficulty = localStorage.getItem('selectedDifficulty') || 'intermediate';
+  const storedBot1 = localStorage.getItem('bot1Personality') || 'calvin';
+  const storedBot2 = localStorage.getItem('bot2Personality') || 'calvin';
   const storedMode = localStorage.getItem('selectedMode');
 
   if (storedMode && modeSelector.availableModes[storedMode]) {
@@ -310,7 +311,8 @@ initGameSystems();
   }
 
   const gameSettings = {
-    botDifficulty: storedDifficulty,
+    bot1Personality: storedBot1,
+    bot2Personality: storedBot2,
     cardSpeed: 'fast',
     soundEffects: 'off',
     targetScore: 500
@@ -322,7 +324,8 @@ if (game.state.currentPlayer !== 0) {
 setTimeout(() => scheduleNextBotTurn(), 1000);
 }
 
-localStorage.removeItem('selectedDifficulty');
+localStorage.removeItem('bot1Personality');
+localStorage.removeItem('bot2Personality');
 localStorage.removeItem('selectedMode');
 }
 
@@ -549,7 +552,17 @@ ui.render();
 
   try {
 
-    const move = aiMove(game.state.hands[playerIndex], game.state.board, game.state.settings.botDifficulty);
+    const personalityName = playerIndex === 1
+      ? game.state.settings.bot1Personality
+      : game.state.settings.bot2Personality;
+    const gameState = {
+      scores: game.state.scores,
+      overallScores: game.state.overallScores,
+      hands: game.state.hands,
+      deck: game.state.deck,
+      currentPlayer: playerIndex
+    };
+    const move = aiMove(game.state.hands[playerIndex], game.state.board, personalityName, gameState);
 
     let result;
 
@@ -569,8 +582,9 @@ if (result.action === 'capture') {
         if (window.messageController && move && move.capture) {
           const capturedCards = [move.handCard, ...move.capture.targets];
           const actualPoints = game.calculateScore(capturedCards);
-          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-          showLastCapture(playerNames[playerIndex], capturedCards, actualPoints);
+          const captureName = playerIndex === 0 ? 'Player'
+            : window.messageController.getBotDisplayName(playerIndex);
+          showLastCapture(captureName, capturedCards, actualPoints);
           window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
             points: actualPoints,
             cardsCount: capturedCards.length
@@ -624,9 +638,13 @@ return;
 return;
   }
 
+  const pName = game.state.currentPlayer === 1
+    ? game.state.settings.bot1Personality
+    : game.state.settings.bot2Personality;
+  const delay = typeof getThinkingDelay === 'function' ? getThinkingDelay(pName) : 1500;
 setTimeout(async () => {
 await aiTurn();
-  }, 3000);
+  }, delay);
 }
 
 function showLastCapture(playerName, cards, points) {

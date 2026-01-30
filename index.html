@@ -487,17 +487,14 @@
       <label class="ai-selector-label">🤖 Choose Your AI Opponent:</label>
       
       <div class="ai-difficulty-cards">
-        <!-- Beginner AI Card -->
         <div class="ai-card selected" data-difficulty="beginner">
           <h3 class="ai-title">Beginner</h3>
         </div>
 
-        <!-- Intermediate AI Card -->
         <div class="ai-card" data-difficulty="intermediate">
           <h3 class="ai-title">Intermediate</h3>
         </div>
 
-        <!-- Legendary AI Card -->
         <div class="ai-card" data-difficulty="legendary">
           <h3 class="ai-title">Legendary</h3>
         </div>
@@ -602,19 +599,21 @@
       }
     }
 
+    const DIFFICULTY_PAIRINGS = {
+      beginner:     { bot1: 'calvin', bot2: 'calvin' },
+      intermediate: { bot1: 'calvin', bot2: 'nina' },
+      legendary:    { bot1: 'nina',   bot2: 'rex' }
+    };
+
     // Navigation functions
     function playMode(mode) {
-      // Get difficulty from AI card selection
       const selectedAICard = document.querySelector('.ai-card.selected');
-      const botDifficulty = selectedAICard ? selectedAICard.dataset.difficulty : 'beginner';
-      
-      console.log(`🎮 PLAY MODE: ${mode} with AI difficulty: ${botDifficulty}`);
-      
-      // Store selected mode and difficulty
+      const difficulty = selectedAICard ? selectedAICard.dataset.difficulty : 'beginner';
+      const pairing = DIFFICULTY_PAIRINGS[difficulty] || DIFFICULTY_PAIRINGS.beginner;
+
       localStorage.setItem('selectedMode', mode);
-      localStorage.setItem('selectedDifficulty', botDifficulty);
-      
-      console.log(`✅ STORED IN LOCALSTORAGE: Mode=${mode}, Difficulty=${botDifficulty}`);
+      localStorage.setItem('bot1Personality', pairing.bot1);
+      localStorage.setItem('bot2Personality', pairing.bot2);
       
       // Enhanced visual feedback
       const modeCard = event.currentTarget;
@@ -644,40 +643,35 @@
     // Setup AI Card Selection
     function setupAICardSelection() {
       const aiCards = document.querySelectorAll('.ai-card');
-      
+
       aiCards.forEach(card => {
         card.addEventListener('click', (e) => {
-          console.log(`🤖 AI Card clicked: ${card.dataset.difficulty}`);
-          
-          // Remove selected from all cards
           aiCards.forEach(c => c.classList.remove('selected'));
-          
-          // Add selected to clicked card
           card.classList.add('selected');
-          
-          // Store selection immediately in localStorage
+
           const difficulty = card.dataset.difficulty;
-          localStorage.setItem('selectedDifficulty', difficulty);
-          
-          // Visual feedback
+          const pairing = DIFFICULTY_PAIRINGS[difficulty] || DIFFICULTY_PAIRINGS.beginner;
+          localStorage.setItem('bot1Personality', pairing.bot1);
+          localStorage.setItem('bot2Personality', pairing.bot2);
+
           card.style.transform = 'translateY(-8px) scale(1.1)';
           setTimeout(() => {
             card.style.transform = '';
           }, 200);
-          
-          console.log(`✅ AI Difficulty stored: ${difficulty}`);
         });
       });
-      
+
       // Restore selection on page load
-      const savedDifficulty = localStorage.getItem('selectedDifficulty') || 'beginner';
+      const savedBot1 = localStorage.getItem('bot1Personality') || 'calvin';
+      // Reverse-lookup: find which difficulty matches the saved pairing
+      let savedDifficulty = 'beginner';
+      for (const [diff, pair] of Object.entries(DIFFICULTY_PAIRINGS)) {
+        if (pair.bot1 === savedBot1) { savedDifficulty = diff; break; }
+      }
       const savedCard = document.querySelector(`[data-difficulty="${savedDifficulty}"]`);
       if (savedCard) {
-        // Remove selected from all
         aiCards.forEach(c => c.classList.remove('selected'));
-        // Add to saved selection
         savedCard.classList.add('selected');
-        console.log(`🎯 Restored AI selection: ${savedDifficulty}`);
       }
     }
 
