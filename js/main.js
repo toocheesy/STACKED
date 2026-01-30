@@ -1,3 +1,270 @@
+class HintSystem {
+  constructor(gameEngine, uiSystem) {
+    this.game = gameEngine;
+    this.ui = uiSystem;
+    this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
+    this.currentHints = [];
+    this.highlightedCards = [];
+  }
+
+analyzeAllPossibleCaptures() {
+  if (this.game.state.currentPlayer !== 0) {
+    return [];
+  }
+
+  const playerHand = this.game.state.hands[0];
+  const board = this.game.state.board;
+
+  if (!window.cardIntelligence) {
+return this.basicHintDetection(playerHand, board);
+  }
+
+
+  const bestCapture = window.cardIntelligence.findBestCapture(playerHand, board, 'calculator');
+
+  if (bestCapture) {
+return [this.convertToHintFormat(bestCapture)];
+  }
+
+
+  const allCaptures = [];
+  playerHand.forEach((handCard, handIndex) => {
+    const captures = canCapture(handCard, board);
+    captures.forEach(capture => {
+      allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+    });
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
+
+convertToHintFormat(bestCapture) {
+  const handCard = bestCapture.handCard;
+  const handIndex = this.game.state.hands[0].findIndex(card => card.id === handCard.id);
+
+
+  const targetCards = bestCapture.capture.targets.map(targetCard => {
+    const boardIndex = this.game.state.board.findIndex(card => card.id === targetCard.id);
+    return { card: targetCard, index: boardIndex };
+  });
+
+  return {
+    type: bestCapture.capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: bestCapture.capture.type === 'pair' ? 'match' : 'sum1',
+    score: bestCapture.evaluation.totalScore,
+    description: bestCapture.evaluation.reasoning
+  };
+}
+
+convertGameLogicToHint(handCard, handIndex, capture) {
+  const targetCards = capture.cards.map(cardIndex => {
+    return { card: this.game.state.board[cardIndex], index: cardIndex };
+  });
+
+  return {
+    type: capture.type,
+    handCard: { card: handCard, index: handIndex },
+    targetCards: targetCards,
+    area: capture.type === 'pair' ? 'match' : 'sum1',
+    score: capture.score || this.calculateCaptureScore([handCard, ...targetCards.map(tc => tc.card)]),
+    description: `${capture.type.toUpperCase()}: ${handCard.value}${this.suitSymbols[handCard.suit]} captures ${targetCards.map(tc => tc.card.value + this.suitSymbols[tc.card.suit]).join(' + ')}`
+  };
+}
+
+basicHintDetection(playerHand, board) {
+  const allCaptures = [];
+
+  playerHand.forEach((handCard, handIndex) => {
+    if (typeof canCapture === 'function') {
+      const captures = canCapture(handCard, board);
+      captures.forEach(capture => {
+        allCaptures.push(this.convertGameLogicToHint(handCard, handIndex, capture));
+      });
+    }
+  });
+
+  return this.prioritizeHints(allCaptures);
+}
+
+
+  prioritizeHints(captures) {
+    if (captures.length === 0) return [];
+
+    return captures.sort((a, b) => {
+
+      if (a.score !== b.score) return b.score - a.score;
+
+
+      const aComplexity = a.targetCards.length;
+      const bComplexity = b.targetCards.length;
+      if (aComplexity !== bComplexity) return bComplexity - aComplexity;
+
+
+      if (a.type !== b.type) {
+        return a.type === 'pair' ? -1 : 1;
+      }
+
+      return 0;
+    });
+  }
+
+
+  calculateCaptureScore(cards) {
+    const pointsMap = {
+      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
+      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
+    };
+    return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
+  }
+
+
+  getCardValue(card) {
+    if (card.value === 'A') return 1;
+    if (['J', 'Q', 'K'].includes(card.value)) return 10;
+    return parseInt(card.value) || 0;
+  }
+
+
+  showHint() {
+
+    this.clearHints();
+
+
+    const captures = this.analyzeAllPossibleCaptures();
+
+    if (captures.length === 0) {
+      this.showNoHintsMessage();
+      return;
+    }
+
+
+    const bestHint = captures[0];
+
+    this.displayHintPopup(bestHint);
+    this.highlightHintCards(bestHint);
+
+
+    this.currentHints = [bestHint];
+  }
+
+
+  displayHintPopup(hint) {
+
+    const existingPopup = document.getElementById('hint-popup');
+    if (existingPopup) {
+      existingPopup.remove();
+    }
+
+
+    const popup = document.createElement('div');
+    popup.id = 'hint-popup';
+    popup.className = 'hint-popup';
+
+
+    const handCardName = `${hint.handCard.card.value}${this.suitSymbols[hint.handCard.card.suit]}`;
+    const targetNames = hint.targetCards.map(tc =>
+      `${tc.card.value}${this.suitSymbols[tc.card.suit]}`
+    ).join(' + ');
+
+    let suggestionText = '';
+    if (hint.type === 'pair') {
+      suggestionText = ` <strong>PAIR CAPTURE!</strong><br>
+                       Use <span class="highlight-card">${handCardName}</span> to capture <span class="highlight-card">${targetNames}</span><br>
+                       <small>• Place both in Match area • Worth ${hint.score} points!</small>`;
+    } else {
+      suggestionText = ` <strong>SUM CAPTURE!</strong><br>
+                       Use <span class="highlight-card">${handCardName}</span> as base, capture <span class="highlight-card">${targetNames}</span><br>
+                       <small>• Place base in Base area, targets in ${hint.area.charAt(0).toUpperCase() + hint.area.slice(1)} area • Worth ${hint.score} points!</small>`;
+    }
+
+    popup.innerHTML = `
+      <div class="hint-content">
+        <div class="hint-header"> SMART HINT</div>
+        <div class="hint-suggestion">${suggestionText}</div>
+        <button class="hint-close" onclick="window.hintSystem.clearHints()">Got it! </button>
+      </div>
+    `;
+
+
+    const gameArea = document.querySelector('.table') || document.body;
+    gameArea.appendChild(popup);
+
+
+    setTimeout(() => popup.classList.add('show'), 50);
+
+
+    setTimeout(() => this.clearHints(), 8000);
+  }
+
+
+  highlightHintCards(hint) {
+    const highlightedElements = [];
+
+
+    const handCards = document.querySelectorAll('#player-hand .card');
+    if (handCards[hint.handCard.index]) {
+      handCards[hint.handCard.index].classList.add('hint-glow', 'hint-hand-card');
+      highlightedElements.push(handCards[hint.handCard.index]);
+    }
+
+
+    hint.targetCards.forEach(target => {
+      const boardCards = document.querySelectorAll('#board .card');
+      if (boardCards[target.index]) {
+        boardCards[target.index].classList.add('hint-glow', 'hint-target-card');
+        highlightedElements.push(boardCards[target.index]);
+      }
+    });
+
+    this.highlightedCards = highlightedElements;
+}
+
+
+  showNoHintsMessage() {
+    const popup = document.createElement('div');
+    popup.id = 'hint-popup';
+    popup.className = 'hint-popup';
+
+    popup.innerHTML = `
+      <div class="hint-content">
+        <div class="hint-header"> NO CAPTURES AVAILABLE</div>
+        <div class="hint-suggestion">
+          <strong>Try placing a card to end your turn!</strong><br>
+          <small>• Drag a card from your hand to the board</small><br>
+          <small>• Look for strategic placements</small>
+        </div>
+        <button class="hint-close" onclick="window.hintSystem.clearHints()">Understood </button>
+      </div>
+    `;
+
+    const gameArea = document.querySelector('.table') || document.body;
+    gameArea.appendChild(popup);
+
+    setTimeout(() => popup.classList.add('show'), 50);
+    setTimeout(() => this.clearHints(), 5000);
+  }
+
+
+  clearHints() {
+
+    const popup = document.getElementById('hint-popup');
+    if (popup) {
+      popup.classList.remove('show');
+      setTimeout(() => popup.remove(), 300);
+    }
+
+
+    this.highlightedCards.forEach(card => {
+      card.classList.remove('hint-glow', 'hint-hand-card', 'hint-target-card');
+    });
+
+    this.highlightedCards = [];
+    this.currentHints = [];
+  }
+}
+
 let game = null;
 let ui = null;
 let botModal = null;
@@ -45,7 +312,7 @@ initGameSystems();
   const gameSettings = {
     botDifficulty: storedDifficulty,
     cardSpeed: 'fast',
-    soundEffects: 'on',
+    soundEffects: 'off',
     targetScore: 500
   };
 
@@ -82,7 +349,8 @@ function handleSubmit() {
   const captureAreas = [
     { name: 'sum1', cards: game.state.combination.sum1 },
     { name: 'sum2', cards: game.state.combination.sum2 },
-    { name: 'sum3', cards: game.state.combination.sum3 }
+    { name: 'sum3', cards: game.state.combination.sum3 },
+    { name: 'match', cards: game.state.combination.match }
   ];
 
   for (const area of captureAreas) {
@@ -94,9 +362,10 @@ function handleSubmit() {
         allCapturedCards.push(...area.cards.map(entry => entry.card));
       } else {
         const areaNames = {
-          'sum1': 'Combo 1',
-          'sum2': 'Combo 2',
-          'sum3': 'Combo 3'
+          'sum1': 'Sum Area 1',
+          'sum2': 'Sum Area 2',
+          'sum3': 'Sum Area 3',
+          'match': 'Match Area'
         };
 
         window.messageController.handleGameEvent('CAPTURE_ERROR', {
@@ -127,13 +396,12 @@ if (game.currentMode.onCapture) {
 
 
   const points = game.calculateScore(allCapturedCards);
-  showLastCapture('Player', allCapturedCards, points);
   window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
     points: points,
     cardsCount: allCapturedCards.length
   });
 
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
     ui.render();
   playSound('capture');
@@ -154,7 +422,7 @@ function handleResetPlayArea() {
     }
   });
 
-  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
+  game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
 
   window.messageController.handleGameEvent('RESET_COMBO');
@@ -196,11 +464,10 @@ function handleBoardDrop(e) {
     game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(handCard);
     window.cardIntelligence.updateCardsSeen([handCard]);
-    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [] };
+    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
     game.state.draggedCard = null;
 
   game.state.lastAction = 'place';
-  playSound('capture');
 
     window.messageController.handleGameEvent('CARD_PLACED', {
       cardName: `${handCard.value}${handCard.suit}`
@@ -299,13 +566,10 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
 if (result.action === 'capture') {
 
         if (window.messageController && move && move.capture) {
-          const capturedCards = [move.handCard, ...move.capture.targets];
-          const actualPoints = game.calculateScore(capturedCards);
-          const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-          showLastCapture(playerNames[playerIndex], capturedCards, actualPoints);
+          const actualPoints = game.calculateScore([move.handCard, ...move.capture.targets]);
           window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
             points: actualPoints,
-            cardsCount: capturedCards.length
+            cardsCount: move.capture.targets.length + 1
           });
         }
 
@@ -361,35 +625,10 @@ await aiTurn();
   }, 3000);
 }
 
-function showLastCapture(playerName, cards, points) {
-  const suitSymbols = { Hearts: '\u2665', Diamonds: '\u2666', Clubs: '\u2663', Spades: '\u2660' };
-  const el = document.getElementById('last-capture-display');
-  if (!el) return;
-
-  const cardStr = cards.map(c => c.value + (suitSymbols[c.suit] || '')).join(' + ');
-  el.innerHTML = '<span class="capture-label">Last Capture</span>' +
-    '<span class="capture-detail">' + playerName + ': ' + cardStr + ' (' + points + ' pts)</span>';
-  el.classList.add('visible');
-}
-
 function playSound(type) {
-  if (game && game.state && game.state.settings && game.state.settings.soundEffects !== 'on') return;
-  if (window.sounds && window.sounds[type]) {
-    window.sounds[type].currentTime = 0;
-    window.sounds[type].play().catch(e => {
-      console.warn('Sound play failed:', type, e.message);
-    });
-  } else {
-    console.warn('Sound not found:', type, '| sounds loaded:', !!window.sounds);
+  if (game.state.settings.soundEffects === 'on' && window.sounds && window.sounds[type]) {
+    window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
   }
-}
-
-function toggleSound() {
-  if (!game || !game.state || !game.state.settings) return;
-  const s = game.state.settings;
-  s.soundEffects = s.soundEffects === 'on' ? 'off' : 'on';
-  const btn = document.getElementById('sound-toggle-btn');
-  if (btn) btn.textContent = s.soundEffects === 'on' ? '🔊' : '🔇';
 }
 
 function handleDragStart(e, source, index) {
@@ -451,6 +690,8 @@ function handleDrop(e, slot) {
       game.state.combination.sum2.push(existingBase);
     } else if (game.state.combination.sum3.length === 0) {
       game.state.combination.sum3.push(existingBase);
+    } else {
+      game.state.combination.match.push(existingBase);
     }
   }
 
@@ -569,7 +810,7 @@ function handleTouchEnd(e) {
   }
 
   // ✅ CHECK FOR COMBO AREAS FIRST
-  const comboArea = elementBelow.closest('.base-area, .sum-area') ||
+  const comboArea = elementBelow.closest('.base-area, .sum-area, .match-area') ||
                    elementBelow.closest('[data-slot]') ||
                    (elementBelow.hasAttribute('data-slot') ? elementBelow : null);
 
@@ -589,24 +830,23 @@ function handleTouchEnd(e) {
 
 function handleTouchDropOnBoard() {
   if (!touchDragData) return;
-
+  
   debugLog('GAME_FLOW', '🎯 TOUCH DROP ON BOARD:', touchDragData);
-
+  
   // Simulate the board drop logic (same as handleDropOriginal for board)
   if (touchDragData.type === 'hand') {
     // Place card from hand to board
     const sourceCard = touchDragData.card;
-
+    
     // Add to board
     game.state.board.push(sourceCard);
-
+    
     // Remove from hand
     game.state.hands[0][touchDragData.index] = null;
-
+    
     // Set last action
     game.state.lastAction = 'place';
-    playSound('capture');
-
+    
     debugLog('GAME_FLOW', '✅ TOUCH BOARD DROP COMPLETE');
     
     // Re-render and continue game
@@ -638,6 +878,8 @@ function handleTouchDropOnCombo(slotName) {
       game.state.combination.sum2.push(existingBase);
     } else if (game.state.combination.sum3.length === 0) {
       game.state.combination.sum3.push(existingBase);
+    } else {
+      game.state.combination.match.push(existingBase);
     }
   }
   
@@ -722,6 +964,7 @@ window.handleTouchEnd = handleTouchEnd;
 window.handleTouchDrop = handleTouchDrop;
 
 window.DraggableModal = DraggableModal;
+window.HintSystem = HintSystem;
 
 function handleContinueTurn(result) {
   const playerIndex = result.data.playerIndex;
@@ -738,7 +981,6 @@ game.state.currentPlayer = playerIndex;
 
 function handleDealNewHand(result) {
 try {
-    playSound('capture');
 
     const dealResult = dealCards(game.state.deck, 3, 4, 0);
     game.state.hands = dealResult.players;
@@ -771,7 +1013,7 @@ window.messageController.handleGameEvent('CAPTURE_ERROR', {
 function handleEndRound(result) {
 
   if (result.data.jackpot.hasJackpot) {
-    playSound('jackpot');
+
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -818,7 +1060,7 @@ setTimeout(() => scheduleNextBotTurn(), 1000);
 function handleEndGame(result) {
 
   if (result.data.jackpot.hasJackpot) {
-    playSound('jackpot');
+
     const jackpot = result.data.jackpot;
     game.addScore(jackpot.winner, jackpot.points);
     game.addOverallScore(jackpot.winner, jackpot.points);
@@ -827,7 +1069,6 @@ function handleEndGame(result) {
     game.state.board = [];
   }
 
-  playSound('winner');
 
   if (game.currentMode.onGameEnd) {
     game.currentMode.onGameEnd(game);
@@ -853,7 +1094,6 @@ console.error(` TECHNICAL DETAILS:`, result.data.technicalDetails);
 }
 
 window.resumeNextRound = resumeNextRound;
-window.toggleSound = toggleSound;
 
 initGame();
 

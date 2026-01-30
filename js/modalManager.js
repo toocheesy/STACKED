@@ -169,11 +169,10 @@ class ModalManager {
     
     let jackpotHTML = '';
     if (jackpot && jackpot.hasJackpot) {
-      const isGameWinner = jackpot.winner === winner;
       jackpotHTML = `
-        <div class="jackpot-announcement ${isGameWinner ? '' : 'neutral'}">
-          ${isGameWinner ? '🏆' : '📋'} Final sweep by <strong>${jackpot.winnerName}</strong><br>
-          <span class="jackpot-points">+${jackpot.points} bonus points</span>
+        <div class="jackpot-announcement">
+          🏆 Final sweep by <strong>${jackpot.winnerName}</strong>!<br>
+          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
         </div>
       `;
     }

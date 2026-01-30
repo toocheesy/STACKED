@@ -133,42 +133,6 @@ body {
   border-color: #8B4B8B;
 }
 
-.last-capture-display {
-  padding: 6px 14px;
-  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 2px solid #8B5A2B;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #D2A679;
-  text-align: center;
-  min-width: 140px;
-  max-width: 260px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.last-capture-display.visible {
-  opacity: 1;
-}
-
-.last-capture-display .capture-label {
-  font-size: 10px;
-  color: #8B5A2B;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: block;
-  margin-bottom: 2px;
-}
-
-.last-capture-display .capture-detail {
-  font-weight: bold;
-  color: #F5E8C7;
-}
-
 .scores {
   background: linear-gradient(135deg, #D2A679 0%, #B88A5A 100%);
   color: #331E0F;
@@ -233,8 +197,7 @@ body {
   transform: none;
 }
 
-.hint-btn,
-.sound-btn {
+.hint-btn {
   background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
   border-color: #4A7043;
 }
@@ -632,32 +595,6 @@ dialog::backdrop {
   color: #FFD700;
   margin: 10px 0;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.jackpot-announcement {
-  background: linear-gradient(145deg, #FFD700, #FFA500);
-  color: #331E0F;
-  padding: 12px 15px;
-  border-radius: 10px;
-  text-align: center;
-  margin-bottom: 15px;
-  font-weight: bold;
-  border: 2px solid #DAA520;
-}
-
-.jackpot-announcement .jackpot-points {
-  font-size: 1.1rem;
-  color: #8B0000;
-}
-
-.jackpot-announcement.neutral {
-  background: linear-gradient(145deg, #5a4a3a, #4A2B17);
-  color: #D2A679;
-  border-color: #8B5A2B;
-}
-
-.jackpot-announcement.neutral .jackpot-points {
-  color: #D2A679;
 }
 
 /* ============================================================================
