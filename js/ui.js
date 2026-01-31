@@ -116,18 +116,16 @@ render() {
     if (!tableEl) return;
 
     const cardCount = this.game.state.board ? this.game.state.board.length : 0;
-    
-    // Keep table size consistent
-    tableEl.style.width = '800px';
-    tableEl.style.maxWidth = '800px';
-    tableEl.style.height = 'auto';
-    
-    // Board positioning
+
+    // Let CSS variables handle table sizing — no inline overrides
+
+    // Board positioning — shift up when many cards
     const boardEl = document.getElementById('board');
     if (boardEl && cardCount > 8) {
       const rows = Math.ceil(cardCount / 4);
       const extraRows = rows - 2;
-      const upwardShift = extraRows * 60;
+      const shiftPerRow = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-shift-per-row')) || 30;
+      const upwardShift = extraRows * shiftPerRow;
       boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
     } else if (boardEl) {
       boardEl.style.transform = 'translate(-50%, -50%)';
@@ -249,42 +247,49 @@ resetRenderFlags() {
     }
   }
 
-  // 🔥 COMPLETELY REWRITTEN RENDERAREA - NO MORE DOM CLONING ISSUES
+  // Rewritten renderArea — reads CSS variables for sizing
   renderArea(areaEl, cards, slotName, placeholderText) {
     // Clear content but preserve the element
     areaEl.innerHTML = '';
-    
+
+    // Read CSS variables for stacking offset and slot height
+    const styles = getComputedStyle(document.documentElement);
+    const stackOffset = parseFloat(styles.getPropertyValue('--slot-card-offset')) || 12;
+    const slotH = parseFloat(styles.getPropertyValue('--slot-h')) || 52;
+    const badgeTop = styles.getPropertyValue('--sum-badge-top').trim() || '-16px';
+    const badgeFont = styles.getPropertyValue('--sum-badge-font').trim() || '10px';
+
     // Add live sum totals for sum areas
     if (slotName.startsWith('sum') && cards.length > 0) {
       const sumTotal = this.calculateSumTotal(cards);
       const sumDisplay = document.createElement('div');
       sumDisplay.className = 'sum-total-display';
       sumDisplay.textContent = `[${sumTotal}]`;
-      
+
       areaEl.style.position = 'relative';
       areaEl.style.overflow = 'visible';
-      
+
       sumDisplay.style.cssText = `
-        position: absolute !important;
-        top: -30px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        background: linear-gradient(135deg, #8B5A2B, #A0622F) !important;
-        color: #F5E8C7 !important;
-        padding: 3px 8px !important;
-        border-radius: 6px !important;
-        font-weight: bold !important;
-        font-size: 13px !important;
-        font-family: 'Cabin', sans-serif !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4) !important;
-        border: 1px solid #D2A679 !important;
-        z-index: 1000 !important;
-        white-space: nowrap !important;
-        pointer-events: none !important;
-        min-width: 24px !important;
-        text-align: center !important;
+        position: absolute;
+        top: ${badgeTop};
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #8B5A2B, #A0622F);
+        color: #F5E8C7;
+        padding: 2px 6px;
+        border-radius: 6px;
+        font-weight: bold;
+        font-size: ${badgeFont};
+        font-family: 'Cabin', sans-serif;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        border: 1px solid #D2A679;
+        z-index: 1000;
+        white-space: nowrap;
+        pointer-events: none;
+        min-width: 20px;
+        text-align: center;
       `;
-      
+
       areaEl.appendChild(sumDisplay);
     } else {
       if (slotName.startsWith('sum')) {
@@ -292,7 +297,7 @@ resetRenderFlags() {
         areaEl.style.overflow = 'visible';
       }
     }
-    
+
     // Add cards to the area
     if (cards.length > 0) {
       cards.forEach((comboEntry, comboIndex) => {
@@ -301,7 +306,7 @@ resetRenderFlags() {
         cardEl.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
         cardEl.textContent = `${card.value}${this.suitSymbols[card.suit]}`;
         cardEl.style.position = 'absolute';
-        cardEl.style.top = `${comboIndex * 20}px`;
+        cardEl.style.top = `${comboIndex * stackOffset}px`;
         cardEl.setAttribute('draggable', 'true');
         cardEl.setAttribute('data-slot', slotName);
         cardEl.setAttribute('data-combo-index', comboIndex);
@@ -311,11 +316,11 @@ resetRenderFlags() {
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
-      areaEl.style.height = `${110 + (cards.length - 1) * 20}px`;
+      areaEl.style.height = `${slotH + (cards.length - 1) * stackOffset}px`;
     } else {
       areaEl.style.backgroundColor = 'rgba(241, 196, 15, 0.1)';
-      areaEl.style.border = '2px dashed #ccc';
-      areaEl.style.height = '110px';
+      areaEl.style.border = '';
+      areaEl.style.height = '';
     }
     
     // 🔥 CRITICAL FIX: Ensure drop events work by removing and re-adding listeners properly
@@ -510,6 +515,13 @@ renderBotCardCounts() {
   if (bot2NameEl && window.messageController) {
     bot2NameEl.textContent = window.messageController.getBotDisplayName(2);
   }
+
+  // Update target score display
+  const targetScoreEl = document.getElementById('target-score');
+  if (targetScoreEl) {
+    const target = this.game.state.settings.targetScore || 300;
+    targetScoreEl.textContent = `${target} pts`;
+  }
 }
 
   // 🔥 REPLACE renderDealerIndicator() FUNCTION in ui.js:
@@ -616,9 +628,13 @@ renderDealerIndicator() {
     z-index: 100 !important;
   `;
   
-  // Add "BOT" indicator
+  // Add bot name indicator (use personality name if available)
   const botIndicator = document.createElement('div');
-  botIndicator.textContent = 'BOT';
+  const currentBot = this.game.state.currentPlayer;
+  const botName = (window.messageController && currentBot > 0)
+    ? window.messageController.getBotDisplayName(currentBot)
+    : 'BOT';
+  botIndicator.textContent = botName;
   botIndicator.style.cssText = `
     position: absolute !important;
     top: -8px !important;
