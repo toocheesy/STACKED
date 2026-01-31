@@ -981,7 +981,7 @@ function handleTouchDropOnCombo(slotName) {
   
   // Add to new position
   const cardEntry = {
-    card: touchDragData.card,
+    card: touchDragData.type === 'combo' ? touchDragData.card.card : touchDragData.card,
     source: touchDragData.type === 'combo' ? touchDragData.card.source : touchDragData.type,
     index: touchDragData.type === 'combo' ? touchDragData.card.index : touchDragData.index,
     playerSource: 0
