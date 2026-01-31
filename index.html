@@ -376,19 +376,19 @@
       box-shadow: 0 16px 48px rgba(139, 90, 43, 0.4);
     }
 
-    .speed-mode {
-      border-color: #e74c3c;
-      animation: speedPulse 3s ease-in-out infinite;
+    .adventure-mode {
+      border-color: #2E86AB;
+      animation: adventurePulse 3s ease-in-out infinite;
     }
 
-    .speed-mode:hover {
-      border-color: #c0392b;
-      box-shadow: 0 16px 48px rgba(231, 76, 60, 0.4);
+    .adventure-mode:hover {
+      border-color: #45A5C4;
+      box-shadow: 0 16px 48px rgba(46, 134, 171, 0.4);
     }
 
-    @keyframes speedPulse {
-      0%, 100% { box-shadow: 0 8px 32px rgba(231, 76, 60, 0.2); }
-      50% { box-shadow: 0 12px 40px rgba(231, 76, 60, 0.4); }
+    @keyframes adventurePulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(46, 134, 171, 0.2); }
+      50% { box-shadow: 0 12px 40px rgba(46, 134, 171, 0.4); }
     }
 
     .tournament-mode {
@@ -657,21 +657,21 @@
         <button class="play-button">Play Classic</button>
       </div>
 
-      <!-- Speed Mode with Coming Soon Banner -->
-      <div class="mode-card speed-mode coming-soon" onclick="showComingSoon('speed')">
+      <!-- Adventure Mode with Coming Soon Banner -->
+      <div class="mode-card adventure-mode coming-soon" onclick="showComingSoon('adventure')">
         <div class="coming-soon-banner">Coming Soon</div>
-        <span class="mode-icon">⚡</span>
-        <h2 class="mode-title">Speed STACKED</h2>
+        <span class="mode-icon">🗺️</span>
+        <h2 class="mode-title">Adventure Mode</h2>
         <p class="mode-description">
-          Fast-paced gameplay with time pressure! Race against the clock with speed bonuses and lightning-fast rounds.
+          Embark on a journey through themed worlds! Battle unique opponents, unlock rewards, and conquer the STACKED! universe.
         </p>
         <div class="mode-features">
-          <span class="feature-tag">⏰ 60s Rounds</span>
-          <span class="feature-tag">⚡ Speed Bonuses</span>
-          <span class="feature-tag">🎯 Target: 300 pts</span>
-          <span class="feature-tag">🏁 Best of 3</span>
+          <span class="feature-tag">🗺️ World Map</span>
+          <span class="feature-tag">🎭 Unique Bosses</span>
+          <span class="feature-tag">🔓 Unlockables</span>
+          <span class="feature-tag">⭐ Progression</span>
         </div>
-        
+
         <button class="play-button">Coming Soon</button>
       </div>
 
@@ -689,7 +689,7 @@
           <span class="feature-tag">🎖️ Leaderboards</span>
           <span class="feature-tag">🔥 Coming Soon</span>
         </div>
-        
+
         <button class="play-button">Coming Soon</button>
       </div>
     </div>
@@ -769,7 +769,7 @@
 
     function showComingSoon(mode) {
       const modeNames = {
-        'speed': 'Speed Mode',
+        'adventure': 'Adventure Mode',
         'tournament': 'Tournament Mode'
       };
       
