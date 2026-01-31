@@ -1,12 +1,204 @@
-/* 
+/*
  * ============================================================================
- * STACKED! - CLEAN & ORGANIZED CSS
- * Mobile Landscape First Design with Revolutionary 5-Area Combo System
+ * STACKED! - Mobile-First CSS with Custom Properties
+ * 2 breakpoints: tablet/desktop (1025px+) and ultra-wide (1440px+)
  * ============================================================================
  */
 
 /* ============================================================================
- * 1. GLOBAL RESET & BASE STYLES
+ * 1. CSS CUSTOM PROPERTIES (Mobile-first base — targets 667x375 to 932x430)
+ * ============================================================================ */
+:root {
+  --status-height: 40px;
+  --hand-height: 68px;
+  --combo-width: 145px;
+
+  /* Board cards */
+  --card-w: 36px;
+  --card-h: 50px;
+  --card-font: 8px;
+
+  /* Player hand cards */
+  --hand-card-w: 44px;
+  --hand-card-h: 62px;
+  --hand-card-font: 10px;
+
+  /* Combo slot dimensions */
+  --slot-w: 42px;
+  --slot-h: 56px;
+
+  /* Cards inside combo slots */
+  --slot-card-w: 38px;
+  --slot-card-h: 52px;
+  --slot-card-font: 8px;
+  --slot-card-offset: 12px;
+
+  /* Sum badge */
+  --sum-badge-top: -16px;
+  --sum-badge-font: 10px;
+
+  /* Grid tracks */
+  --grid-rows: var(--status-height) 1fr var(--hand-height);
+  --grid-cols: 1fr var(--combo-width);
+
+  /* Board grid */
+  --board-col-min: 38px;
+  --board-col-max: 42px;
+  --board-row-h: 54px;
+  --board-gap: 4px;
+  --board-max-w: 200px;
+  --board-pad: 6px;
+
+  /* Table */
+  --table-w: 240px;
+  --table-h: 140px;
+
+  /* Status bar */
+  --stat-pad: 3px 5px;
+  --stat-font: 9px;
+  --stat-min-w: 48px;
+  --stat-name-font: 7px;
+  --stat-score-font: 10px;
+  --stat-cards-font: 7px;
+
+  /* Combo area */
+  --combo-pad: 6px;
+  --combo-gap: 6px;
+  --combo-title-font: 10px;
+  --combo-header-font: 9px;
+  --capture-row-gap: 4px;
+
+  /* Buttons */
+  --btn-pad: 3px 5px;
+  --btn-font: 7px;
+  --btn-min-w: 30px;
+  --combo-btn-min-h: 30px;
+
+  /* Game message */
+  --msg-font: 8px;
+  --msg-pad: 3px 6px;
+  --msg-max-w: 160px;
+
+  /* Current player badge */
+  --cp-font: 8px;
+  --cp-pad: 3px 6px;
+  --cp-top: 5px;
+
+  /* Board shift per extra row */
+  --board-shift-per-row: 30px;
+}
+
+/* Tablet & Desktop */
+@media (min-width: 1025px) and (min-height: 500px) {
+  :root {
+    --status-height: 70px;
+    --hand-height: 100px;
+    --combo-width: 320px;
+
+    --card-w: 60px;
+    --card-h: 85px;
+    --card-font: 14px;
+
+    --hand-card-w: 65px;
+    --hand-card-h: 92px;
+    --hand-card-font: 15px;
+
+    --slot-w: 65px;
+    --slot-h: 90px;
+    --slot-card-w: 58px;
+    --slot-card-h: 82px;
+    --slot-card-font: 12px;
+    --slot-card-offset: 20px;
+
+    --sum-badge-top: -26px;
+    --sum-badge-font: 13px;
+
+    --grid-rows: var(--status-height) 1fr var(--hand-height);
+    --grid-cols: 1fr var(--combo-width);
+
+    --board-col-min: 62px;
+    --board-col-max: 68px;
+    --board-row-h: 90px;
+    --board-gap: 8px;
+    --board-max-w: 400px;
+    --board-pad: 15px;
+
+    --table-w: 450px;
+    --table-h: 280px;
+
+    --stat-pad: 6px 12px;
+    --stat-font: 12px;
+    --stat-min-w: 90px;
+    --stat-name-font: 11px;
+    --stat-score-font: 14px;
+    --stat-cards-font: 10px;
+
+    --combo-pad: 15px;
+    --combo-gap: 12px;
+    --combo-title-font: 16px;
+    --combo-header-font: 13px;
+    --capture-row-gap: 10px;
+
+    --btn-pad: 8px 12px;
+    --btn-font: 11px;
+    --btn-min-w: 60px;
+    --combo-btn-min-h: 36px;
+
+    --msg-font: 14px;
+    --msg-pad: 8px 16px;
+    --msg-max-w: 350px;
+
+    --cp-font: 12px;
+    --cp-pad: 6px 14px;
+    --cp-top: 12px;
+
+    --board-shift-per-row: 50px;
+  }
+}
+
+/* Ultra-wide desktops */
+@media (min-width: 1440px) {
+  :root {
+    --combo-width: 400px;
+
+    --card-w: 75px;
+    --card-h: 105px;
+    --card-font: 17px;
+
+    --hand-card-w: 75px;
+    --hand-card-h: 105px;
+    --hand-card-font: 17px;
+
+    --slot-w: 75px;
+    --slot-h: 105px;
+    --slot-card-w: 70px;
+    --slot-card-h: 98px;
+    --slot-card-font: 14px;
+
+    --board-col-min: 78px;
+    --board-col-max: 84px;
+    --board-row-h: 108px;
+    --board-gap: 10px;
+    --board-max-w: 500px;
+
+    --table-w: 550px;
+    --table-h: 350px;
+
+    --combo-pad: 20px;
+    --combo-gap: 15px;
+    --combo-title-font: 18px;
+    --combo-header-font: 14px;
+
+    --msg-font: 16px;
+    --msg-pad: 10px 20px;
+    --msg-max-w: 400px;
+
+    --board-shift-per-row: 60px;
+  }
+}
+
+/* ============================================================================
+ * 2. GLOBAL RESET & BASE STYLES
  * ============================================================================ */
 * {
   margin: 0;
@@ -38,7 +230,7 @@ body {
 }
 
 /* ============================================================================
- * 2. LANDSCAPE ORIENTATION CONTROL
+ * 3. LANDSCAPE ORIENTATION CONTROL
  * ============================================================================ */
 .orientation-overlay {
   position: fixed;
@@ -59,14 +251,13 @@ body {
   .orientation-overlay {
     display: flex;
   }
-  
   .game-container {
     display: none;
   }
 }
 
 /* ============================================================================
- * 2B. QUICK RULES OVERLAY (first visit)
+ * 3B. QUICK RULES OVERLAY (first visit)
  * ============================================================================ */
 .quick-rules-overlay {
   position: fixed;
@@ -138,24 +329,25 @@ body {
 }
 
 /* ============================================================================
- * 3. MAIN GAME CONTAINER GRID
+ * 4. MAIN GAME CONTAINER GRID
  * ============================================================================ */
 .game-container {
   width: 100vw;
   height: 100vh;
   max-width: 100vw;
   display: grid;
-  grid-template-rows: 70px 1fr 90px;
-  grid-template-columns: 1fr 300px;
-  grid-template-areas: 
+  grid-template-rows: var(--grid-rows);
+  grid-template-columns: var(--grid-cols);
+  grid-template-areas:
     "status-bar status-bar"
     "game-area combo-area"
     "player-hand combo-area";
-  background: 
+  background:
     radial-gradient(circle at 20% 20%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
-    linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
-  border: 4px solid #8B5A2B;
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(0,0,0,0.2)" /></svg>') repeat;
+  background-color: #331E0F;
+  border: 1px solid #8B5A2B;
   overflow-x: hidden;
   overscroll-behavior: contain;
   -webkit-overscroll-behavior: contain;
@@ -164,52 +356,88 @@ body {
   will-change: transform;
 }
 
+@media (min-width: 1025px) and (min-height: 500px) {
+  .game-container {
+    border: 4px solid #8B5A2B;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1440px) {
+  .game-container {
+    max-width: 1400px;
+  }
+}
+
 /* ============================================================================
- * 4. STATUS BAR SECTION
+ * 5. STATUS BAR SECTION
  * ============================================================================ */
 .status-bar {
   grid-area: status-bar;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 4px 8px;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.3) 0%, rgba(74, 43, 23, 0.3) 100%);
-  border-bottom: 3px solid #8B5A2B;
+  border-bottom: 2px solid #8B5A2B;
   transform: translateZ(0);
+  font-size: var(--stat-font);
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .status-bar {
+    padding: 12px 20px;
+    border-bottom: 3px solid #8B5A2B;
+  }
 }
 
 .player-stats {
   display: flex;
-  gap: 10px;
+  gap: 6px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .player-stats {
+    gap: 10px;
+  }
 }
 
 .stat-block {
-  padding: 6px 12px;
+  padding: var(--stat-pad);
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 2px solid #8B5A2B;
-  border-radius: 8px;
-  font-size: 12px;
+  border: 1px solid #8B5A2B;
+  border-radius: 6px;
+  font-size: var(--stat-font);
   font-weight: bold;
   text-align: center;
-  min-width: 90px;
+  min-width: var(--stat-min-w);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .stat-block {
+    border: 2px solid #8B5A2B;
+    border-radius: 8px;
+    gap: 2px;
+  }
 }
 
 .stat-name {
-  font-size: 11px;
+  font-size: var(--stat-name-font);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .stat-score {
-  font-size: 14px;
+  font-size: var(--stat-score-font);
 }
 
 .stat-cards {
-  font-size: 10px;
+  font-size: var(--stat-cards-font);
   opacity: 0.7;
 }
 
@@ -229,21 +457,34 @@ body {
 }
 
 .last-capture-display {
-  padding: 6px 14px;
+  display: none;
+  padding: 4px 10px;
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 2px solid #8B5A2B;
-  border-radius: 8px;
-  font-size: 12px;
+  border: 1px solid #8B5A2B;
+  border-radius: 6px;
+  font-size: 10px;
   color: #D2A679;
   text-align: center;
-  min-width: 140px;
-  max-width: 260px;
+  min-width: 100px;
+  max-width: 200px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity 0.3s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .last-capture-display {
+    display: block;
+    padding: 6px 14px;
+    border: 2px solid #8B5A2B;
+    border-radius: 8px;
+    font-size: 12px;
+    min-width: 140px;
+    max-width: 260px;
+  }
 }
 
 .last-capture-display.visible {
@@ -264,44 +505,73 @@ body {
   color: #F5E8C7;
 }
 
-
 .top-right-info {
   display: flex;
-  gap: 12px;
+  gap: 6px;
   align-items: center;
 }
 
-/* NOTE: .deck-info is currently hidden (see section 14) - styles kept for potential future use */
+@media (min-width: 1025px) and (min-height: 500px) {
+  .top-right-info {
+    gap: 12px;
+  }
+}
+
+/* NOTE: .deck-info is currently hidden (see section 14) */
 .deck-info {
   background: linear-gradient(135deg, #4A4A4A 0%, #2C2C2C 100%);
   color: #CCCCCC;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: var(--stat-font);
   font-weight: bold;
-  border: 2px solid #666;
+  border: 1px solid #666;
   text-align: center;
-  min-width: 70px;
+  min-width: 40px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .deck-info {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    border: 2px solid #666;
+    min-width: 70px;
+  }
 }
 
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .action-buttons {
+    gap: 8px;
+  }
 }
 
 .action-btn {
-  padding: 8px 12px;
+  padding: var(--btn-pad);
   background: linear-gradient(135deg, #6B4226 0%, #4A2B17 100%);
   color: #D2A679;
-  border: 2px solid #8B5A2B;
-  border-radius: 8px;
+  border: 1px solid #8B5A2B;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--btn-font);
   font-weight: bold;
   transition: all 0.2s ease;
-  min-width: 60px;
-  min-height: 44px;
+  min-width: var(--btn-min-w);
+  min-height: 36px;
   touch-action: manipulation;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .action-btn {
+    border: 2px solid #8B5A2B;
+    border-radius: 8px;
+    min-height: 44px;
+  }
 }
 
 .action-btn:hover {
@@ -322,7 +592,7 @@ body {
 }
 
 /* ============================================================================
- * 5. GAME AREA SECTION
+ * 6. GAME AREA SECTION
  * ============================================================================ */
 .game-area {
   grid-area: game-area;
@@ -330,29 +600,44 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 4px;
 }
 
-/* Base positioning for current-player - visual styles in section 13 */
+@media (min-width: 1025px) and (min-height: 500px) {
+  .game-area {
+    padding: 20px;
+  }
+}
+
+/* Base positioning for current-player */
 .current-player {
   position: absolute;
-  top: 15px;
+  top: var(--cp-top);
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
+  font-size: var(--cp-font);
 }
 
 .table {
-  width: 380px;
-  height: 240px;
+  width: var(--table-w);
+  height: var(--table-h);
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 4px solid #8B5A2B;
-  border-radius: 15px;
+  border: 2px solid #8B5A2B;
+  border-radius: 10px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .table {
+    border: 4px solid #8B5A2B;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  }
 }
 
 .board {
@@ -361,22 +646,30 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(55px, 60px));
-  grid-auto-rows: 80px;
-  gap: 6px;
-  max-width: 340px;
+  grid-template-columns: repeat(auto-fit, minmax(var(--board-col-min), var(--board-col-max)));
+  grid-auto-rows: var(--board-row-h);
+  gap: var(--board-gap);
+  max-width: var(--board-max-w);
   width: auto;
-  min-width: 240px;
-  padding: 12px;
-  border: 2px solid #8B5A2B;
-  border-radius: 10px;
+  min-width: 120px;
+  padding: var(--board-pad);
+  border: 1px solid #8B5A2B;
+  border-radius: 8px;
   background: rgba(139, 90, 43, 0.1);
   justify-content: center;
   align-content: center;
   justify-items: center;
 }
 
-/* NOTE: .dealer-indicator is hidden (see section 14) - dealer info now shown in status bar */
+@media (min-width: 1025px) and (min-height: 500px) {
+  .board {
+    border: 2px solid #8B5A2B;
+    border-radius: 10px;
+    min-width: 240px;
+  }
+}
+
+/* NOTE: .dealer-indicator is hidden (see section 14) */
 .dealer-indicator {
   position: absolute;
   bottom: 10px;
@@ -384,100 +677,150 @@ body {
   transform: translateX(-50%);
   background: linear-gradient(135deg, #D2A679 0%, #B88A5A 100%);
   color: #331E0F;
-  padding: 4px 12px;
+  padding: 2px 8px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: bold;
-  border: 2px solid #8B5A2B;
+  border: 1px solid #8B5A2B;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .dealer-indicator {
+    padding: 4px 12px;
+    font-size: 11px;
+    border: 2px solid #8B5A2B;
+  }
 }
 
 /* ============================================================================
- * 6. PLAYER HAND SECTION
+ * 7. PLAYER HAND SECTION
  * ============================================================================ */
 .player-hand {
   grid-area: player-hand;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 15px 20px;
+  gap: 5px;
+  padding: 4px 8px;
   background: linear-gradient(135deg, rgba(74, 112, 67, 0.8) 0%, rgba(44, 64, 39, 0.8) 100%);
-  border-top: 3px solid #4A7043;
+  border-top: 2px solid #4A7043;
   z-index: 10;
 }
 
+@media (min-width: 1025px) and (min-height: 500px) {
+  .player-hand {
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 3px solid #4A7043;
+  }
+}
+
 /* ============================================================================
- * 7. COMBO BUILDER AREA (5-Area System)
+ * 8. COMBO BUILDER AREA (4-Area System)
  * ============================================================================ */
 .combo-area {
   grid-area: combo-area;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(74, 43, 23, 0.4) 100%);
-  border-left: 4px solid #8B5A2B;
-  padding: 20px;
+  border-left: 2px solid #8B5A2B;
+  padding: var(--combo-pad);
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  overflow-y: auto;
+  gap: var(--combo-gap);
+  overflow: hidden;
   transform: translateZ(0);
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .combo-area {
+    border-left: 4px solid #8B5A2B;
+  }
 }
 
 .combo-title {
   color: #D2A679;
   font-weight: bold;
-  font-size: 18px;
+  font-size: var(--combo-title-font);
   text-align: center;
-  border-bottom: 3px solid #8B5A2B;
-  padding-bottom: 10px;
+  border-bottom: 2px solid #8B5A2B;
+  padding-bottom: 4px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .combo-title {
+    border-bottom: 3px solid #8B5A2B;
+    padding-bottom: 10px;
+  }
 }
 
 .combo-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .combo-section {
+    gap: 6px;
+  }
 }
 
 .combo-header {
-  font-size: 13px;
+  font-size: var(--combo-header-font);
   font-weight: 600;
   color: #D2A679;
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .base-area, .sum-area, .match-area {
-  width: 65px;
-  height: 90px;
+  width: var(--slot-w);
+  height: var(--slot-h);
   background: linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
-  border: 2px dashed #8B5A2B;
-  border-radius: 10px;
+  border: 1px dashed #8B5A2B;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 4px;
+  padding: 2px;
   position: relative;
   transition: all 0.3s ease;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
   overflow: visible;
 }
 
+@media (min-width: 1025px) and (min-height: 500px) {
+  .base-area, .sum-area, .match-area {
+    border: 2px dashed #8B5A2B;
+    border-radius: 10px;
+    padding: 4px;
+  }
+}
+
 .base-area {
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .base-area {
+    margin-bottom: 5px;
+  }
 }
 
 .capture-row {
   display: flex;
-  gap: 10px;
+  gap: var(--capture-row-gap);
   justify-content: center;
 }
 
 /* Valid combo styling */
-.base-area.valid, .sum-area.valid, .match-area.valid {
+.base-area.valid, .sum-area.valid, .match-area.valid,
+.base-area.valid-combo, .sum-area.valid-combo, .match-area.valid-combo {
   border-color: #4A7043;
   box-shadow: 0 0 15px rgba(74, 112, 67, 0.8);
   background: linear-gradient(135deg, rgba(74, 112, 67, 0.2) 0%, #331E0F 100%);
@@ -487,6 +830,74 @@ body {
 @keyframes validPulse {
   0%, 100% { box-shadow: 0 0 15px rgba(74, 112, 67, 0.8); }
   50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
+}
+
+/* Combo action buttons */
+.combo-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .combo-actions {
+    gap: 8px;
+    margin-top: 4px;
+  }
+}
+
+.combo-action-btn {
+  padding: 4px 10px;
+  border: 1px solid #8B5A2B;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--btn-font);
+  font-weight: bold;
+  font-family: 'Cabin', Arial, sans-serif;
+  transition: all 0.2s ease;
+  min-height: var(--combo-btn-min-h);
+  touch-action: manipulation;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .combo-action-btn {
+    padding: 6px 16px;
+    border: 2px solid #8B5A2B;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+}
+
+.submit-combo-btn {
+  background: linear-gradient(145deg, #4A7043, #5A8A50);
+  color: #F5E8C7;
+}
+
+.submit-combo-btn:hover:not(:disabled) {
+  background: linear-gradient(145deg, #5A8A50, #6A9A60);
+  transform: translateY(-1px);
+}
+
+.submit-combo-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reset-combo-btn {
+  background: linear-gradient(135deg, #6B4226, #4A2B17);
+  color: #D2A679;
+}
+
+.reset-combo-btn:hover {
+  background: linear-gradient(135deg, #8B5A2B, #6B4226);
+  transform: translateY(-1px);
+}
+
+/* Home button in action bar */
+.action-btn.home-btn {
+  background: linear-gradient(135deg, #6B4226, #4A2B17);
+  color: #D2A679;
 }
 
 /* Hover effects */
@@ -503,34 +914,51 @@ body {
 }
 
 /* ============================================================================
- * 8. CARD STYLES
+ * 9. CARD STYLES
  * ============================================================================ */
 .card {
-  width: 58px;
-  height: 82px;
+  width: var(--card-w);
+  height: var(--card-h);
   background: linear-gradient(135deg, #F5E8C7 0%, #E8D5B7 100%);
   border: 2px solid #4A2B17;
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--card-font);
   font-weight: bold;
   color: #2C1810;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   user-select: none;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   position: relative;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 36px;
+  min-width: 30px;
   transform: translateZ(0);
   will-change: transform;
 }
 
+@media (min-width: 1025px) and (min-height: 500px) {
+  .card {
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    min-height: 44px;
+    min-width: 44px;
+    transition: all 0.2s ease;
+  }
+}
+
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .card:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  }
 }
 
 .card.selected {
@@ -547,32 +975,23 @@ body {
   color: #2C1810;
 }
 
-/* Cards in combo areas - fanned stacking */
+/* Player hand cards */
+.player-hand .card {
+  width: var(--hand-card-w);
+  height: var(--hand-card-h);
+  font-size: var(--hand-card-font);
+}
+
+/* Cards in combo areas — JS handles absolute positioning */
 .base-area .card, .sum-area .card, .match-area .card {
-  width: 55px;
-  height: 75px;
-  font-size: 12px;
+  width: var(--slot-card-w);
+  height: var(--slot-card-h);
+  font-size: var(--slot-card-font);
   position: absolute;
 }
 
-.base-area .card:nth-child(1), .sum-area .card:nth-child(1), .match-area .card:nth-child(1) {
-  top: 4px; left: 4px; z-index: 1;
-}
-
-.base-area .card:nth-child(2), .sum-area .card:nth-child(2), .match-area .card:nth-child(2) {
-  top: 8px; left: 6px; z-index: 2;
-}
-
-.base-area .card:nth-child(3), .sum-area .card:nth-child(3), .match-area .card:nth-child(3) {
-  top: 12px; left: 8px; z-index: 3;
-}
-
-.base-area .card:nth-child(n+4), .sum-area .card:nth-child(n+4), .match-area .card:nth-child(n+4) {
-  top: 16px; left: 10px; z-index: 4;
-}
-
 /* ============================================================================
- * 9. MODAL BUTTONS & ACTIONS
+ * 10. MODAL BUTTONS & ACTIONS
  * ============================================================================ */
 .modal-actions {
   display: flex;
@@ -588,7 +1007,7 @@ body {
   padding: 10px 16px;
   border: 2px solid #4A2B17;
   border-radius: 8px;
-  font-size: 16px !important; /* Prevents iOS zoom */
+  font-size: 16px; /* Prevents iOS zoom */
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -621,7 +1040,7 @@ body {
 }
 
 /* ============================================================================
- * 10. MODAL DIALOGS
+ * 11. MODAL DIALOGS
  * ============================================================================ */
 dialog {
   border: 3px solid #8B5A2B;
@@ -717,355 +1136,33 @@ dialog::backdrop {
 }
 
 /* ============================================================================
- * 11. MOBILE RESPONSIVE BREAKPOINTS
+ * 12. GAME MESSAGE & CURRENT-PLAYER SHARED STYLING
  * ============================================================================ */
-
-/* Large tablets and small desktops */
-@media (max-width: 1024px) {
-  .game-container {
-    grid-template-columns: 1fr 280px;
-  }
-  
-  .combo-area {
-    padding: 15px;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 60px;
-    height: 85px;
-  }
-  
-  .table {
-    width: 350px;
-    height: 220px;
-  }
-}
-
-/* Standard mobile landscape (iPhone 13 Pro Max and similar) */
-@media screen and (orientation: landscape) and (max-width: 1000px) {
-  .game-container {
-    grid-template-rows: 45px 1fr 75px !important;
-    grid-template-columns: 1fr 160px !important;
-    border: 1px solid #8B5A2B !important;
-  }
-  
-  .status-bar {
-    padding: 8px 15px !important;
-    font-size: 10px !important;
-  }
-  
-  .stat-block {
-    padding: 3px 6px !important;
-    font-size: 9px !important;
-    min-width: 50px !important;
-  }
-
-  .stat-name { font-size: 8px !important; }
-  .stat-score { font-size: 10px !important; }
-  .stat-cards { font-size: 7px !important; }
-  
-  .deck-info {
-    padding: 3px 6px !important;
-    font-size: 8px !important;
-    min-width: 40px !important;
-  }
-  
-  .action-btn {
-    padding: 3px 5px !important;
-    font-size: 7px !important;
-    min-width: 30px !important;
-  }
-  
-  .table {
-    width: 220px !important;
-    height: 120px !important;
-  }
-  
-  .board {
-    max-width: 180px !important;
-    gap: 3px !important;
-    padding: 6px !important;
-    grid-template-columns: repeat(auto-fit, minmax(35px, 40px)) !important;
-    grid-auto-rows: 50px !important;
-  }
-  
-  .card {
-    width: 35px !important;
-    height: 50px !important;
-    font-size: 8px !important;
-  }
-  
-  .player-hand {
-    padding: 6px 8px !important;
-    gap: 4px !important;
-  }
-  
-  .player-hand .card {
-    width: 40px !important;
-    height: 60px !important;
-    font-size: 10px !important;
-  }
-  
-  .combo-area {
-    padding: 6px !important;
-    gap: 8px !important;
-  }
-  
-  .combo-title {
-    font-size: 12px !important;
-    padding-bottom: 4px !important;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 35px !important;
-    height: 50px !important;
-    border: 1px dashed #8B5A2B !important;
-  }
-  
-  .base-area .card, .sum-area .card, .match-area .card {
-    width: 32px !important;
-    height: 45px !important;
-    font-size: 8px !important;
-  }
-  
-  .combo-header {
-    font-size: 9px !important;
-  }
-  
-  .capture-row {
-    gap: 3px !important;
-  }
-  
-  .modal-btn {
-    padding: 6px 8px !important;
-    font-size: 9px !important;
-  }
-  
-  .current-player {
-    font-size: 8px !important;
-    padding: 3px 6px !important;
-    top: 5px !important;
-  }
-  
-  .game-message {
-    font-size: 8px !important;
-    padding: 3px 6px !important;
-    bottom: 75px !important;
-    max-width: 160px !important;
-  }
-  
-  .dealer-indicator {
-    font-size: 9px !important;
-    padding: 2px 8px !important;
-  }
-}
-
-/* Extra small landscape devices */
-@media screen and (orientation: landscape) and (max-width: 850px) {
-  .game-container {
-    grid-template-columns: 1fr 140px !important;
-  }
-  
-  .combo-area {
-    padding: 4px !important;
-  }
-  
-  .base-area, .sum-area, .match-area {
-    width: 30px !important;
-    height: 45px !important;
-  }
-  
-  .capture-row {
-    gap: 2px !important;
-  }
-}
-
-/* Landscape-specific optimizations */
-@media screen and (orientation: landscape) and (max-height: 500px) {
-  .card {
-    transition: transform 0.1s ease;
-  }
-  
-  .card:hover {
-    transform: translateY(-2px);
-  }
-}
-
-/* ============================================================================
- * 12. DESKTOP ENHANCEMENTS (min-width breakpoints only)
- * ============================================================================ */
-
-/* Basic desktop optimizations: Larger elements, better spacing */
-@media (min-width: 1025px) {
-  .game-container {
-    grid-template-columns: 1fr 400px; /* Wider combo area for better usability */
-    grid-template-rows: 80px 1fr 120px; /* More room for status and hand */
-    max-width: 1200px; /* Center on larger screens */
-    margin: 0 auto; /* Centering for desktop feel */
-  }
-
-  .status-bar {
-    padding: 15px 30px; /* More breathing room */
-    font-size: 16px; /* Better readability */
-  }
-
-  .stat-block {
-    padding: 8px 14px;
-    font-size: 14px;
-    min-width: 100px;
-  }
-
-  .stat-name { font-size: 13px; }
-  .stat-score { font-size: 16px; }
-  .stat-cards { font-size: 11px; }
-
-  .deck-info {
-    padding: 10px 15px;
-    font-size: 14px;
-    min-width: 80px;
-  }
-
-  .action-btn {
-    padding: 10px 15px;
-    font-size: 13px;
-    min-width: 80px;
-  }
-
-  .table {
-    width: 450px; /* Larger game board */
-    height: 280px;
-  }
-
-  .board {
-    max-width: 400px;
-    gap: 8px;
-    padding: 15px;
-    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); /* Bigger cards */
-    grid-auto-rows: 100px;
-  }
-
-  .card {
-    width: 70px;
-    height: 100px;
-    font-size: 16px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smoother hovers */
-  }
-
-  .card:hover {
-    transform: translateY(-5px) scale(1.05); /* Enhanced desktop hover feedback */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
-  }
-
-  .player-hand {
-    padding: 15px 20px;
-    gap: 15px;
-  }
-
-  .player-hand .card {
-    width: 70px;
-    height: 100px;
-    font-size: 16px;
-  }
-
-  .combo-area {
-    padding: 20px;
-    gap: 15px;
-  }
-
-  .combo-title {
-    font-size: 18px;
-    padding-bottom: 10px;
-  }
-
-  .base-area, .sum-area, .match-area {
-    width: 70px;
-    height: 100px;
-    border: 2px dashed #8B5A2B; /* Thicker for visibility */
-  }
-
-  .base-area .card, .sum-area .card, .match-area .card {
-    width: 65px;
-    height: 95px;
-    font-size: 14px;
-  }
-
-  .combo-header {
-    font-size: 14px;
-  }
-
-  .capture-row {
-    gap: 10px;
-  }
-
-  .modal-btn {
-    padding: 12px 20px;
-    font-size: 16px;
-  }
-
-  .game-message {
-    font-size: 16px;
-    padding: 10px 20px;
-    max-width: 400px;
-  }
-}
-
-/* Ultra-wide enhancements: Even more space utilization */
-@media (min-width: 1440px) {
-  .game-container {
-    grid-template-columns: 1fr 450px; /* Extra wide combo area */
-    max-width: 1400px;
-  }
-
-  .table {
-    width: 550px;
-    height: 350px;
-  }
-
-  .board {
-    max-width: 500px;
-    gap: 10px;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    grid-auto-rows: 110px;
-  }
-
-  .card {
-    width: 80px;
-    height: 110px;
-    font-size: 18px;
-  }
-
-  .player-hand .card {
-    width: 80px;
-    height: 110px;
-  }
-
-  .base-area, .sum-area, .match-area {
-    width: 80px;
-    height: 110px;
-  }
-
-  .base-area .card, .sum-area .card, .match-area .card {
-    width: 75px;
-    height: 105px;
-  }
-}
-
-/* Game message and current-player shared styling */
 .game-message,
 .current-player {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   color: #331E0F;
-  padding: 8px 16px;
+  padding: var(--cp-pad);
   border-radius: 6px;
   border: 2px solid #8B5A2B;
   font-weight: bold;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  margin: 8px auto;
-  max-width: 400px;
-  font-size: 1rem;
+  margin: 4px auto;
+  max-width: var(--msg-max-w);
+  font-size: var(--msg-font);
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
   display: block;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .game-message,
+  .current-player {
+    margin: 8px auto;
+    font-size: 1rem;
+    max-width: 400px;
+    padding: 8px 16px;
+  }
 }
 
 /* Message type variants */
@@ -1090,8 +1187,6 @@ dialog::backdrop {
 /* ============================================================================
  * 13. HINT SYSTEM STYLING
  * ============================================================================ */
-
-/* Hint Popup - Higher z-index than board cards */
 .hint-popup {
   position: fixed;
   top: 50%;
@@ -1149,45 +1244,134 @@ dialog::backdrop {
 /* Card highlighting for hints */
 .card.hint-glow {
   animation: hintGlow 2s ease-in-out infinite;
-  border-color: #4A7043 !important;
+  border-color: #4A7043;
 }
 
 @keyframes hintGlow {
-  0%, 100% { 
+  0%, 100% {
     box-shadow: 0 0 15px rgba(74, 112, 67, 0.8);
     transform: translateY(-2px);
   }
-  50% { 
+  50% {
     box-shadow: 0 0 25px rgba(74, 112, 67, 1);
     transform: translateY(-4px) scale(1.02);
   }
 }
 
-/* Enhanced dealer indication - make it more visible */
+/* Enhanced dealer indication */
 .stat-block.dealer::after {
   display: block;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: bold;
   text-align: center;
   color: #FFD700;
   line-height: 1.2;
   border-top: 1px solid rgba(255, 215, 0, 0.5);
-  margin-top: 2px;
-  padding-top: 2px;
+  margin-top: 1px;
+  padding-top: 1px;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
   content: "DEALER - " attr(data-deck) " left";
 }
 
+@media (min-width: 1025px) and (min-height: 500px) {
+  .stat-block.dealer::after {
+    font-size: 10px;
+    margin-top: 2px;
+    padding-top: 2px;
+  }
+}
+
 /* Make dealer element more visible */
 .dealer {
-  border-color: #FFD700 !important;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6) !important;
+  border-color: #FFD700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
 
 /* ============================================================================
- * 14. HIDDEN ELEMENTS (info moved to status bar dealer indicators)
+ * 14. HIDDEN ELEMENTS
  * ============================================================================ */
 .deck-info,
 .dealer-indicator {
-  display: none !important;
+  display: none;
+}
+
+.target-score-info {
+  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
+  color: #D2A679;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 8px;
+  font-weight: bold;
+  border: 1px solid #8B5A2B;
+  text-align: center;
+  min-width: 40px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .target-score-info {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    border: 2px solid #8B5A2B;
+    min-width: 70px;
+  }
+}
+
+.target-score-info #target-score {
+  color: #FFD700;
+  font-size: 10px;
+}
+
+@media (min-width: 1025px) and (min-height: 500px) {
+  .target-score-info #target-score {
+    font-size: 13px;
+  }
+}
+
+/* ============================================================================
+ * 15. ROTATE PHONE OVERLAY - Mobile Portrait
+ * ============================================================================ */
+.rotate-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a0a00 0%, #2d1810 50%, #1a0a00 100%);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
+
+.rotate-overlay .rotate-icon {
+  font-size: 4rem;
+  animation: rotatePhone 2s ease-in-out infinite;
+}
+
+.rotate-overlay .rotate-text {
+  color: #D4A574;
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.rotate-overlay .rotate-subtext {
+  color: #8B7355;
+  font-size: 0.9rem;
+}
+
+@keyframes rotatePhone {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-30deg); }
+  75% { transform: rotate(30deg); }
+}
+
+@media screen and (orientation: portrait) and (max-width: 600px) {
+  .rotate-overlay {
+    display: flex;
+  }
 }
