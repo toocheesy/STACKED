@@ -461,6 +461,9 @@ class ModalManager {
         padding: 20px;
         max-width: 500px;
         width: 90%;
+        max-height: 85vh;
+        max-height: 85dvh;
+        overflow-y: auto;
         color: #F5E8C7;
         font-family: 'Cabin', sans-serif;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
