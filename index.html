@@ -241,16 +241,26 @@
       letter-spacing: 1px;
     }
 
-    /* Rules button on homepage */
+    /* Rules button — fixed top-right */
     .rules-btn {
-      background: none;
-      border: 1px solid #8B5A2B;
-      color: #8B5A2B;
-      padding: 3px 10px;
-      border-radius: 12px;
-      font-size: 0.7rem;
+      position: fixed;
+      top: 8px;
+      right: 8px;
+      background: linear-gradient(135deg, #4A2B17, #331E0F);
+      border: 2px solid #8B5A2B;
+      color: #D2A679;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1rem;
       cursor: pointer;
-      margin-top: 4px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      padding: 0;
+      line-height: 1;
     }
 
     /* Game Mode Cards */
@@ -503,9 +513,6 @@
       .mode-card { padding: 18px 25px; }
       .feature-tag { padding: 5px 12px; font-size: 0.8rem; }
       .play-button { padding: 10px 28px; font-size: 1rem; }
-      .quick-rules-card { padding: 12px 22px; }
-      .quick-rules-title { font-size: 1.1rem; }
-      .quick-rules-list p { font-size: 0.85rem; }
       .stats-bar { display: flex; }
       .homepage-footer { font-size: inherit; }
     }
@@ -571,6 +578,9 @@
     </div>
   </div>
 
+  <!-- Rules icon — top right -->
+  <button class="rules-btn" onclick="showWelcome()">📖</button>
+
   <!-- Floating Particles Background -->
   <div class="particles" id="particles"></div>
   
@@ -599,8 +609,6 @@
         </div>
       </div>
     </div>
-
-    <button class="rules-btn" onclick="showWelcome()">📖 Rules</button>
 
     <!-- Game Modes -->
     <div class="game-modes">
