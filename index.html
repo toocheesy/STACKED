@@ -491,15 +491,26 @@
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .game-modes {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, 1fr);
         gap: 6px;
       }
 
+      .mode-description,
+      .mode-features,
+      .play-button {
+        display: none;
+      }
+
+      .mode-card {
+        padding: 10px 8px;
+        text-align: center;
+      }
+
       .coming-soon-banner {
-        top: 5px;
-        right: 5px;
-        font-size: 0.6rem;
-        padding: 4px 8px;
+        top: -2px;
+        right: -2px;
+        font-size: 0.45rem;
+        padding: 2px 5px;
       }
     }
 
@@ -567,12 +578,10 @@
     <div class="welcome-modal">
       <h2>Welcome to STACKED! 🎴</h2>
       <div class="welcome-rules">
-        <p>A strategic card game where you capture cards to score points and outsmart your opponents!</p>
-        <p><strong>Objective:</strong> Be the first to reach the target score by capturing cards from the board.</p>
-        <p><strong>How to Play:</strong></p>
-        <p>&#8226; Each player (you and two bots) is dealt 4 cards</p>
-        <p>&#8226; Capture cards by matching pairs (5 captures 5) or sums (3 + 7 captures 10)</p>
-        <p>&#8226; Score points from captured cards to win!</p>
+        <p>Capture cards. Score points. Outsmart the bots.</p>
+        <p><strong>GOAL:</strong> First to 300 points wins</p>
+        <p><strong>CAPTURES:</strong> Match pairs (K+K) or add numbers (3+7=10)</p>
+        <p><strong>THAT'S IT:</strong> Pick your opponents and let's play!</p>
       </div>
       <button class="welcome-btn" onclick="dismissWelcome()">Let's Go!</button>
     </div>
