@@ -254,9 +254,13 @@ body {
 @media screen and (orientation: portrait) and (max-width: 768px) {
   .orientation-overlay {
     display: flex;
+    z-index: 99999;
   }
   .game-container {
     display: none;
+  }
+  .modal-overlay {
+    display: none !important;
   }
 }
 
