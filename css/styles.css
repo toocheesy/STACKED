@@ -10,28 +10,28 @@
  * ============================================================================ */
 :root {
   --status-height: 40px;
-  --hand-height: 68px;
-  --combo-width: 145px;
+  --hand-height: 80px;
+  --combo-width: 165px;
 
   /* Board cards */
-  --card-w: 36px;
-  --card-h: 50px;
-  --card-font: 8px;
+  --card-w: 44px;
+  --card-h: 62px;
+  --card-font: 10px;
 
   /* Player hand cards */
-  --hand-card-w: 44px;
-  --hand-card-h: 62px;
-  --hand-card-font: 10px;
+  --hand-card-w: 54px;
+  --hand-card-h: 74px;
+  --hand-card-font: 12px;
 
   /* Combo slot dimensions */
-  --slot-w: 42px;
-  --slot-h: 56px;
+  --slot-w: 48px;
+  --slot-h: 66px;
 
   /* Cards inside combo slots */
-  --slot-card-w: 38px;
-  --slot-card-h: 52px;
-  --slot-card-font: 8px;
-  --slot-card-offset: 12px;
+  --slot-card-w: 44px;
+  --slot-card-h: 62px;
+  --slot-card-font: 10px;
+  --slot-card-offset: 14px;
 
   /* Sum badge */
   --sum-badge-top: -16px;
@@ -42,46 +42,46 @@
   --grid-cols: 1fr var(--combo-width);
 
   /* Board grid */
-  --board-col-min: 38px;
-  --board-col-max: 42px;
-  --board-row-h: 54px;
-  --board-gap: 4px;
-  --board-max-w: 200px;
-  --board-pad: 6px;
+  --board-col-min: 46px;
+  --board-col-max: 50px;
+  --board-row-h: 66px;
+  --board-gap: 5px;
+  --board-max-w: 240px;
+  --board-pad: 8px;
 
   /* Table */
-  --table-w: 240px;
-  --table-h: 140px;
+  --table-w: 280px;
+  --table-h: 170px;
 
   /* Status bar */
-  --stat-pad: 3px 5px;
-  --stat-font: 9px;
-  --stat-min-w: 48px;
-  --stat-name-font: 7px;
-  --stat-score-font: 10px;
-  --stat-cards-font: 7px;
+  --stat-pad: 4px 6px;
+  --stat-font: 10px;
+  --stat-min-w: 55px;
+  --stat-name-font: 8px;
+  --stat-score-font: 11px;
+  --stat-cards-font: 8px;
 
   /* Combo area */
-  --combo-pad: 6px;
+  --combo-pad: 8px;
   --combo-gap: 6px;
-  --combo-title-font: 10px;
-  --combo-header-font: 9px;
-  --capture-row-gap: 4px;
+  --combo-title-font: 11px;
+  --combo-header-font: 10px;
+  --capture-row-gap: 5px;
 
   /* Buttons */
-  --btn-pad: 3px 5px;
-  --btn-font: 7px;
-  --btn-min-w: 30px;
-  --combo-btn-min-h: 30px;
+  --btn-pad: 4px 6px;
+  --btn-font: 8px;
+  --btn-min-w: 34px;
+  --combo-btn-min-h: 32px;
 
   /* Game message */
-  --msg-font: 8px;
-  --msg-pad: 3px 6px;
-  --msg-max-w: 160px;
+  --msg-font: 10px;
+  --msg-pad: 4px 8px;
+  --msg-max-w: 200px;
 
   /* Current player badge */
-  --cp-font: 8px;
-  --cp-pad: 3px 6px;
+  --cp-font: 9px;
+  --cp-pad: 4px 8px;
   --cp-top: 5px;
 
   /* Board shift per extra row */
@@ -89,7 +89,7 @@
 }
 
 /* Tablet & Desktop */
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   :root {
     --status-height: 70px;
     --hand-height: 100px;
@@ -221,6 +221,7 @@ body {
   color: #D2A679;
   overflow: hidden;
   height: 100%;
+  height: 100dvh;
   width: 100vw;
   position: fixed;
   top: 0;
@@ -337,6 +338,7 @@ body {
 .game-container {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   max-width: 100vw;
   display: grid;
   grid-template-rows: var(--grid-rows);
@@ -359,7 +361,7 @@ body {
   will-change: transform;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .game-container {
     border: 4px solid #8B5A2B;
     max-width: 1200px;
@@ -388,7 +390,7 @@ body {
   font-size: var(--stat-font);
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .status-bar {
     padding: 12px 20px;
     border-bottom: 3px solid #8B5A2B;
@@ -400,7 +402,7 @@ body {
   gap: 6px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .player-stats {
     gap: 10px;
   }
@@ -421,7 +423,7 @@ body {
   gap: 1px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .stat-block {
     border: 2px solid #8B5A2B;
     border-radius: 8px;
@@ -478,7 +480,7 @@ body {
   text-overflow: ellipsis;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .last-capture-display {
     display: block;
     padding: 6px 14px;
@@ -514,7 +516,7 @@ body {
   align-items: center;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .top-right-info {
     gap: 12px;
   }
@@ -533,7 +535,7 @@ body {
   min-width: 40px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .deck-info {
     padding: 8px 12px;
     border-radius: 8px;
@@ -548,7 +550,7 @@ body {
   gap: 4px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .action-buttons {
     gap: 8px;
   }
@@ -569,7 +571,7 @@ body {
   touch-action: manipulation;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .action-btn {
     border: 2px solid #8B5A2B;
     border-radius: 8px;
@@ -606,7 +608,7 @@ body {
   padding: 4px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .game-area {
     padding: 20px;
   }
@@ -635,7 +637,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .table {
     border: 4px solid #8B5A2B;
     border-radius: 15px;
@@ -664,7 +666,7 @@ body {
   justify-items: center;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .board {
     border: 2px solid #8B5A2B;
     border-radius: 10px;
@@ -687,7 +689,7 @@ body {
   border: 1px solid #8B5A2B;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .dealer-indicator {
     padding: 4px 12px;
     font-size: 11px;
@@ -710,7 +712,7 @@ body {
   z-index: 10;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .player-hand {
     gap: 12px;
     padding: 12px 20px;
@@ -733,7 +735,7 @@ body {
   transform: translateZ(0);
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .combo-area {
     border-left: 4px solid #8B5A2B;
   }
@@ -749,7 +751,7 @@ body {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .combo-title {
     border-bottom: 3px solid #8B5A2B;
     padding-bottom: 10px;
@@ -763,7 +765,7 @@ body {
   gap: 2px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .combo-section {
     gap: 6px;
   }
@@ -797,7 +799,7 @@ body {
   overflow: visible;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .base-area, .sum-area, .match-area {
     border: 2px dashed #8B5A2B;
     border-radius: 10px;
@@ -809,7 +811,7 @@ body {
   margin-bottom: 2px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .base-area {
     margin-bottom: 5px;
   }
@@ -844,7 +846,7 @@ body {
   padding-top: 4px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .combo-actions {
     gap: 8px;
     margin-top: 4px;
@@ -864,7 +866,7 @@ body {
   touch-action: manipulation;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .combo-action-btn {
     padding: 6px 16px;
     border: 2px solid #8B5A2B;
@@ -943,7 +945,7 @@ body {
   will-change: transform;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .card {
     border-radius: 8px;
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
@@ -958,7 +960,7 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .card:hover {
     transform: translateY(-5px) scale(1.05);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
@@ -1159,7 +1161,7 @@ dialog::backdrop {
   display: block;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .game-message,
   .current-player {
     margin: 8px auto;
@@ -1277,7 +1279,7 @@ dialog::backdrop {
   content: "DEALER - " attr(data-deck) " left";
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .stat-block.dealer::after {
     font-size: 10px;
     margin-top: 2px;
@@ -1311,7 +1313,7 @@ dialog::backdrop {
   min-width: 40px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .target-score-info {
     padding: 6px 12px;
     border-radius: 8px;
@@ -1326,7 +1328,7 @@ dialog::backdrop {
   font-size: 10px;
 }
 
-@media (min-width: 1025px) and (min-height: 500px) {
+@media (min-width: 768px) and (min-height: 500px) {
   .target-score-info #target-score {
     font-size: 13px;
   }
