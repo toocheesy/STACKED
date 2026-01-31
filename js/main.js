@@ -1025,16 +1025,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: false });
 
-  // Show quick rules overlay on first visit
+  // Show quick rules overlay on first visit — pause game until dismissed
   if (!localStorage.getItem('hasPlayedBefore')) {
     const overlay = document.getElementById('quick-rules-overlay');
     if (overlay) {
       overlay.style.display = 'flex';
+      window.gameIsPaused = true;
       const dismissBtn = document.getElementById('dismiss-rules-btn');
       if (dismissBtn) {
         dismissBtn.addEventListener('click', () => {
           overlay.style.display = 'none';
           localStorage.setItem('hasPlayedBefore', 'true');
+          window.gameIsPaused = false;
         });
       }
     }
