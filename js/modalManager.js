@@ -458,11 +458,11 @@ class ModalManager {
         background: linear-gradient(145deg, #331E0F, #4A2B17);
         border: 3px solid #8B5A2B;
         border-radius: 15px;
-        padding: 20px;
-        max-width: 500px;
-        width: 90%;
-        max-height: 85vh;
-        max-height: 85dvh;
+        padding: 15px;
+        max-width: 600px;
+        width: 95%;
+        max-height: 90vh;
+        max-height: 90dvh;
         overflow-y: auto;
         color: #F5E8C7;
         font-family: 'Cabin', sans-serif;
@@ -476,15 +476,15 @@ class ModalManager {
       }
       
       .modal-header h2 {
-        margin: 0 0 15px 0;
+        margin: 0 0 10px 0;
         color: #D2A679;
         text-align: center;
-        font-size: 1.4rem;
+        font-size: 1.2rem;
       }
-      
+
       .modal-content {
-        margin-bottom: 20px;
-        line-height: 1.5;
+        margin-bottom: 10px;
+        line-height: 1.4;
       }
       
       .modal-actions {
@@ -536,14 +536,14 @@ class ModalManager {
       
       .score-grid {
         display: grid;
-        gap: 10px;
-        margin: 15px 0;
+        gap: 6px;
+        margin: 8px 0;
       }
-      
+
       .score-item {
         display: flex;
         justify-content: space-between;
-        padding: 8px 12px;
+        padding: 6px 12px;
         background: rgba(74, 43, 23, 0.3);
         border-radius: 6px;
         border: 1px solid #4A2B17;
@@ -557,30 +557,42 @@ class ModalManager {
       .jackpot-announcement {
         background: linear-gradient(145deg, #FFD700, #FFA500);
         color: #331E0F;
-        padding: 15px;
+        padding: 10px;
         border-radius: 10px;
         text-align: center;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         font-weight: bold;
       }
-      
+
       .jackpot-points {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         color: #8B0000;
       }
       
       @media (max-width: 600px) {
         .game-modal {
-          width: 95%;
-          padding: 15px;
+          width: 98%;
+          padding: 12px;
         }
-        
+
+        .modal-header h2 {
+          font-size: 1rem;
+          margin: 0 0 6px 0;
+        }
+
+        .modal-content {
+          margin-bottom: 8px;
+          font-size: 0.9rem;
+        }
+
         .modal-actions {
           flex-direction: column;
+          gap: 8px;
         }
-        
+
         .modal-actions button {
           width: 100%;
+          padding: 8px 16px;
         }
       }
     `;

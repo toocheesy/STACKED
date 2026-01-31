@@ -466,7 +466,7 @@ body {
 }
 
 .last-capture-display {
-  display: none;
+  display: block;
   padding: 4px 10px;
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
   border: 1px solid #8B5A2B;
@@ -474,8 +474,8 @@ body {
   font-size: 10px;
   color: #D2A679;
   text-align: center;
-  min-width: 100px;
-  max-width: 200px;
+  min-width: 80px;
+  max-width: 160px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity 0.3s ease;
