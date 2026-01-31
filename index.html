@@ -488,8 +488,8 @@
       }
     }
 
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
+    /* Mobile — phones in landscape (short viewport) */
+    @media (max-height: 500px) {
       .game-modes {
         grid-template-columns: repeat(3, 1fr);
         gap: 6px;
@@ -497,13 +497,28 @@
 
       .mode-description,
       .mode-features,
-      .play-button {
+      .mode-icon {
         display: none;
       }
 
       .mode-card {
         padding: 10px 8px;
         text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .mode-title {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+      }
+
+      .play-button {
+        font-size: 0.7rem;
+        padding: 5px 14px;
       }
 
       .coming-soon-banner {
@@ -511,6 +526,10 @@
         right: -2px;
         font-size: 0.45rem;
         padding: 2px 5px;
+      }
+
+      .homepage-footer {
+        display: none;
       }
     }
 
