@@ -302,8 +302,8 @@ function initGame() {
 initGameSystems();
 
 
-  const storedBot1 = localStorage.getItem('bot1Personality') || 'calvin';
-  const storedBot2 = localStorage.getItem('bot2Personality') || 'calvin';
+  const storedBot1 = localStorage.getItem('bot1Personality') || 'nina';
+  const storedBot2 = localStorage.getItem('bot2Personality') || 'rex';
   const storedMode = localStorage.getItem('selectedMode');
 
   if (storedMode && modeSelector.availableModes[storedMode]) {
@@ -781,30 +781,61 @@ return;
 // 📱 WORKING TOUCH EVENT HANDLERS
 let touchDragData = null;
 let touchStartPosition = null;
+let touchGhostEl = null;
+
+function createTouchGhost(card, x, y) {
+  removeTouchGhost();
+  const suitSymbols = { Hearts: '\u2665', Diamonds: '\u2666', Clubs: '\u2663', Spades: '\u2660' };
+  const ghost = document.createElement('div');
+  ghost.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
+  ghost.textContent = `${card.value}${suitSymbols[card.suit] || ''}`;
+  ghost.style.cssText = `
+    position: fixed; z-index: 20000; pointer-events: none;
+    opacity: 0.85; transform: scale(1.1) rotate(-3deg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    left: ${x - 22}px; top: ${y - 30}px;
+    width: var(--hand-card-w); height: var(--hand-card-h);
+    font-size: var(--hand-card-font);
+  `;
+  document.body.appendChild(ghost);
+  touchGhostEl = ghost;
+}
+
+function moveTouchGhost(x, y) {
+  if (touchGhostEl) {
+    touchGhostEl.style.left = `${x - 22}px`;
+    touchGhostEl.style.top = `${y - 30}px`;
+  }
+}
+
+function removeTouchGhost() {
+  if (touchGhostEl && touchGhostEl.parentNode) {
+    touchGhostEl.parentNode.removeChild(touchGhostEl);
+  }
+  touchGhostEl = null;
+}
 
 function handleTouchStart(e, source, data) {
   if (game.state.currentPlayer !== 0) return;
   e.preventDefault();
-  
-  // Store what we're dragging
+
+  // Store what we're dragging — guard against undefined cards
   if (source === 'hand') {
-    touchDragData = {
-      type: 'hand',
-      index: data,
-      card: game.state.hands[0][data]
-    };
+    const card = game.state.hands[0][data];
+    if (!card || !card.value) { touchDragData = null; return; }
+    touchDragData = { type: 'hand', index: data, card: card };
   } else if (source === 'board') {
-    touchDragData = {
-      type: 'board', 
-      index: data,
-      card: game.state.board[data]
-    };
+    const card = game.state.board[data];
+    if (!card || !card.value) { touchDragData = null; return; }
+    touchDragData = { type: 'board', index: data, card: card };
   } else if (source === 'combo') {
+    const entry = game.state.combination[data.slot][data.comboIndex];
+    if (!entry || !entry.card) { touchDragData = null; return; }
     touchDragData = {
       type: 'combo',
       slot: data.slot,
       comboIndex: data.comboIndex,
-      card: game.state.combination[data.slot][data.comboIndex]
+      card: entry
     };
   }
   
@@ -813,13 +844,26 @@ function handleTouchStart(e, source, data) {
     x: e.touches[0].clientX,
     y: e.touches[0].clientY
   };
-  
-  debugLog('GAME_FLOW', '🎯 TOUCH START:', touchDragData);
+
+  // Create visual ghost card
+  if (touchDragData) {
+    const cardObj = touchDragData.type === 'combo' ? touchDragData.card.card : touchDragData.card;
+    if (cardObj && cardObj.value) {
+      createTouchGhost(cardObj, touchStartPosition.x, touchStartPosition.y);
+    }
+  }
+}
+
+function handleTouchMove(e) {
+  if (!touchDragData) return;
+  e.preventDefault();
+  moveTouchGhost(e.touches[0].clientX, e.touches[0].clientY);
 }
 
 function handleTouchEnd(e) {
-  if (game.state.currentPlayer !== 0) return;
+  if (game.state.currentPlayer !== 0) { removeTouchGhost(); return; }
   e.preventDefault();
+  removeTouchGhost();
 
   if (!touchDragData || !touchStartPosition) {
     return;
@@ -863,31 +907,50 @@ function handleTouchEnd(e) {
 
 function handleTouchDropOnBoard() {
   if (!touchDragData) return;
-  
-  debugLog('GAME_FLOW', '🎯 TOUCH DROP ON BOARD:', touchDragData);
-  
-  // Simulate the board drop logic (same as handleDropOriginal for board)
+
   if (touchDragData.type === 'hand') {
     // Place card from hand to board
     const sourceCard = touchDragData.card;
-    
-    // Add to board
+    const handIndex = touchDragData.index;
+
+    // Verify card still exists at index
+    const actualCard = game.state.hands[0][handIndex];
+    if (!actualCard || actualCard.id !== sourceCard.id) {
+      touchDragData = null;
+      ui.render();
+      return;
+    }
+
+    // Remove from hand using splice (not null assignment)
+    game.state.hands[0].splice(handIndex, 1);
     game.state.board.push(sourceCard);
-    
-    // Remove from hand
-    game.state.hands[0][touchDragData.index] = null;
-    
-    // Set last action
+    window.cardIntelligence.updateCardsSeen([sourceCard]);
+    game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
+
     game.state.lastAction = 'place';
-    
-    debugLog('GAME_FLOW', '✅ TOUCH BOARD DROP COMPLETE');
-    
-    // Re-render and continue game
+
+    window.messageController.handleGameEvent('CARD_PLACED', {
+      cardName: `${sourceCard.value}${sourceCard.suit}`
+    });
+
     ui.render();
-    
-    // Let GameStateManager handle what happens next
+
     const result = window.gameStateManager.determineGameState(game);
     handleGameStateResult(result);
+
+  } else if (touchDragData.type === 'combo') {
+    // Drag card back from combo builder to board — return it to source
+    const comboEntry = touchDragData.card;
+    game.state.combination[touchDragData.slot] =
+      game.state.combination[touchDragData.slot].filter((_, i) => i !== touchDragData.comboIndex);
+
+    // Restore card to its original source
+    if (comboEntry.source === 'hand') {
+      game.state.hands[0][comboEntry.index] = comboEntry.card;
+    }
+
+    ui.render();
+    window.messageController.handleGameEvent('RESET_COMBO');
   }
 }
 
@@ -953,6 +1016,15 @@ return;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Prevent all scrolling on the game page
+  document.body.addEventListener('touchmove', (e) => {
+    // Only allow touchmove on elements we're dragging
+    if (touchDragData) {
+      e.preventDefault();
+      moveTouchGhost(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, { passive: false });
+
   // Show quick rules overlay on first visit
   if (!localStorage.getItem('hasPlayedBefore')) {
     const overlay = document.getElementById('quick-rules-overlay');
@@ -1006,6 +1078,7 @@ window.handleDrop = handleDrop;
 window.handleDropOriginal = handleDropOriginal;
 window.handleBoardDrop = handleBoardDrop;
 window.handleTouchStart = handleTouchStart;
+window.handleTouchMove = handleTouchMove;
 window.handleTouchEnd = handleTouchEnd;
 window.handleTouchDrop = handleTouchDrop;
 

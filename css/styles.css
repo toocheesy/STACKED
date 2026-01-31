@@ -211,17 +211,20 @@ html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   touch-action: manipulation;
-  overflow-x: hidden;
+  overflow: hidden;
   max-width: 100vw;
+  height: 100%;
 }
 
 body {
   background: linear-gradient(135deg, #2C1810 0%, #1A0F08 100%);
   color: #D2A679;
   overflow: hidden;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -832,12 +835,13 @@ body {
   50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
 }
 
-/* Combo action buttons */
+/* Combo action buttons — pushed to bottom of flex column */
 .combo-actions {
   display: flex;
   gap: 6px;
   justify-content: center;
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 @media (min-width: 1025px) and (min-height: 500px) {

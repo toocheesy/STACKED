@@ -312,7 +312,8 @@ resetRenderFlags() {
         cardEl.setAttribute('data-combo-index', comboIndex);
         cardEl.addEventListener('dragstart', (e) => window.handleDragStartCombo(e, slotName, comboIndex));
         cardEl.addEventListener('dragend', window.handleDragEnd);
-        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }));
+        cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }), { passive: false });
+        cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
         cardEl.addEventListener('touchend', window.handleTouchEnd);
         areaEl.appendChild(cardEl);
       });
@@ -636,16 +637,19 @@ renderDealerIndicator() {
     : 'BOT';
   botIndicator.textContent = botName;
   botIndicator.style.cssText = `
-    position: absolute !important;
-    top: -8px !important;
-    right: -8px !important;
-    background: #FF6B6B !important;
-    color: white !important;
-    font-size: 8px !important;
-    padding: 2px 4px !important;
-    border-radius: 3px !important;
-    font-weight: bold !important;
-    z-index: 101 !important;
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FF6B6B;
+    color: white;
+    font-size: 7px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-weight: bold;
+    z-index: 101;
+    white-space: nowrap;
+    pointer-events: none;
   `;
   
   cardEl.appendChild(botIndicator);
@@ -715,7 +719,8 @@ cleanupBotComboVisuals() {
     cardEl.addEventListener('dragend', window.handleDragEnd);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index));
+    cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
+    cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
     cardEl.addEventListener('touchend', window.handleTouchEnd);
     return cardEl;
   }
@@ -743,6 +748,7 @@ cleanupBotComboVisuals() {
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
     cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
+    cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
     cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: false });
   }
 }
