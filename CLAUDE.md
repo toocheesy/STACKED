@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 500 points wins.
+STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 300 points wins.
 
 **Live Site:** https://toocheesy.github.io/STACKED
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
@@ -47,7 +47,7 @@ Open `index.html` for homepage or `game.html` directly to play.
 ### End Conditions
 - Deal new hands when: all players out of cards AND deck has 12+ cards
 - "Last Combo Takes All" - final capturer gets remaining board cards
-- Game ends when: deck empty + someone reaches 500 points
+- Game ends when: deck empty + someone reaches 300 points
 
 ---
 
@@ -111,7 +111,8 @@ game.state.combination = {
   base: [],   // Exactly 1 card required for valid capture
   sum1: [],   // Combo 1 - accepts pairs or sums
   sum2: [],   // Combo 2
-  sum3: []    // Combo 3
+  sum3: [],   // Combo 3
+  match: []   // Match area - pairs only
 }
 ```
 
@@ -129,19 +130,22 @@ All systems exposed via `window.`:
 
 | File | Purpose |
 |------|---------|
-| `main.js` | Main controller, event handlers, initialization |
+| `main.js` | Main controller, event handlers, initialization (MUST LOAD LAST) |
 | `game.js` | GameEngine, state management, validation |
 | `gameStateManager.js` | Flow control, turn management |
-| `ai.js` | AI decision logic |
-| `cardIntelligence.js` | Strategic AI brain, difficulty levels |
-| `botModal.js` | Bot move visualization |
-| `ui.js` | Rendering, DOM manipulation |
-| `hintSystem.js` | Hint analysis and display |
-| `helpers.js` | Deck, game logic, utilities, sounds |
-| `MessageController.js` | Educational guidance messages |
-| `modalManager.js` | Modal dialogs |
+| `ai.js` | AI decision logic, move selection |
+| `cardIntelligence.js` | Strategic AI brain, difficulty levels, card evaluation |
+| `botModal.js` | Bot move visualization (plays through UI like humans) |
+| `ui.js` | All DOM rendering: board, hands, combo, scores |
+| `helpers.js` | Deck creation, game logic utilities, sound system |
+| `MessageController.js` | Educational guidance messages during gameplay |
+| `modalManager.js` | Modal dialog system (scoreboard, round end, etc.) |
+| `modeSelector.js` | Mode management (classic/speed) |
 | `classic.js` | Classic mode rules (active) |
 | `speed.js` | Speed mode (coming soon) |
+| `personalities/calvin.js` | Calvin AI personality (cautious, analytical) |
+| `personalities/nina.js` | Nina AI personality (balanced, friendly) |
+| `personalities/rex.js` | Rex AI personality (aggressive, competitive) |
 
 ---
 
@@ -171,4 +175,24 @@ TC (the developer) prefers:
 ## Git
 
 Repository: https://github.com/toocheesy/STACKED.git
-Push to main triggers GitHub Pages deploy.
+
+### Branch Strategy (DO NOT VIOLATE)
+
+| Branch | Purpose | When to touch |
+|--------|---------|---------------|
+| `main` | LIVE production — family plays this | ONLY when TC says "merge to main" or "deploy" |
+| `dev` | Staging for fixes & polish | Default working branch for bug fixes |
+| `adventure-mode` | Future feature (parked) | Only when TC says to work on adventure mode |
+
+- **Default branch:** Always work on `dev` unless told otherwise
+- **NEVER push directly to `main`** unless TC explicitly says to deploy
+- Push to `main` triggers GitHub Pages deploy
+- TC will tell you which branch to switch to
+
+### CSS Architecture
+
+Mobile-first CSS custom properties system (on `adventure-mode`, pending merge):
+- `:root` variables define all sizes (cards, slots, grid, fonts)
+- 2 breakpoints only: `1025px+` (tablet/desktop) and `1440px+` (ultra-wide)
+- Zero `!important` overrides — all sizing via `var()`
+- `ui.js` reads `--slot-card-offset`, `--slot-h`, `--board-shift-per-row` from CSS
