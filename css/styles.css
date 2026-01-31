@@ -287,26 +287,29 @@ body {
   background: #331E0F;
   border: 3px solid #8B5A2B;
   border-radius: 15px;
-  padding: 30px 35px;
-  max-width: 420px;
-  width: 90%;
+  padding: 15px 20px;
+  max-width: 500px;
+  width: 95%;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
-  text-align: center;
+  text-align: left;
 }
 
 .quick-rules-heading {
   color: #D4A44A;
-  font-size: 1.4rem;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: 18px;
+  font-size: 1.1rem;
+  text-align: center;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .quick-rules-body p {
   color: #D2A679;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
   line-height: 1.5;
   text-align: left;
 }
@@ -316,17 +319,17 @@ body {
 }
 
 .dismiss-rules-btn {
-  margin-top: 20px;
-  padding: 10px 32px;
+  display: block;
+  margin: 12px auto 0;
+  padding: 8px 24px;
   background: linear-gradient(135deg, #8B5A2B, #A0692E);
   color: #F5E8C7;
   border: 2px solid #D4A44A;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
-  text-transform: uppercase;
   letter-spacing: 1px;
 }
 
