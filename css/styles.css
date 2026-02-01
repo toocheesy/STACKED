@@ -1251,23 +1251,37 @@ dialog::backdrop {
   }
 }
 
-/* Message type variants */
-.game-message.success,
+/* Message type: info (default neutral - tan/cream) */
+.current-player.info {
+  /* Uses base .current-player styling (tan parchment) */
+}
+
+/* Message type: success (green) */
 .current-player.success {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(74,112,67,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
+  border-color: #4A7043;
 }
 
-.game-message.error,
+/* Message type: warning (yellow/amber) */
+.current-player.warning {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(180,140,40,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  color: #331E0F;
+  border-color: #B48C28;
+}
+
+/* Message type: error (red) */
 .current-player.error {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(165,42,42,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
+  border-color: #A52A2A;
 }
 
-.game-message.bot-turn,
-.current-player.bot-turn {
+/* Message type: bot (brown - bot actions) */
+.current-player.bot {
   background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(139,90,43,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
   color: #F5E8C7;
+  border-color: #8B5A2B;
 }
 
 /* ============================================================================
