@@ -523,9 +523,9 @@ body {
   }
 }
 
-/* Last capture display */
+/* Last capture display — hidden until .visible added */
 .last-capture-display {
-  display: block;
+  display: none;
   padding: 3px 8px;
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
   border: 1px solid #8B5A2B;
@@ -533,11 +533,8 @@ body {
   font-size: 11px;
   color: #D2A679;
   text-align: center;
-  min-width: 90px;
-  max-width: 180px;
+  max-width: 200px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.3s ease;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -549,13 +546,12 @@ body {
     border: 2px solid #8B5A2B;
     border-radius: 8px;
     font-size: 13px;
-    min-width: 140px;
-    max-width: 260px;
+    max-width: 280px;
   }
 }
 
 .last-capture-display.visible {
-  opacity: 1;
+  display: block;
 }
 
 .last-capture-display .capture-label {
@@ -563,8 +559,8 @@ body {
   color: #8B5A2B;
   text-transform: uppercase;
   letter-spacing: 1px;
-  display: block;
-  margin-bottom: 1px;
+  display: inline;
+  margin-right: 4px;
 }
 
 .last-capture-display .capture-detail {
