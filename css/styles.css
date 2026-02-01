@@ -915,12 +915,13 @@ body {
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(74, 43, 23, 0.4) 100%);
   border: 2px solid #8B5A2B;
   border-radius: 0 0 0 10px;
-  padding: var(--combo-pad);
+  padding: 6px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  overflow: hidden;
+  gap: 2px;
+  overflow: auto;
   transform: translateZ(0);
+  -webkit-overflow-scrolling: touch;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
@@ -935,9 +936,10 @@ body {
   font-weight: bold;
   font-size: var(--combo-title-font);
   text-align: center;
-  border-bottom: 2px solid #8B5A2B;
-  padding-bottom: 4px;
+  border-bottom: 1px solid #8B5A2B;
+  padding-bottom: 2px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  flex-shrink: 0;
 }
 
 .turn-indicator {
@@ -996,7 +998,7 @@ body {
 .combo-slots {
   display: flex;
   flex-direction: column;
-  gap: var(--combo-gap);
+  gap: 2px;
   padding-left: 6px;
   min-width: 0;
 }
