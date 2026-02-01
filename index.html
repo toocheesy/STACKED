@@ -13,7 +13,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <style>
-    /* Homepage Styles with Woody Lumberyard Theme */
     * {
       margin: 0;
       padding: 0;
@@ -25,185 +24,41 @@
       background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(0,0,0,0.2)" /></svg>') repeat;
       background-color: #331E0F;
       color: #D2A679;
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-    }
-
-    .homepage-container {
-      max-width: 1200px;
-      width: 100%;
-      padding: 6px 10px;
-      text-align: center;
       height: 100vh;
       height: 100dvh;
+      width: 100vw;
       overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      touch-action: manipulation;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* Epic Header */
-    .game-logo {
-      font-size: 2.5rem;
-      font-weight: bold;
+    /* ---- Orientation overlay ---- */
+    .orientation-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.95);
       color: #D2A679;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
-      margin-bottom: 2px;
-      letter-spacing: 3px;
-    }
-
-    .game-subtitle {
-      font-size: 1.1rem;
-      color: #B88A5A;
-      margin-bottom: 4px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-    }
-
-    /* AI Selector Section */
-    .ai-selector-section {
-      text-align: center;
-      margin-bottom: 4px;
-    }
-
-    .ai-selector-label {
-      display: block;
-      margin-bottom: 4px;
-      color: #D2A679;
-      font-weight: bold;
-      font-size: 1rem;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    }
-
-    .ai-difficulty-cards {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .ai-card {
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /></svg>');
-      border: 2px solid #4A2B17;
-      border-radius: 8px;
-      padding: 6px 14px;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
-      position: relative;
-      overflow: hidden;
-      min-width: 100px;
-      max-width: 130px;
-      height: 36px;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      color: #4A2B17;
-    }
-
-    .ai-card:hover {
-      border-color: #D2A679;
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 6px 18px rgba(139, 90, 43, 0.4);
-    }
-
-    .ai-card.selected {
-      border: 3px solid #D2A679;
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23F5E8C7" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(210,166,121,0.2)" /></svg>');
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 
-        0 8px 20px rgba(210, 166, 121, 0.8),
-        0 0 0 2px #8B5A2B;
-      animation: aiCardGlow 2s ease-in-out infinite;
-    }
-
-    .ai-card.selected::after {
-      content: '✓';
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: linear-gradient(45deg, #4CAF50, #45a049);
-      color: white;
-      border: 2px solid #F5E8C7;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 11px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(76, 175, 80, 0.5);
-      animation: checkmarkPop 0.4s ease-out;
-    }
-
-    .ai-card.selected:hover {
-      transform: translateY(-4px) scale(1.08);
-    }
-
-    .ai-title {
-      font-size: 0.9rem;
-      font-weight: bold;
-      color: #4A2B17;
-      margin: 0;
+      z-index: 99999;
+      font-size: 1.2rem;
       text-align: center;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding: 20px;
+      line-height: 1.4;
     }
 
-    .ai-card.coming-soon-ai {
-      opacity: 0.6;
-      cursor: not-allowed;
-      position: relative;
+    @media screen and (orientation: portrait) and (max-width: 768px) {
+      .orientation-overlay { display: flex; }
+      .split-layout { display: none !important; }
     }
 
-    .ai-card.coming-soon-ai .ai-title {
-      opacity: 0.5;
-    }
-
-    .ai-coming-soon {
-      display: block;
-      font-size: 0.55rem;
-      color: #f39c12;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    @keyframes aiCardGlow {
-      0%, 100% { 
-        box-shadow: 
-          0 8px 20px rgba(210, 166, 121, 0.8),
-          0 0 0 2px #8B5A2B;
-      }
-      50% { 
-        box-shadow: 
-          0 12px 30px rgba(210, 166, 121, 1),
-          0 0 0 3px #D2A679;
-      }
-    }
-
-    @keyframes checkmarkPop {
-      0% {
-        transform: scale(0) rotate(-180deg);
-        opacity: 0;
-      }
-      50% {
-        transform: scale(1.3) rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1) rotate(0deg);
-        opacity: 1;
-      }
-    }
-
-    /* Welcome Modal */
+    /* ---- Welcome modal ---- */
     .welcome-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -242,16 +97,7 @@
       text-align: left;
     }
 
-    .welcome-rules p strong {
-      color: #D4A44A;
-    }
-
-    .welcome-note {
-      color: #8B5A2B;
-      font-size: 0.75rem;
-      margin-top: 10px;
-      font-style: italic;
-    }
+    .welcome-rules p strong { color: #D4A44A; }
 
     .welcome-btn {
       margin-top: 14px;
@@ -265,9 +111,10 @@
       cursor: pointer;
       text-transform: uppercase;
       letter-spacing: 1px;
+      min-height: 44px;
     }
 
-    /* Rules button — fixed top-right */
+    /* ---- Rules button ---- */
     .rules-btn {
       position: fixed;
       top: 8px;
@@ -275,10 +122,10 @@
       background: linear-gradient(135deg, #4A2B17, #331E0F);
       border: 2px solid #8B5A2B;
       color: #D2A679;
-      width: 36px;
-      height: 36px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
-      font-size: 1rem;
+      font-size: 1.1rem;
       cursor: pointer;
       z-index: 100;
       display: flex;
@@ -289,301 +136,201 @@
       line-height: 1;
     }
 
-    /* Game Mode Cards */
-    .game-modes {
-      flex: 1;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 8px;
-      margin: 4px 0;
-      align-content: center;
-    }
-
-    .mode-card {
-      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-      border: 3px solid #8B5A2B;
-      border-radius: 12px;
-      padding: 12px 18px;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .mode-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
+    /* ---- Split layout ---- */
+    .split-layout {
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(210, 166, 121, 0.1), transparent);
-      transition: left 0.8s;
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      align-items: center;
     }
 
-    .mode-card:hover::before {
-      left: 100%;
-    }
-
-    .mode-card:hover {
-      border-color: #D2A679;
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 16px 48px rgba(139, 90, 43, 0.4);
-    }
-
-    .mode-icon {
-      font-size: 1.2rem;
-      margin-bottom: 2px;
-      display: block;
-    }
-
-    .mode-title {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #D2A679;
-      margin-bottom: 4px;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-      display: block;
-    }
-
-    .mode-description {
-      font-size: 0.75rem;
-      line-height: 1.3;
-      color: #B88A5A;
-      margin-bottom: 4px;
-    }
-
-    .mode-features {
+    /* Left column — branding */
+    .brand-col {
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      margin-bottom: 6px;
+      gap: 8px;
+      padding: 20px;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      height: 100%;
     }
 
-    .feature-tag {
-      background: rgba(74, 43, 23, 0.6);
-      border: 1px solid #4A2B17;
-      border-radius: 15px;
-      padding: 2px 8px;
-      font-size: 0.65rem;
-      color: #D2A679;
+    .logo-card {
+      width: 80px;
+      height: 110px;
+      background: linear-gradient(145deg, #C62828, #B71C1C);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      border: 3px solid #5D4037;
     }
 
-    .play-button {
-      background: linear-gradient(45deg, #D2A679, #B88A5A);
-      border: none;
-      border-radius: 25px;
-      padding: 6px 20px;
-      font-size: 0.85rem;
+    .logo-card-inner {
+      width: 58px;
+      height: 80px;
+      background: #FFF8DC;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #C62828;
       font-weight: bold;
-      color: #331E0F;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(210, 166, 121, 0.4);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .logo-title {
+      font-size: 2.4rem;
+      font-weight: bold;
+      color: #D2A679;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      letter-spacing: 4px;
+    }
+
+    .logo-tagline {
+      font-size: 0.85rem;
+      color: #8B5A2B;
+      letter-spacing: 2px;
       text-transform: uppercase;
+    }
+
+    /* Right column — controls */
+    .controls-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .difficulty-label {
+      font-size: 0.9rem;
+      color: #D2A679;
+      font-weight: bold;
       letter-spacing: 1px;
     }
 
-    .play-button:hover {
-      background: linear-gradient(45deg, #B88A5A, #8B5A2B);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(210, 166, 121, 0.6);
+    .difficulty-row {
+      display: flex;
+      gap: 10px;
     }
 
-    /* Special Effects for Different Modes */
-    .classic-mode {
+    .ai-card {
+      background: linear-gradient(135deg, #4A2B17, #331E0F);
+      border: 2px solid #8B5A2B;
+      border-radius: 8px;
+      padding: 8px 16px;
+      min-width: 100px;
+      min-height: 44px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #D2A679;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .ai-card:hover {
+      border-color: #D2A679;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.4);
+    }
+
+    .ai-card.selected {
+      background: #FFF8DC;
+      color: #3E2723;
+      border-color: #D2A679;
+      box-shadow: 0 4px 16px rgba(210, 166, 121, 0.6);
+    }
+
+    .ai-card.selected::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 3px;
+      background: #4CAF50;
+      border-radius: 2px;
+    }
+
+    .ai-card.coming-soon-ai {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ai-card .coming-soon-tag {
+      display: block;
+      font-size: 0.5rem;
+      color: #f39c12;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .ai-card.selected .coming-soon-tag {
+      color: #e67e22;
+    }
+
+    .play-btn {
+      background: linear-gradient(135deg, #4CAF50, #388E3C);
+      color: #FFF8DC;
+      border: 2px solid #4CAF50;
+      border-radius: 10px;
+      padding: 14px 48px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      min-height: 50px;
+      box-shadow: 0 4px 16px rgba(76, 175, 80, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .play-btn:hover {
+      background: linear-gradient(135deg, #388E3C, #2E7D32);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+    }
+
+    .play-btn:active {
+      transform: scale(0.97);
+    }
+
+    .coming-soon-badges {
+      display: flex;
+      gap: 12px;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      color: #8B5A2B;
+      padding: 4px 10px;
+      border: 1px solid rgba(139, 90, 43, 0.3);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .badge:hover {
+      color: #D2A679;
       border-color: #8B5A2B;
     }
 
-    .classic-mode:hover {
-      border-color: #D2A679;
-      box-shadow: 0 16px 48px rgba(139, 90, 43, 0.4);
-    }
-
-    .adventure-mode {
-      border-color: #2E86AB;
-      animation: adventurePulse 3s ease-in-out infinite;
-    }
-
-    .adventure-mode:hover {
-      border-color: #45A5C4;
-      box-shadow: 0 16px 48px rgba(46, 134, 171, 0.4);
-    }
-
-    @keyframes adventurePulse {
-      0%, 100% { box-shadow: 0 8px 32px rgba(46, 134, 171, 0.2); }
-      50% { box-shadow: 0 12px 40px rgba(46, 134, 171, 0.4); }
-    }
-
-    .tournament-mode {
-      border-color: #f39c12;
-    }
-
-    .tournament-mode:hover {
-      border-color: #e67e22;
-      box-shadow: 0 16px 48px rgba(243, 156, 18, 0.4);
-    }
-
-    /* 🔥 COMING SOON BANNER STYLES */
-    .coming-soon-banner {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: linear-gradient(135deg, #f39c12, #e67e22);
-      color: #331E0F;
-      font-weight: bold;
-      font-size: 0.8rem;
-      padding: 8px 16px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 
-        0 4px 12px rgba(243, 156, 18, 0.6),
-        inset 0 1px 2px rgba(255, 255, 255, 0.3);
-      animation: comingSoonGlow 2s ease-in-out infinite;
-      z-index: 10;
-    }
-
-    @keyframes comingSoonGlow {
-      0%, 100% { 
-        box-shadow: 
-          0 4px 12px rgba(243, 156, 18, 0.6),
-          inset 0 1px 2px rgba(255, 255, 255, 0.3);
-      }
-      50% { 
-        box-shadow: 
-          0 6px 20px rgba(243, 156, 18, 0.9),
-          inset 0 1px 2px rgba(255, 255, 255, 0.5);
-      }
-    }
-
-    /* Disabled state for coming soon modes */
-    .mode-card.coming-soon {
-      cursor: not-allowed;
-      opacity: 0.9;
-    }
-
-    .mode-card.coming-soon .play-button {
-      background: linear-gradient(45deg, #8B5A2B, #6B4A2B);
-      cursor: not-allowed;
-      opacity: 0.8;
-    }
-
-    .mode-card.coming-soon .play-button:hover {
-      transform: none;
-      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.3);
-    }
-
-    /* Footer */
-    .homepage-footer {
-      margin-top: 2px;
-      padding: 2px;
-      text-align: center;
-      color: #8B5A2B;
-      font-size: 0.65rem;
-    }
-
-    .stats-bar {
-      display: none;
-    }
-
-    /* Force landscape on phones */
-    .orientation-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.95);
-      color: #D2A679;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 99999;
-      font-size: 1.2rem;
-      text-align: center;
-      padding: 20px;
-      line-height: 1.4;
-    }
-
-    @media screen and (orientation: portrait) and (max-width: 768px) {
-      .orientation-overlay {
-        display: flex;
-      }
-      .homepage-container {
-        display: none;
-      }
-    }
-
-    /* Mobile — phones in landscape (short viewport) */
-    @media (max-height: 500px) {
-      .game-logo { font-size: 2rem; }
-      .game-subtitle { font-size: 0.9rem; }
-      .ai-selector-label { font-size: 0.85rem; }
-
-      .game-modes {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-      }
-
-      .mode-description,
-      .mode-features,
-      .mode-icon {
-        display: none;
-      }
-
-      .mode-card {
-        padding: 8px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .mode-title {
-        display: inline;
-        font-size: 0.85rem;
-        margin-bottom: 6px;
-      }
-
-      .play-button {
-        font-size: 0.7rem;
-        padding: 5px 14px;
-      }
-
-      .coming-soon-banner {
-        top: -2px;
-        right: -2px;
-        font-size: 0.45rem;
-        padding: 2px 5px;
-      }
-
-      .homepage-footer {
-        display: none;
-      }
-    }
-
-    /* Larger screens can afford bigger sizes */
-    @media (min-width: 769px) {
-      .game-logo { font-size: 3.5rem; }
-      .game-subtitle { font-size: 1.5rem; }
-      .mode-icon { font-size: 2.5rem; display: block; margin-bottom: 6px; }
-      .mode-title { font-size: 1.5rem; display: block; margin-bottom: 8px; }
-      .mode-description { font-size: 0.9rem; }
-      .mode-card { padding: 18px 25px; }
-      .feature-tag { padding: 5px 12px; font-size: 0.8rem; }
-      .play-button { padding: 10px 28px; font-size: 1rem; }
-      .stats-bar { display: flex; }
-      .homepage-footer { font-size: inherit; }
-    }
-
-    /* Particles Background Effect */
+    /* ---- Particles ---- */
     .particles {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       pointer-events: none;
       z-index: -1;
     }
@@ -599,247 +346,166 @@
     }
 
     @keyframes float {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-      }
-      10% {
-        opacity: 0.1;
-      }
-      90% {
-        opacity: 0.1;
-      }
-      100% {
-        transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-      }
+      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.1; }
+      90% { opacity: 0.1; }
+      100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* ---- Landscape mobile tweaks ---- */
+    @media (max-height: 500px) {
+      .brand-col { padding: 10px; gap: 4px; }
+      .logo-card { width: 60px; height: 84px; }
+      .logo-card-inner { width: 42px; height: 60px; font-size: 1.5rem; }
+      .logo-title { font-size: 1.8rem; letter-spacing: 3px; }
+      .logo-tagline { font-size: 0.7rem; }
+      .controls-col { padding: 10px; gap: 10px; }
+      .difficulty-label { font-size: 0.8rem; }
+      .ai-card { padding: 6px 12px; font-size: 0.75rem; min-width: 85px; }
+      .play-btn { padding: 10px 36px; font-size: 0.95rem; }
+      .badge { font-size: 0.6rem; }
+    }
+
+    /* ---- Tablet / Desktop ---- */
+    @media (min-width: 769px) and (min-height: 500px) {
+      .logo-card { width: 100px; height: 140px; }
+      .logo-card-inner { width: 72px; height: 100px; font-size: 2.5rem; }
+      .logo-title { font-size: 3.2rem; }
+      .logo-tagline { font-size: 1rem; }
+      .controls-col { gap: 24px; }
+      .difficulty-label { font-size: 1.1rem; }
+      .ai-card { padding: 10px 24px; font-size: 1rem; min-width: 120px; }
+      .play-btn { padding: 16px 60px; font-size: 1.3rem; }
+      .badge { font-size: 0.85rem; padding: 6px 14px; }
     }
   </style>
 </head>
 <body>
-  <!-- Force landscape orientation message -->
+  <!-- Orientation overlay -->
   <div class="orientation-overlay">
-    🔄 Please rotate your device to landscape mode for the best STACKED! experience
+    Please rotate your device to landscape mode for the best STACKED! experience
   </div>
 
-  <!-- Welcome Modal (first visit) -->
+  <!-- Welcome modal (first visit) -->
   <div class="welcome-overlay" id="welcome-overlay" style="display: none;">
     <div class="welcome-modal">
-      <h2>Welcome to STACKED! 🎴</h2>
+      <h2>Welcome to STACKED!</h2>
       <div class="welcome-rules">
         <p>Capture cards. Score points. Outsmart the bots.</p>
         <p><strong>GOAL:</strong> First to 300 points wins</p>
         <p><strong>CAPTURES:</strong> Match pairs (K+K) or add numbers (3+7=10)</p>
-        <p><strong>THAT'S IT:</strong> Pick your opponents and let's play!</p>
+        <p><strong>THAT'S IT:</strong> Pick your difficulty and let's play!</p>
       </div>
       <button class="welcome-btn" onclick="dismissWelcome()">Let's Go!</button>
     </div>
   </div>
 
-  <!-- Rules icon — top right -->
-  <button class="rules-btn" onclick="showWelcome()">📖</button>
+  <!-- Rules button -->
+  <button class="rules-btn" onclick="showWelcome()">?</button>
 
-  <!-- Floating Particles Background -->
+  <!-- Particles -->
   <div class="particles" id="particles"></div>
-  
-  <div class="homepage-container">
-    <!-- Header -->
-    <div class="game-header">
-      <h1 class="game-logo">🎴 STACKED!</h1>
-      <p class="game-subtitle">Strategic Card Combat • Master the Art of Capture</p>
+
+  <!-- Main split layout -->
+  <div class="split-layout">
+    <!-- Left — Branding -->
+    <div class="brand-col">
+      <div class="logo-card">
+        <div class="logo-card-inner">S!</div>
+      </div>
+      <div class="logo-title">STACKED!</div>
+      <div class="logo-tagline">Strategic Card Combat</div>
     </div>
 
-    <!-- AI Opponent Cards -->
-    <div class="ai-selector-section">
-      <label class="ai-selector-label">🤖 Choose Your AI Opponent:</label>
-      
-      <div class="ai-difficulty-cards">
-        <div class="ai-card selected" data-difficulty="beginner">
-          <h3 class="ai-title">Beginner</h3>
-        </div>
+    <!-- Right — Controls -->
+    <div class="controls-col">
+      <div class="difficulty-label">Choose Difficulty:</div>
 
-        <div class="ai-card" data-difficulty="intermediate">
-          <h3 class="ai-title">Intermediate</h3>
-        </div>
-
+      <div class="difficulty-row">
+        <div class="ai-card selected" data-difficulty="beginner">Beginner</div>
+        <div class="ai-card" data-difficulty="intermediate">Intermediate</div>
         <div class="ai-card coming-soon-ai" data-difficulty="legendary">
-          <h3 class="ai-title">Legendary</h3>
-          <span class="ai-coming-soon">Coming Soon</span>
+          Legendary
+          <span class="coming-soon-tag">Coming Soon</span>
         </div>
       </div>
-    </div>
 
-    <!-- Game Modes -->
-    <div class="game-modes">
-      <!-- Classic Mode -->
-      <div class="mode-card classic-mode" onclick="playMode('classic')">
-        <span class="mode-icon">🏛️</span>
-        <h2 class="mode-title">Classic STACKED</h2>
-        <p class="mode-description">
-          The original STACKED! experience with strategic captures, multi-area combos, and intelligent AI opponents.
-        </p>
-        <div class="mode-features">
-          <span class="feature-tag">🎯 Target: 300 pts</span>
-          <span class="feature-tag">🤖 Smart AI</span>
-          <span class="feature-tag">🎪 Multi-Capture</span>
-          <span class="feature-tag">💡 Hints Available</span>
-        </div>
-        
-        <button class="play-button">Play Classic</button>
-      </div>
+      <button class="play-btn" onclick="playClassic()">Play Classic</button>
 
-      <!-- Adventure Mode with Coming Soon Banner -->
-      <div class="mode-card adventure-mode coming-soon" onclick="showComingSoon('adventure')">
-        <div class="coming-soon-banner">Coming Soon</div>
-        <span class="mode-icon">🗺️</span>
-        <h2 class="mode-title">Adventure Mode</h2>
-        <p class="mode-description">
-          Embark on a journey through themed worlds! Battle unique opponents, unlock rewards, and conquer the STACKED! universe.
-        </p>
-        <div class="mode-features">
-          <span class="feature-tag">🗺️ World Map</span>
-          <span class="feature-tag">🎭 Unique Bosses</span>
-          <span class="feature-tag">🔓 Unlockables</span>
-          <span class="feature-tag">⭐ Progression</span>
-        </div>
-
-        <button class="play-button">Coming Soon</button>
+      <div class="coming-soon-badges">
+        <span class="badge" onclick="showComingSoon('adventure')">Adventure — soon</span>
+        <span class="badge" onclick="showComingSoon('tournament')">Tournament — soon</span>
       </div>
-
-      <!-- Tournament Mode with Coming Soon Banner -->
-      <div class="mode-card tournament-mode coming-soon" onclick="showComingSoon('tournament')">
-        <div class="coming-soon-banner">Coming Soon</div>
-        <span class="mode-icon">🏆</span>
-        <h2 class="mode-title">Tournament Mode</h2>
-        <p class="mode-description">
-          Compete in elimination brackets! Climb the ladder, defeat champion AI, and claim your throne as STACKED! legend.
-        </p>
-        <div class="mode-features">
-          <span class="feature-tag">🏆 Elimination</span>
-          <span class="feature-tag">👑 Champion AI</span>
-          <span class="feature-tag">🎖️ Leaderboards</span>
-          <span class="feature-tag">🔥 Coming Soon</span>
-        </div>
-
-        <button class="play-button">Coming Soon</button>
-      </div>
-    </div>
-        
-    <!-- Stats Bar -->
-    <div class="stats-bar">
-      <div class="stat-item">
-        <span class="stat-number">3</span>
-        <span class="stat-label">Game Modes</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">∞</span>
-        <span class="stat-label">Strategies</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">5</span>
-        <span class="stat-label">Capture Areas</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">3</span>
-        <span class="stat-label">AI Levels</span>
-      </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="homepage-footer">
-      <p>© 2024 STACKED! • Strategic Card Combat Engine • Built for Legends</p>
     </div>
   </div>
 
   <script>
-    // Create floating particles
+    // Particles
     function createParticles() {
-      const particlesContainer = document.getElementById('particles');
-      const particleCount = 50;
-      
-      for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 20 + 's';
-        particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-        particlesContainer.appendChild(particle);
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDelay = Math.random() * 20 + 's';
+        p.style.animationDuration = (15 + Math.random() * 10) + 's';
+        container.appendChild(p);
       }
     }
 
+    // AI pairings
     const DIFFICULTY_PAIRINGS = {
       beginner:     { bot1: 'calvin', bot2: 'calvin' },
       intermediate: { bot1: 'calvin', bot2: 'nina' },
       legendary:    { bot1: 'nina',   bot2: 'rex' }
     };
 
-    // Navigation functions
-    function playMode(mode) {
-      const selectedAICard = document.querySelector('.ai-card.selected');
-      const difficulty = selectedAICard ? selectedAICard.dataset.difficulty : 'beginner';
+    // Play
+    function playClassic() {
+      const selected = document.querySelector('.ai-card.selected');
+      const difficulty = selected ? selected.dataset.difficulty : 'beginner';
       const pairing = DIFFICULTY_PAIRINGS[difficulty] || DIFFICULTY_PAIRINGS.beginner;
 
-      localStorage.setItem('selectedMode', mode);
+      localStorage.setItem('selectedMode', 'classic');
       localStorage.setItem('bot1Personality', pairing.bot1);
       localStorage.setItem('bot2Personality', pairing.bot2);
-      
-      // Enhanced visual feedback
-      const modeCard = event.currentTarget;
-      if (modeCard) {
-        modeCard.style.transform = 'scale(0.95)';
-        modeCard.style.transition = 'transform 0.1s ease';
-        
-        setTimeout(() => {
-          modeCard.style.transform = '';
-          window.location.href = 'game.html';
-        }, 100);
-      } else {
-        window.location.href = 'game.html';
-      }
+
+      const btn = document.querySelector('.play-btn');
+      btn.style.transform = 'scale(0.95)';
+      setTimeout(() => { window.location.href = 'game.html'; }, 100);
     }
 
     function showComingSoon(mode) {
-      const modeNames = {
-        'adventure': 'Adventure Mode',
-        'tournament': 'Tournament Mode'
-      };
-      
-      const modeName = modeNames[mode] || mode;
-      alert(`🚀 ${modeName} is coming soon!\n\nThis epic mode is in development and will be available in the next update. Stay tuned for amazing new features!`);
+      const names = { adventure: 'Adventure Mode', tournament: 'Tournament Mode' };
+      alert(`${names[mode] || mode} is coming soon!`);
     }
 
-    // Setup AI Card Selection
+    // AI card selection
     function setupAICardSelection() {
-      const aiCards = document.querySelectorAll('.ai-card');
+      const cards = document.querySelectorAll('.ai-card');
 
-      aiCards.forEach(card => {
-        card.addEventListener('click', (e) => {
+      cards.forEach(card => {
+        card.addEventListener('click', () => {
           if (card.classList.contains('coming-soon-ai')) return;
-          aiCards.forEach(c => c.classList.remove('selected'));
+          cards.forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
 
           const difficulty = card.dataset.difficulty;
           const pairing = DIFFICULTY_PAIRINGS[difficulty] || DIFFICULTY_PAIRINGS.beginner;
           localStorage.setItem('bot1Personality', pairing.bot1);
           localStorage.setItem('bot2Personality', pairing.bot2);
-
-          card.style.transform = 'translateY(-8px) scale(1.1)';
-          setTimeout(() => {
-            card.style.transform = '';
-          }, 200);
         });
       });
 
-      // Restore selection on page load
+      // Restore saved selection
       const savedBot1 = localStorage.getItem('bot1Personality') || 'calvin';
-      // Reverse-lookup: find which difficulty matches the saved pairing
       let savedDifficulty = 'beginner';
       for (const [diff, pair] of Object.entries(DIFFICULTY_PAIRINGS)) {
         if (pair.bot1 === savedBot1) { savedDifficulty = diff; break; }
       }
       const savedCard = document.querySelector(`[data-difficulty="${savedDifficulty}"]`);
       if (savedCard) {
-        aiCards.forEach(c => c.classList.remove('selected'));
+        cards.forEach(c => c.classList.remove('selected'));
         savedCard.classList.add('selected');
       }
     }
@@ -854,30 +520,13 @@
       localStorage.setItem('stacked_welcomed', 'true');
     }
 
-    // Initialize
+    // Init
     document.addEventListener('DOMContentLoaded', () => {
       createParticles();
       setupAICardSelection();
-
-      // Show welcome modal on first visit
       if (!localStorage.getItem('stacked_welcomed')) {
         showWelcome();
       }
-      
-      // Add interactive effects to mode cards
-      const modeCards = document.querySelectorAll('.mode-card');
-      modeCards.forEach(card => {
-        // Skip hover effects for coming soon cards
-        if (!card.classList.contains('coming-soon')) {
-          card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-8px) scale(1.02)';
-          });
-          
-          card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-          });
-        }
-      });
     });
   </script>
   <script>
