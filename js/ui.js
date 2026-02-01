@@ -112,48 +112,8 @@ render() {
   }
 
   renderTable() {
-    const tableEl = document.querySelector('.table');
-    if (!tableEl) return;
-
-    const cardCount = this.game.state.board ? this.game.state.board.length : 0;
-
-    // Let CSS variables handle table sizing — no inline overrides
-
-    // Board positioning — shift up when many cards
-    const boardEl = document.getElementById('board');
-    if (boardEl && cardCount > 8) {
-      const rows = Math.ceil(cardCount / 4);
-      const extraRows = rows - 2;
-      const shiftPerRow = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-shift-per-row')) || 30;
-      const upwardShift = extraRows * shiftPerRow;
-      boardEl.style.transform = `translate(-50%, calc(-50% - ${upwardShift}px))`;
-    } else if (boardEl) {
-      boardEl.style.transform = 'translate(-50%, -50%)';
-    }
-    
-    // Force fixed bot hand positions
-    this.fixBotHandPositions();
-  }
-
-  fixBotHandPositions() {
-    const bot1Hand = document.getElementById('bot1-hand');
-    const bot2Hand = document.getElementById('bot2-hand');
-    
-    if (bot1Hand) {
-      bot1Hand.style.setProperty('position', 'absolute', 'important');
-      bot1Hand.style.setProperty('top', '50%', 'important');
-      bot1Hand.style.setProperty('left', '-20px', 'important');
-      bot1Hand.style.setProperty('transform', 'translateY(-50%) rotate(90deg)', 'important');
-      bot1Hand.style.setProperty('transform-origin', 'center', 'important');
-    }
-    
-    if (bot2Hand) {
-      bot2Hand.style.setProperty('position', 'absolute', 'important');
-      bot2Hand.style.setProperty('top', '50%', 'important');
-      bot2Hand.style.setProperty('right', '-20px', 'important');
-      bot2Hand.style.setProperty('transform', 'translateY(-50%) rotate(-90deg)', 'important');
-      bot2Hand.style.setProperty('transform-origin', 'center', 'important');
-    }
+    // Board is now a flex row in CSS — no transform centering needed
+    // Overflow handled by overflow-x: auto on .board
   }
 
   // Reset render flags when player turn starts

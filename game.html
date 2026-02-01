@@ -60,8 +60,11 @@
       </div>
 
       <div class="last-capture-display" id="last-capture-display"></div>
-      
+
       <div class="top-right-info">
+        <button class="action-btn rules-btn" id="rules-btn">Rules</button>
+        <button class="action-btn hint-btn" id="hint-btn">💡</button>
+        <button class="action-btn sound-btn" id="sound-toggle-btn" onclick="toggleSound()">🔊</button>
         <div class="target-score-info">
           🎯 Target<br>
           <span id="target-score">300 pts</span>
@@ -70,21 +73,13 @@
           📚 Deck<br>
           <span id="deck-count">40 cards</span>
         </div>
-        <div class="action-buttons">
-          <button class="action-btn" id="submit-btn" disabled>Submit</button>
-          <button class="action-btn" id="reset-btn">Reset</button>
-          <button class="action-btn" id="place-btn" disabled>Place</button>
-          <button class="action-btn hint-btn" id="hint-btn">💡</button>
-          <button class="action-btn sound-btn" id="sound-toggle-btn" onclick="toggleSound()">🔊</button>
-        </div>
       </div>
     </div>
 
     <!-- Game Area -->
     <div class="game-area">
       <div class="current-player" id="current-player">Your Turn</div>
-      
-      <!-- Main game table (preserving your existing board structure) -->
+      <div class="board-label">BOARD</div>
       <div class="table" id="table">
         <div class="board" id="board">
           <!-- Board cards will be rendered here by your existing ui.js -->
@@ -95,39 +90,51 @@
           <span>DEALER</span>
         </div>
       </div>
+      <div class="hand-wrapper">
+        <div class="hand-label">YOUR HAND</div>
+        <div class="player-hand" id="player-hand">
+          <!-- Player cards will be rendered here by your existing ui.js -->
+        </div>
+      </div>
     </div>
 
-    <!-- Player Hand -->
-    <div class="player-hand" id="player-hand">
-      <!-- Player cards will be rendered here by your existing ui.js -->
-    </div>
-
-    <!-- Combo Builder Area (preserving your 5-area system) -->
+    <!-- Combo Builder Area -->
     <div class="combo-area">
-      <div class="combo-title">🎪 COMBO BUILDER</div>
-      
-      <!-- Base Card (preserving your existing structure) -->
+      <div class="combo-title">COMBO BUILDER</div>
+
+      <!-- Base Card -->
       <div class="combo-section">
         <div class="combo-header">Base Card</div>
         <div class="base-area" data-slot="base" id="base-area"></div>
       </div>
 
-      <!-- Sum Areas -->
+      <!-- 4 Combo Slots in 2x2 grid (internal keys unchanged) -->
       <div class="combo-section">
-        <div class="combo-header">Sums</div>
-        <div class="capture-row">
-          <div class="sum-area" data-slot="sum1" id="sum1-area"></div>
-          <div class="sum-area" data-slot="sum2" id="sum2-area"></div>
-          <div class="sum-area" data-slot="sum3" id="sum3-area"></div>
+        <div class="combo-header">Combo Slots</div>
+        <div class="combo-grid">
+          <div class="combo-slot-wrapper">
+            <span class="combo-slot-label">1</span>
+            <div class="sum-area" data-slot="sum1" id="sum1-area"></div>
+          </div>
+          <div class="combo-slot-wrapper">
+            <span class="combo-slot-label">2</span>
+            <div class="sum-area" data-slot="sum2" id="sum2-area"></div>
+          </div>
+          <div class="combo-slot-wrapper">
+            <span class="combo-slot-label">3</span>
+            <div class="sum-area" data-slot="sum3" id="sum3-area"></div>
+          </div>
+          <div class="combo-slot-wrapper">
+            <span class="combo-slot-label">4</span>
+            <div class="match-area" data-slot="match" id="match-area"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Match Area -->
-      <div class="combo-section">
-        <div class="combo-header">Matches</div>
-        <div class="capture-row">
-          <div class="match-area" data-slot="match" id="match-area"></div>
-        </div>
+      <!-- Submit / Reset buttons -->
+      <div class="combo-actions">
+        <button class="action-btn" id="submit-btn" disabled>Submit</button>
+        <button class="action-btn" id="reset-btn">Reset</button>
       </div>
     </div>
   </div>

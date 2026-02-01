@@ -38,7 +38,7 @@
   --sum-badge-font: 10px;
 
   /* Grid tracks */
-  --grid-rows: var(--status-height) 1fr var(--hand-height);
+  --grid-rows: var(--status-height) 1fr;
   --grid-cols: 1fr var(--combo-width);
 
   /* Board grid */
@@ -113,7 +113,7 @@
     --sum-badge-top: -26px;
     --sum-badge-font: 13px;
 
-    --grid-rows: var(--status-height) 1fr var(--hand-height);
+    --grid-rows: var(--status-height) 1fr;
     --grid-cols: 1fr var(--combo-width);
 
     --board-col-min: 62px;
@@ -351,9 +351,8 @@ body {
   grid-template-rows: var(--grid-rows);
   grid-template-columns: var(--grid-cols);
   grid-template-areas:
-    "status-bar status-bar"
-    "game-area combo-area"
-    "player-hand combo-area";
+    "status-bar combo-area"
+    "game-area   combo-area";
   background:
     radial-gradient(circle at 20% 20%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
@@ -610,9 +609,12 @@ body {
   grid-area: game-area;
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4px;
+  gap: 4px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
@@ -621,62 +623,66 @@ body {
   }
 }
 
-/* Base positioning for current-player */
+/* current-player message — centered above board */
 .current-player {
-  position: absolute;
-  top: var(--cp-top);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 100;
   font-size: var(--cp-font);
-}
-
-.table {
-  width: var(--table-w);
-  height: var(--table-h);
-  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 2px solid #8B5A2B;
-  border-radius: 10px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  align-self: center;
+  margin-bottom: 12px;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
-  .table {
-    border: 4px solid #8B5A2B;
-    border-radius: 15px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  .current-player {
+    margin-bottom: 20px;
+  }
+}
+
+.table {
+  /* Neutralized — kept as wrapper for JS popup positioning only */
+  position: relative;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.board-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #8B5A2B;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .board-label {
+    font-size: 11px;
+    margin-bottom: 4px;
   }
 }
 
 .board {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--board-col-min), var(--board-col-max)));
-  grid-auto-rows: var(--board-row-h);
+  position: relative;
+  display: inline-flex;
+  flex-wrap: nowrap;
   gap: var(--board-gap);
-  max-width: var(--board-max-w);
-  width: auto;
-  min-width: 120px;
   padding: var(--board-pad);
-  border: 1px solid #8B5A2B;
-  border-radius: 8px;
-  background: rgba(139, 90, 43, 0.1);
-  justify-content: center;
-  align-content: center;
-  justify-items: center;
+  align-items: center;
+  overflow-x: auto;
+  /* Visual styling (moved from .table) */
+  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
+  border: 2px solid #8B5A2B;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
   .board {
-    border: 2px solid #8B5A2B;
-    border-radius: 10px;
+    border: 4px solid #8B5A2B;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
     min-width: 240px;
   }
 }
@@ -707,15 +713,44 @@ body {
 /* ============================================================================
  * 7. PLAYER HAND SECTION
  * ============================================================================ */
-.player-hand {
-  grid-area: player-hand;
+.hand-wrapper {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  align-self: center;
+  margin-top: 96px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .hand-wrapper {
+    margin-top: 96px;
+  }
+}
+
+.hand-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #4A7043;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .hand-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+}
+
+.player-hand {
+  display: inline-flex;
+  align-items: center;
   gap: 5px;
   padding: 4px 8px;
   background: linear-gradient(135deg, rgba(74, 112, 67, 0.8) 0%, rgba(44, 64, 39, 0.8) 100%);
-  border-top: 2px solid #4A7043;
+  border: 2px solid #4A7043;
+  border-radius: 8px;
   z-index: 10;
 }
 
@@ -723,7 +758,8 @@ body {
   .player-hand {
     gap: 12px;
     padding: 12px 20px;
-    border-top: 3px solid #4A7043;
+    border: 3px solid #4A7043;
+    border-radius: 10px;
   }
 }
 
@@ -732,8 +768,10 @@ body {
  * ============================================================================ */
 .combo-area {
   grid-area: combo-area;
+  align-self: start;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(74, 43, 23, 0.4) 100%);
-  border-left: 2px solid #8B5A2B;
+  border: 2px solid #8B5A2B;
+  border-radius: 0 0 0 10px;
   padding: var(--combo-pad);
   display: flex;
   flex-direction: column;
@@ -744,7 +782,8 @@ body {
 
 @media (min-width: 768px) and (min-height: 500px) {
   .combo-area {
-    border-left: 4px solid #8B5A2B;
+    border-width: 4px;
+    border-radius: 0 0 0 14px;
   }
 }
 
@@ -830,6 +869,33 @@ body {
   justify-content: center;
 }
 
+.combo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--capture-row-gap);
+  justify-items: center;
+}
+
+.combo-slot-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.combo-slot-label {
+  font-size: 8px;
+  font-weight: bold;
+  color: #8B5A2B;
+  letter-spacing: 1px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .combo-slot-label {
+    font-size: 10px;
+  }
+}
+
 /* Valid combo styling */
 .base-area.valid, .sum-area.valid, .match-area.valid,
 .base-area.valid-combo, .sum-area.valid-combo, .match-area.valid-combo {
@@ -844,20 +910,27 @@ body {
   50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
 }
 
-/* Combo action buttons — pushed to bottom of flex column */
+/* Combo action buttons */
 .combo-actions {
   display: flex;
   gap: 6px;
   justify-content: center;
-  margin-top: auto;
-  padding-top: 4px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(139, 90, 43, 0.3);
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
   .combo-actions {
-    gap: 8px;
-    margin-top: 4px;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
   }
+}
+
+.combo-actions .action-btn {
+  flex: 1;
+  min-width: 0;
 }
 
 .combo-action-btn {
