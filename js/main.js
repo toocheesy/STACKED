@@ -664,6 +664,14 @@ function playSound(type) {
   }
 }
 
+function toggleSound() {
+  const isOn = game.state.settings.soundEffects === 'on';
+  game.state.settings.soundEffects = isOn ? 'off' : 'on';
+  localStorage.setItem('soundEnabled', isOn ? 'false' : 'true');
+  const btn = document.getElementById('sound-toggle-btn');
+  if (btn) btn.textContent = isOn ? '🔇' : '🔊';
+}
+
 function handleDragStart(e, source, index) {
   if (window.gameIsPaused || (ui && ui.modalManager && ui.modalManager.isModalActive())) {
     e.preventDefault();
@@ -1031,14 +1039,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (overlay) {
       overlay.style.display = 'flex';
       window.gameIsPaused = true;
-      const dismissBtn = document.getElementById('dismiss-rules-btn');
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', () => {
-          overlay.style.display = 'none';
-          localStorage.setItem('hasPlayedBefore', 'true');
-          window.gameIsPaused = false;
-        });
-      }
     }
   }
 
@@ -1070,6 +1070,44 @@ document.addEventListener('DOMContentLoaded', () => {
     hintBtn.addEventListener('click', provideHint);
   } else {
     console.error('❌ Hint button not found!');
+  }
+
+  // Rules button — re-show quick rules overlay
+  const rulesBtn = document.getElementById('rules-btn');
+  if (rulesBtn) {
+    rulesBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('quick-rules-overlay');
+      if (overlay) {
+        overlay.style.display = 'flex';
+        window.gameIsPaused = true;
+      }
+    });
+  }
+
+  // Wire up dismiss button for rules overlay (works for both first-visit and manual open)
+  const dismissBtn = document.getElementById('dismiss-rules-btn');
+  if (dismissBtn && !dismissBtn._wired) {
+    dismissBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('quick-rules-overlay');
+      if (overlay) overlay.style.display = 'none';
+      localStorage.setItem('hasPlayedBefore', 'true');
+      window.gameIsPaused = false;
+    });
+    dismissBtn._wired = true;
+  }
+
+  // Sound toggle
+  const soundBtn = document.getElementById('sound-toggle-btn');
+  if (soundBtn) {
+    // Restore saved preference
+    const saved = localStorage.getItem('soundEnabled');
+    if (saved === 'true') {
+      game.state.settings.soundEffects = 'on';
+      soundBtn.textContent = '🔊';
+    } else {
+      game.state.settings.soundEffects = 'off';
+      soundBtn.textContent = '🔇';
+    }
   }
 });
 

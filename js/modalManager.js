@@ -62,7 +62,34 @@ class ModalManager {
       }
     }, 50);
 
+    // Confetti for round end and game over
+    if (type === this.modalTypes.ROUND_END || type === this.modalTypes.GAME_OVER) {
+      setTimeout(() => this.spawnConfetti(), 200);
+    }
+
     return true;
+  }
+
+  spawnConfetti() {
+    if (!this.modalContainer) return;
+    const container = this.modalContainer;
+    const colors = ['#FFD700', '#FF6B6B', '#4A7043', '#D2A679', '#8B5A2B', '#F5E8C7'];
+    const count = 40;
+
+    for (let i = 0; i < count; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDelay = `${Math.random() * 1.5}s`;
+      piece.style.animationDuration = `${2 + Math.random() * 2}s`;
+      container.appendChild(piece);
+    }
+
+    // Clean up after animations finish
+    setTimeout(() => {
+      container.querySelectorAll('.confetti-piece').forEach(p => p.remove());
+    }, 5000);
   }
 
   // 🚪 HIDE MODAL AND RESUME GAME
