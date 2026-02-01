@@ -321,6 +321,9 @@ initGameSystems();
 
   startGame(modeSelector.currentMode || 'classic', gameSettings);
 
+  // Track hand count (first deal = hand 1)
+  game.state.handCount = 1;
+
 if (game.state.currentPlayer !== 0) {
 setTimeout(() => scheduleNextBotTurn(), 1000);
 }
@@ -1115,19 +1118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Sound toggle
-  const soundBtn = document.getElementById('sound-toggle-btn');
-  if (soundBtn) {
-    // Restore saved preference
-    const saved = localStorage.getItem('soundEnabled');
-    if (saved === 'true') {
-      game.state.settings.soundEffects = 'on';
-      soundBtn.textContent = '🔊';
-    } else {
-      game.state.settings.soundEffects = 'off';
-      soundBtn.textContent = '🔇';
-    }
-  }
+  // Sound state restored from localStorage in gameSettings init (line ~313)
 });
 
 window.handleDragStart = handleDragStart;
@@ -1168,8 +1159,13 @@ try {
     game.state.currentPlayer = result.data.startingPlayer;
     game.state.lastCapturer = null;
 
+    // Increment hand counter
+    game.state.handCount = (game.state.handCount || 1) + 1;
+    const totalHands = Math.ceil(40 / 12); // 40-card deck, 12 per deal = ~4 hands
+
 window.messageController.handleGameEvent('NEW_HAND', {
-  handNumber: Math.floor((52 - game.state.deck.length) / 12),
+  handNumber: game.state.handCount,
+  totalHands: totalHands,
   roundNumber: game.currentRound
 });
 

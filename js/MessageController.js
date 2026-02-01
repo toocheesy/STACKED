@@ -172,8 +172,9 @@ class MessageController {
   }
 
   onNewHand(data) {
-    const round = data.roundNumber || 1;
-    this.showSecondaryMessage(`Round ${round} — new hand dealt`);
+    const hand = data.handNumber || '?';
+    const total = data.totalHands || '?';
+    this.showSecondaryMessage(`Hand ${hand}/${total} — new hand dealt`);
     this.showTimed('New cards dealt!', 'info', 2000, () => this.hideSecondaryMessage());
   }
 

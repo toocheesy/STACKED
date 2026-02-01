@@ -12,7 +12,7 @@
   --topbar-height: 36px;
   --topbar-font: 10px;
   --hand-height: 80px;
-  --combo-width: 165px;
+  --combo-width: 200px;
 
   /* Board cards */
   --card-w: 44px;
@@ -103,7 +103,7 @@
     --slot-card-h: 84px;
     --slot-card-font: 14px;
     --slot-card-offset: 16px;
-    --combo-width: 210px;
+    --combo-width: 240px;
 
     /* Top bar */
     --topbar-height: 44px;
@@ -550,11 +550,9 @@ body {
   font-size: 11px;
   color: #D2A679;
   text-align: center;
-  max-width: 200px;
+  flex: 1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
@@ -563,7 +561,6 @@ body {
     border: 2px solid #8B5A2B;
     border-radius: 8px;
     font-size: 13px;
-    max-width: 280px;
   }
 }
 
