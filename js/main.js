@@ -1096,6 +1096,21 @@ document.addEventListener('DOMContentLoaded', () => {
     dismissBtn._wired = true;
   }
 
+  // Scoreboard panel toggle
+  const scoreboardTab = document.getElementById('scoreboard-tab');
+  const scoreboardPanel = document.getElementById('scoreboard-panel');
+  if (scoreboardTab && scoreboardPanel) {
+    scoreboardTab.addEventListener('click', (e) => {
+      e.stopPropagation();
+      scoreboardPanel.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (scoreboardPanel.classList.contains('open') && !scoreboardPanel.contains(e.target)) {
+        scoreboardPanel.classList.remove('open');
+      }
+    });
+  }
+
   // Sound toggle
   const soundBtn = document.getElementById('sound-toggle-btn');
   if (soundBtn) {

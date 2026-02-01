@@ -107,7 +107,7 @@ render() {
   renderDeckCount() {
     const deckCountEl = document.getElementById('deck-count');
     if (deckCountEl) {
-      deckCountEl.textContent = `Deck: ${this.game.state.deck.length || 0} cards`;
+      deckCountEl.textContent = `${this.game.state.deck.length || 0} left`;
     }
   }
 
@@ -492,7 +492,7 @@ renderDealerIndicator() {
   const currentDealer = state.currentDealer !== undefined ? state.currentDealer : 0;
   
   // Remove existing dealer classes from all stat blocks
-  const allIndicators = document.querySelectorAll('.stat-block');
+  const allIndicators = document.querySelectorAll('.sb-row');
   allIndicators.forEach(el => {
     el.classList.remove('dealer');
     el.removeAttribute('data-deck');

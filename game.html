@@ -40,60 +40,57 @@
   </div>
 
   <div class="game-container">
-    <!-- Status Bar -->
-    <div class="status-bar">
-      <div class="player-stats">
-        <div class="stat-block player-stat">
-          <span class="stat-name">You</span>
-          <span class="stat-score" id="player-score">0 pts</span>
-        </div>
-        <div class="stat-block bot1-indicator">
-          <span class="stat-name" id="bot1-name">Bot 1</span>
-          <span class="stat-score" id="bot1-score">0 pts</span>
-          <span class="stat-cards" id="bot1-cards">4 cards</span>
-        </div>
-        <div class="stat-block bot2-indicator">
-          <span class="stat-name" id="bot2-name">Bot 2</span>
-          <span class="stat-score" id="bot2-score">0 pts</span>
-          <span class="stat-cards" id="bot2-cards">4 cards</span>
-        </div>
-      </div>
-
-      <div class="last-capture-display" id="last-capture-display"></div>
-
-      <div class="top-right-info">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <span class="deck-pill" id="deck-count">40 left</span>
         <button class="action-btn rules-btn" id="rules-btn">Rules</button>
-        <button class="action-btn hint-btn" id="hint-btn">💡</button>
+      </div>
+      <div class="top-bar-center">
+        <div class="current-player" id="current-player">Your Turn</div>
+      </div>
+      <div class="top-bar-right">
+        <div class="last-capture-display" id="last-capture-display"></div>
         <button class="action-btn sound-btn" id="sound-toggle-btn" onclick="toggleSound()">🔊</button>
-        <div class="target-score-info">
-          🎯 Target<br>
-          <span id="target-score">300 pts</span>
+        <span class="target-pill" id="target-score">300 pts</span>
+      </div>
+    </div>
+
+    <!-- Scoreboard Panel (left edge, collapsible) -->
+    <div class="scoreboard-panel" id="scoreboard-panel">
+      <div class="scoreboard-tab" id="scoreboard-tab">SCORES</div>
+      <div class="scoreboard-drawer">
+        <div class="sb-row player-stat">
+          <span class="sb-name">You</span>
+          <span class="sb-score" id="player-score">0 pts</span>
         </div>
-        <div class="deck-info">
-          📚 Deck<br>
-          <span id="deck-count">40 cards</span>
+        <div class="sb-row bot1-indicator">
+          <span class="sb-name" id="bot1-name">Bot 1</span>
+          <span class="sb-score" id="bot1-score">0 pts</span>
+          <span class="sb-cards" id="bot1-cards">4 cards</span>
+        </div>
+        <div class="sb-row bot2-indicator">
+          <span class="sb-name" id="bot2-name">Bot 2</span>
+          <span class="sb-score" id="bot2-score">0 pts</span>
+          <span class="sb-cards" id="bot2-cards">4 cards</span>
         </div>
       </div>
     </div>
 
     <!-- Game Area -->
     <div class="game-area">
-      <div class="current-player" id="current-player">Your Turn</div>
-      <div class="board-label">BOARD</div>
       <div class="table" id="table">
         <div class="board" id="board">
-          <!-- Board cards will be rendered here by your existing ui.js -->
+          <!-- Board cards rendered by ui.js -->
         </div>
-        
-        <!-- Dealer indicator (preserved from your system) -->
+        <!-- Dealer indicator (preserved) -->
         <div class="dealer-indicator" id="dealer-indicator">
           <span>DEALER</span>
         </div>
       </div>
       <div class="hand-wrapper">
-        <div class="hand-label">YOUR HAND</div>
         <div class="player-hand" id="player-hand">
-          <!-- Player cards will be rendered here by your existing ui.js -->
+          <!-- Player cards rendered by ui.js -->
         </div>
       </div>
     </div>
@@ -136,6 +133,9 @@
         <button class="action-btn" id="submit-btn" disabled>Submit</button>
         <button class="action-btn" id="reset-btn">Reset</button>
       </div>
+
+      <!-- Help button -->
+      <button class="action-btn help-btn" id="hint-btn">HELP</button>
     </div>
   </div>
 

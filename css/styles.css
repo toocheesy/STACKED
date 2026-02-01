@@ -9,7 +9,8 @@
  * 1. CSS CUSTOM PROPERTIES (Mobile-first base — targets 667x375 to 932x430)
  * ============================================================================ */
 :root {
-  --status-height: 40px;
+  --topbar-height: 36px;
+  --topbar-font: 10px;
   --hand-height: 80px;
   --combo-width: 165px;
 
@@ -38,7 +39,7 @@
   --sum-badge-font: 10px;
 
   /* Grid tracks */
-  --grid-rows: var(--status-height) 1fr;
+  --grid-rows: var(--topbar-height) 1fr;
   --grid-cols: 1fr var(--combo-width);
 
   /* Board grid */
@@ -53,13 +54,9 @@
   --table-w: 280px;
   --table-h: 170px;
 
-  /* Status bar */
-  --stat-pad: 4px 6px;
-  --stat-font: 10px;
-  --stat-min-w: 55px;
-  --stat-name-font: 8px;
-  --stat-score-font: 11px;
-  --stat-cards-font: 8px;
+  /* Scoreboard panel */
+  --sb-tab-width: 24px;
+  --sb-drawer-width: 120px;
 
   /* Combo area */
   --combo-pad: 8px;
@@ -73,6 +70,7 @@
   --btn-font: 8px;
   --btn-min-w: 34px;
   --combo-btn-min-h: 32px;
+  --help-btn-h: 36px;
 
   /* Game message */
   --msg-font: 10px;
@@ -108,13 +106,9 @@
     --slot-card-offset: 16px;
     --combo-width: 190px;
 
-    /* Status bar */
-    --status-height: 48px;
-    --stat-font: 11px;
-    --stat-name-font: 9px;
-    --stat-score-font: 13px;
-    --stat-cards-font: 9px;
-    --stat-min-w: 62px;
+    /* Top bar */
+    --topbar-height: 40px;
+    --sb-drawer-width: 140px;
 
     /* Buttons — 44px touch targets */
     --btn-pad: 6px 8px;
@@ -144,7 +138,7 @@
 /* Tablet & Desktop */
 @media (min-width: 768px) and (min-height: 500px) {
   :root {
-    --status-height: 70px;
+    --topbar-height: 50px;
     --hand-height: 100px;
     --combo-width: 320px;
 
@@ -166,7 +160,7 @@
     --sum-badge-top: -26px;
     --sum-badge-font: 13px;
 
-    --grid-rows: var(--status-height) 1fr;
+    --grid-rows: var(--topbar-height) 1fr;
     --grid-cols: 1fr var(--combo-width);
 
     --board-col-min: 62px;
@@ -179,12 +173,7 @@
     --table-w: 450px;
     --table-h: 280px;
 
-    --stat-pad: 6px 12px;
-    --stat-font: 12px;
-    --stat-min-w: 90px;
-    --stat-name-font: 11px;
-    --stat-score-font: 14px;
-    --stat-cards-font: 10px;
+    --sb-drawer-width: 160px;
 
     --combo-pad: 15px;
     --combo-gap: 12px;
@@ -403,9 +392,10 @@ body {
   display: grid;
   grid-template-rows: var(--grid-rows);
   grid-template-columns: var(--grid-cols);
+  position: relative;
   grid-template-areas:
-    "status-bar combo-area"
-    "game-area   combo-area";
+    "top-bar combo-area"
+    "game-area combo-area";
   background:
     radial-gradient(circle at 20% 20%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(139, 90, 43, 0.1) 0%, transparent 50%),
@@ -435,102 +425,99 @@ body {
 }
 
 /* ============================================================================
- * 5. STATUS BAR SECTION
+ * 5. TOP BAR SECTION
  * ============================================================================ */
-.status-bar {
-  grid-area: status-bar;
+.top-bar {
+  grid-area: top-bar;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 8px;
+  padding: 2px 8px;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.3) 0%, rgba(74, 43, 23, 0.3) 100%);
   border-bottom: 2px solid #8B5A2B;
   transform: translateZ(0);
-  font-size: var(--stat-font);
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .status-bar {
-    padding: 12px 20px;
-    border-bottom: 3px solid #8B5A2B;
-  }
-}
-
-.player-stats {
-  display: flex;
+  font-size: var(--topbar-font);
   gap: 6px;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
-  .player-stats {
-    gap: 10px;
+  .top-bar {
+    padding: 4px 20px;
+    border-bottom: 3px solid #8B5A2B;
+    gap: 12px;
   }
 }
 
-.stat-block {
-  padding: var(--stat-pad);
-  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  border: 1px solid #8B5A2B;
-  border-radius: 6px;
-  font-size: var(--stat-font);
-  font-weight: bold;
-  text-align: center;
-  min-width: var(--stat-min-w);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.top-bar-left,
+.top-bar-right {
   display: flex;
-  flex-direction: column;
-  gap: 1px;
+  align-items: center;
+  gap: 6px;
+}
+
+.top-bar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.top-bar .current-player {
+  margin: 0;
+  font-size: var(--cp-font);
+}
+
+/* Deck pill */
+.deck-pill {
+  background: linear-gradient(135deg, #4A4A4A 0%, #2C2C2C 100%);
+  color: #CCCCCC;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: var(--topbar-font);
+  font-weight: bold;
+  border: 1px solid #666;
+  white-space: nowrap;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
-  .stat-block {
-    border: 2px solid #8B5A2B;
-    border-radius: 8px;
-    gap: 2px;
+  .deck-pill {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 12px;
   }
 }
 
-.stat-name {
-  font-size: var(--stat-name-font);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+/* Target pill */
+.target-pill {
+  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
+  color: #FFD700;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: var(--topbar-font);
+  font-weight: bold;
+  border: 1px solid #8B5A2B;
+  white-space: nowrap;
 }
 
-.stat-score {
-  font-size: var(--stat-score-font);
+@media (min-width: 768px) and (min-height: 500px) {
+  .target-pill {
+    padding: 4px 12px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
 }
 
-.stat-cards {
-  font-size: var(--stat-cards-font);
-  opacity: 0.7;
-}
-
-.player-stat {
-  color: #F5E8C7;
-  border-color: #D2A679;
-}
-
-.bot1-indicator {
-  color: #FFE4CC;
-  border-color: #A64B2A;
-}
-
-.bot2-indicator {
-  color: #F0E4F0;
-  border-color: #8B4B8B;
-}
-
+/* Last capture display */
 .last-capture-display {
   display: block;
-  padding: 4px 10px;
+  padding: 3px 8px;
   background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
   border: 1px solid #8B5A2B;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 11px;
   color: #D2A679;
   text-align: center;
-  min-width: 80px;
-  max-width: 160px;
+  min-width: 90px;
+  max-width: 180px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -541,11 +528,10 @@ body {
 
 @media (min-width: 768px) and (min-height: 500px) {
   .last-capture-display {
-    display: block;
-    padding: 6px 14px;
+    padding: 5px 14px;
     border: 2px solid #8B5A2B;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 13px;
     min-width: 140px;
     max-width: 260px;
   }
@@ -556,12 +542,12 @@ body {
 }
 
 .last-capture-display .capture-label {
-  font-size: 10px;
+  font-size: 9px;
   color: #8B5A2B;
   text-transform: uppercase;
   letter-spacing: 1px;
   display: block;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .last-capture-display .capture-detail {
@@ -569,50 +555,137 @@ body {
   color: #F5E8C7;
 }
 
-.top-right-info {
+/* ============================================================================
+ * 5B. SCOREBOARD PANEL (collapsible, left edge)
+ * ============================================================================ */
+.scoreboard-panel {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 500;
   display: flex;
-  gap: 6px;
-  align-items: center;
+  flex-direction: row;
+  pointer-events: auto;
 }
 
-@media (min-width: 768px) and (min-height: 500px) {
-  .top-right-info {
-    gap: 12px;
-  }
-}
-
-/* NOTE: .deck-info is currently hidden (see section 14) */
-.deck-info {
-  background: linear-gradient(135deg, #4A4A4A 0%, #2C2C2C 100%);
-  color: #CCCCCC;
-  padding: 4px 6px;
-  border-radius: 6px;
-  font-size: var(--stat-font);
+.scoreboard-tab {
+  width: var(--sb-tab-width);
+  min-height: 44px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  background: linear-gradient(180deg, #6B4226 0%, #4A2B17 100%);
+  color: #D2A679;
+  font-size: 9px;
   font-weight: bold;
-  border: 1px solid #666;
-  text-align: center;
-  min-width: 40px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .deck-info {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    border: 2px solid #666;
-    min-width: 70px;
-  }
-}
-
-.action-buttons {
+  letter-spacing: 1.5px;
   display: flex;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 0 6px 6px 0;
+  border: 1px solid #8B5A2B;
+  border-left: none;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.4);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  padding: 8px 2px;
+}
+
+.scoreboard-tab:hover {
+  background: linear-gradient(180deg, #8B5A2B 0%, #6B4226 100%);
+}
+
+.scoreboard-drawer {
+  width: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
+  border: 1px solid #8B5A2B;
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  transition: width 0.25s ease, padding 0.25s ease;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.scoreboard-panel.open .scoreboard-drawer {
+  width: var(--sb-drawer-width);
+  padding: 10px 8px;
+}
+
+.sb-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: rgba(74, 43, 23, 0.3);
+  white-space: nowrap;
+}
+
+.sb-row.player-stat {
+  border-left: 3px solid #D2A679;
+  color: #F5E8C7;
+}
+
+.sb-row.bot1-indicator {
+  border-left: 3px solid #A64B2A;
+  color: #FFE4CC;
+}
+
+.sb-row.bot2-indicator {
+  border-left: 3px solid #8B4B8B;
+  color: #F0E4F0;
+}
+
+.sb-name {
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+}
+
+.sb-score {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.sb-cards {
+  font-size: 8px;
+  opacity: 0.7;
+}
+
+/* Dealer indicator on scoreboard rows */
+.sb-row.dealer {
+  border-color: #FFD700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+.sb-row.dealer::after {
+  display: block;
+  font-size: 7px;
+  font-weight: bold;
+  color: #FFD700;
+  line-height: 1.2;
+  border-top: 1px solid rgba(255, 215, 0, 0.5);
+  margin-top: 1px;
+  padding-top: 1px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  content: "DEALER - " attr(data-deck) " left";
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
-  .action-buttons {
-    gap: 8px;
+  .scoreboard-tab {
+    font-size: 10px;
+    width: 28px;
   }
+  .sb-name { font-size: 10px; }
+  .sb-score { font-size: 13px; }
+  .sb-cards { font-size: 9px; }
+  .sb-row.dealer::after { font-size: 9px; }
 }
 
 .action-btn {
@@ -676,18 +749,7 @@ body {
   }
 }
 
-/* current-player message — centered above board */
-.current-player {
-  font-size: var(--cp-font);
-  align-self: center;
-  margin-bottom: 12px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .current-player {
-    margin-bottom: 20px;
-  }
-}
+/* current-player lives in top-bar now — see .top-bar .current-player */
 
 .table {
   /* Neutralized — kept as wrapper for JS popup positioning only */
@@ -698,22 +760,6 @@ body {
   border: none;
   border-radius: 0;
   box-shadow: none;
-}
-
-.board-label {
-  font-size: 9px;
-  font-weight: bold;
-  color: #8B5A2B;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .board-label {
-    font-size: 11px;
-    margin-bottom: 4px;
-  }
 }
 
 .board {
@@ -771,28 +817,12 @@ body {
   flex-direction: column;
   align-items: center;
   align-self: center;
-  margin-top: 96px;
+  margin-top: 8px;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
   .hand-wrapper {
-    margin-top: 96px;
-  }
-}
-
-.hand-label {
-  font-size: 9px;
-  font-weight: bold;
-  color: #4A7043;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .hand-label {
-    font-size: 11px;
-    margin-bottom: 4px;
+    margin-top: 12px;
   }
 }
 
@@ -984,6 +1014,19 @@ body {
 .combo-actions .action-btn {
   flex: 1;
   min-width: 0;
+}
+
+/* Help button in combo area */
+.help-btn {
+  width: 100%;
+  min-height: var(--help-btn-h);
+  background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
+  border-color: #4A7043;
+  color: #F5E8C7;
+  font-size: var(--btn-font);
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-top: 4px;
 }
 
 .combo-action-btn {
@@ -1433,30 +1476,7 @@ dialog::backdrop {
   }
 }
 
-/* Enhanced dealer indication */
-.stat-block.dealer::after {
-  display: block;
-  font-size: 8px;
-  font-weight: bold;
-  text-align: center;
-  color: #FFD700;
-  line-height: 1.2;
-  border-top: 1px solid rgba(255, 215, 0, 0.5);
-  margin-top: 1px;
-  padding-top: 1px;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
-  content: "DEALER - " attr(data-deck) " left";
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .stat-block.dealer::after {
-    font-size: 10px;
-    margin-top: 2px;
-    padding-top: 2px;
-  }
-}
-
-/* Make dealer element more visible */
+/* Make dealer element more visible (shared) */
 .dealer {
   border-color: #FFD700;
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
@@ -1465,42 +1485,8 @@ dialog::backdrop {
 /* ============================================================================
  * 14. HIDDEN ELEMENTS
  * ============================================================================ */
-.deck-info,
 .dealer-indicator {
   display: none;
-}
-
-.target-score-info {
-  background: linear-gradient(135deg, #4A2B17 0%, #331E0F 100%);
-  color: #D2A679;
-  padding: 3px 6px;
-  border-radius: 6px;
-  font-size: 8px;
-  font-weight: bold;
-  border: 1px solid #8B5A2B;
-  text-align: center;
-  min-width: 40px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .target-score-info {
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    border: 2px solid #8B5A2B;
-    min-width: 70px;
-  }
-}
-
-.target-score-info #target-score {
-  color: #FFD700;
-  font-size: 10px;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .target-score-info #target-score {
-    font-size: 13px;
-  }
 }
 
 /* ============================================================================
