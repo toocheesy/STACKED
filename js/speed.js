@@ -113,9 +113,6 @@ const SpeedMode = {
       }, 200);
     }
     
-    if (window.playSound) {
-      playSound('warning');
-    }
   },
 
   timeUp(gameEngine) {

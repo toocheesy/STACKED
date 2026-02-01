@@ -140,13 +140,11 @@ class MessageController {
       this.showTimed(`${name} captured ${cards} cards for ${points} points!`, 'bot', 3000);
     }
 
-    if (typeof playSound === 'function') playSound('capture');
   }
 
   onCaptureError(data) {
     const msg = data.message || 'Invalid capture attempt';
     this.showTimed(`${msg}`, 'error', 4000);
-    if (typeof playSound === 'function') playSound('invalid');
   }
 
   onCardPlaced(data) {

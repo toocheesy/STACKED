@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stacked-v18';
+const CACHE_NAME = 'stacked-v19';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -22,10 +22,6 @@ const ASSETS_TO_CACHE = [
   '/js/personalities/calvin.js',
   '/js/personalities/nina.js',
   '/js/personalities/rex.js',
-  '/audio/capture.mp3',
-  '/audio/invalid.mp3',
-  '/audio/jackpot.mp3',
-  '/audio/winner.mp3',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   '/icons/apple-touch-icon.png',

@@ -310,12 +310,10 @@ initGameSystems();
     modeSelector.currentMode = storedMode;
   }
 
-  const savedSound = localStorage.getItem('soundEnabled');
   const gameSettings = {
     bot1Personality: storedBot1,
     bot2Personality: storedBot2,
     cardSpeed: 'fast',
-    soundEffects: savedSound === 'true' ? 'on' : 'off',
     targetScore: 300
   };
 
@@ -343,7 +341,6 @@ function handleSubmit() {
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: "Base Card area must have exactly one card!"
     });
-    playSound('invalid');
     return;
   }
 
@@ -378,8 +375,7 @@ function handleSubmit() {
         window.messageController.handleGameEvent('CAPTURE_ERROR', {
           message: `${areaNames[area.name]}: ${result.details}`
         });
-        playSound('invalid');
-        return;
+            return;
       }
     }
   }
@@ -389,7 +385,6 @@ function handleSubmit() {
     window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: "No valid captures found - check your combinations!"
     });
-    playSound('invalid');
     return;
   }
 
@@ -412,7 +407,6 @@ if (game.currentMode.onCapture) {
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
     ui.render();
-  playSound('capture');
 
 
   const result = window.gameStateManager.determineGameState(game);
@@ -660,20 +654,6 @@ function showLastCapture(playerName, cards, points) {
   el.innerHTML = '<span class="capture-label">Last Capture</span>' +
     '<span class="capture-detail">' + playerName + ': ' + cardStr + ' (' + points + ' pts)</span>';
   el.classList.add('visible');
-}
-
-// Sound disabled — will re-enable with proper toggle later
-function playSound(type) {
-  // Disabled
-}
-window.playSound = playSound;
-
-function toggleSound() {
-  const isOn = game.state.settings.soundEffects === 'on';
-  game.state.settings.soundEffects = isOn ? 'off' : 'on';
-  localStorage.setItem('soundEnabled', isOn ? 'false' : 'true');
-  const btn = document.getElementById('sound-toggle-btn');
-  if (btn) btn.textContent = isOn ? '🔇' : '🔊';
 }
 
 function handleDragStart(e, source, index) {
@@ -1115,7 +1095,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Sound state restored from localStorage in gameSettings init (line ~313)
 });
 
 window.handleDragStart = handleDragStart;

@@ -287,7 +287,6 @@ this.game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [
 this.ui.cleanupBotComboVisuals();
 
 this.ui.render();
-playSound('capture');
 return true;
 }
 
