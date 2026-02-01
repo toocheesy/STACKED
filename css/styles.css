@@ -88,6 +88,59 @@
   --board-shift-per-row: 30px;
 }
 
+/* Landscape Mobile (iPhone SE → iPhone 15 Pro Max, similar Android) */
+@media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
+  :root {
+    /* Cards */
+    --card-w: 56px;
+    --card-h: 78px;
+    --card-font: 12px;
+    --hand-card-w: 62px;
+    --hand-card-h: 86px;
+    --hand-card-font: 14px;
+
+    /* Combo slots */
+    --slot-w: 58px;
+    --slot-h: 80px;
+    --slot-card-w: 52px;
+    --slot-card-h: 72px;
+    --slot-card-font: 11px;
+    --slot-card-offset: 16px;
+    --combo-width: 190px;
+
+    /* Status bar */
+    --status-height: 48px;
+    --stat-font: 11px;
+    --stat-name-font: 9px;
+    --stat-score-font: 13px;
+    --stat-cards-font: 9px;
+    --stat-min-w: 62px;
+
+    /* Buttons — 44px touch targets */
+    --btn-pad: 6px 8px;
+    --btn-font: 10px;
+    --btn-min-w: 44px;
+    --combo-btn-min-h: 36px;
+
+    /* Board */
+    --board-gap: 6px;
+    --board-pad: 10px;
+
+    /* Current player badge */
+    --cp-font: 10px;
+
+    /* Combo area */
+    --combo-pad: 10px;
+    --combo-gap: 8px;
+    --combo-title-font: 12px;
+  }
+
+  .hand-wrapper {
+    margin-top: 40px;
+    padding-bottom: 10px;
+  }
+}
+
 /* Tablet & Desktop */
 @media (min-width: 768px) and (min-height: 500px) {
   :root {
