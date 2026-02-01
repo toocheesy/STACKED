@@ -8,7 +8,7 @@ const Calvin = {
   name: 'Calvin',
   title: 'The Calculator',
   level: 'novice',
-  thinkingDelay: { min: 1500, max: 1500 },
+  thinkingDelay: { min: 2000, max: 3000 },
 
   decide(hand, board, gameState) {
     if (!hand || hand.length === 0) return null;

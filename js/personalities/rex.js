@@ -8,7 +8,7 @@ const Rex = {
   name: 'Rex',
   title: 'The Shark',
   level: 'veteran',
-  thinkingDelay: { min: 500, max: 1000 },
+  thinkingDelay: { min: 1000, max: 1800 },
 
   decide(hand, board, gameState) {
     if (!hand || hand.length === 0) return null;

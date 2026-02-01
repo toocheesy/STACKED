@@ -1117,8 +1117,8 @@ game.state.currentPlayer = playerIndex;
   ui.render();
 
   if (playerIndex !== 0) {
-
-    setTimeout(() => aiTurn(), 1000);
+    // Deliberate pause after bot action before next move
+    setTimeout(() => aiTurn(), 2000);
   } else {
     window.messageController.handleGameEvent('TURN_START');
   }

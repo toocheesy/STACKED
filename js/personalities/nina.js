@@ -8,7 +8,7 @@ const Nina = {
   name: 'Nina',
   title: 'The Natural',
   level: 'intermediate',
-  thinkingDelay: { min: 1000, max: 2000 },
+  thinkingDelay: { min: 1500, max: 2500 },
 
   decide(hand, board, gameState) {
     if (!hand || hand.length === 0) return null;

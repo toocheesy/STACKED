@@ -517,19 +517,32 @@ renderDealerIndicator() {
 }
 
   renderTurnIndicator() {
-    const el = document.getElementById('turn-indicator');
-    if (!el) return;
     const cp = this.game?.state?.currentPlayer ?? 0;
-    el.classList.remove('player-turn', 'bot1-turn', 'bot2-turn');
+    const turnClass = cp === 0 ? 'player-turn' : (cp === 1 ? 'bot1-turn' : 'bot2-turn');
+    let turnText;
     if (cp === 0) {
-      el.textContent = 'YOUR TURN';
-      el.classList.add('player-turn');
+      turnText = 'YOUR TURN';
     } else {
       const name = window.messageController
         ? window.messageController.getBotDisplayName(cp)
         : `Bot ${cp}`;
-      el.textContent = `${name.toUpperCase()}'S TURN`;
-      el.classList.add(cp === 1 ? 'bot1-turn' : 'bot2-turn');
+      turnText = `${name.toUpperCase()}'S TURN`;
+    }
+
+    // Combo builder indicator
+    const comboEl = document.getElementById('turn-indicator');
+    if (comboEl) {
+      comboEl.classList.remove('player-turn', 'bot1-turn', 'bot2-turn');
+      comboEl.textContent = turnText;
+      comboEl.classList.add(turnClass);
+    }
+
+    // Header indicator (bold, prominent)
+    const headerEl = document.getElementById('header-turn');
+    if (headerEl) {
+      headerEl.classList.remove('player-turn', 'bot1-turn', 'bot2-turn');
+      headerEl.textContent = turnText;
+      headerEl.classList.add(turnClass);
     }
   }
 

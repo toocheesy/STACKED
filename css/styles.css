@@ -498,7 +498,22 @@ body {
   justify-content: center;
 }
 
-/* top-bar-center kept as flex spacer */
+/* Header turn indicator — bold, centered */
+.header-turn {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+}
+
+.header-turn.player-turn { color: #D4A44A; }
+.header-turn.bot1-turn { color: #FFB74D; }
+.header-turn.bot2-turn { color: #CE93D8; }
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .header-turn { font-size: 18px; }
+}
 
 /* Deck pill */
 .deck-pill {
