@@ -145,12 +145,6 @@
     font-size: 12px;
   }
 
-  .game-buttons .action-btn {
-    padding: 8px 14px;
-    font-size: 12px;
-    min-height: 34px;
-  }
-
   dialog {
     max-height: 80vh;
     padding: 12px;
@@ -782,39 +776,7 @@ body {
 
 /* Message system styles moved to Section 12 (Dual Message System) */
 
-/* Floating action buttons — top-right of game area */
-.game-buttons {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  display: flex;
-  gap: 6px;
-  z-index: 10;
-}
-
-.game-buttons .action-btn {
-  padding: 4px 10px;
-  font-size: 9px;
-  min-width: 0;
-  min-height: 30px;
-}
-
-.game-buttons .help-btn {
-  color: #F5E8C7;
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .game-buttons {
-    top: 12px;
-    right: 12px;
-    gap: 8px;
-  }
-  .game-buttons .action-btn {
-    padding: 6px 12px;
-    font-size: 11px;
-    min-height: 36px;
-  }
-}
+/* Game-buttons removed — buttons now inside combo-area */
 
 /* Board label */
 .board-label {
@@ -1002,6 +964,68 @@ body {
   }
 }
 
+/* Combo body: buttons left, slots right */
+.combo-body {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.combo-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 60px;
+  flex-shrink: 0;
+}
+
+.combo-buttons .action-btn {
+  width: 100%;
+  padding: 8px 4px;
+  font-size: 10px;
+  min-height: 32px;
+  min-width: 0;
+}
+
+.combo-buttons .help-btn {
+  color: #F5E8C7;
+}
+
+.combo-slots {
+  display: flex;
+  flex-direction: column;
+  gap: var(--combo-gap);
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
+  .combo-buttons {
+    width: 65px;
+  }
+  .combo-buttons .action-btn {
+    font-size: 11px;
+    padding: 8px 4px;
+    min-height: 34px;
+  }
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .combo-body {
+    gap: 10px;
+  }
+  .combo-buttons {
+    width: 70px;
+    gap: 8px;
+  }
+  .combo-buttons .action-btn {
+    font-size: 11px;
+    padding: 8px 6px;
+    min-height: 36px;
+  }
+}
+
 .combo-section {
   display: flex;
   flex-direction: column;
@@ -1108,7 +1132,7 @@ body {
   50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
 }
 
-/* Help button green variant (used in .game-buttons) */
+/* Help button green variant (used in .combo-buttons) */
 .help-btn {
   background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
   border-color: #4A7043;

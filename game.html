@@ -77,13 +77,6 @@
 
     <!-- Game Area -->
     <div class="game-area">
-      <!-- Action buttons floating top-right of game area -->
-      <div class="game-buttons">
-        <button class="action-btn" id="submit-btn" disabled>Submit</button>
-        <button class="action-btn" id="reset-btn">Reset</button>
-        <button class="action-btn help-btn" id="hint-btn">HELP</button>
-      </div>
-
       <!-- Dual message system -->
       <div id="secondary-message" class="secondary-message"></div>
       <div id="primary-message" class="primary-message">Your Turn</div>
@@ -109,32 +102,41 @@
     <!-- Combo Builder Area -->
     <div class="combo-area">
       <div class="combo-title">COMBO BUILDER<span class="turn-indicator" id="turn-indicator"></span></div>
-
-      <!-- Base Card -->
-      <div class="combo-section">
-        <div class="combo-header">Base Card</div>
-        <div class="base-area" data-slot="base" id="base-area"></div>
-      </div>
-
-      <!-- 4 Combo Slots in 2x2 grid (internal keys unchanged) -->
-      <div class="combo-section">
-        <div class="combo-header">Combo Slots</div>
-        <div class="combo-grid">
-          <div class="combo-slot-wrapper">
-            <span class="combo-slot-label">1</span>
-            <div class="sum-area" data-slot="sum1" id="sum1-area"></div>
+      <div class="combo-body">
+        <!-- Action buttons — left column -->
+        <div class="combo-buttons">
+          <button class="action-btn" id="submit-btn" disabled>Submit</button>
+          <button class="action-btn" id="reset-btn">Reset</button>
+          <button class="action-btn help-btn" id="hint-btn">HELP</button>
+        </div>
+        <!-- Slots — right column -->
+        <div class="combo-slots">
+          <!-- Base Card -->
+          <div class="combo-section">
+            <div class="combo-header">Base Card</div>
+            <div class="base-area" data-slot="base" id="base-area"></div>
           </div>
-          <div class="combo-slot-wrapper">
-            <span class="combo-slot-label">2</span>
-            <div class="sum-area" data-slot="sum2" id="sum2-area"></div>
-          </div>
-          <div class="combo-slot-wrapper">
-            <span class="combo-slot-label">3</span>
-            <div class="sum-area" data-slot="sum3" id="sum3-area"></div>
-          </div>
-          <div class="combo-slot-wrapper">
-            <span class="combo-slot-label">4</span>
-            <div class="match-area" data-slot="match" id="match-area"></div>
+          <!-- 4 Combo Slots in 2x2 grid -->
+          <div class="combo-section">
+            <div class="combo-header">Combo Slots</div>
+            <div class="combo-grid">
+              <div class="combo-slot-wrapper">
+                <span class="combo-slot-label">1</span>
+                <div class="sum-area" data-slot="sum1" id="sum1-area"></div>
+              </div>
+              <div class="combo-slot-wrapper">
+                <span class="combo-slot-label">2</span>
+                <div class="sum-area" data-slot="sum2" id="sum2-area"></div>
+              </div>
+              <div class="combo-slot-wrapper">
+                <span class="combo-slot-label">3</span>
+                <div class="sum-area" data-slot="sum3" id="sum3-area"></div>
+              </div>
+              <div class="combo-slot-wrapper">
+                <span class="combo-slot-label">4</span>
+                <div class="match-area" data-slot="match" id="match-area"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
