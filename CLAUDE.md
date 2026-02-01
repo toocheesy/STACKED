@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 300 points wins.
 
-**Live Site:** https://toocheesy.github.io/STACKED
+**Live Site:** https://stack-delta-taupe.vercel.app
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
 
 ## Development
@@ -22,7 +22,7 @@ python -m http.server 8000
 
 Open `index.html` for homepage or `game.html` directly to play.
 
-**Deployment:** GitHub Pages (push to main).
+**Deployment:** Vercel (push to main).
 
 ---
 
@@ -186,7 +186,7 @@ Repository: https://github.com/toocheesy/STACKED.git
 
 - **Default branch:** Always work on `dev` unless told otherwise
 - **NEVER push directly to `main`** unless TC explicitly says to deploy
-- Push to `main` triggers GitHub Pages deploy
+- Push to `main` triggers Vercel deploy
 - TC will tell you which branch to switch to
 
 ### CSS Architecture

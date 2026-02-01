@@ -2,7 +2,7 @@
 
 A strategic card game where you play against 2 AI opponents. Capture cards using a combo system of pairs and sums. First to 500 points wins.
 
-**Play it:** [https://toocheesy.github.io/STACKED](https://toocheesy.github.io/STACKED)
+**Play it:** [https://stack-delta-taupe.vercel.app](https://stack-delta-taupe.vercel.app)
 
 ## How to Play
 
@@ -48,7 +48,7 @@ Open `index.html` for the landing page or `game.html` to jump straight into a ga
 - Vanilla JavaScript ES6+ (no frameworks)
 - CSS3
 - HTML5
-- Hosted on GitHub Pages
+- Hosted on Vercel
 
 ## Project Structure
 

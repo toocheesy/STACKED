@@ -1,0 +1,22 @@
+{
+  "name": "STACKED!",
+  "short_name": "STACKED!",
+  "description": "Strategic Card Combat",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "theme_color": "#331E0F",
+  "background_color": "#331E0F",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
