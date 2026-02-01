@@ -975,7 +975,7 @@ body {
 .combo-buttons {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  justify-content: space-evenly;
   width: 60px;
   flex-shrink: 0;
 }
@@ -1017,7 +1017,6 @@ body {
   }
   .combo-buttons {
     width: 70px;
-    gap: 8px;
   }
   .combo-buttons .action-btn {
     font-size: 11px;

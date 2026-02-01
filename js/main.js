@@ -310,11 +310,12 @@ initGameSystems();
     modeSelector.currentMode = storedMode;
   }
 
+  const savedSound = localStorage.getItem('soundEnabled');
   const gameSettings = {
     bot1Personality: storedBot1,
     bot2Personality: storedBot2,
     cardSpeed: 'fast',
-    soundEffects: 'off',
+    soundEffects: savedSound === 'true' ? 'on' : 'off',
     targetScore: 300
   };
 
@@ -660,9 +661,12 @@ function showLastCapture(playerName, cards, points) {
 
 function playSound(type) {
   if (game.state.settings.soundEffects === 'on' && window.sounds && window.sounds[type]) {
+    window.sounds[type].currentTime = 0;
     window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
   }
 }
+// Override helpers.js global with settings-aware version
+window.playSound = playSound;
 
 function toggleSound() {
   const isOn = game.state.settings.soundEffects === 'on';
