@@ -88,30 +88,30 @@
 /* Landscape Mobile (iPhone SE → iPhone 15 Pro Max, similar Android) */
 @media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
   :root {
-    /* Cards */
-    --card-w: 56px;
-    --card-h: 78px;
-    --card-font: 12px;
-    --hand-card-w: 62px;
-    --hand-card-h: 86px;
-    --hand-card-font: 14px;
+    /* Cards — larger for tap targets */
+    --card-w: 65px;
+    --card-h: 90px;
+    --card-font: 16px;
+    --hand-card-w: 72px;
+    --hand-card-h: 100px;
+    --hand-card-font: 18px;
 
-    /* Combo slots */
-    --slot-w: 58px;
-    --slot-h: 80px;
-    --slot-card-w: 52px;
-    --slot-card-h: 72px;
-    --slot-card-font: 11px;
+    /* Combo slots — match card increase */
+    --slot-w: 68px;
+    --slot-h: 92px;
+    --slot-card-w: 60px;
+    --slot-card-h: 84px;
+    --slot-card-font: 14px;
     --slot-card-offset: 16px;
-    --combo-width: 190px;
+    --combo-width: 210px;
 
     /* Top bar */
-    --topbar-height: 40px;
+    --topbar-height: 44px;
     --sb-drawer-width: 140px;
 
-    /* Buttons — 44px touch targets */
-    --btn-pad: 6px 8px;
-    --btn-font: 10px;
+    /* Buttons */
+    --btn-pad: 8px 10px;
+    --btn-font: 11px;
     --btn-min-w: 44px;
     --combo-btn-min-h: 36px;
 
@@ -120,17 +120,35 @@
     --board-pad: 10px;
 
     /* Current player badge */
-    --cp-font: 10px;
+    --cp-font: 11px;
 
     /* Combo area */
     --combo-pad: 10px;
     --combo-gap: 8px;
-    --combo-title-font: 12px;
+    --combo-title-font: 13px;
+    --combo-header-font: 11px;
   }
 
   .hand-wrapper {
-    margin-top: 40px;
-    padding-bottom: 10px;
+    margin-top: 10px;
+    padding-bottom: 6px;
+  }
+
+  .deck-pill,
+  .target-pill {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .board-label,
+  .hand-label {
+    font-size: 12px;
+  }
+
+  .game-buttons .action-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 34px;
   }
 }
 
