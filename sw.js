@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stacked-v1';
+const CACHE_NAME = 'stacked-v2';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -52,9 +52,16 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — cache first, network fallback
+// Fetch — network first, cache fallback (ensures fresh content on deploy)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => cached || fetch(event.request))
+    fetch(event.request)
+      .then((response) => {
+        // Update cache with fresh response
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      })
+      .catch(() => caches.match(event.request))
   );
 });
