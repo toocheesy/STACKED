@@ -88,21 +88,21 @@
 /* Landscape Mobile (iPhone SE → iPhone 15 Pro Max, similar Android) */
 @media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
   :root {
-    /* Cards */
-    --card-w: 58px;
-    --card-h: 82px;
+    /* Cards — smaller footprint, same readable text */
+    --card-w: 48px;
+    --card-h: 68px;
     --card-font: 14px;
-    --hand-card-w: 65px;
-    --hand-card-h: 90px;
+    --hand-card-w: 54px;
+    --hand-card-h: 76px;
     --hand-card-font: 16px;
 
-    /* Combo slots — match card increase */
-    --slot-w: 68px;
-    --slot-h: 92px;
-    --slot-card-w: 60px;
-    --slot-card-h: 84px;
+    /* Combo slots — scaled down to match */
+    --slot-w: 56px;
+    --slot-h: 78px;
+    --slot-card-w: 50px;
+    --slot-card-h: 70px;
     --slot-card-font: 14px;
-    --slot-card-offset: 16px;
+    --slot-card-offset: 14px;
     --combo-width: 240px;
 
     /* Top bar */

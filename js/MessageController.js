@@ -18,6 +18,7 @@ class MessageController {
   // --- Core display ---
 
   showMessage(text, type = 'info') {
+    if (!this.el) this.el = document.getElementById('primary-message');
     if (!this.el) return;
     this.el.textContent = text;
     this.el.classList.remove('info', 'success', 'warning', 'error', 'bot');
@@ -33,12 +34,14 @@ class MessageController {
   // --- Secondary message (context / phase info) ---
 
   showSecondaryMessage(text) {
+    if (!this.secondaryEl) this.secondaryEl = document.getElementById('secondary-message');
     if (!this.secondaryEl) return;
     this.secondaryEl.textContent = text;
     this.secondaryEl.classList.add('visible');
   }
 
   hideSecondaryMessage() {
+    if (!this.secondaryEl) this.secondaryEl = document.getElementById('secondary-message');
     if (!this.secondaryEl) return;
     this.secondaryEl.textContent = '';
     this.secondaryEl.classList.remove('visible');
