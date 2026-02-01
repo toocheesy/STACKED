@@ -79,6 +79,14 @@
 
     <!-- Game Area -->
     <div class="game-area">
+      <!-- Action buttons floating top-right of game area -->
+      <div class="game-buttons">
+        <button class="action-btn" id="submit-btn" disabled>Submit</button>
+        <button class="action-btn" id="reset-btn">Reset</button>
+        <button class="action-btn help-btn" id="hint-btn">HELP</button>
+      </div>
+
+      <div class="board-label">BOARD</div>
       <div class="table" id="table">
         <div class="board" id="board">
           <!-- Board cards rendered by ui.js -->
@@ -89,6 +97,7 @@
         </div>
       </div>
       <div class="hand-wrapper">
+        <div class="hand-label">YOUR HAND</div>
         <div class="player-hand" id="player-hand">
           <!-- Player cards rendered by ui.js -->
         </div>
@@ -127,15 +136,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Submit / Reset buttons -->
-      <div class="combo-actions">
-        <button class="action-btn" id="submit-btn" disabled>Submit</button>
-        <button class="action-btn" id="reset-btn">Reset</button>
-      </div>
-
-      <!-- Help button -->
-      <button class="action-btn help-btn" id="hint-btn">HELP</button>
     </div>
   </div>
 

@@ -70,7 +70,6 @@
   --btn-font: 8px;
   --btn-min-w: 34px;
   --combo-btn-min-h: 32px;
-  --help-btn-h: 36px;
 
   /* Game message */
   --msg-font: 10px;
@@ -723,11 +722,6 @@ body {
   transform: none;
 }
 
-.hint-btn {
-  background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
-  border-color: #4A7043;
-}
-
 /* ============================================================================
  * 6. GAME AREA SECTION
  * ============================================================================ */
@@ -750,6 +744,57 @@ body {
 }
 
 /* current-player lives in top-bar now — see .top-bar .current-player */
+
+/* Floating action buttons — top-right of game area */
+.game-buttons {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.game-buttons .action-btn {
+  padding: 4px 10px;
+  font-size: 9px;
+  min-width: 0;
+  min-height: 30px;
+}
+
+.game-buttons .help-btn {
+  color: #F5E8C7;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .game-buttons {
+    top: 12px;
+    right: 12px;
+    gap: 8px;
+  }
+  .game-buttons .action-btn {
+    padding: 6px 12px;
+    font-size: 11px;
+    min-height: 36px;
+  }
+}
+
+/* Board label */
+.board-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #A1887F;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .board-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+}
 
 .table {
   /* Neutralized — kept as wrapper for JS popup positioning only */
@@ -823,6 +868,22 @@ body {
 @media (min-width: 768px) and (min-height: 500px) {
   .hand-wrapper {
     margin-top: 12px;
+  }
+}
+
+.hand-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: #A1887F;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .hand-label {
+    font-size: 11px;
+    margin-bottom: 4px;
   }
 }
 
@@ -993,40 +1054,10 @@ body {
   50% { box-shadow: 0 0 25px rgba(74, 112, 67, 1); }
 }
 
-/* Combo action buttons */
-.combo-actions {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(139, 90, 43, 0.3);
-}
-
-@media (min-width: 768px) and (min-height: 500px) {
-  .combo-actions {
-    gap: 10px;
-    margin-top: 10px;
-    padding-top: 10px;
-  }
-}
-
-.combo-actions .action-btn {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Help button in combo area */
+/* Help button green variant (used in .game-buttons) */
 .help-btn {
-  width: 100%;
-  min-height: var(--help-btn-h);
   background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
   border-color: #4A7043;
-  color: #F5E8C7;
-  font-size: var(--btn-font);
-  font-weight: bold;
-  letter-spacing: 1px;
-  margin-top: 4px;
 }
 
 .combo-action-btn {
