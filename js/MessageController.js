@@ -1,11 +1,12 @@
 /*
  * MessageController - Lean game message system
- * One element (#current-player), five types: info, success, warning, error, bot
+ * Dual message system (#primary-message + #secondary-message), five types: info, success, warning, error, bot
  */
 
 class MessageController {
   constructor() {
-    this.el = document.getElementById('current-player');
+    this.el = document.getElementById('primary-message');
+    this.secondaryEl = document.getElementById('secondary-message');
     this.gameEngine = null;
     this.currentTimeout = null;
   }
@@ -27,6 +28,20 @@ class MessageController {
     if (!this.el) return;
     this.el.textContent = '';
     this.el.classList.remove('info', 'success', 'warning', 'error', 'bot');
+  }
+
+  // --- Secondary message (context / phase info) ---
+
+  showSecondaryMessage(text) {
+    if (!this.secondaryEl) return;
+    this.secondaryEl.textContent = text;
+    this.secondaryEl.classList.add('visible');
+  }
+
+  hideSecondaryMessage() {
+    if (!this.secondaryEl) return;
+    this.secondaryEl.textContent = '';
+    this.secondaryEl.classList.remove('visible');
   }
 
   // --- Timed message (auto-clears or transitions) ---
@@ -62,8 +77,12 @@ class MessageController {
       case 'BOT_THINKING':      return this.onBotThinking(data);
       case 'NEW_HAND':          return this.onNewHand(data);
       case 'NEW_ROUND':         return this.onNewRound(data);
-      case 'ROUND_END':         return this.showTimed('Round complete! Dealing new cards...', 'info', 2000);
-      case 'PLAYER_OUT_OF_CARDS': return this.showMessage("You're out of cards! Bots will finish the round.", 'info');
+      case 'ROUND_END':
+        this.showSecondaryMessage('Dealing new cards...');
+        return this.showTimed('Round complete!', 'info', 2000, () => this.hideSecondaryMessage());
+      case 'PLAYER_OUT_OF_CARDS':
+        this.showSecondaryMessage('Waiting for bots to finish the round...');
+        return this.showMessage("You're out of cards!", 'info');
       case 'GAME_OVER':         return this.showMessage(`Game Over! ${data.winner || 'Someone'} wins!`, 'success');
       case 'HINT_REQUESTED':    return this.showTimed(`Hint: ${data.hintText || 'Look for pairs or sums!'}`, 'info', 5000);
       case 'BOT_CAPTURE_EDUCATIONAL':  return; // reserved for educational mode
@@ -154,12 +173,14 @@ class MessageController {
 
   onNewHand(data) {
     const round = data.roundNumber || 1;
-    this.showTimed(`New hand dealt! Round ${round} continues...`, 'info', 2000);
+    this.showSecondaryMessage(`Round ${round} — new hand dealt`);
+    this.showTimed('New cards dealt!', 'info', 2000, () => this.hideSecondaryMessage());
   }
 
   onNewRound(data) {
     const round = data.roundNumber || '?';
-    this.showTimed(`Round ${round} starting!`, 'info', 2000);
+    this.showSecondaryMessage('Shuffling deck...');
+    this.showTimed(`Round ${round} starting!`, 'info', 2000, () => this.hideSecondaryMessage());
   }
 
   // --- Utilities ---

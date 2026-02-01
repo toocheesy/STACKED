@@ -85,6 +85,7 @@ render() {
   this.renderScores();
   this.renderBotCardCounts();
   this.renderDealerIndicator();
+  this.renderTurnIndicator();
   this.updateSubmitButton();
   
   // 🎯 ENHANCED: COMBO ASSISTANCE LOGIC
@@ -515,6 +516,23 @@ renderDealerIndicator() {
   }
 }
 
+  renderTurnIndicator() {
+    const el = document.getElementById('turn-indicator');
+    if (!el) return;
+    const cp = this.game?.state?.currentPlayer ?? 0;
+    el.classList.remove('player-turn', 'bot1-turn', 'bot2-turn');
+    if (cp === 0) {
+      el.textContent = 'YOUR TURN';
+      el.classList.add('player-turn');
+    } else {
+      const name = window.messageController
+        ? window.messageController.getBotDisplayName(cp)
+        : `Bot ${cp}`;
+      el.textContent = `${name.toUpperCase()}'S TURN`;
+      el.classList.add(cp === 1 ? 'bot1-turn' : 'bot2-turn');
+    }
+  }
+
   updateSubmitButton() {
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
@@ -589,30 +607,6 @@ renderDealerIndicator() {
     z-index: 100 !important;
   `;
   
-  // Add bot name indicator (use personality name if available)
-  const botIndicator = document.createElement('div');
-  const currentBot = this.game.state.currentPlayer;
-  const botName = (window.messageController && currentBot > 0)
-    ? window.messageController.getBotDisplayName(currentBot)
-    : 'BOT';
-  botIndicator.textContent = botName;
-  botIndicator.style.cssText = `
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #FF6B6B;
-    color: white;
-    font-size: 7px;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-weight: bold;
-    z-index: 101;
-    white-space: nowrap;
-    pointer-events: none;
-  `;
-  
-  cardEl.appendChild(botIndicator);
   areaEl.appendChild(cardEl);
   
   return cardEl;

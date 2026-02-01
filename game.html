@@ -46,9 +46,7 @@
         <span class="deck-pill" id="deck-count">40 left</span>
         <button class="action-btn rules-btn" id="rules-btn">Rules</button>
       </div>
-      <div class="top-bar-center">
-        <div class="current-player" id="current-player">Your Turn</div>
-      </div>
+      <div class="top-bar-center"></div>
       <div class="top-bar-right">
         <div class="last-capture-display" id="last-capture-display"></div>
         <button class="action-btn sound-btn" id="sound-toggle-btn" onclick="toggleSound()">🔊</button>
@@ -86,6 +84,10 @@
         <button class="action-btn help-btn" id="hint-btn">HELP</button>
       </div>
 
+      <!-- Dual message system -->
+      <div id="secondary-message" class="secondary-message"></div>
+      <div id="primary-message" class="primary-message">Your Turn</div>
+
       <div class="board-label">BOARD</div>
       <div class="table" id="table">
         <div class="board" id="board">
@@ -106,7 +108,7 @@
 
     <!-- Combo Builder Area -->
     <div class="combo-area">
-      <div class="combo-title">COMBO BUILDER</div>
+      <div class="combo-title">COMBO BUILDER<span class="turn-indicator" id="turn-indicator"></span></div>
 
       <!-- Base Card -->
       <div class="combo-section">

@@ -150,6 +150,32 @@
     font-size: 12px;
     min-height: 34px;
   }
+
+  dialog {
+    max-height: 80vh;
+    padding: 12px;
+  }
+
+  #scoreboard-modal {
+    min-width: auto;
+    max-width: 90vw;
+    padding: 12px;
+  }
+
+  .scoreboard-title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .scoreboard-item {
+    padding: 5px;
+    margin: 3px 0;
+    font-size: 12px;
+  }
+
+  .modal-content {
+    padding: 12px;
+  }
 }
 
 /* Tablet & Desktop */
@@ -478,10 +504,7 @@ body {
   justify-content: center;
 }
 
-.top-bar .current-player {
-  margin: 0;
-  font-size: var(--cp-font);
-}
+/* top-bar-center kept as flex spacer */
 
 /* Deck pill */
 .deck-pill {
@@ -757,7 +780,7 @@ body {
   }
 }
 
-/* current-player lives in top-bar now — see .top-bar .current-player */
+/* Message system styles moved to Section 12 (Dual Message System) */
 
 /* Floating action buttons — top-right of game area */
 .game-buttons {
@@ -953,6 +976,23 @@ body {
   border-bottom: 2px solid #8B5A2B;
   padding-bottom: 4px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.turn-indicator {
+  display: block;
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  color: #D4A44A;
+}
+
+.turn-indicator.player-turn { color: #D4A44A; }
+.turn-indicator.bot1-turn { color: #FFB74D; }
+.turn-indicator.bot2-turn { color: #CE93D8; }
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .turn-indicator { font-size: 11px; }
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
@@ -1275,6 +1315,8 @@ dialog {
   background: linear-gradient(135deg, #331E0F 0%, #2C1810 100%);
   color: #D2A679;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+  max-height: 85vh;
+  overflow-y: auto;
 }
 
 dialog::backdrop {
@@ -1289,8 +1331,6 @@ dialog::backdrop {
 
 #tutorial-modal {
   max-width: 600px;
-  max-height: 80vh;
-  overflow-y: auto;
 }
 
 .modal-content {
@@ -1385,69 +1425,84 @@ dialog::backdrop {
 }
 
 /* ============================================================================
- * 12. GAME MESSAGE & CURRENT-PLAYER SHARED STYLING
+ * 12. DUAL MESSAGE SYSTEM
  * ============================================================================ */
-.game-message,
-.current-player {
-  background: #F5E0C0;
+
+/* Primary message — prominent, centered in game area */
+.primary-message {
+  background: #FFF8DC;
   color: #3E2723;
-  padding: var(--cp-pad);
+  padding: 6px 14px;
   border-radius: 6px;
   border: 2px solid #8B5A2B;
   font-weight: bold;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(139, 90, 43, 0.3);
-  margin: 4px auto;
-  max-width: var(--msg-max-w);
-  font-size: 13px;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
-  display: block;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  font-size: 14px;
+  max-width: 340px;
+  align-self: center;
+  z-index: 5;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
-  .game-message,
-  .current-player {
-    margin: 8px auto;
-    font-size: 1rem;
-    max-width: 400px;
-    padding: 8px 16px;
+  .primary-message {
+    font-size: 16px;
+    padding: 8px 18px;
+    max-width: 420px;
   }
 }
 
-/* Message type: info (default neutral - tan/cream) */
-.current-player.info {
-  /* Uses base .current-player styling (tan parchment) */
-}
+/* Primary message type variants */
+.primary-message.info { /* default cream */ }
 
-/* Message type: success (green) */
-.current-player.success {
+.primary-message.success {
   background: #4A7043;
   color: #F5E8C7;
   border-color: #5A8A50;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Message type: warning (yellow/amber) */
-.current-player.warning {
+.primary-message.warning {
   background: #B48C28;
   color: #3E2723;
   border-color: #D4A44A;
 }
 
-/* Message type: error (red) */
-.current-player.error {
+.primary-message.error {
   background: #A52A2A;
   color: #F5E8C7;
   border-color: #C43030;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* Message type: bot (brown - bot actions) */
-.current-player.bot {
+.primary-message.bot {
   background: #6B4226;
   color: #F5E8C7;
   border-color: #8B5A2B;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Secondary message — subtle context bar */
+.secondary-message {
+  display: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #A1887F;
+  padding: 3px 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+  max-width: 360px;
+  align-self: center;
+  z-index: 5;
+}
+
+.secondary-message.visible {
+  display: block;
+}
+
+@media (min-width: 768px) and (min-height: 500px) {
+  .secondary-message {
+    font-size: 12px;
+    padding: 4px 16px;
+    max-width: 440px;
+  }
 }
 
 /* ============================================================================
