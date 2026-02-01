@@ -662,13 +662,10 @@ function showLastCapture(playerName, cards, points) {
   el.classList.add('visible');
 }
 
+// Sound disabled — will re-enable with proper toggle later
 function playSound(type) {
-  if (game.state.settings.soundEffects === 'on' && window.sounds && window.sounds[type]) {
-    window.sounds[type].currentTime = 0;
-    window.sounds[type].play().catch(e => console.error('Sound play failed:', e));
-  }
+  // Disabled
 }
-// Override helpers.js global with settings-aware version
 window.playSound = playSound;
 
 function toggleSound() {
@@ -1222,6 +1219,7 @@ function resumeNextRound(roundData) {
 
   game.currentRound = roundData.newRound;
   game.currentDealer = roundData.newDealer;
+  game.state.handCount = 1; // Reset hand counter for new round
 
   ui.render();
 

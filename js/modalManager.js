@@ -140,51 +140,40 @@ class ModalManager {
 
   // 🏆 ROUND END MODAL
   createRoundEndModal(data) {
-    const { scores, jackpot, newRound, oldDealer, newDealer } = data;
-    
-    let jackpotHTML = '';
+    const { scores, jackpot, newRound } = data;
+
+    const mc = window.messageController;
+    const bot1Name = mc ? mc.getBotDisplayName(1) : 'Bot 1';
+    const bot2Name = mc ? mc.getBotDisplayName(2) : 'Bot 2';
+
+    let jackpotLine = '';
     if (jackpot && jackpot.hasJackpot) {
-      jackpotHTML = `
-        <div class="jackpot-announcement">
-          🏆 <strong>${jackpot.winnerName}</strong> sweeps the board!<br>
-          <span class="jackpot-points">+${jackpot.points} bonus points!</span>
-        </div>
-      `;
+      jackpotLine = `<div class="jackpot-line">🏆 ${jackpot.winnerName} sweeps board +${jackpot.points} pts</div>`;
     }
-    
-    const dealerNames = ['Player', 'Bot 1', 'Bot 2'];
-    
+
     return `
       <div class="game-modal round-end-modal">
-        <div class="modal-header">
-          <h2>🏁 Round ${newRound - 1} Complete!</h2>
-        </div>
-        <div class="modal-content">
-          ${jackpotHTML}
-          <div class="round-scores">
-            <h3>Round Scores:</h3>
-            <div class="score-grid">
-              <div class="score-item ${scores.player >= scores.bot1 && scores.player >= scores.bot2 ? 'winner' : ''}">
-                <span class="player-name">Player</span>
-                <span class="player-score">${scores.player} pts</span>
-              </div>
-              <div class="score-item ${scores.bot1 >= scores.player && scores.bot1 >= scores.bot2 ? 'winner' : ''}">
-                <span class="player-name">Bot 1</span>
-                <span class="player-score">${scores.bot1} pts</span>
-              </div>
-              <div class="score-item ${scores.bot2 >= scores.player && scores.bot2 >= scores.bot1 ? 'winner' : ''}">
-                <span class="player-name">Bot 2</span>
-                <span class="player-score">${scores.bot2} pts</span>
-              </div>
+        <div class="modal-content" style="padding:12px;">
+          <h2 style="margin:0 0 8px;font-size:16px;text-align:center;color:#D2A679;">Round ${newRound - 1} Complete</h2>
+          ${jackpotLine}
+          <div class="score-grid">
+            <div class="score-item ${scores.player >= scores.bot1 && scores.player >= scores.bot2 ? 'winner' : ''}">
+              <span class="player-name">You</span>
+              <span class="player-score">${scores.player} pts</span>
+            </div>
+            <div class="score-item ${scores.bot1 >= scores.player && scores.bot1 >= scores.bot2 ? 'winner' : ''}">
+              <span class="player-name">${bot1Name}</span>
+              <span class="player-score">${scores.bot1} pts</span>
+            </div>
+            <div class="score-item ${scores.bot2 >= scores.player && scores.bot2 >= scores.bot1 ? 'winner' : ''}">
+              <span class="player-name">${bot2Name}</span>
+              <span class="player-score">${scores.bot2} pts</span>
             </div>
           </div>
-          <div class="round-info">
-            <p><strong>Round ${newRound}</strong> starting...</p>
-            <p>New dealer: <strong>${dealerNames[newDealer]}</strong></p>
-          </div>
+          <p style="text-align:center;margin:8px 0 0;font-size:13px;color:#B88A5A;">Round ${newRound} starting...</p>
         </div>
         <div class="modal-actions">
-          <button id="continue-round-btn" class="continue-btn">Continue Game →</button>
+          <button id="continue-round-btn" class="continue-btn">Continue →</button>
         </div>
       </div>
     `;
@@ -219,15 +208,15 @@ class ModalManager {
             <h3>Final Scores:</h3>
             <div class="score-grid">
               <div class="score-item ${winner === 0 ? 'winner' : ''}">
-                <span class="player-name">Player</span>
+                <span class="player-name">You</span>
                 <span class="player-score">${scores.player} pts</span>
               </div>
               <div class="score-item ${winner === 1 ? 'winner' : ''}">
-                <span class="player-name">Bot 1</span>
+                <span class="player-name">${window.messageController ? window.messageController.getBotDisplayName(1) : 'Bot 1'}</span>
                 <span class="player-score">${scores.bot1} pts</span>
               </div>
               <div class="score-item ${winner === 2 ? 'winner' : ''}">
-                <span class="player-name">Bot 2</span>
+                <span class="player-name">${window.messageController ? window.messageController.getBotDisplayName(2) : 'Bot 2'}</span>
                 <span class="player-score">${scores.bot2} pts</span>
               </div>
             </div>
