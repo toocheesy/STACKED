@@ -322,6 +322,11 @@ initGameSystems();
   // Track hand count (first deal = hand 1)
   game.state.handCount = 1;
 
+  // Show initial round/hand in secondary message
+  if (window.messageController) {
+    window.messageController.showSecondaryMessage('Round 1 — Hand 1/4');
+  }
+
 if (game.state.currentPlayer !== 0) {
 setTimeout(() => scheduleNextBotTurn(), 1000);
 }

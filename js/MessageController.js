@@ -82,7 +82,7 @@ class MessageController {
       case 'NEW_ROUND':         return this.onNewRound(data);
       case 'ROUND_END':
         this.showSecondaryMessage('Dealing new cards...');
-        return this.showTimed('Round complete!', 'info', 2000, () => this.hideSecondaryMessage());
+        return this.showTimed('Round complete!', 'info', 2000);
       case 'PLAYER_OUT_OF_CARDS':
         this.showSecondaryMessage('Waiting for bots to finish the round...');
         return this.showMessage("You're out of cards!", 'info');
@@ -177,13 +177,13 @@ class MessageController {
     const hand = data.handNumber || '?';
     const total = data.totalHands || '?';
     this.showSecondaryMessage(`Round ${round} — Hand ${hand}/${total}`);
-    this.showTimed('New cards dealt!', 'info', 2000, () => this.hideSecondaryMessage());
+    this.showTimed('New cards dealt!', 'info', 2000);
   }
 
   onNewRound(data) {
     const round = data.roundNumber || '?';
-    this.showSecondaryMessage('Shuffling deck...');
-    this.showTimed(`Round ${round} starting!`, 'info', 2000, () => this.hideSecondaryMessage());
+    this.showSecondaryMessage(`Round ${round} starting...`);
+    this.showTimed(`Round ${round} starting!`, 'info', 2000);
   }
 
   // --- Utilities ---

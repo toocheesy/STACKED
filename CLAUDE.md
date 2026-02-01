@@ -1,17 +1,17 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
 STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 300 points wins.
 
-**Live Site:** https://stack-delta-taupe.vercel.app
+**Live Site:** https://stack-delta-taupe.vercel.app  
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
 
 ## Development
 
-No build step required - this is a static web project.
+No build step required - static web project.
 
 ```bash
 # Local development - use any static server
@@ -22,7 +22,50 @@ python -m http.server 8000
 
 Open `index.html` for homepage or `game.html` directly to play.
 
-**Deployment:** Vercel (push to main).
+**Deployment:** Vercel (push to main triggers deploy)
+
+---
+
+## Workflow Orchestration
+
+### 1. Plan Mode Default
+
+For ANY non-trivial task (3+ steps or touching Dangerous Areas):
+- Write plan to `tasks/todo.md` with checkable items
+- Get TC approval before starting implementation
+- If something goes sideways, STOP and re-plan — don't keep pushing
+- Mark items complete as you go
+
+### 2. Subagent Strategy
+
+Use subagents liberally to keep main context clean:
+- Offload research, exploration, and parallel analysis to subagents
+- One task per subagent for focused execution
+- Use for: checking how other files handle similar patterns, testing theories, analyzing multiple files at once
+
+### 3. Self-Improvement Loop
+
+After ANY correction from TC, update `tasks/lessons.md` with:
+```
+## [Date] - [Brief description]
+**What went wrong:** [specifics]
+**Rule to prevent it:** [the lesson]
+```
+
+Review `tasks/lessons.md` at session start for relevant project. Ruthlessly iterate until mistake rate drops.
+
+### 4. Verification Before Done
+
+- Never mark a task complete without proving it works
+- Run the game, check console, demonstrate correctness
+- Ask yourself: "Would this survive TC's family playing it?"
+
+### 5. Autonomous Bug Fixing
+
+When given a bug report: just fix it. Don't ask for hand-holding.
+- Point at logs, errors, failing behavior — then resolve them
+- Zero context switching required from TC
+- If you break something else fixing it, you fix that too
 
 ---
 
@@ -53,7 +96,7 @@ Open `index.html` for homepage or `game.html` directly to play.
 
 ## LOCKED DECISIONS (DO NOT CHANGE)
 
-1. **Vanilla JavaScript** - No frameworks
+1. **Vanilla JavaScript** - No frameworks, ever
 2. **4-Area Combo System** - Base + Combo 1/2/3 (all slots accept pairs and sums)
 3. **Turn Flow** - Capture continues, Place ends
 4. **GameStateManager** - Single source of truth for game flow
@@ -128,24 +171,25 @@ All systems exposed via `window.`:
 
 ## File Reference
 
-| File | Purpose |
-|------|---------|
-| `main.js` | Main controller, event handlers, initialization (MUST LOAD LAST) |
-| `game.js` | GameEngine, state management, validation |
-| `gameStateManager.js` | Flow control, turn management |
-| `ai.js` | AI decision logic, move selection |
-| `cardIntelligence.js` | Strategic AI brain, difficulty levels, card evaluation |
-| `botModal.js` | Bot move visualization (plays through UI like humans) |
-| `ui.js` | All DOM rendering: board, hands, combo, scores |
-| `helpers.js` | Deck creation, game logic utilities, sound system |
-| `MessageController.js` | Educational guidance messages during gameplay |
-| `modalManager.js` | Modal dialog system (scoreboard, round end, etc.) |
-| `modeSelector.js` | Mode management (classic/speed) |
-| `classic.js` | Classic mode rules (active) |
-| `speed.js` | Speed mode (coming soon) |
-| `personalities/calvin.js` | Calvin AI personality (cautious, analytical) |
-| `personalities/nina.js` | Nina AI personality (balanced, friendly) |
-| `personalities/rex.js` | Rex AI personality (aggressive, competitive) |
+| File | Purpose | Risk Level |
+|------|---------|------------|
+| `main.js` | Main controller, event handlers, initialization | ⚠️ DANGEROUS |
+| `game.js` | GameEngine, state management, validation | ⚠️ DANGEROUS |
+| `gameStateManager.js` | Flow control, turn management | ⚠️ DANGEROUS |
+| `ai.js` | AI decision logic, move selection | ✅ Safe |
+| `cardIntelligence.js` | Strategic AI brain, difficulty levels | ✅ Safe |
+| `botModal.js` | Bot move visualization | Moderate |
+| `ui.js` | All DOM rendering | Moderate |
+| `helpers.js` | Deck creation, utilities, sounds | ✅ Safe |
+| `MessageController.js` | Educational guidance messages | ✅ Safe |
+| `modalManager.js` | Modal dialog system | ✅ Safe |
+| `modeSelector.js` | Mode management | ✅ Safe |
+| `classic.js` | Classic mode rules | Moderate |
+| `speed.js` | Speed mode (coming soon) | ✅ Safe |
+| `styles.css` | All styling | ✅ Safe |
+| `personalities/*.js` | AI personalities | ✅ Safe |
+
+**Dangerous Areas require plan approval before touching.**
 
 ---
 
@@ -159,16 +203,16 @@ All systems exposed via `window.`:
 
 ---
 
-## Developer Notes
+## Working with TC
 
-TC (the developer) prefers:
+TC prefers:
 - Specific explanations of what's changing and why
 - One change at a time with testing between
-- Targeted code sections rather than full file rewrites for small changes
+- Targeted code sections rather than full file rewrites
+- Direct communication, no corporate tone
+- Just fix shit when you can — don't ask permission for obvious fixes
 
-**Dangerous Areas** (be careful): `gameStateManager.js`, turn logic in `main.js`, capture validation in `game.js`
-
-**Safe Areas**: `styles.css`, `MessageController.js`, AI tuning in `ai.js`
+TC works warehouse and codes on breaks. Time is limited. Get to the point.
 
 ---
 
@@ -181,18 +225,30 @@ Repository: https://github.com/toocheesy/STACKED.git
 | Branch | Purpose | When to touch |
 |--------|---------|---------------|
 | `main` | LIVE production — family plays this | ONLY when TC says "merge to main" or "deploy" |
-| `dev` | Staging for fixes & polish | Default working branch for bug fixes |
-| `adventure-mode` | Future feature (parked) | Only when TC says to work on adventure mode |
+| `dev` | Staging for fixes & polish | Default working branch |
+| `adventure-mode` | Future feature (parked) | Only when TC explicitly says so |
 
-- **Default branch:** Always work on `dev` unless told otherwise
-- **NEVER push directly to `main`** unless TC explicitly says to deploy
+- **Default branch:** Always `dev` unless told otherwise
+- **NEVER push directly to `main`** without explicit deploy instruction
 - Push to `main` triggers Vercel deploy
-- TC will tell you which branch to switch to
 
-### CSS Architecture
+---
+
+## CSS Architecture
 
 Mobile-first CSS custom properties system (on `adventure-mode`, pending merge):
 - `:root` variables define all sizes (cards, slots, grid, fonts)
 - 2 breakpoints only: `1025px+` (tablet/desktop) and `1440px+` (ultra-wide)
 - Zero `!important` overrides — all sizing via `var()`
 - `ui.js` reads `--slot-card-offset`, `--slot-h`, `--board-shift-per-row` from CSS
+
+---
+
+## Task Management Files
+
+| File | Purpose |
+|------|---------|
+| `tasks/todo.md` | Current task plan with checkable items |
+| `tasks/lessons.md` | Accumulated learnings from corrections |
+
+Create these files if they don't exist when needed.
