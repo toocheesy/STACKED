@@ -88,13 +88,13 @@
 /* Landscape Mobile (iPhone SE → iPhone 15 Pro Max, similar Android) */
 @media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
   :root {
-    /* Cards — larger for tap targets */
-    --card-w: 65px;
-    --card-h: 90px;
-    --card-font: 16px;
-    --hand-card-w: 72px;
-    --hand-card-h: 100px;
-    --hand-card-font: 18px;
+    /* Cards */
+    --card-w: 58px;
+    --card-h: 82px;
+    --card-font: 14px;
+    --hand-card-w: 65px;
+    --hand-card-h: 90px;
+    --hand-card-font: 16px;
 
     /* Combo slots — match card increase */
     --slot-w: 68px;
@@ -1393,18 +1393,18 @@ dialog::backdrop {
  * ============================================================================ */
 .game-message,
 .current-player {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(210,166,121,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  color: #331E0F;
+  background: #F5E0C0;
+  color: #3E2723;
   padding: var(--cp-pad);
   border-radius: 6px;
   border: 2px solid #8B5A2B;
   font-weight: bold;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(139, 90, 43, 0.3);
   margin: 4px auto;
   max-width: var(--msg-max-w);
-  font-size: var(--msg-font);
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+  font-size: 13px;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
   display: block;
 }
 
@@ -1425,30 +1425,33 @@ dialog::backdrop {
 
 /* Message type: success (green) */
 .current-player.success {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(74,112,67,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
+  background: #4A7043;
   color: #F5E8C7;
-  border-color: #4A7043;
+  border-color: #5A8A50;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Message type: warning (yellow/amber) */
 .current-player.warning {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(180,140,40,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
-  color: #331E0F;
-  border-color: #B48C28;
+  background: #B48C28;
+  color: #3E2723;
+  border-color: #D4A44A;
 }
 
 /* Message type: error (red) */
 .current-player.error {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(165,42,42,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%23D2A679" stroke-width="2" opacity="0.7" /></svg>');
+  background: #A52A2A;
   color: #F5E8C7;
-  border-color: #A52A2A;
+  border-color: #C43030;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Message type: bot (brown - bot actions) */
 .current-player.bot {
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="rgba(139,90,43,0.9)" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.7" /></svg>');
+  background: #6B4226;
   color: #F5E8C7;
   border-color: #8B5A2B;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* ============================================================================
