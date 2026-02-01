@@ -911,14 +911,14 @@ body {
  * ============================================================================ */
 .combo-area {
   grid-area: combo-area;
-  align-self: start;
+  align-self: stretch;
   background: linear-gradient(135deg, rgba(139, 90, 43, 0.4) 0%, rgba(74, 43, 23, 0.4) 100%);
   border: 2px solid #8B5A2B;
   border-radius: 0 0 0 10px;
   padding: var(--combo-pad);
   display: flex;
   flex-direction: column;
-  gap: var(--combo-gap);
+  gap: 4px;
   overflow: hidden;
   transform: translateZ(0);
 }
@@ -964,10 +964,11 @@ body {
   }
 }
 
-/* Combo body: buttons left, slots right */
+/* Combo body: buttons left, slots right — CSS Grid enforces columns */
 .combo-body {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  gap: 0;
   flex: 1;
   min-height: 0;
 }
@@ -976,8 +977,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  width: 60px;
-  flex-shrink: 0;
+  border-right: 1px solid rgba(139, 90, 43, 0.5);
+  padding-right: 6px;
 }
 
 .combo-buttons .action-btn {
@@ -996,13 +997,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: var(--combo-gap);
-  flex: 1;
+  padding-left: 6px;
   min-width: 0;
 }
 
 @media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
-  .combo-buttons {
-    width: 65px;
+  .combo-body {
+    grid-template-columns: 65px 1fr;
   }
   .combo-buttons .action-btn {
     font-size: 11px;
@@ -1013,10 +1014,7 @@ body {
 
 @media (min-width: 768px) and (min-height: 500px) {
   .combo-body {
-    gap: 10px;
-  }
-  .combo-buttons {
-    width: 70px;
+    grid-template-columns: 70px 1fr;
   }
   .combo-buttons .action-btn {
     font-size: 11px;
