@@ -489,42 +489,6 @@ game.state.draggedCard = null;
   }
 }
 
-function checkGameEnd() {
-
-  const result = window.gameStateManager.determineGameState(game);
-
-  switch(result.state) {
-    case 'CONTINUE_TURN':
-      handleContinueTurn(result);
-      break;
-
-    case 'DEAL_NEW_HAND':
-      handleDealNewHand(result);
-      break;
-
-    case 'END_ROUND':
-      handleEndRound(result);
-      break;
-
-    case 'END_GAME':
-      handleEndGame(result);
-      break;
-
-    case 'ERROR':
-      handleGameStateError(result);
-      break;
-
-    default:
-handleGameStateError({
-        data: {
-          message: `Unknown game state: ${result.state}`,
-          userMessage: 'Game encountered an unknown state. Please restart.',
-          technicalDetails: JSON.stringify(result, null, 2)
-        }
-      });
-  }
-}
-
 async function aiTurn() {
 
   if (botTurnInProgress) {
@@ -765,24 +729,6 @@ game.state.draggedCard = null;
   ui.render();
 }
 
-function handleDropOriginal(e, source, index) {
-  e.preventDefault();
-
-
-  if (game.state.currentPlayer !== 0) {
-return;
-  }
-
-  if (!game.state.draggedCard) return;
-
-  if (game.state.draggedCard.slot !== undefined) {
-    const originalSlot = game.state.draggedCard.slot;
-    game.state.combination[originalSlot] = game.state.combination[originalSlot].filter((_, i) => i !== game.state.draggedCard.comboIndex);
-    game.state.draggedCard = null;
-    ui.render();
-  }
-}
-
 // 📱 WORKING TOUCH EVENT HANDLERS
 let touchDragData = null;
 let touchStartPosition = null;
@@ -997,13 +943,6 @@ function handleTouchDropOnCombo(slotName) {
   // Re-render the UI
   ui.render();
   
-  debugLog('GAME_FLOW', '✅ TOUCH DROP COMPLETE');
-}
-
-function handleTouchDrop(e, targetType, data) {
-  e.preventDefault();
-  // This function can stay simple since handleTouchEnd handles the logic
-  debugLog('GAME_FLOW', '🎯 TOUCH DROP EVENT:', targetType, data);
 }
 
 function provideHint() {
@@ -1114,12 +1053,10 @@ window.handleDragStart = handleDragStart;
 window.handleDragStartCombo = handleDragStartCombo;
 window.handleDragEnd = handleDragEnd;
 window.handleDrop = handleDrop;
-window.handleDropOriginal = handleDropOriginal;
 window.handleBoardDrop = handleBoardDrop;
 window.handleTouchStart = handleTouchStart;
 window.handleTouchMove = handleTouchMove;
 window.handleTouchEnd = handleTouchEnd;
-window.handleTouchDrop = handleTouchDrop;
 
 window.DraggableModal = DraggableModal;
 window.HintSystem = HintSystem;

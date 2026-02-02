@@ -21,14 +21,12 @@ class GameEngine {
         bot2Personality: 'calvin'
       },
       draggedCard: null,
-      selectedCard: null,
       lastCapturer: null
     };
     
     this.currentMode = null;
     this.currentRound = 1;
     this.currentDealer = 0;
-    this.botTurnInProgress = false;
   }
 
   // Initialize game with specified mode
@@ -72,7 +70,6 @@ class GameEngine {
 this.state.scores = { player: 0, bot1: 0, bot2: 0 };
 this.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 this.state.draggedCard = null;
-this.state.selectedCard = null;
 this.currentRound = 1;
 this.currentDealer = Math.floor(Math.random() * 3);
 
