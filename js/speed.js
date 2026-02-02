@@ -25,22 +25,6 @@ const SpeedMode = {
     paused: false
   },
 
-  // Scoring system with time bonuses
-  pointsMap: {
-    'A': 20,
-    'K': 15,
-    'Q': 15, 
-    'J': 15,
-    '10': 15,
-    '9': 10,
-    '8': 10,
-    '7': 10,
-    '6': 10,
-    '5': 10,
-    '4': 10,
-    '3': 10,
-    '2': 10
-  },
 
   // Initialize speed mode
   init(gameEngine) {
@@ -135,7 +119,7 @@ const SpeedMode = {
   },
 
   calculateScore(cards) {
-    const baseScore = cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
+    const baseScore = window.calculateScore(cards);
     const timeBonus = Math.floor((this.timer.remaining / this.config.timeLimit) * baseScore * 0.5);
     const totalScore = Math.floor(baseScore * this.config.bonusMultiplier) + timeBonus;
 
@@ -189,8 +173,7 @@ const SpeedMode = {
       const bonusPoints = this.calculateScore(gameEngine.state.board);
       gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
 
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
+      const lastCapturerName = PLAYER_NAMES[gameEngine.state.lastCapturer];
 
       gameEngine.state.board = [];
 

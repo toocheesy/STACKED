@@ -36,7 +36,7 @@ const Rex = {
       for (const capture of captures) {
         const targets = capture.targets || capture.cards.map(idx => board[idx]);
         const allCards = [handCard, ...targets];
-        const points = allCards.reduce((sum, c) => sum + Rex._pointValue(c), 0);
+        const points = allCards.reduce((sum, c) => sum + window.getPointValue(c), 0);
 
         // Calculate denial value: what opponents lose if we take this
         const denialValue = Rex._calculateDenial(capture, hand, board);
@@ -87,7 +87,7 @@ const Rex = {
       let score = 0;
 
       // Base: prefer placing low-value cards
-      score -= Rex._pointValue(card);
+      score -= window.getPointValue(card);
 
       // Check what opponents could capture if we place this
       const simulatedBoard = [...board, card];
@@ -103,7 +103,7 @@ const Rex = {
               const filtered = simulatedBoard.filter(c => c.id !== simCard.id);
               return filtered[idx];
             });
-            const oppPts = [simCard, ...oppTargets].reduce((sum, c) => sum + Rex._pointValue(c), 0);
+            const oppPts = [simCard, ...oppTargets].reduce((sum, c) => sum + window.getPointValue(c), 0);
             maxOpponentCapture = Math.max(maxOpponentCapture, oppPts);
           }
         }
@@ -149,7 +149,7 @@ const Rex = {
       if (oppCaptures) {
         for (const opp of oppCaptures) {
           const oppTargets = opp.targets || [];
-          const oppPts = [boardCard, ...oppTargets].reduce((sum, c) => sum + Rex._pointValue(c), 0);
+          const oppPts = [boardCard, ...oppTargets].reduce((sum, c) => sum + window.getPointValue(c), 0);
           maxOpponentGain = Math.max(maxOpponentGain, oppPts);
         }
       }
@@ -157,7 +157,7 @@ const Rex = {
 
     // Also check what we're removing from the board that opponents could have used
     const capturedCards = capture.cards.map(idx => board[idx]);
-    const capturedValue = capturedCards.reduce((sum, c) => sum + Rex._pointValue(c), 0);
+    const capturedValue = capturedCards.reduce((sum, c) => sum + window.getPointValue(c), 0);
 
     return Math.max(maxOpponentGain, capturedValue * 0.5);
   },
@@ -216,7 +216,7 @@ const Rex = {
           const placedIdx = simulatedBoard.length - 1;
           if (cap.cards.includes(placedIdx)) {
             const targets = cap.targets || cap.cards.map(idx => simulatedBoard[idx]);
-            const pts = [hc, ...targets].reduce((sum, c) => sum + Rex._pointValue(c), 0);
+            const pts = [hc, ...targets].reduce((sum, c) => sum + window.getPointValue(c), 0);
             setupValue = Math.max(setupValue, pts * 0.3);
           }
         }
@@ -258,11 +258,6 @@ const Rex = {
     };
   },
 
-  _pointValue(card) {
-    if (!card) return 0;
-    const map = { 'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10 };
-    return map[card.value] || 5;
-  }
 };
 
 window.Rex = Rex;

@@ -36,7 +36,7 @@ const Calvin = {
       for (const capture of captures) {
         const targets = capture.targets || capture.cards.map(idx => board[idx]);
         const allCards = [handCard, ...targets];
-        const points = allCards.reduce((sum, c) => sum + Calvin._pointValue(c), 0);
+        const points = allCards.reduce((sum, c) => sum + window.getPointValue(c), 0);
         const handVal = Calvin._numericValue(handCard);
 
         // Take highest points; tiebreak: use lowest hand card value
@@ -62,7 +62,7 @@ const Calvin = {
   choosePlacement(hand, board) {
     // Place lowest point card; tiebreak: lowest rank
     const sorted = [...hand].sort((a, b) => {
-      const pointDiff = Calvin._pointValue(a) - Calvin._pointValue(b);
+      const pointDiff = window.getPointValue(a) - window.getPointValue(b);
       if (pointDiff !== 0) return pointDiff;
       return Calvin._numericValue(a) - Calvin._numericValue(b);
     });
@@ -70,11 +70,6 @@ const Calvin = {
     return { action: 'place', handCard: sorted[0] };
   },
 
-  _pointValue(card) {
-    if (!card) return 0;
-    const map = { 'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10 };
-    return map[card.value] || 5;
-  },
 
   _numericValue(card) {
     if (!card) return 99;

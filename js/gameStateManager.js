@@ -213,8 +213,7 @@ class GameStateManager {
     if (snapshot.lastCapturer !== null && snapshot.boardSize > 0) {
       // Calculate jackpot points
       const jackpotPoints = this.calculateJackpotPoints(snapshot.gameEngine.state.board);
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const winnerName = playerNames[snapshot.lastCapturer];
+      const winnerName = PLAYER_NAMES[snapshot.lastCapturer];
       
       const jackpotMessage = `🏆 ${winnerName} sweeps ${snapshot.boardSize} remaining cards! +${jackpotPoints} pts`;
       
@@ -239,12 +238,7 @@ class GameStateManager {
 
   // 💰 CALCULATE JACKPOT POINTS
   calculateJackpotPoints(boardCards) {
-    const pointsMap = {
-      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
-      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
-    };
-    
-    return boardCards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
+    return window.calculateScore(boardCards);
   }
 
   // 📊 CALCULATE SCORES AFTER JACKPOT
@@ -344,15 +338,13 @@ class GameStateManager {
     const winner = scores.player >= scores.bot1 && scores.player >= scores.bot2 ? 0 :
                    scores.bot1 >= scores.bot2 ? 1 : 2;
     
-    const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-    
     return {
       state: this.STATES.END_GAME,
       data: {
         scores: scores,
         jackpot: jackpotResult,
         winner: winner,
-        winnerName: playerNames[winner],
+        winnerName: PLAYER_NAMES[winner],
         winnerScore: [scores.player, scores.bot1, scores.bot2][winner],
         targetScore: snapshot.targetScore,
         reason: 'Target score reached, game complete'

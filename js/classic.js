@@ -16,21 +16,6 @@ const ClassicMode = {
     enableMultiCapture: true
   },
 
-  pointsMap: {
-    'A': 15,
-    'K': 10,
-    'Q': 10, 
-    'J': 10,
-    '10': 10,
-    '9': 5,
-    '8': 5,
-    '7': 5,
-    '6': 5,
-    '5': 5,
-    '4': 5,
-    '3': 5,
-    '2': 5
-  },
 
   init(gameEngine) {
     if (this.initialized) return;
@@ -39,7 +24,7 @@ const ClassicMode = {
   },
 
   calculateScore(cards) {
-    return cards.reduce((total, card) => total + (this.pointsMap[card.value] || 0), 0);
+    return window.calculateScore(cards);
   },
 
   // 🔥 JACKPOT LOGIC - WORKING CORRECTLY, JUST NEEDED TO RETURN MESSAGE
@@ -51,8 +36,7 @@ const ClassicMode = {
       
       gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
       
-      const playerNames = ['Player', 'Bot 1', 'Bot 2'];
-      const lastCapturerName = playerNames[gameEngine.state.lastCapturer];
+      const lastCapturerName = PLAYER_NAMES[gameEngine.state.lastCapturer];
       
       // Clear the board AFTER creating the message
       gameEngine.state.board = [];

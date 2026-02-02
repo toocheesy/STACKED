@@ -36,7 +36,7 @@ const Nina = {
       for (const capture of captures) {
         const targets = capture.targets || capture.cards.map(idx => board[idx]);
         const allCards = [handCard, ...targets];
-        const points = allCards.reduce((sum, c) => sum + Nina._pointValue(c), 0);
+        const points = allCards.reduce((sum, c) => sum + window.getPointValue(c), 0);
 
         allCaptures.push({
           handCard,
@@ -91,7 +91,7 @@ const Nina = {
 
     if (!ci) {
       // Fallback: place lowest value
-      const sorted = [...hand].sort((a, b) => Nina._pointValue(a) - Nina._pointValue(b));
+      const sorted = [...hand].sort((a, b) => window.getPointValue(a) - window.getPointValue(b));
       return { action: 'place', handCard: sorted[0] };
     }
 
@@ -107,7 +107,7 @@ const Nina = {
 
     if (safe.length > 0) {
       // Place lowest value from safe options
-      safe.sort((a, b) => Nina._pointValue(a.card) - Nina._pointValue(b.card));
+      safe.sort((a, b) => window.getPointValue(a.card) - window.getPointValue(b.card));
       return { action: 'place', handCard: safe[0].card };
     }
 
@@ -128,7 +128,7 @@ const Nina = {
       if (oppCaptures) {
         for (const opp of oppCaptures) {
           const oppTargets = opp.targets || opp.cards.map(idx => remainingBoard[idx]);
-          const oppPoints = [boardCard, ...oppTargets].reduce((sum, c) => sum + Nina._pointValue(c), 0);
+          const oppPoints = [boardCard, ...oppTargets].reduce((sum, c) => sum + window.getPointValue(c), 0);
           if (oppPoints > option.points) {
             return true;
           }
@@ -162,11 +162,6 @@ const Nina = {
     };
   },
 
-  _pointValue(card) {
-    if (!card) return 0;
-    const map = { 'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10 };
-    return map[card.value] || 5;
-  }
 };
 
 window.Nina = Nina;

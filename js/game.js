@@ -93,11 +93,6 @@ setStartingPlayer() {
   this.state.currentPlayer = (this.currentDealer + 1) % 3;
 }
 
-// Helper function to get player names
-getPlayerName(playerIndex) {
-  const names = ['Player', 'Bot 1', 'Bot 2'];
-  return names[playerIndex];
-} 
 
 // 🔥 RESTORED: Pure state getter for read-only access - no mutations!  
 getState() {  
@@ -250,12 +245,8 @@ validateCapture(areaCards, baseValue, baseCard, areaName) {
       return this.currentMode.calculateScore(cards);
     }
     
-    // Default scoring
-    const pointsMap = {
-      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
-      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
-    };
-    return cards.reduce((total, card) => total + (pointsMap[card.value] || 0), 0);
+    // Default scoring — uses shared constants
+    return window.calculateScore(cards);
   }
 
   // Add score to current round

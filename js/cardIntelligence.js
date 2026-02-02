@@ -278,11 +278,7 @@ class CardIntelligenceSystem {
   }
   
   getCardPointValue(card) {
-    const pointsMap = {
-      'A': 15, 'K': 10, 'Q': 10, 'J': 10, '10': 10,
-      '9': 5, '8': 5, '7': 5, '6': 5, '5': 5, '4': 5, '3': 5, '2': 5
-    };
-    return pointsMap[card.value] || 0;
+    return window.getPointValue(card);
   }
   
   calculateCapturePoints(handCard, capture) {
