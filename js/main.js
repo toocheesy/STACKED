@@ -580,7 +580,7 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
     botTurnInProgress = false;
 
     if (result.success) {
-if (result.action === 'capture') {
+      if (result.action === 'capture') {
 
         if (window.messageController && move && move.capture) {
           const capturedCards = [move.handCard, ...move.capture.targets];
@@ -594,8 +594,8 @@ if (result.action === 'capture') {
           });
         }
 
-
-        const remainingCards = game.state.hands[playerIndex].length;
+        // Pause after capture so player can see what was captured
+        await new Promise(resolve => setTimeout(resolve, 1800));
 
         const gs = window.gameStateManager.determineGameState(game);
         handleGameStateResult(gs);
@@ -603,6 +603,10 @@ if (result.action === 'capture') {
       } else if (result.action === 'place') {
 
         ui.render();
+
+        // Pause after placement so player can see the placed card
+        await new Promise(resolve => setTimeout(resolve, 1200));
+
         const gs = window.gameStateManager.determineGameState(game);
         handleGameStateResult(gs);
 
@@ -633,21 +637,29 @@ result = await botModal.placeCard(fallbackCard, playerIndex);
 async function scheduleNextBotTurn() {
 
   if (botTurnInProgress) {
-return;
+    return;
   }
 
-
   if (game.state.currentPlayer === 0) {
-return;
+    return;
+  }
+
+  // Show "thinking" message IMMEDIATELY so player sees it during the delay
+  if (window.messageController) {
+    window.messageController.handleGameEvent('BOT_THINKING', {
+      botNumber: game.state.currentPlayer
+    });
   }
 
   const pName = game.state.currentPlayer === 1
     ? game.state.settings.bot1Personality
     : game.state.settings.bot2Personality;
   const delay = typeof getThinkingDelay === 'function' ? getThinkingDelay(pName) : 1500;
-setTimeout(async () => {
-await aiTurn();
-  }, delay);
+  // Ensure minimum 1500ms thinking display
+  const thinkingDelay = Math.max(1500, delay);
+  setTimeout(async () => {
+    await aiTurn();
+  }, thinkingDelay);
 }
 
 function showLastCapture(playerName, cards, points) {
@@ -1118,48 +1130,48 @@ window.HintSystem = HintSystem;
 
 function handleContinueTurn(result) {
   const playerIndex = result.data.playerIndex;
-game.state.currentPlayer = playerIndex;
+  game.state.currentPlayer = playerIndex;
   ui.render();
 
   if (playerIndex !== 0) {
-    // Deliberate pause after bot action before next move
-    setTimeout(() => aiTurn(), 2000);
+    // Schedule next bot turn (shows thinking message, then acts after delay)
+    scheduleNextBotTurn();
   } else {
     window.messageController.handleGameEvent('TURN_START');
   }
 }
 
 function handleDealNewHand(result) {
-try {
+  try {
+    // Show dealing message first, delay before revealing cards
+    window.messageController.handleGameEvent('NEW_HAND', {
+      handNumber: (game.state.handCount || 1) + 1,
+      totalHands: Math.ceil(40 / 12),
+      roundNumber: game.currentRound
+    });
 
-    const dealResult = dealCards(game.state.deck, 3, 4, 0);
-    game.state.hands = dealResult.players;
-    game.state.deck = dealResult.remainingDeck;
+    setTimeout(() => {
+      const dealResult = dealCards(game.state.deck, 3, 4, 0);
+      game.state.hands = dealResult.players;
+      game.state.deck = dealResult.remainingDeck;
 
+      game.state.currentPlayer = result.data.startingPlayer;
+      game.state.lastCapturer = null;
 
-    game.state.currentPlayer = result.data.startingPlayer;
-    game.state.lastCapturer = null;
+      // Increment hand counter
+      game.state.handCount = (game.state.handCount || 1) + 1;
 
-    // Increment hand counter
-    game.state.handCount = (game.state.handCount || 1) + 1;
-    const totalHands = Math.ceil(40 / 12); // 40-card deck, 12 per deal = ~4 hands
+      ui.render();
 
-window.messageController.handleGameEvent('NEW_HAND', {
-  handNumber: game.state.handCount,
-  totalHands: totalHands,
-  roundNumber: game.currentRound
-});
-
-
-    ui.render();
-
-
-    if (result.data.startingPlayer !== 0) {
-setTimeout(() => scheduleNextBotTurn(), 1000);
-    }
+      if (result.data.startingPlayer !== 0) {
+        setTimeout(() => scheduleNextBotTurn(), 1500);
+      } else {
+        window.messageController.handleGameEvent('TURN_START');
+      }
+    }, 1500);
 
   } catch (error) {
-window.messageController.handleGameEvent('CAPTURE_ERROR', {
+    window.messageController.handleGameEvent('CAPTURE_ERROR', {
       message: 'Error dealing new hand! Please restart the game.'
     });
   }
@@ -1195,22 +1207,29 @@ function resumeNextRound(roundData) {
   const newStartingPlayer = (roundData.newDealer + 1) % 3;
   game.state.currentPlayer = newStartingPlayer;
 
-
-  const dealResult = dealCards(game.state.deck, 3, 4, 4);
-  game.state.hands = dealResult.players;
-  game.state.deck = dealResult.remainingDeck;
-  game.state.board = dealResult.board;
-
   game.currentRound = roundData.newRound;
   game.currentDealer = roundData.newDealer;
-  game.state.handCount = 1; // Reset hand counter for new round
+  game.state.handCount = 1;
 
-  ui.render();
+  // Show round starting message, then deal after delay
+  window.messageController.handleGameEvent('NEW_ROUND', {
+    roundNumber: roundData.newRound
+  });
 
+  setTimeout(() => {
+    const dealResult = dealCards(game.state.deck, 3, 4, 4);
+    game.state.hands = dealResult.players;
+    game.state.deck = dealResult.remainingDeck;
+    game.state.board = dealResult.board;
 
-  if (newStartingPlayer !== 0) {
-setTimeout(() => scheduleNextBotTurn(), 1000);
-  }
+    ui.render();
+
+    if (newStartingPlayer !== 0) {
+      setTimeout(() => scheduleNextBotTurn(), 1500);
+    } else {
+      window.messageController.handleGameEvent('TURN_START');
+    }
+  }, 1500);
 }
 
 function handleEndGame(result) {
