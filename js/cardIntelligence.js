@@ -190,70 +190,6 @@ class CardIntelligenceSystem {
     };
   }
   
-  // 🎯 STRATEGIC: Find safest card to place when no captures available
-  findSafestCardToPlace(handCards, boardCards, personality = 'calculator') {
-    if (!handCards || handCards.length === 0) {
-      return null;
-    }
-    
-    const placements = [];
-    
-    for (let i = 0; i < handCards.length; i++) {
-      const handCard = handCards[i];
-      
-      if (!handCard) {
-        continue;
-      }
-      
-      const riskAnalysis = this.calculateCaptureRisk(handCard, boardCards);
-      const valueScore = this.getCardStrategicValue(handCard);
-      
-      // Calculate placement desirability (lower risk + lower value = better)
-      const placementScore = (100 - riskAnalysis.riskScore) + (50 - valueScore);
-      
-      placements.push({
-        handIndex: i,
-        handCard: handCard,
-        riskAnalysis: riskAnalysis,
-        valueScore: valueScore,
-        placementScore: placementScore
-      });
-    }
-    
-    if (placements.length === 0) {
-      return null;
-    }
-
-    // Sort by placement score (safest first)
-    placements.sort((a, b) => b.placementScore - a.placementScore);
-
-    return placements[0];
-  }
-  
-  // 💎 Calculate strategic value of holding vs playing a card
-  getCardStrategicValue(card) {
-    const pointValue = this.getCardPointValue(card);
-    let strategicValue = pointValue;
-    
-    // Face cards are extra valuable (can only pair, not sum)
-    if (['J', 'Q', 'K'].includes(card.value)) {
-      strategicValue += 15; // Hold face cards longer
-    }
-    
-    // Aces are EXTREMELY valuable
-    if (card.value === 'A') {
-      strategicValue += 25; // Almost never place Aces
-    }
-    
-    // Low number cards are safer to place
-    const numValue = this.getNumericValue(card.value);
-    if (numValue && numValue <= 4) {
-      strategicValue -= 10; // Low cards safer to place
-    }
-    
-    return strategicValue;
-  }
-  
   // 🎮 Update game phase based on cards played
   updateGamePhase() {
     const totalCards = 52;
@@ -316,10 +252,6 @@ class CardIntelligenceSystem {
     return 'DANGEROUS';
   }
   
-  // 🔍 Debug function to see AI's current knowledge
-  debugCardKnowledge() {
-    // Debug function - logs stripped for production
-  }
 }
 
 // 🎯 GLOBAL CARD INTELLIGENCE INSTANCE

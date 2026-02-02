@@ -48,9 +48,10 @@ const SpeedMode = {
   },
 
   startTimer(gameEngine) {
+    this.stopTimer(); // Clear any existing interval before starting new one
     this.timer.remaining = this.config.timeLimit;
     this.timer.paused = false;
-    
+
     this.timer.interval = setInterval(() => {
       if (!this.timer.paused) {
         this.timer.remaining--;

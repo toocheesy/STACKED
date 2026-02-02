@@ -6,28 +6,6 @@
 
 class UISystem {
   constructor(gameEngine) {
-    // 🔧 PRODUCTION DEBUG TOGGLE
-    const DEBUG_CONFIG = {
-      UI_RENDERING: false,     // Set to false for production
-      ERRORS: true,
-      SETUP: true,
-    };
-
-    function debugLog(category, ...args) {
-      if (DEBUG_CONFIG[category]) {
-        console.log(...args);
-      }
-    }
-
-    function debugError(...args) {
-      if (DEBUG_CONFIG.ERRORS) {
-        console.error(...args);
-      }
-    }
-
-    // Make debug functions available to the class
-    this.debugLog = debugLog;
-    this.debugError = debugError;
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
     // NEW - proper ModalManager integration

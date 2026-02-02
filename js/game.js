@@ -21,7 +21,8 @@ class GameEngine {
         bot2Personality: 'calvin'
       },
       draggedCard: null,
-      lastCapturer: null
+      lastCapturer: null,
+      lastAction: null
     };
     
     this.currentMode = null;
@@ -91,9 +92,9 @@ setStartingPlayer() {
 }
 
 
-// 🔥 RESTORED: Pure state getter for read-only access - no mutations!  
-getState() {  
-  return { ...this.state };  // Spread for shallow copy safety  
+// 🔥 RESTORED: Pure state getter for read-only access - no mutations!
+getState() {
+  return JSON.parse(JSON.stringify(this.state));  // Deep copy prevents mutation
 }  
 
 nextPlayer() {

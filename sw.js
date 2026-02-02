@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stacked-v30';
+const CACHE_NAME = 'stacked-v31';
 
 const ASSETS_TO_CACHE = [
   '/',

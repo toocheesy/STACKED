@@ -119,8 +119,7 @@ Scripts in `game.html` MUST load in this exact sequence:
 8. classic.js/speed.js - Game modes
 9. ai.js/botModal.js   - AI systems
 10. ui.js              - Rendering
-11. hintSystem.js      - Hint analysis and display
-12. main.js            - MUST BE LAST (initializes everything)
+11. main.js            - MUST BE LAST (initializes everything, includes HintSystem)
 ```
 
 ---
