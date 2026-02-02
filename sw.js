@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stacked-v24';
+const CACHE_NAME = 'stacked-v25';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -6,6 +6,7 @@ const ASSETS_TO_CACHE = [
   '/game.html',
   '/css/styles.css',
   '/manifest.json',
+  '/js/constants.js',
   '/js/helpers.js',
   '/js/cardIntelligence.js',
   '/js/gameStateManager.js',
