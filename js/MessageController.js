@@ -40,13 +40,6 @@ class MessageController {
     this.secondaryEl.classList.add('visible');
   }
 
-  hideSecondaryMessage() {
-    if (!this.secondaryEl) this.secondaryEl = document.getElementById('secondary-message');
-    if (!this.secondaryEl) return;
-    this.secondaryEl.textContent = '';
-    this.secondaryEl.classList.remove('visible');
-  }
-
   // --- Timed message (auto-clears or transitions) ---
 
   showTimed(text, type, ms, followUp) {
@@ -217,9 +210,6 @@ class MessageController {
     return 'nina';
   }
 
-  forceRefresh() {
-    this.handleGameEvent('TURN_START');
-  }
 }
 
 // Global instance

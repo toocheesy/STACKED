@@ -559,14 +559,6 @@ renderDealerIndicator() {
     }
   }
 
-  // Message controller integration
-  updateMessage() {
-    // Message controller handles everything now
-    if (window.messageController) {
-      window.messageController.forceRefresh();
-    }
-  }
-
   initMessageController() {
     if (window.messageController && this.game) {
       window.messageController.connect(this.game);

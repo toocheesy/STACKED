@@ -126,81 +126,6 @@ const SpeedMode = {
     return totalScore;
   },
 
-  checkEndCondition(gameEngine) {
-    if (this.timer.remaining <= 0) {
-      return this.forceRoundEnd(gameEngine);
-    }
-    
-    const playersWithCards = gameEngine.state.hands.filter(hand => hand.length > 0).length;
-    
-    if (playersWithCards === 0) {
-      this.stopTimer();
-      
-      if (gameEngine.state.deck.length === 0) {
-        this.applyLastComboTakesAll(gameEngine);
-        
-        const maxScore = Math.max(
-          gameEngine.state.scores.player, 
-          gameEngine.state.scores.bot1, 
-          gameEngine.state.scores.bot2
-        );
-        
-        if (maxScore >= this.config.targetScore || gameEngine.currentRound >= this.config.maxRounds) {
-          return { 
-            gameOver: true, 
-            winner: this.getWinner(gameEngine),
-            reason: maxScore >= this.config.targetScore ? 'target_score_reached' : 'max_rounds_reached'
-          };
-        } else {
-          return { 
-            roundOver: true, 
-            gameOver: false,
-            reason: 'round_complete'
-          };
-        }
-      } else {
-        return { continueRound: true };
-      }
-    }
-    
-    return { continue: true };
-  },
-
-  applyLastComboTakesAll(gameEngine) {
-    if (gameEngine.state.lastCapturer !== null && gameEngine.state.board.length > 0) {
-      // Store card count BEFORE clearing the board
-      const cardsCount = gameEngine.state.board.length;
-      const bonusPoints = this.calculateScore(gameEngine.state.board);
-      gameEngine.addScore(gameEngine.state.lastCapturer, bonusPoints);
-
-      const lastCapturerName = PLAYER_NAMES[gameEngine.state.lastCapturer];
-
-      gameEngine.state.board = [];
-
-      return {
-        message: `⚡ ${lastCapturerName} speed-sweeps ${cardsCount} cards! +${bonusPoints} pts`,
-        points: bonusPoints,
-        player: lastCapturerName,
-        cardsCount: cardsCount
-      };
-    }
-    return null;
-  },
-
-  getWinner(gameEngine) {
-    const scores = [
-      { name: 'Player', score: gameEngine.state.scores.player, index: 0 },
-      { name: 'Bot 1', score: gameEngine.state.scores.bot1, index: 1 },
-      { name: 'Bot 2', score: gameEngine.state.scores.bot2, index: 2 }
-    ];
-    
-    return scores.sort((a, b) => b.score - a.score)[0];
-  },
-
-  validateCapture(areaCards, baseValue, baseCard, areaName) {
-    return null;
-  },
-
   onCapture(gameEngine, capturedCards) {
     const bonus = Math.floor((this.timer.remaining / this.config.timeLimit) * 50);
     if (bonus > 0) {
@@ -251,17 +176,6 @@ const SpeedMode = {
     if (timerEl) {
       timerEl.remove();
     }
-  },
-
-  getCustomUI() {
-    return {
-      targetScoreDisplay: true,
-      roundCounter: true,
-      dealerIndicator: true,
-      hintButton: false,
-      timerDisplay: true,
-      speedBonus: true
-    };
   },
 
   getSettings() {
