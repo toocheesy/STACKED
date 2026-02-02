@@ -19,10 +19,6 @@ class ModalManager {
       ROUND_END: 'round_end',
       GAME_OVER: 'game_over', 
       ERROR: 'error',
-      SETTINGS: 'settings',
-      HINT: 'hint',
-      PAUSE: 'pause',
-      CONFIRM: 'confirm'
     };
     
   }
@@ -125,14 +121,6 @@ class ModalManager {
         return this.createGameOverModal(data);
       case this.modalTypes.ERROR:
         return this.createErrorModal(data);
-      case this.modalTypes.SETTINGS:
-        return this.createSettingsModal(data);
-      case this.modalTypes.HINT:
-        return this.createHintModal(data);
-      case this.modalTypes.PAUSE:
-        return this.createPauseModal(data);
-      case this.modalTypes.CONFIRM:
-        return this.createConfirmModal(data);
       default:
         return null;
     }
@@ -251,76 +239,6 @@ class ModalManager {
     `;
   }
 
-  // ⚙️ SETTINGS MODAL (Future)
-  createSettingsModal(data) {
-    return `
-      <div class="game-modal settings-modal">
-        <div class="modal-header">
-          <h2>⚙️ Game Settings</h2>
-        </div>
-        <div class="modal-content">
-          <p>Settings panel coming soon...</p>
-        </div>
-        <div class="modal-actions">
-          <button id="close-settings-btn" class="continue-btn">Close</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // 💡 HINT MODAL (Future)
-  createHintModal(data) {
-    return `
-      <div class="game-modal hint-modal">
-        <div class="modal-header">
-          <h2>💡 Game Hint</h2>
-        </div>
-        <div class="modal-content">
-          <p>${data.hintText || 'No hints available right now.'}</p>
-        </div>
-        <div class="modal-actions">
-          <button id="close-hint-btn" class="continue-btn">Got it!</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // ⏸️ PAUSE MODAL (Future)
-  createPauseModal(data) {
-    return `
-      <div class="game-modal pause-modal">
-        <div class="modal-header">
-          <h2>⏸️ Game Paused</h2>
-        </div>
-        <div class="modal-content">
-          <p>Game is paused. Ready to continue?</p>
-        </div>
-        <div class="modal-actions">
-          <button id="resume-game-btn" class="continue-btn">Resume Game</button>
-          <button id="quit-game-btn" class="home-btn">Quit to Home</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // ❓ CONFIRM MODAL (Future)
-  createConfirmModal(data) {
-    return `
-      <div class="game-modal confirm-modal">
-        <div class="modal-header">
-          <h2>❓ ${data.title || 'Confirm Action'}</h2>
-        </div>
-        <div class="modal-content">
-          <p>${data.message || 'Are you sure?'}</p>
-        </div>
-        <div class="modal-actions">
-          <button id="confirm-yes-btn" class="restart-btn">${data.yesText || 'Yes'}</button>
-          <button id="confirm-no-btn" class="continue-btn">${data.noText || 'No'}</button>
-        </div>
-      </div>
-    `;
-  }
-
   // 🎪 CREATE MODAL CONTAINER
   createModalContainer(modalContent) {
     // Remove any existing modal
@@ -434,10 +352,6 @@ class ModalManager {
   // 🔍 UTILITY FUNCTIONS
   isModalActive() {
     return this.activeModal !== null;
-  }
-
-  getActiveModalType() {
-    return this.activeModal;
   }
 
   // 🎨 ENSURE MODAL STYLING

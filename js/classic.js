@@ -62,46 +62,6 @@ const ClassicMode = {
     return scores.sort((a, b) => b.score - a.score)[0];
   },
 
-  validateCapture(areaCards, baseValue, baseCard, areaName) {
-    return null; // Use standard validation
-  },
-
-  getAvailableActions(gameEngine) {
-    const actions = ['place_card'];
-    
-    if (this.config.enableMultiCapture) {
-      actions.push('capture');
-    }
-    
-    if (this.config.enableHints && gameEngine.state.currentPlayer === 0) {
-      actions.push('hint');
-    }
-    
-    return actions;
-  },
-
-  onCapture(gameEngine, capturedCards) {
-    // Classic mode doesn't have special capture effects
-  },
-
-  onRoundEnd(gameEngine) {
-    // 🔥 FIXED: GameStateManager now handles dealer rotation
-    // This function only handles mode-specific round end logic
-  },
-
-  onGameEnd(gameEngine) {
-    // Game end handled by GameStateManager
-  },
-
-  getCustomUI() {
-    return {
-      targetScoreDisplay: true,
-      roundCounter: true,
-      dealerIndicator: true,
-      hintButton: this.config.enableHints
-    };
-  },
-
   getSettings() {
     return {
       targetScore: {
