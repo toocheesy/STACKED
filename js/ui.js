@@ -30,8 +30,6 @@ class UISystem {
     this.debugError = debugError;
     this.game = gameEngine;
     this.suitSymbols = { Hearts: '♥', Diamonds: '♦', Clubs: '♣', Spades: '♠' };
-    this.draggableCombo = new DraggableModal('combination-area');
-    
     // NEW - proper ModalManager integration
 if (typeof ModalManager !== 'undefined') {
   this.modalManager = new ModalManager(this.game, this);
@@ -76,12 +74,10 @@ render() {
     this.initMessageController();
   }
   
-  this.renderDeckCount();
   this.renderTable();
   this.renderComboArea();
   this.renderBoard();
   this.renderHands();
-  this.renderBotHands();
   this.renderScores();
   this.renderBotCardCounts();
   this.renderDealerIndicator();
@@ -105,13 +101,6 @@ render() {
   }
 }
 
-  renderDeckCount() {
-    const deckCountEl = document.getElementById('deck-count');
-    if (deckCountEl) {
-      deckCountEl.textContent = `${this.game.state.deck.length || 0} left`;
-    }
-  }
-
   renderTable() {
     // Board is now a flex row in CSS — no transform centering needed
     // Overflow handled by overflow-x: auto on .board
@@ -130,16 +119,9 @@ resetRenderFlags() {
     return;
   }
 
-    // Try your actual HTML structure first
-    let comboAreaEl = document.querySelector('.combo-area');
-
-    // Fallback to old structure if needed
+    const comboAreaEl = document.querySelector('.combo-area');
     if (!comboAreaEl) {
-      comboAreaEl = document.getElementById('combination-area');
-    }
-
-    if (!comboAreaEl) {
-      console.error('❌ Combo area element not found! Looking for .combo-area or #combination-area');
+      console.error('❌ Combo area element not found!');
       return;
     }
 
@@ -398,62 +380,6 @@ renderBotCardCounts() {
       
       handEl.appendChild(cardEl);
     }
-  }
-
-  renderBotHands() {
-  // Skip if already rendered and no changes
-  if (this._botHandsRendered && this.game?.state?.currentPlayer !== 0) {
-    return;
-  }
-    const bot1HandEl = document.getElementById('bot1-hand');
-    const bot2HandEl = document.getElementById('bot2-hand');
-    
-    if (bot1HandEl) {
-      bot1HandEl.innerHTML = '';
-      const bot1Cards = this.game.state.hands[1] || [];
-      
-      // Create 4 fixed card slots
-      for (let i = 0; i < 4; i++) {
-        const cardEl = document.createElement('div');
-        
-        if (i < bot1Cards.length) {
-          // Show actual card
-          cardEl.className = 'card back';
-          cardEl.style.visibility = 'visible';
-        } else {
-          // Empty slot - invisible but takes up space
-          cardEl.className = 'card back';
-          cardEl.style.visibility = 'hidden';
-        }
-        
-        bot1HandEl.appendChild(cardEl);
-      }
-    }
-
-    if (bot2HandEl) {
-      bot2HandEl.innerHTML = '';
-      const bot2Cards = this.game.state.hands[2] || [];
-      
-      // Create 4 fixed card slots
-      for (let i = 0; i < 4; i++) {
-        const cardEl = document.createElement('div');
-        
-        if (i < bot2Cards.length) {
-          // Show actual card
-          cardEl.className = 'card back';
-          cardEl.style.visibility = 'visible';
-        } else {
-          // Empty slot - invisible but takes up space
-          cardEl.className = 'card back';
-          cardEl.style.visibility = 'hidden';
-        }
-        
-        bot2HandEl.appendChild(cardEl);
-      }
-    }
-    
-    // At the end, add:
-    this._botHandsRendered = true;
   }
 
   renderScores() {

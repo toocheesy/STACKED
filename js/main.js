@@ -1058,7 +1058,6 @@ window.handleTouchStart = handleTouchStart;
 window.handleTouchMove = handleTouchMove;
 window.handleTouchEnd = handleTouchEnd;
 
-window.DraggableModal = DraggableModal;
 window.HintSystem = HintSystem;
 
 function handleContinueTurn(result) {

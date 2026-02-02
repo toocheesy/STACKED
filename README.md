@@ -1,6 +1,6 @@
 # STACKED!
 
-A strategic card game where you play against 2 AI opponents. Capture cards using a combo system of pairs and sums. First to 500 points wins.
+A strategic card game where you play against 2 AI opponents. Capture cards using a combo system of pairs and sums. First to 300 points wins.
 
 **Play it:** [https://stack-delta-taupe.vercel.app](https://stack-delta-taupe.vercel.app)
 
@@ -61,8 +61,7 @@ js/
   ai.js               - AI move decisions
   cardIntelligence.js - AI card memory and strategy
   botModal.js         - Bot move visualization (plays through the UI)
-  hintSystem.js       - Hint analysis and display
-  helpers.js          - Deck creation, shuffle, sounds, utilities
+  helpers.js          - Deck creation, shuffle, utilities
   MessageController.js - In-game hint/guidance messages
   modalManager.js     - Modal dialogs (game over, round end, etc.)
   modeSelector.js     - Game mode management
@@ -70,7 +69,6 @@ js/
   speed.js            - Speed mode (not yet active)
 css/
   styles.css          - All styling
-audio/                - Sound effects
 ```
 
 ## Architecture
