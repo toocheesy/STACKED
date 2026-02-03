@@ -1008,6 +1008,14 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('❌ Hint button not found!');
   }
 
+  // Exit button — return to main menu
+  const exitBtn = document.getElementById('exit-btn');
+  if (exitBtn) {
+    exitBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+  }
+
   // Rules button — re-show quick rules overlay
   const rulesBtn = document.getElementById('rules-btn');
   if (rulesBtn) {
