@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STACKED! - Adventure Mode</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
+  <link rel="stylesheet" href="css/adventure.css">
+</head>
+<body class="adventure-page">
+  <!-- Rotate phone overlay for mobile portrait -->
+  <div class="rotate-overlay">
+    <div class="rotate-icon">📱</div>
+    <div class="rotate-text">Turn Your Phone Sideways</div>
+    <div class="rotate-subtext">STACKED! is best played in landscape mode</div>
+  </div>
+
+  <div id="world-map"></div>
+
+  <script src="js/adventure/levelConfig.js"></script>
+  <script src="js/adventure/progressManager.js"></script>
+  <script src="js/adventure/worldMap.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      WorldMap.init();
+    });
+  </script>
+</body>
+</html>

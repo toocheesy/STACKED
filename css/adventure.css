@@ -1,0 +1,436 @@
+/* Adventure Mode Styles */
+
+/* ===== World Map Page ===== */
+
+.adventure-page {
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100%" height="100%" fill="%23331E0F" /><path d="M0 10 Q50 15 100 10 T100 30 T100 70 T0 60 T0 40 T0 20 T0 10" fill="none" stroke="%234A2B17" stroke-width="2" opacity="0.5" /><rect width="100%" height="100%" fill="rgba(0,0,0,0.2)" /></svg>') repeat;
+  background-color: #331E0F;
+  color: #D2A679;
+  min-height: 100vh;
+  font-family: 'Cabin', Arial, sans-serif;
+  padding: 15px;
+}
+
+.map-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 900px;
+  margin: 0 auto 20px;
+  padding: 10px 0;
+}
+
+.map-back-btn {
+  background: linear-gradient(135deg, #6B4226, #4A2B17);
+  color: #D2A679;
+  border: 2px solid #8B5A2B;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: 'Cabin', Arial, sans-serif;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.map-back-btn:hover {
+  background: linear-gradient(135deg, #8B5A2B, #6B4226);
+  transform: translateY(-2px);
+}
+
+.map-title {
+  font-size: 2rem;
+  color: #D2A679;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.map-stars-total {
+  background: rgba(74, 43, 23, 0.5);
+  border: 1px solid #8B5A2B;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  color: #FFD700;
+  font-weight: bold;
+}
+
+/* ===== Worlds Grid ===== */
+
+.worlds-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.world-card {
+  background: linear-gradient(145deg, #331E0F, #3D2413);
+  border: 2px solid #8B5A2B;
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all 0.3s ease;
+}
+
+.world-card.unlocked:hover {
+  border-color: #D2A679;
+  box-shadow: 0 4px 20px rgba(139, 90, 43, 0.3);
+}
+
+.world-card.locked {
+  opacity: 0.5;
+  filter: grayscale(0.4);
+}
+
+.world-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.world-icon {
+  font-size: 2rem;
+}
+
+.world-info {
+  flex: 1;
+}
+
+.world-name {
+  font-size: 1.1rem;
+  color: #D2A679;
+  margin: 0 0 2px;
+}
+
+.world-desc {
+  font-size: 0.85rem;
+  color: #B88A5A;
+  margin: 0;
+}
+
+.world-stars {
+  font-size: 1rem;
+  color: #FFD700;
+  font-weight: bold;
+}
+
+.world-lock {
+  font-size: 0.85rem;
+  color: #8B5A2B;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== Level Buttons ===== */
+
+.level-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.level-btn {
+  background: linear-gradient(145deg, #4A2B17, #3D2413);
+  border: 2px solid #6B4226;
+  border-radius: 10px;
+  padding: 10px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s ease;
+  color: #D2A679;
+  font-family: 'Cabin', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.level-btn.unlocked:hover {
+  border-color: #D2A679;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(139, 90, 43, 0.4);
+}
+
+.level-btn.locked {
+  cursor: not-allowed;
+  opacity: 0.4;
+  border-color: #4A2B17;
+}
+
+.level-btn.completed {
+  border-color: #4A7043;
+  background: linear-gradient(145deg, #3D2413, #2D3D1F);
+}
+
+.level-num {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #D2A679;
+  line-height: 1;
+}
+
+.level-name {
+  font-size: 0.75rem;
+  color: #B88A5A;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.level-target {
+  font-size: 0.7rem;
+  color: #8B5A2B;
+}
+
+.level-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.star.filled {
+  color: #FFD700;
+  font-size: 1rem;
+}
+
+.star.empty {
+  color: #4A2B17;
+  font-size: 1rem;
+}
+
+/* ===== Game Restrictions (applied on game-container) ===== */
+
+/* World 1: Base + Match only (hide all sum areas) */
+.game-container.adventure-world-1 .combo-section:has(.sum-area) {
+  display: none;
+}
+
+/* Fallback for browsers without :has() support */
+@supports not (selector(:has(*))) {
+  .game-container.adventure-world-1 .sum-area {
+    display: none;
+  }
+}
+
+/* World 2: Hide sum2 and sum3 */
+.game-container.adventure-world-2 [data-slot="sum2"],
+.game-container.adventure-world-2 [data-slot="sum3"] {
+  display: none;
+}
+
+/* ===== Adventure Complete Modal ===== */
+
+.adventure-complete-modal .star-display {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.adventure-complete-modal .star-display .big-star {
+  font-size: 2.5rem;
+  transition: transform 0.3s ease;
+}
+
+.adventure-complete-modal .star-display .big-star.earned {
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.adventure-complete-modal .star-display .big-star.empty {
+  color: #4A2B17;
+}
+
+.adventure-complete-modal .placement-text {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #D2A679;
+  margin: 10px 0;
+}
+
+.adventure-complete-modal .unlock-announcement {
+  background: linear-gradient(145deg, #FFD700, #FFA500);
+  color: #331E0F;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.adventure-complete-modal .level-info {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.adventure-complete-modal .level-info .world-label {
+  font-size: 0.85rem;
+  color: #8B5A2B;
+}
+
+.adventure-complete-modal .level-info .level-label {
+  font-size: 1.1rem;
+  color: #D2A679;
+  font-weight: bold;
+}
+
+/* ===== Adventure Tutorial Modal ===== */
+
+.adventure-tutorial-modal .tutorial-level-name {
+  text-align: center;
+  font-size: 1.3rem;
+  color: #D2A679;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.adventure-tutorial-modal .tutorial-message {
+  text-align: center;
+  font-size: 1rem;
+  color: #F5E8C7;
+  line-height: 1.6;
+  padding: 12px 16px;
+  background: rgba(74, 43, 23, 0.4);
+  border-radius: 8px;
+  border: 1px solid #6B4226;
+  margin-bottom: 12px;
+}
+
+.adventure-tutorial-modal .tutorial-target {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #FFD700;
+  margin-bottom: 5px;
+}
+
+/* ===== Mobile Responsive ===== */
+
+@media (max-width: 768px) {
+  .map-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .map-title {
+    font-size: 1.5rem;
+    width: 100%;
+    text-align: center;
+    order: -1;
+  }
+
+  .level-buttons {
+    gap: 8px;
+  }
+
+  .level-btn {
+    padding: 8px 4px;
+  }
+
+  .level-num {
+    font-size: 1.2rem;
+  }
+}
+
+/* ============================================================================
+   ROTATE PHONE OVERLAY - Mobile Portrait
+   ============================================================================ */
+.rotate-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a0a00 0%, #2d1810 50%, #1a0a00 100%);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+}
+.rotate-overlay .rotate-icon {
+  font-size: 4rem;
+  animation: rotatePhone 2s ease-in-out infinite;
+}
+.rotate-overlay .rotate-text {
+  color: #D4A574;
+  font-family: 'Cinzel', serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.rotate-overlay .rotate-subtext {
+  color: #8B7355;
+  font-size: 0.9rem;
+}
+@keyframes rotatePhone {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-30deg); }
+  75% { transform: rotate(30deg); }
+}
+@media screen and (orientation: portrait) and (max-width: 600px) {
+  .rotate-overlay {
+    display: flex;
+  }
+}
+
+/* ===== Adventure Completion (in-game modal) ===== */
+.adv-placement {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #D4A44A;
+  margin: 6px 0;
+  letter-spacing: 1px;
+}
+
+.adv-stars {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.adv-star {
+  font-size: 2.2rem;
+  transition: transform 0.3s ease;
+}
+
+.adv-star.earned {
+  color: #FFD700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.adv-star.empty {
+  color: #4A2B17;
+}
+
+.adv-scores {
+  margin: 12px 0 4px;
+}
+
+.adv-score-row {
+  color: #D2A679;
+  font-size: 0.85rem;
+  padding: 4px 0;
+}
+
+.adv-score-row.is-player {
+  color: #D4A44A;
+  font-weight: bold;
+}
+
+.unlock-announcement {
+  background: linear-gradient(145deg, #FFD700, #FFA500);
+  color: #331E0F;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  margin: 10px 0;
+}

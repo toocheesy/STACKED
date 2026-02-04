@@ -274,6 +274,7 @@ function initGameSystems() {
   modeSelector = new ModeSelector();
   modeSelector.registerMode('classic', ClassicMode);
   modeSelector.registerMode('speed', SpeedMode);
+  modeSelector.registerMode('adventure', AdventureMode);
 
   game = new GameEngine();
   ui = new UISystem(game);
@@ -525,7 +526,14 @@ ui.render();
       deck: game.state.deck,
       currentPlayer: playerIndex
     };
-    const move = aiMove(game.state.hands[playerIndex], game.state.board, personalityName, gameState);
+    let move = aiMove(game.state.hands[playerIndex], game.state.board, personalityName, gameState);
+
+    // Adventure: filter bot captures based on world restrictions
+    if (move && move.action === 'capture' && game.currentMode.filterBotCapture) {
+      if (!game.currentMode.filterBotCapture(move.capture)) {
+        move = null; // Force place instead
+      }
+    }
 
     let result;
 
@@ -959,6 +967,104 @@ return;
   window.hintSystem.showHint();
 }
 
+// ============================================================================
+// Adventure Mode — Level Completion
+// ============================================================================
+function showAdventureComplete(data) {
+  const lvl = AdventureMode.levelConfig;
+  const scores = data.scores;
+
+  // Determine player placement (1st, 2nd, or 3rd)
+  const scoreArr = [
+    { idx: 0, score: scores.player, name: 'You' },
+    { idx: 1, score: scores.bot1, name: window.messageController ? window.messageController.getBotDisplayName(1) : 'Bot 1' },
+    { idx: 2, score: scores.bot2, name: window.messageController ? window.messageController.getBotDisplayName(2) : 'Bot 2' }
+  ];
+  scoreArr.sort((a, b) => b.score - a.score);
+  const placement = scoreArr.findIndex(s => s.idx === 0) + 1;
+
+  // Save progress
+  const progressResult = window.AdventureProgress.completeLevel(lvl.id, placement);
+  const stars = progressResult.stars;
+  const unlocks = progressResult.unlocks;
+
+  // Star display
+  let starHTML = '';
+  for (let i = 0; i < 3; i++) {
+    starHTML += i < stars
+      ? '<span class="adv-star earned">&#9733;</span>'
+      : '<span class="adv-star empty">&#9733;</span>';
+  }
+
+  // Unlock announcements
+  let unlockHTML = '';
+  unlocks.forEach(u => {
+    if (u.type === 'world') {
+      unlockHTML += `<div class="unlock-announcement">${u.icon} World ${u.worldId}: ${u.name} Unlocked!</div>`;
+    } else if (u.type === 'feature') {
+      unlockHTML += `<div class="unlock-announcement">${u.name}</div>`;
+    }
+  });
+
+  const placementText = placement === 1 ? '1st Place!' : placement === 2 ? '2nd Place' : '3rd Place';
+  const nextLevelId = window.AdventureLevels.getNextLevel(lvl.id);
+
+  // Build score rows
+  const scoreRows = scoreArr.map((s, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
+    return `<div class="adv-score-row ${s.idx === 0 ? 'is-player' : ''}">${medal} ${s.name} — ${s.score} pts</div>`;
+  }).join('');
+
+  window.gameIsPaused = true;
+  const overlay = document.createElement('div');
+  overlay.id = 'adventure-complete-overlay';
+  overlay.className = 'quick-rules-overlay';
+  overlay.style.display = 'flex';
+  overlay.innerHTML = `
+    <div class="quick-rules-backdrop"></div>
+    <div class="quick-rules-modal" style="text-align: center;">
+      <h2 class="quick-rules-heading">${lvl.worldIcon} ${lvl.name}</h2>
+      <div class="adv-placement">${placementText}</div>
+      <div class="adv-stars">${starHTML}</div>
+      ${unlockHTML}
+      <div class="adv-scores">${scoreRows}</div>
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px;">
+        ${nextLevelId ? '<button id="adventure-next-btn" class="dismiss-rules-btn">Next Level</button>' : ''}
+        <button id="adventure-map-btn" class="dismiss-rules-btn">Back to Map</button>
+        <button id="adventure-replay-btn" class="dismiss-rules-btn" style="background: linear-gradient(135deg, #6B4226, #4A2B17); border-color: #8B5A2B;">Replay</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  // Button handlers
+  document.getElementById('adventure-map-btn').addEventListener('click', () => {
+    window.location.href = 'adventure.html';
+  });
+
+  document.getElementById('adventure-replay-btn').addEventListener('click', () => {
+    overlay.remove();
+    window.gameIsPaused = false;
+    initGame();
+  });
+
+  const nextBtn = document.getElementById('adventure-next-btn');
+  if (nextBtn && nextLevelId) {
+    nextBtn.addEventListener('click', () => {
+      const nextConfig = window.AdventureLevels.getLevel(nextLevelId);
+      if (nextConfig) {
+        localStorage.setItem('adventureLevel', JSON.stringify(nextConfig));
+        localStorage.setItem('selectedMode', 'adventure');
+        localStorage.setItem('bot1Personality', nextConfig.bot1);
+        localStorage.setItem('bot2Personality', nextConfig.bot2);
+        window.location.reload();
+      }
+    });
+  }
+
+  ui.render();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Prevent all scrolling on the game page
   document.body.addEventListener('touchmove', (e) => {
@@ -1206,6 +1312,11 @@ function handleEndGame(result) {
     game.currentMode.onGameEnd(game);
   }
 
+  // Adventure mode: custom completion modal
+  if (modeSelector.currentMode === 'adventure' && AdventureMode.levelConfig) {
+    showAdventureComplete(result.data);
+    return;
+  }
 
   ui.showModal('game_over', result.data);
 
