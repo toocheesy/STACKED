@@ -1008,10 +1008,27 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('❌ Hint button not found!');
   }
 
-  // Exit button — return to main menu
+  // Exit button — show confirmation overlay
   const exitBtn = document.getElementById('exit-btn');
   if (exitBtn) {
     exitBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('exit-confirm-overlay');
+      if (overlay) overlay.style.display = 'flex';
+    });
+  }
+
+  // Exit confirmation — stay or leave
+  const exitStayBtn = document.getElementById('exit-stay-btn');
+  if (exitStayBtn) {
+    exitStayBtn.addEventListener('click', () => {
+      const overlay = document.getElementById('exit-confirm-overlay');
+      if (overlay) overlay.style.display = 'none';
+    });
+  }
+
+  const exitLeaveBtn = document.getElementById('exit-leave-btn');
+  if (exitLeaveBtn) {
+    exitLeaveBtn.addEventListener('click', () => {
       window.location.href = 'index.html';
     });
   }

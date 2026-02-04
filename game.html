@@ -34,6 +34,19 @@
     </div>
   </div>
 
+  <!-- Exit confirmation overlay -->
+  <div id="exit-confirm-overlay" class="quick-rules-overlay" style="display: none;">
+    <div class="quick-rules-backdrop"></div>
+    <div class="quick-rules-modal" style="text-align: center;">
+      <h2 class="quick-rules-heading">Leave Game?</h2>
+      <p style="color: #D2A679; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5;">Exiting will end your current game. Stats and progress will not be saved.</p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button id="exit-stay-btn" class="dismiss-rules-btn">Keep Playing</button>
+        <button id="exit-leave-btn" class="dismiss-rules-btn" style="background: linear-gradient(135deg, #6B4226, #4A2B17); border-color: #8B5A2B;">Exit</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Force landscape orientation message -->
   <div class="orientation-overlay">
     🔄 Please rotate your device to landscape mode for the best STACKED! experience
