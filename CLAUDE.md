@@ -109,17 +109,19 @@ When given a bug report: just fix it. Don't ask for hand-holding.
 Scripts in `game.html` MUST load in this exact sequence:
 
 ```
-1. helpers.js          - Utilities (deck, game logic, sounds)
+1. helpers.js          - Constants, deck, game logic, AI routing
 2. cardIntelligence.js - AI strategic brain
-3. gameStateManager.js - Game flow controller
-4. modalManager.js     - Modal system
-5. game.js             - GameEngine core
-6. modeSelector.js     - Mode management
-7. MessageController.js - Educational guidance
-8. classic.js/speed.js - Game modes
-9. ai.js/botModal.js   - AI systems
-10. ui.js              - Rendering
-11. main.js            - MUST BE LAST (initializes everything, includes HintSystem)
+3. personalities/*.js  - Calvin, Nina, Rex
+4. gameStateManager.js - Game flow controller
+5. modalManager.js     - Modal system
+6. game.js             - GameEngine core
+7. modeSelector.js     - Mode management
+8. MessageController.js - Educational guidance
+9. classic.js/speed.js - Game modes
+10. adventure/*.js     - Level config, progress, adventure mode
+11. botModal.js        - Bot move visualization
+12. ui.js              - Rendering
+13. main.js            - MUST BE LAST (initializes everything, includes HintSystem)
 ```
 
 ---
@@ -175,11 +177,10 @@ All systems exposed via `window.`:
 | `main.js` | Main controller, event handlers, initialization | ⚠️ DANGEROUS |
 | `game.js` | GameEngine, state management, validation | ⚠️ DANGEROUS |
 | `gameStateManager.js` | Flow control, turn management | ⚠️ DANGEROUS |
-| `ai.js` | AI decision logic, move selection | ✅ Safe |
 | `cardIntelligence.js` | Strategic AI brain, difficulty levels | ✅ Safe |
 | `botModal.js` | Bot move visualization | Moderate |
 | `ui.js` | All DOM rendering | Moderate |
-| `helpers.js` | Deck creation, utilities, sounds | ✅ Safe |
+| `helpers.js` | Constants, deck, game logic, AI routing | ✅ Safe |
 | `MessageController.js` | Educational guidance messages | ✅ Safe |
 | `modalManager.js` | Modal dialog system | ✅ Safe |
 | `modeSelector.js` | Mode management | ✅ Safe |
@@ -187,6 +188,12 @@ All systems exposed via `window.`:
 | `speed.js` | Speed mode (coming soon) | ✅ Safe |
 | `styles.css` | All styling | ✅ Safe |
 | `personalities/*.js` | AI personalities | ✅ Safe |
+| `adventure.html` | Adventure mode entry point, world map page | ✅ Safe |
+| `adventure/adventureMode.js` | Per-level config, integrates adventure into game engine | Moderate |
+| `adventure/levelConfig.js` | 18 levels across 6 worlds, difficulty & learning objectives | ✅ Safe |
+| `adventure/progressManager.js` | localStorage progress tracking, stars, unlocks | ✅ Safe |
+| `adventure/worldMap.js` | World map UI renderer, navigation between worlds/levels | ✅ Safe |
+| `css/adventure.css` | Adventure mode world map styling | ✅ Safe |
 
 **Dangerous Areas require plan approval before touching.**
 
