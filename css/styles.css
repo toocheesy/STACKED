@@ -765,6 +765,26 @@ body {
   transform: none;
 }
 
+/* Submit button — green when valid, red when invalid */
+#submit-btn:not(:disabled) {
+  background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
+  border-color: #4A7043;
+  color: #F5E8C7;
+}
+
+#submit-btn:disabled {
+  background: linear-gradient(135deg, #8B3A3A 0%, #5C2020 100%);
+  border-color: #8B3A3A;
+  color: #D2A679;
+}
+
+/* Help/Hint button — yellow */
+#hint-btn {
+  background: linear-gradient(135deg, #B8860B 0%, #8B6914 100%);
+  border-color: #B8860B;
+  color: #FFF8DC;
+}
+
 /* ============================================================================
  * 6. GAME AREA SECTION
  * ============================================================================ */
@@ -1145,8 +1165,9 @@ body {
 
 /* Help button green variant (used in .combo-buttons) */
 .help-btn {
-  background: linear-gradient(135deg, #4A7043 0%, #2C4027 100%);
-  border-color: #4A7043;
+  background: linear-gradient(135deg, #B8860B 0%, #8B6914 100%);
+  border-color: #B8860B;
+  color: #FFF8DC;
 }
 
 .combo-action-btn {

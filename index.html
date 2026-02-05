@@ -288,6 +288,17 @@
       transform: scale(0.97);
     }
 
+    .adventure-btn {
+      background: linear-gradient(135deg, #B8860B, #8B6914);
+      border-color: #B8860B;
+      box-shadow: 0 4px 16px rgba(184, 134, 11, 0.4);
+    }
+
+    .adventure-btn:hover {
+      background: linear-gradient(135deg, #D4A017, #B8860B);
+      box-shadow: 0 6px 20px rgba(184, 134, 11, 0.6);
+    }
+
     .coming-soon-badges {
       display: flex;
       gap: 12px;
@@ -410,8 +421,9 @@
 
       <button class="play-btn" onclick="playClassic()">Play Classic</button>
 
+      <button class="play-btn adventure-btn" onclick="window.location.href='adventure.html'">Adventure</button>
+
       <div class="coming-soon-badges">
-        <span class="badge" onclick="window.location.href='adventure.html'">Adventure</span>
         <span class="badge" onclick="showComingSoon('tournament')">Tournament — soon</span>
       </div>
     </div>
