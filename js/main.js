@@ -319,18 +319,54 @@ initGameSystems();
   // Track hand count (first deal = hand 1)
   game.state.handCount = 1;
 
+  // Update target score display from actual game settings
+  const targetEl = document.getElementById('target-score');
+  if (targetEl) {
+    targetEl.textContent = (game.state.settings.targetScore || 300) + ' pts';
+  }
+
   // Show initial round/hand in secondary message
   if (window.messageController) {
     window.messageController.showSecondaryMessage('Round 1 — Hand 1/4');
   }
 
-if (game.state.currentPlayer !== 0) {
-setTimeout(() => scheduleNextBotTurn(), 1000);
-}
+  // Adventure: show level tutorial before play begins
+  if (modeSelector.currentMode === 'adventure' && AdventureMode.levelConfig && AdventureMode.levelConfig.tutorial) {
+    const lvl = AdventureMode.levelConfig;
+    window.gameIsPaused = true;
+    const tutorialOverlay = document.createElement('div');
+    tutorialOverlay.id = 'adventure-tutorial-overlay';
+    tutorialOverlay.className = 'quick-rules-overlay';
+    tutorialOverlay.style.display = 'flex';
+    tutorialOverlay.innerHTML = `
+      <div class="quick-rules-backdrop"></div>
+      <div class="quick-rules-modal" style="text-align: center;">
+        <h2 class="quick-rules-heading">${lvl.worldIcon} ${lvl.worldName}</h2>
+        <p style="color: #D4A44A; font-size: 1rem; font-weight: bold; margin-bottom: 6px;">${lvl.name}</p>
+        <p style="color: #D2A679; font-size: 0.85rem; line-height: 1.5; margin-bottom: 10px;">${lvl.tutorial}</p>
+        <p style="color: #D4A44A; font-size: 0.9rem; font-weight: bold; margin-bottom: 14px;">Target: ${lvl.targetScore} pts</p>
+        <button id="adventure-tutorial-start" class="dismiss-rules-btn">Let's Go!</button>
+      </div>
+    `;
+    document.body.appendChild(tutorialOverlay);
+    document.getElementById('adventure-tutorial-start').addEventListener('click', () => {
+      tutorialOverlay.remove();
+      window.gameIsPaused = false;
+      if (game.state.currentPlayer !== 0) {
+        setTimeout(() => scheduleNextBotTurn(), 1000);
+      }
+    });
+  } else if (game.state.currentPlayer !== 0) {
+    setTimeout(() => scheduleNextBotTurn(), 1000);
+  }
 
-localStorage.removeItem('bot1Personality');
-localStorage.removeItem('bot2Personality');
-localStorage.removeItem('selectedMode');
+  localStorage.removeItem('bot1Personality');
+  localStorage.removeItem('bot2Personality');
+  localStorage.removeItem('selectedMode');
+  // Clean up adventure config when not in adventure mode
+  if (modeSelector.currentMode !== 'adventure') {
+    localStorage.removeItem('adventureLevel');
+  }
 }
 
 function handleSubmit() {

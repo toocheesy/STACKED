@@ -205,22 +205,50 @@
 
 /* ===== Game Restrictions (applied on game-container) ===== */
 
-/* World 1: Base + Match only (hide all sum areas) */
-.game-container.adventure-world-1 .combo-section:has(.sum-area) {
+/* World 1: Base + Match only (hide all sum slot wrappers, keep match) */
+.game-container.adventure-world-1 .combo-slot-wrapper:has(.sum-area) {
   display: none;
 }
 
 /* Fallback for browsers without :has() support */
 @supports not (selector(:has(*))) {
-  .game-container.adventure-world-1 .sum-area {
+  .game-container.adventure-world-1 .combo-slot-wrapper:nth-child(1),
+  .game-container.adventure-world-1 .combo-slot-wrapper:nth-child(2),
+  .game-container.adventure-world-1 .combo-slot-wrapper:nth-child(3) {
     display: none;
   }
 }
 
-/* World 2: Hide sum2 and sum3 */
-.game-container.adventure-world-2 [data-slot="sum2"],
-.game-container.adventure-world-2 [data-slot="sum3"] {
+/* World 1: Collapse grid to single column for match-only */
+.game-container.adventure-world-1 .combo-grid {
+  grid-template-columns: 1fr;
+}
+
+/* World 1: Rename header since there are no combo slots */
+.game-container.adventure-world-1 .combo-section:last-child .combo-header {
+  font-size: 0;
+}
+.game-container.adventure-world-1 .combo-section:last-child .combo-header::after {
+  content: 'Match Slot';
+  font-size: var(--combo-header-font, 10px);
+}
+
+/* World 2: Hide sum2 and sum3 wrappers */
+.game-container.adventure-world-2 .combo-slot-wrapper:has([data-slot="sum2"]),
+.game-container.adventure-world-2 .combo-slot-wrapper:has([data-slot="sum3"]) {
   display: none;
+}
+
+@supports not (selector(:has(*))) {
+  .game-container.adventure-world-2 [data-slot="sum2"],
+  .game-container.adventure-world-2 [data-slot="sum3"] {
+    display: none;
+  }
+}
+
+/* World 2: Adapt grid to show 2 slots in a row */
+.game-container.adventure-world-2 .combo-grid {
+  grid-template-columns: 1fr 1fr;
 }
 
 /* ===== Adventure Complete Modal ===== */
