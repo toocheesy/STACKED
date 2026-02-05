@@ -292,11 +292,51 @@
       background: linear-gradient(135deg, #B8860B, #8B6914);
       border-color: #B8860B;
       box-shadow: 0 4px 16px rgba(184, 134, 11, 0.4);
+      position: relative;
+      overflow: visible;
     }
 
     .adventure-btn:hover {
       background: linear-gradient(135deg, #D4A017, #B8860B);
       box-shadow: 0 6px 20px rgba(184, 134, 11, 0.6);
+    }
+
+    /* Adventure button corner badges */
+    .adventure-badge {
+      position: absolute;
+      font-weight: bold;
+      text-transform: uppercase;
+      pointer-events: none;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .badge-new {
+      top: -10px;
+      right: -14px;
+      background: linear-gradient(135deg, #E8430A, #FF6B35);
+      color: #FFF8DC;
+      font-size: 0.55rem;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(232, 67, 10, 0.5);
+      transform: rotate(12deg);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .badge-kids {
+      bottom: -9px;
+      left: -10px;
+      background: linear-gradient(135deg, #5B4A9E, #7B68C4);
+      color: #E8E0F5;
+      font-size: 0.48rem;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      box-shadow: 0 2px 6px rgba(91, 74, 158, 0.5);
+      transform: rotate(-8deg);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .coming-soon-badges {
@@ -356,6 +396,8 @@
       .ai-card { padding: 6px 12px; font-size: 0.75rem; min-width: 85px; }
       .play-btn { padding: 10px 36px; font-size: 0.95rem; }
       .badge { font-size: 0.6rem; }
+      .badge-new { font-size: 0.45rem; padding: 2px 6px; top: -8px; right: -10px; }
+      .badge-kids { font-size: 0.4rem; padding: 2px 5px; bottom: -7px; left: -8px; }
     }
 
     /* ---- Tablet / Desktop ---- */
@@ -421,7 +463,11 @@
 
       <button class="play-btn" onclick="playClassic()">Play Classic</button>
 
-      <button class="play-btn adventure-btn" onclick="window.location.href='adventure.html'">Adventure</button>
+      <button class="play-btn adventure-btn" onclick="window.location.href='adventure.html'">
+        Adventure
+        <span class="adventure-badge badge-new">New!</span>
+        <span class="adventure-badge badge-kids">Kids Mode</span>
+      </button>
 
       <div class="coming-soon-badges">
         <span class="badge" onclick="showComingSoon('tournament')">Tournament — soon</span>
