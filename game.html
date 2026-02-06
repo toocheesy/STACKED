@@ -12,6 +12,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/adventure.css">
 </head>
@@ -43,7 +44,7 @@
       <p style="color: #D2A679; font-size: 0.85rem; margin-bottom: 16px; line-height: 1.5;">Exiting will end your current game. Stats and progress will not be saved.</p>
       <div style="display: flex; gap: 12px; justify-content: center;">
         <button id="exit-stay-btn" class="dismiss-rules-btn">Keep Playing</button>
-        <button id="exit-leave-btn" class="dismiss-rules-btn" style="background: linear-gradient(135deg, #6B4226, #4A2B17); border-color: #8B5A2B;">Exit</button>
+        <button id="exit-leave-btn" class="dismiss-rules-btn" style="background: linear-gradient(145deg, rgba(74, 43, 23, 0.5), rgba(44, 24, 16, 0.7)); border-color: #8B5A2B;">Exit</button>
       </div>
     </div>
   </div>
@@ -62,6 +63,7 @@
       </div>
       <div class="top-bar-center">
         <span class="header-turn" id="header-turn"></span>
+        <div id="secondary-message" class="secondary-message"></div>
       </div>
       <div class="top-bar-right">
         <div class="last-capture-display" id="last-capture-display"></div>
@@ -92,8 +94,6 @@
 
     <!-- Game Area -->
     <div class="game-area">
-      <!-- Dual message system -->
-      <div id="secondary-message" class="secondary-message"></div>
       <div id="primary-message" class="primary-message">Your Turn</div>
 
       <div class="board-label">BOARD</div>
@@ -118,13 +118,6 @@
     <div class="combo-area">
       <div class="combo-title">COMBO BUILDER<span class="turn-indicator" id="turn-indicator"></span></div>
       <div class="combo-body">
-        <!-- Action buttons — left column -->
-        <div class="combo-buttons">
-          <button class="action-btn" id="submit-btn" disabled>Submit</button>
-          <button class="action-btn" id="reset-btn">Reset</button>
-          <button class="action-btn help-btn" id="hint-btn">HELP</button>
-        </div>
-        <!-- Slots — right column -->
         <div class="combo-slots">
           <!-- Base Card -->
           <div class="combo-section">
@@ -154,6 +147,12 @@
             </div>
           </div>
         </div>
+      </div>
+      <!-- Action buttons — stacked at bottom -->
+      <div class="combo-buttons">
+        <button class="action-btn" id="submit-btn" disabled>Submit</button>
+        <button class="action-btn" id="reset-btn">Reset</button>
+        <button class="action-btn help-btn" id="hint-btn">HELP</button>
       </div>
     </div>
   </div>
