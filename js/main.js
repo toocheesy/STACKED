@@ -298,6 +298,9 @@ function initGame() {
 
 initGameSystems();
 
+  if (typeof resetToastMilestones === 'function') {
+    resetToastMilestones();
+  }
 
   const storedBot1 = localStorage.getItem('bot1Personality') || 'nina';
   const storedBot2 = localStorage.getItem('bot2Personality') || 'rex';
@@ -441,6 +444,31 @@ if (game.currentMode.onCapture) {
     points: points,
     cardsCount: allCapturedCards.length
   });
+
+  // === TOAST NOTIFICATIONS ===
+  if (typeof showToast === 'function') {
+    showToast('+' + points + ' pts', 'points');
+
+    if (validCaptures.length >= 3) {
+      showToast('HUGE combo!', 'combo');
+    } else if (validCaptures.length >= 2) {
+      showToast('Nice combo!', 'combo');
+    }
+
+    if (game.state.board.length === 0) {
+      showToast('SWEEP!', 'sweep');
+    }
+
+    var playerScore = game.state.overallScores.player;
+    if (playerScore >= 150 && !window._toastMilestones.half) {
+      showToast('Halfway there!', 'milestone');
+      window._toastMilestones.half = true;
+    }
+    if (playerScore >= 250 && !window._toastMilestones.almost) {
+      showToast('Almost there!', 'milestone');
+      window._toastMilestones.almost = true;
+    }
+  }
 
   game.state.combination = { base: [], sum1: [], sum2: [], sum3: [], match: [] };
 
