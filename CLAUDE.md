@@ -252,9 +252,11 @@ Mobile-first CSS custom properties system (on `adventure-mode`, pending merge):
 
 ## Task Management Files
 
-| File | Purpose |
-|------|---------|
+| File / Directory | Purpose |
+|------------------|---------|
 | `tasks/todo.md` | Current task plan with checkable items |
 | `tasks/lessons.md` | Accumulated learnings from corrections |
+| `tasks/inbox/` | Incoming task prompts and specs from TC |
+| `tasks/done/` | Completed task files (moved from inbox after implementation) |
 
 Create these files if they don't exist when needed.

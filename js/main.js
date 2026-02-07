@@ -699,7 +699,8 @@ function showLastCapture(playerName, cards, points) {
   const el = document.getElementById('last-capture-display');
   if (!el) return;
 
-  const cardStr = cards.map(c => c.value + (suitSymbols[c.suit] || '')).join(' + ');
+  const cardNames = cards.map(c => c.value + (suitSymbols[c.suit] || ''));
+  const cardStr = cardNames[0] + ' = ' + cardNames.slice(1).join(' + ');
   el.innerHTML = '<span class="capture-label">Last Capture</span>' +
     '<span class="capture-detail">' + playerName + ': ' + cardStr + ' (' + points + ' pts)</span>';
   el.classList.add('visible');

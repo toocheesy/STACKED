@@ -624,30 +624,33 @@ body {
 
 /* Last capture display — hidden until .visible added */
 .last-capture-display {
-  display: none;
-  padding: 3px 8px;
-  background: linear-gradient(145deg, rgba(74, 43, 23, 0.5), rgba(44, 24, 16, 0.7));
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  font-size: 11px;
+  position: absolute;
+  top: var(--topbar-height);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(26, 15, 8, 0.85);
+  border: 1px solid rgba(107, 66, 38, 0.4);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 3px 14px;
+  font-family: var(--font-body);
+  font-size: 10px;
   color: var(--gold-warm);
-  text-align: center;
-  flex: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.last-capture-display.visible {
+  opacity: 1;
 }
 
 @media (min-width: 768px) and (min-height: 500px) {
   .last-capture-display {
-    padding: 5px 14px;
-    border: 2px solid var(--border-subtle);
-    border-radius: 8px;
-    font-size: 13px;
+    font-size: 12px;
   }
-}
-
-.last-capture-display.visible {
-  display: block;
 }
 
 .last-capture-display .capture-label {
