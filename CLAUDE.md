@@ -6,7 +6,7 @@ This file provides guidance to Claude Code when working with this repository.
 
 STACKED! is a browser-based strategic card game where 1 human plays against 2 AI bots. Players capture cards using a 4-area combo system. First to 300 points wins.
 
-**Live Site:** https://stack-delta-taupe.vercel.app  
+**Live Site:** https://stackedthegame.com  
 **Tech Stack:** Vanilla JavaScript ES6+ (no frameworks), CSS3, HTML5
 
 ## Development

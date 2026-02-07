@@ -2,7 +2,7 @@
 
 A strategic card game where you play against 2 AI opponents. Capture cards using a combo system of pairs and sums. First to 300 points wins.
 
-**Play it:** [https://stack-delta-taupe.vercel.app](https://stack-delta-taupe.vercel.app)
+**Play it:** [https://stackedthegame.com](https://stackedthegame.com)
 
 ## How to Play
 
