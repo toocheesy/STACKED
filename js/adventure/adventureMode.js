@@ -27,8 +27,8 @@ const AdventureMode = {
     // Remove previous CSS class
     const container = document.querySelector('.game-container');
     if (container) {
-      container.classList.remove('adventure-world-1', 'adventure-world-2', 'adventure-world-3',
-        'adventure-world-4', 'adventure-world-5', 'adventure-world-6');
+      container.classList.remove('adventure-world-1', 'adventure-world-2', 'adventure-world-2-partial',
+        'adventure-world-3', 'adventure-world-4', 'adventure-world-5', 'adventure-world-6');
     }
 
     // Read level config from localStorage
