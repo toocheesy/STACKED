@@ -179,6 +179,97 @@ function canCapture(handCard, board) {
 }
 
 // ============================================================================
+// 🤖 MULTI-AREA COMBO FINDER
+// Given a hand card as base, finds the best non-overlapping set of captures
+// that can fill multiple combo areas in a single submit.
+// ============================================================================
+
+function findMultiAreaCombos(handCard, board) {
+  const captures = canCapture(handCard, board);
+  if (!captures || captures.length === 0) return null;
+
+  // Normalize: ensure every capture has a targets array
+  const normalized = captures.map(cap => ({
+    type: cap.type,
+    cards: cap.cards, // board indices
+    targets: cap.targets || (cap.target ? [cap.target] : cap.cards.map(idx => board[idx])),
+    points: [handCard, ...(cap.targets || (cap.target ? [cap.target] : cap.cards.map(idx => board[idx])))].reduce(
+      (sum, c) => sum + window.getPointValue(c), 0
+    )
+  }));
+
+  // Check if two captures share any board index
+  function overlaps(a, b) {
+    for (const idx of a.cards) {
+      if (b.cards.includes(idx)) return true;
+    }
+    return false;
+  }
+
+  // Find best non-overlapping combination (brute force — board is small)
+  // Try all subsets of captures, keep the one with max total points
+  const slotNames = ['sum1', 'sum2', 'sum3', 'match'];
+  let bestCombo = null;
+  let bestPoints = 0;
+
+  // Generate all valid (non-overlapping) subsets up to 4 captures
+  function search(startIdx, chosen) {
+    // Evaluate current chosen set
+    if (chosen.length > 0) {
+      // Points from captured board cards only (base card counted once outside)
+      const boardPoints = chosen.reduce((sum, cap) => {
+        return sum + cap.targets.reduce((s, c) => s + window.getPointValue(c), 0);
+      }, 0);
+      const totalPoints = window.getPointValue(handCard) + boardPoints;
+
+      if (totalPoints > bestPoints) {
+        bestPoints = totalPoints;
+        bestCombo = chosen.slice();
+      }
+    }
+
+    if (chosen.length >= slotNames.length) return; // max 4 areas
+
+    for (let i = startIdx; i < normalized.length; i++) {
+      const candidate = normalized[i];
+      // Check no overlap with already chosen
+      const hasOverlap = chosen.some(c => overlaps(c, candidate));
+      if (!hasOverlap) {
+        chosen.push(candidate);
+        search(i + 1, chosen);
+        chosen.pop();
+      }
+    }
+  }
+
+  search(0, []);
+
+  if (!bestCombo || bestCombo.length === 0) return null;
+
+  // If only 1 capture found, return null — caller can use single-capture path
+  if (bestCombo.length === 1) return null;
+
+  // Assign each capture to a slot
+  const areas = bestCombo.map((cap, i) => ({
+    slot: slotNames[i],
+    targets: cap.targets,
+    cards: cap.cards,
+    type: cap.type
+  }));
+
+  // Collect all targets across areas for convenience
+  const allTargets = areas.reduce((arr, a) => arr.concat(a.targets), []);
+
+  return {
+    handCard: handCard,
+    areas: areas,
+    allTargets: allTargets,
+    totalPoints: bestPoints,
+    areaCount: areas.length
+  };
+}
+
+// ============================================================================
 // 🤖 AI MOVE ROUTER (from ai.js)
 // ============================================================================
 

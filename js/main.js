@@ -593,7 +593,7 @@ ui.render();
     let move = aiMove(game.state.hands[playerIndex], game.state.board, personalityName, gameState);
 
     // Adventure: filter bot captures based on world restrictions
-    if (move && move.action === 'capture' && game.currentMode.filterBotCapture) {
+    if (move && move.action === 'capture' && !move.areas && game.currentMode.filterBotCapture) {
       if (!game.currentMode.filterBotCapture(move.capture)) {
         move = null; // Force place instead
       }
@@ -614,16 +614,22 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
     if (result.success) {
       if (result.action === 'capture') {
 
-        if (window.messageController && move && move.capture) {
-          const capturedCards = [move.handCard, ...move.capture.targets];
-          const actualPoints = game.calculateScore(capturedCards);
-          const captureName = playerIndex === 0 ? 'Player'
-            : window.messageController.getBotDisplayName(playerIndex);
-          showLastCapture(captureName, capturedCards, actualPoints);
-          window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
-            points: actualPoints,
-            cardsCount: capturedCards.length
-          });
+        if (window.messageController && move) {
+          // Extract captured cards from either multi-area or legacy format
+          const capturedCards = move.areas
+            ? [move.handCard, ...move.allTargets]
+            : move.capture ? [move.handCard, ...move.capture.targets] : null;
+
+          if (capturedCards) {
+            const actualPoints = game.calculateScore(capturedCards);
+            const captureName = playerIndex === 0 ? 'Player'
+              : window.messageController.getBotDisplayName(playerIndex);
+            showLastCapture(captureName, capturedCards, actualPoints);
+            window.messageController.handleGameEvent('CAPTURE_SUCCESS', {
+              points: actualPoints,
+              cardsCount: capturedCards.length
+            });
+          }
         }
 
         // Pause after capture so player can see what was captured

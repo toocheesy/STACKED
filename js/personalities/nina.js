@@ -27,6 +27,29 @@ const Nina = {
   evaluateCaptures(hand, board, aggressive) {
     if (board.length === 0) return null;
 
+    // --- Multi-area combo check ---
+    let bestCombo = null;
+    for (const handCard of hand) {
+      const combo = findMultiAreaCombos(handCard, board);
+      if (!combo) continue;
+      if (!bestCombo || combo.totalPoints > bestCombo.totalPoints) {
+        bestCombo = combo;
+      }
+    }
+
+    if (bestCombo) {
+      // 30+ pts: take multi-area combo immediately
+      if (bestCombo.totalPoints >= 30) {
+        return Nina._buildMultiAreaMove(bestCombo);
+      }
+
+      // Aggressive mode (behind 75+ pts): take 20+ multi-area combos
+      if (aggressive && bestCombo.totalPoints >= 20) {
+        return Nina._buildMultiAreaMove(bestCombo);
+      }
+    }
+
+    // --- Existing single-capture logic ---
     let allCaptures = [];
 
     for (const handCard of hand) {
@@ -159,6 +182,16 @@ const Nina = {
         cards: option.capture.cards,
         targets: option.targets
       }
+    };
+  },
+
+  _buildMultiAreaMove(combo) {
+    return {
+      action: 'capture',
+      handCard: combo.handCard,
+      areas: combo.areas,
+      allTargets: combo.allTargets,
+      totalPoints: combo.totalPoints
     };
   },
 
