@@ -111,31 +111,26 @@ if (window.messageController?.handleGameEvent) {
         return { success: false, reason: 'Base card placement failed' };
       }
       
-      // STEP 3: Add target cards one by one with verification
-for (const targetCard of move.capture.targets) {
-  const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
-  if (boardIndex !== -1) {
-    await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
-    
-    // 🔧 NEW: Update combo status message
-    const currentCount = this.game.state.combination.base.length + 
-                        this.game.state.combination.sum1.length + 
-                        this.game.state.combination.sum2.length + 
-                        this.game.state.combination.sum3.length + 
-                        this.game.state.combination.match.length;
-    
-    if (window.messageController?.handleGameEvent) {
-      window.messageController.handleGameEvent('CARDS_IN_COMBO', {
-        hasCards: true,
-        cardCount: currentCount,
-        hasBase: true,
-        baseCard: baseCard,
-        sumCards: currentCount - 1,
-        matchCards: 0
-      });
-    }
-  }
-}
+      // STEP 3: Add target cards — multi-area or legacy single-area
+      if (move.areas) {
+        // Multi-area combo: place each group into its designated slot
+        for (const area of move.areas) {
+          for (const targetCard of area.targets) {
+            const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+            if (boardIndex !== -1) {
+              await this.botDragCardToSlot(targetCard, 'board', boardIndex, area.slot);
+            }
+          }
+        }
+      } else {
+        // Legacy single-area: all targets into sum1
+        for (const targetCard of move.capture.targets) {
+          const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
+          if (boardIndex !== -1) {
+            await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+          }
+        }
+      }
       
       // STEP 4: Final verification before submit
       const baseCount = this.game.state.combination.base.length;

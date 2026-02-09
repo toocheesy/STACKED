@@ -27,6 +27,29 @@ const Rex = {
   evaluateCaptures(hand, board, gameState, mode) {
     if (board.length === 0) return null;
 
+    // --- Multi-area combo evaluation ---
+    let bestMultiArea = null;
+    for (const handCard of hand) {
+      const combo = findMultiAreaCombos(handCard, board);
+      if (!combo) continue;
+
+      // Calculate denial: all board indices being captured
+      const allCapturedIndices = combo.areas.reduce((set, a) => {
+        a.cards.forEach(idx => set.add(idx));
+        return set;
+      }, new Set());
+
+      const denialValue = Rex._calculateMultiAreaDenial(allCapturedIndices, board);
+      const chainPotential = Rex._calculateMultiAreaChain(handCard, allCapturedIndices, hand, board);
+      const clearsBoard = allCapturedIndices.size === board.length;
+      const compositeScore = Rex._compositeScore(combo.totalPoints, denialValue, chainPotential, clearsBoard, mode);
+
+      if (!bestMultiArea || compositeScore > bestMultiArea.compositeScore) {
+        bestMultiArea = { combo, compositeScore, points: combo.totalPoints, denialValue, clearsBoard };
+      }
+    }
+
+    // --- Single capture evaluation (legacy) ---
     let allCaptures = [];
 
     for (const handCard of hand) {
@@ -60,10 +83,28 @@ const Rex = {
       }
     }
 
-    if (allCaptures.length === 0) return null;
+    // Sort single captures by composite score
+    if (allCaptures.length > 0) {
+      allCaptures.sort((a, b) => b.compositeScore - a.compositeScore);
+    }
 
-    // Sort by composite score
-    allCaptures.sort((a, b) => b.compositeScore - a.compositeScore);
+    // --- Compare multi-area vs single and return best ---
+
+    // Prefer multi-area combos - Rex maximizes them
+    if (bestMultiArea && allCaptures.length > 0) {
+      const bestSingle = allCaptures[0];
+      // Rex always prefers multi-area unless conservative and low value
+      if (mode === 'conservative' && bestMultiArea.points < 10 && bestMultiArea.denialValue < 15) {
+        // fall through to single capture logic
+      } else {
+        return Rex._buildMultiAreaMove(bestMultiArea.combo);
+      }
+    } else if (bestMultiArea) {
+      return Rex._buildMultiAreaMove(bestMultiArea.combo);
+    }
+
+    // Fall through to single capture logic
+    if (allCaptures.length === 0) return null;
 
     const best = allCaptures[0];
 
@@ -258,6 +299,44 @@ const Rex = {
     };
   },
 
+
+  _calculateMultiAreaDenial(capturedIndices, board) {
+    let maxOpponentGain = 0;
+    const remainingBoard = board.filter((_, idx) => !capturedIndices.has(idx));
+    for (const boardCard of remainingBoard) {
+      const oppCaptures = canCapture(boardCard, remainingBoard.filter(c => c.id !== boardCard.id));
+      if (oppCaptures) {
+        for (const opp of oppCaptures) {
+          const oppTargets = opp.targets || [];
+          const oppPts = [boardCard, ...oppTargets].reduce((sum, c) => sum + window.getPointValue(c), 0);
+          maxOpponentGain = Math.max(maxOpponentGain, oppPts);
+        }
+      }
+    }
+    const capturedValue = [...capturedIndices].reduce((sum, idx) => sum + window.getPointValue(board[idx]), 0);
+    return Math.max(maxOpponentGain, capturedValue * 0.5);
+  },
+
+  _calculateMultiAreaChain(usedHandCard, capturedIndices, hand, board) {
+    const remainingHand = hand.filter(c => c.id !== usedHandCard.id);
+    const remainingBoard = board.filter((_, idx) => !capturedIndices.has(idx));
+    let chainCount = 0;
+    for (const hc of remainingHand) {
+      const moreCaptures = canCapture(hc, remainingBoard);
+      if (moreCaptures && moreCaptures.length > 0) chainCount++;
+    }
+    return chainCount;
+  },
+
+  _buildMultiAreaMove(combo) {
+    return {
+      action: 'capture',
+      handCard: combo.handCard,
+      areas: combo.areas,
+      allTargets: combo.allTargets,
+      totalPoints: combo.totalPoints
+    };
+  },
 };
 
 window.Rex = Rex;
