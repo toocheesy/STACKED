@@ -276,7 +276,10 @@ function findMultiAreaCombos(handCard, board) {
 const personalities = {
   calvin: () => window.Calvin,
   nina: () => window.Nina,
-  rex: () => window.Rex
+  rex: () => window.Rex,
+  talia: () => window.Talia,
+  jett: () => window.Jett,
+  mira: () => window.Mira
 };
 
 function getPersonality(name) {
