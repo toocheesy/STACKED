@@ -260,3 +260,13 @@ Mobile-first CSS custom properties system (on `adventure-mode`, pending merge):
 | `tasks/done/` | Completed task files (moved from inbox after implementation) |
 
 Create these files if they don't exist when needed.
+
+---
+
+## Soft Launch Reference
+
+See `stacked_soft_launch_checklist.md` for:
+- Hotfix vs batch decision guide
+- Reddit response templates
+- Success metrics
+- Weekly deploy rhythm
