@@ -57,6 +57,23 @@
     </div>
   </div>
 
+  <!-- Settings overlay -->
+  <div id="settings-overlay" class="quick-rules-overlay" style="display: none;">
+    <div class="quick-rules-backdrop"></div>
+    <div class="quick-rules-modal settings-modal">
+      <h2 class="quick-rules-heading">Settings</h2>
+      <div class="speed-toggle">
+        <div class="speed-label">Game Speed</div>
+        <div class="speed-buttons">
+          <button class="speed-btn" data-speed="fast">Fast</button>
+          <button class="speed-btn active" data-speed="normal">Normal</button>
+          <button class="speed-btn" data-speed="slow">Slow</button>
+        </div>
+      </div>
+      <button id="settings-close-btn" class="dismiss-rules-btn">Done</button>
+    </div>
+  </div>
+
   <!-- Force landscape orientation message -->
   <div class="orientation-overlay">
     🔄 Please rotate your device to landscape mode for the best STACKED! experience
@@ -72,6 +89,7 @@
            target="_blank"
            rel="noopener noreferrer"
            class="feedback-link">💬</a>
+        <button class="action-btn settings-gear-btn" id="settings-gear-btn" title="Settings">&#9881;</button>
       </div>
       <div class="top-bar-center">
         <span class="header-turn" id="header-turn"></span>
@@ -107,6 +125,14 @@
 
     <!-- Game Area -->
     <div class="game-area">
+      <div class="bot-display bot-display-left" id="bot1-display">
+        <div class="bot-display-name" id="bot1-display-name">Bot 1</div>
+        <div class="bot-display-cards" id="bot1-display-cards">4 cards</div>
+      </div>
+      <div class="bot-display bot-display-right" id="bot2-display">
+        <div class="bot-display-name" id="bot2-display-name">Bot 2</div>
+        <div class="bot-display-cards" id="bot2-display-cards">4 cards</div>
+      </div>
       <div id="primary-message" class="primary-message">Your Turn</div>
 
       <div class="board-label">BOARD</div>
