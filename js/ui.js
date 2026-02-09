@@ -58,6 +58,7 @@ render() {
   this.renderHands();
   this.renderScores();
   this.renderBotCardCounts();
+  this.renderBotDisplays();
   this.renderDealerIndicator();
   this.renderTurnIndicator();
   this.updateSubmitButton();
@@ -315,9 +316,39 @@ renderBotCardCounts() {
   }
 }
 
-// Then add this call to your main render() method
-// Find the render() method and add this line after renderScores():
-// this.renderBotCardCounts();
+renderBotDisplays() {
+  const cp = this.game?.state?.currentPlayer ?? 0;
+
+  // Bot 1 corner display
+  const bot1NameEl = document.getElementById('bot1-display-name');
+  const bot1CardsEl = document.getElementById('bot1-display-cards');
+  const bot1Display = document.getElementById('bot1-display');
+  if (bot1NameEl && window.messageController) {
+    bot1NameEl.textContent = window.messageController.getBotDisplayName(1);
+  }
+  if (bot1CardsEl) {
+    const count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
+    bot1CardsEl.textContent = count + ' cards';
+  }
+  if (bot1Display) {
+    bot1Display.classList.toggle('bot-active', cp === 1);
+  }
+
+  // Bot 2 corner display
+  const bot2NameEl = document.getElementById('bot2-display-name');
+  const bot2CardsEl = document.getElementById('bot2-display-cards');
+  const bot2Display = document.getElementById('bot2-display');
+  if (bot2NameEl && window.messageController) {
+    bot2NameEl.textContent = window.messageController.getBotDisplayName(2);
+  }
+  if (bot2CardsEl) {
+    const count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
+    bot2CardsEl.textContent = count + ' cards';
+  }
+  if (bot2Display) {
+    bot2Display.classList.toggle('bot-active', cp === 2);
+  }
+}
 
   renderBoard() {
     const boardEl = document.getElementById('board');

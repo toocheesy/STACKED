@@ -1823,6 +1823,152 @@ dialog::backdrop {
 }
 
 /* =============================================
+   SECTION: BOT CORNER DISPLAYS
+   ============================================= */
+.bot-display {
+  position: absolute;
+  top: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+  padding: 4px 10px;
+  text-align: center;
+  min-width: 70px;
+  transition: all 0.3s ease;
+}
+
+.bot-display-left {
+  left: 40px;
+}
+
+.bot-display-right {
+  right: 10px;
+}
+
+.bot-display-name {
+  font-family: var(--font-display);
+  color: var(--gold-mid);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.bot-display-cards {
+  font-family: var(--font-body);
+  color: #F5E8C7;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.bot-display.bot-active {
+  border-color: var(--gold-bright);
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
+}
+
+.bot-display.bot-active .bot-display-name {
+  color: var(--gold-bright);
+}
+
+/* Landscape mobile adjustments */
+@media (min-width: 667px) and (max-height: 500px) and (orientation: landscape) {
+  .bot-display {
+    padding: 3px 8px;
+    min-width: 60px;
+  }
+  .bot-display-left {
+    left: 32px;
+  }
+  .bot-display-name {
+    font-size: 9px;
+  }
+  .bot-display-cards {
+    font-size: 10px;
+  }
+}
+
+/* Tablet & Desktop */
+@media (min-width: 768px) and (min-height: 500px) {
+  .bot-display {
+    top: 10px;
+    padding: 6px 14px;
+    min-width: 90px;
+    border-radius: 10px;
+  }
+  .bot-display-left {
+    left: 50px;
+  }
+  .bot-display-name {
+    font-size: 12px;
+  }
+  .bot-display-cards {
+    font-size: 13px;
+  }
+}
+
+/* =============================================
+   SECTION: SETTINGS MODAL & SPEED TOGGLE
+   ============================================= */
+.settings-gear-btn {
+  font-size: 14px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 2px 4px;
+}
+
+.settings-modal {
+  text-align: center;
+  max-width: 340px;
+}
+
+.speed-toggle {
+  margin: 12px 0;
+}
+
+.speed-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #D4A44A;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+
+.speed-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.speed-btn {
+  flex: 1;
+  max-width: 100px;
+  padding: 8px 12px;
+  background: linear-gradient(145deg, rgba(74, 43, 23, 0.4), rgba(44, 24, 16, 0.6));
+  border: 1px solid rgba(74, 43, 23, 0.6);
+  border-radius: 8px;
+  color: #D2A679;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.speed-btn:hover {
+  border-color: #8B5A2B;
+  color: #F5E8C7;
+}
+
+.speed-btn.active {
+  border-color: #D4A44A;
+  background: linear-gradient(145deg, rgba(139, 90, 43, 0.35), rgba(107, 66, 38, 0.45));
+  color: #F5E8C7;
+  box-shadow: 0 0 10px rgba(212, 164, 74, 0.15);
+}
+
+/* =============================================
    SECTION: TOAST NOTIFICATIONS
    ============================================= */
 .toast-notification {

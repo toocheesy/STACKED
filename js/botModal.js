@@ -319,9 +319,9 @@ this.game.state.lastAction = 'place';
     }
   }
 
-  // 🎯 HELPER: Delay function for animations
+  // 🎯 HELPER: Delay function for animations (respects game speed)
   delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms * (window.gameSpeedMultiplier || 1)));
   }
 }
 

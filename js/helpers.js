@@ -289,11 +289,18 @@ function getPersonality(name) {
   return window.Nina;
 }
 
+// Game speed multiplier: Fast=0.5, Normal=1.0, Slow=2.0
+(function initSpeedMultiplier() {
+  const SPEED_MAP = { fast: 0.5, normal: 1.0, slow: 2.0 };
+  const saved = localStorage.getItem('gameSpeed') || 'normal';
+  window.gameSpeedMultiplier = SPEED_MAP[saved] || 1.0;
+})();
+
 function getThinkingDelay(personalityName) {
   const bot = getPersonality(personalityName);
   const min = bot.thinkingDelay.min;
   const max = bot.thinkingDelay.max;
-  return min + Math.random() * (max - min);
+  return (min + Math.random() * (max - min)) * (window.gameSpeedMultiplier || 1);
 }
 
 function aiMove(hand, board, personalityName, gameState) {

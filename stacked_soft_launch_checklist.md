@@ -91,9 +91,9 @@
 
 ## THIS WEEK'S PUNCH LIST (before Friday soft launch)
 
-1. [ ] Multi-area combo AI
-2. [ ] Homepage cleanup (remove difficulty, just show modes)
-3. [ ] Pre-game modal for difficulty selection
+1. [x] Multi-area combo AI
+2. [x] Homepage cleanup (remove difficulty, just show modes)
+3. [x] Pre-game modal for difficulty selection
 
 **Friday = lock. Main branch is live for real players after this.**
 

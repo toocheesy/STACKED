@@ -633,7 +633,7 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
         }
 
         // Pause after capture so player can see what was captured
-        await new Promise(resolve => setTimeout(resolve, 1800));
+        await new Promise(resolve => setTimeout(resolve, 1800 * (window.gameSpeedMultiplier || 1)));
 
         const gs = window.gameStateManager.determineGameState(game);
         handleGameStateResult(gs);
@@ -643,7 +643,7 @@ result = await botModal.placeCard(cardToPlace, playerIndex);
         ui.render();
 
         // Pause after placement so player can see the placed card
-        await new Promise(resolve => setTimeout(resolve, 1200));
+        await new Promise(resolve => setTimeout(resolve, 1200 * (window.gameSpeedMultiplier || 1)));
 
         const gs = window.gameStateManager.determineGameState(game);
         handleGameStateResult(gs);
@@ -693,8 +693,8 @@ async function scheduleNextBotTurn() {
     ? game.state.settings.bot1Personality
     : game.state.settings.bot2Personality;
   const delay = typeof getThinkingDelay === 'function' ? getThinkingDelay(pName) : 1500;
-  // Ensure minimum 1500ms thinking display
-  const thinkingDelay = Math.max(1500, delay);
+  // Ensure minimum thinking display (scaled by speed)
+  const thinkingDelay = Math.max(1500 * (window.gameSpeedMultiplier || 1), delay);
   setTimeout(async () => {
     await aiTurn();
   }, thinkingDelay);
@@ -1248,6 +1248,42 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Settings gear — open/close overlay
+  const settingsGearBtn = document.getElementById('settings-gear-btn');
+  const settingsOverlay = document.getElementById('settings-overlay');
+  const settingsCloseBtn = document.getElementById('settings-close-btn');
+
+  if (settingsGearBtn && settingsOverlay) {
+    settingsGearBtn.addEventListener('click', () => {
+      settingsOverlay.style.display = 'flex';
+    });
+  }
+  if (settingsCloseBtn && settingsOverlay) {
+    settingsCloseBtn.addEventListener('click', () => {
+      settingsOverlay.style.display = 'none';
+    });
+  }
+
+  // Speed toggle buttons
+  const SPEED_MAP = { fast: 0.5, normal: 1.0, slow: 2.0 };
+  const speedBtns = document.querySelectorAll('.speed-btn');
+
+  // Restore saved speed on load
+  const savedSpeed = localStorage.getItem('gameSpeed') || 'normal';
+  speedBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.speed === savedSpeed);
+  });
+
+  speedBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      speedBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const speed = btn.dataset.speed;
+      localStorage.setItem('gameSpeed', speed);
+      window.gameSpeedMultiplier = SPEED_MAP[speed] || 1.0;
+    });
+  });
 
 });
 
