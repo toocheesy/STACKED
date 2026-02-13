@@ -113,23 +113,6 @@ const AdventureMode = {
     // Adventure completion handled by main.js
   },
 
-  getAvailableActions(gameEngine) {
-    const actions = ['place_card', 'capture'];
-    if (this.config.enableHints && gameEngine.state.currentPlayer === 0) {
-      actions.push('hint');
-    }
-    return actions;
-  },
-
-  getCustomUI() {
-    return {
-      targetScoreDisplay: true,
-      roundCounter: true,
-      dealerIndicator: true,
-      hintButton: this.config.enableHints
-    };
-  },
-
   getSettings() {
     return {};
   },

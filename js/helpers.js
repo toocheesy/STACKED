@@ -109,7 +109,7 @@ function canCapture(handCard, board) {
       captures.push({
         type: 'pair',
         cards: [index],
-        target: card,
+        targets: [card],
         handCard: handCard,
         score: 10 // Base score for pairs
       });
@@ -127,17 +127,9 @@ function canCapture(handCard, board) {
       };
     }).filter(item => item.value !== null);
 
-    // Check single card sums
+    // Check single card sums (skip exact value matches — those are pairs, handled above)
     boardNumerics.forEach(boardItem => {
-      if (boardItem.value === handValue) {
-        captures.push({
-          type: 'sum',
-          cards: [boardItem.idx],
-          targets: [boardItem.card],
-          handCard: handCard,
-          score: 8
-        });
-      }
+      if (boardItem.value === handValue) return; // pair, not a sum
     });
 
     // Check two-card sums

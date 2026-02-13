@@ -74,11 +74,11 @@ this.ui.render();
                                this.game.state.combination.sum2.length +
                                this.game.state.combination.sum3.length +
                                this.game.state.combination.match.length;
-                               
+
       if (totalCardsInCombo > 0) {
         await this.botResetModal();
       }
-      
+
       const baseCard = move.handCard;
       const handIndex = this.game.state.hands[playerIndex].findIndex(c => c.id === baseCard.id);
 
@@ -105,12 +105,12 @@ if (window.messageController?.handleGameEvent) {
     matchCards: 0
   });
 }
-      
+
       if (!baseSuccess || this.game.state.combination.base.length !== 1) {
         this.isAnimating = false;
         return { success: false, reason: 'Base card placement failed' };
       }
-      
+
       // STEP 3: Add target cards — multi-area or legacy single-area
       if (move.areas) {
         // Multi-area combo: place each group into its designated slot
@@ -123,15 +123,16 @@ if (window.messageController?.handleGameEvent) {
           }
         }
       } else {
-        // Legacy single-area: all targets into sum1
+        // Legacy single-area: pairs go to match, sums go to sum1
+        const targetSlot = move.capture.type === 'pair' ? 'match' : 'sum1';
         for (const targetCard of move.capture.targets) {
           const boardIndex = this.game.state.board.findIndex(bc => bc.id === targetCard.id);
           if (boardIndex !== -1) {
-            await this.botDragCardToSlot(targetCard, 'board', boardIndex, 'sum1');
+            await this.botDragCardToSlot(targetCard, 'board', boardIndex, targetSlot);
           }
         }
       }
-      
+
       // STEP 4: Final verification before submit
       const baseCount = this.game.state.combination.base.length;
       const captureCount = this.game.state.combination.sum1.length +

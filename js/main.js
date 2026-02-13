@@ -595,7 +595,25 @@ ui.render();
     // Adventure: filter bot captures based on world restrictions
     if (move && move.action === 'capture' && !move.areas && game.currentMode.filterBotCapture) {
       if (!game.currentMode.filterBotCapture(move.capture)) {
-        move = null; // Force place instead
+        // Find an alternative capture that passes the filter
+        let fallbackMove = null;
+        for (const handCard of game.state.hands[playerIndex]) {
+          const captures = canCapture(handCard, game.state.board);
+          if (!captures) continue;
+          for (const cap of captures) {
+            if (game.currentMode.filterBotCapture(cap)) {
+              const targets = cap.targets || cap.cards.map(idx => game.state.board[idx]);
+              fallbackMove = {
+                action: 'capture',
+                handCard: handCard,
+                capture: { type: cap.type, cards: cap.cards, targets: targets }
+              };
+              break;
+            }
+          }
+          if (fallbackMove) break;
+        }
+        move = fallbackMove;
       }
     }
 
@@ -1295,6 +1313,8 @@ window.handleBoardDrop = handleBoardDrop;
 window.handleTouchStart = handleTouchStart;
 window.handleTouchMove = handleTouchMove;
 window.handleTouchEnd = handleTouchEnd;
+window.handleTouchDrop = function() {}; // Legacy stub — ui.js calls this but touch routing is handled by handleTouchEnd
+window.handleDropOriginal = window.handleDrop; // Legacy alias — ui.js references this name
 
 window.HintSystem = HintSystem;
 

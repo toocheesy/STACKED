@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stacked-v32';
+const CACHE_NAME = 'stacked-v33';
 
 const ASSETS_TO_CACHE = [
   '/',
@@ -16,7 +16,6 @@ const ASSETS_TO_CACHE = [
   '/js/MessageController.js',
   '/js/classic.js',
   '/js/speed.js',
-  '/js/ai.js',
   '/js/botModal.js',
   '/js/ui.js',
   '/js/main.js',
@@ -51,6 +50,9 @@ self.addEventListener('activate', (event) => {
 
 // Fetch — network first, cache fallback (ensures fresh content on deploy)
 self.addEventListener('fetch', (event) => {
+  // Only cache GET requests (POST, etc. are not supported by Cache API)
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
