@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <defs>
+    <linearGradient id="woodBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2C1810"/>
+      <stop offset="100%" stop-color="#1A0F08"/>
+    </linearGradient>
+    <linearGradient id="goldText" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700"/>
+      <stop offset="40%" stop-color="#D4A44A"/>
+      <stop offset="100%" stop-color="#B8860B"/>
+    </linearGradient>
+    <filter id="brandGlow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="600" height="200" fill="url(#woodBg)"/>
+  <!-- Top decorative lines -->
+  <line x1="40" y1="32" x2="560" y2="32" stroke="#4A2B17" stroke-width="1.2"/>
+  <line x1="40" y1="36" x2="560" y2="36" stroke="#4A2B17" stroke-width="0.6" opacity="0.5"/>
+  <!-- Main wordmark -->
+  <text x="300" y="118" font-family="'Cinzel', 'Playfair Display', 'Georgia', serif" font-size="76" fill="url(#goldText)" text-anchor="middle" font-weight="900" letter-spacing="8" filter="url(#brandGlow)">STACKED!</text>
+  <!-- Bottom decorative lines -->
+  <line x1="40" y1="138" x2="560" y2="138" stroke="#4A2B17" stroke-width="0.6" opacity="0.5"/>
+  <line x1="40" y1="142" x2="560" y2="142" stroke="#4A2B17" stroke-width="1.2"/>
+  <!-- Tagline -->
+  <text x="300" y="170" font-family="'Outfit', 'Helvetica Neue', sans-serif" font-size="14" fill="#8B5A2B" font-weight="600" letter-spacing="8" text-anchor="middle">STRATEGIC CARD COMBAT</text>
+  <!-- Corner ornaments -->
+  <text x="32" y="28" font-family="serif" font-size="12" fill="#6B4226">◆</text>
+  <text x="562" y="28" font-family="serif" font-size="12" fill="#6B4226">◆</text>
+  <text x="32" y="152" font-family="serif" font-size="12" fill="#6B4226">◆</text>
+  <text x="562" y="152" font-family="serif" font-size="12" fill="#6B4226">◆</text>
+</svg>

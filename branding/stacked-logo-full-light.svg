@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200" width="600" height="200">
+  <defs>
+    <linearGradient id="parchBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5E8C7"/>
+      <stop offset="100%" stop-color="#E8D5B7"/>
+    </linearGradient>
+    <linearGradient id="darkBrand" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4A2B17"/>
+      <stop offset="100%" stop-color="#331E0F"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="200" fill="url(#parchBg)"/>
+  <line x1="40" y1="32" x2="560" y2="32" stroke="#D2A679" stroke-width="1.2"/>
+  <line x1="40" y1="36" x2="560" y2="36" stroke="#D2A679" stroke-width="0.6" opacity="0.5"/>
+  <text x="300" y="118" font-family="'Cinzel', 'Playfair Display', 'Georgia', serif" font-size="76" fill="url(#darkBrand)" text-anchor="middle" font-weight="900" letter-spacing="8">STACKED!</text>
+  <line x1="40" y1="138" x2="560" y2="138" stroke="#D2A679" stroke-width="0.6" opacity="0.5"/>
+  <line x1="40" y1="142" x2="560" y2="142" stroke="#D2A679" stroke-width="1.2"/>
+  <text x="300" y="170" font-family="'Outfit', 'Helvetica Neue', sans-serif" font-size="14" fill="#8B5A2B" font-weight="600" letter-spacing="8" text-anchor="middle">STRATEGIC CARD COMBAT</text>
+  <text x="32" y="28" font-family="serif" font-size="12" fill="#D2A679">◆</text>
+  <text x="562" y="28" font-family="serif" font-size="12" fill="#D2A679">◆</text>
+  <text x="32" y="152" font-family="serif" font-size="12" fill="#D2A679">◆</text>
+  <text x="562" y="152" font-family="serif" font-size="12" fill="#D2A679">◆</text>
+</svg>

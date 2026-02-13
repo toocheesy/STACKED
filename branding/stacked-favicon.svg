@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2C1810"/>
+      <stop offset="100%" stop-color="#1A0F08"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" fill="url(#bg)"/>
+  <!-- Back card -->
+  <rect x="10" y="18" width="26" height="36" rx="3" fill="#E8D5B7" transform="rotate(-10 23 36)" stroke="#D2A679" stroke-width="0.7"/>
+  <!-- Middle card -->
+  <rect x="17" y="14" width="26" height="36" rx="3" fill="#F5E8C7" transform="rotate(0 30 32)" stroke="#D2A679" stroke-width="0.7"/>
+  <!-- Top card -->
+  <rect x="24" y="10" width="26" height="36" rx="3" fill="#F5E8C7" transform="rotate(8 37 28)" stroke="#D4A44A" stroke-width="1"/>
+  <!-- S on top card -->
+  <text x="35" y="34" font-family="'Playfair Display', 'Georgia', serif" font-size="20" fill="#4A2B17" text-anchor="middle" transform="rotate(8 37 28)" font-weight="900">S</text>
+</svg>
