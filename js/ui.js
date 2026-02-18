@@ -57,7 +57,6 @@ render() {
   this.renderBoard();
   this.renderHands();
   this.renderScores();
-  this.renderBotCardCounts();
   this.renderBotDisplays();
   this.renderDealerIndicator();
   this.renderTurnIndicator();
@@ -300,22 +299,6 @@ areaEl.addEventListener('touchend', areaEl._boundTouchEnd, { passive: true });
     }, 0);
   }
 
-  // Add this method to your UISystem class in ui.js
-renderBotCardCounts() {
-  const bot1CardsEl = document.getElementById('bot1-cards');
-  const bot2CardsEl = document.getElementById('bot2-cards');
-
-  if (bot1CardsEl) {
-    const bot1Count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
-    bot1CardsEl.textContent = `${bot1Count} cards`;
-  }
-
-  if (bot2CardsEl) {
-    const bot2Count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
-    bot2CardsEl.textContent = `${bot2Count} cards`;
-  }
-}
-
 renderBotDisplays() {
   const cp = this.game?.state?.currentPlayer ?? 0;
 
@@ -329,6 +312,10 @@ renderBotDisplays() {
   if (bot1CardsEl) {
     const count = this.game.state.hands[1] ? this.game.state.hands[1].length : 0;
     bot1CardsEl.textContent = count + ' cards';
+  }
+  const bot1ScoreEl = document.getElementById('bot1-display-score');
+  if (bot1ScoreEl) {
+    bot1ScoreEl.textContent = (this.game.state.scores.bot1 || 0) + ' pts';
   }
   if (bot1Display) {
     bot1Display.classList.toggle('bot-active', cp === 1);
@@ -344,6 +331,10 @@ renderBotDisplays() {
   if (bot2CardsEl) {
     const count = this.game.state.hands[2] ? this.game.state.hands[2].length : 0;
     bot2CardsEl.textContent = count + ' cards';
+  }
+  const bot2ScoreEl = document.getElementById('bot2-display-score');
+  if (bot2ScoreEl) {
+    bot2ScoreEl.textContent = (this.game.state.scores.bot2 || 0) + ' pts';
   }
   if (bot2Display) {
     bot2Display.classList.toggle('bot-active', cp === 2);
@@ -394,24 +385,11 @@ renderBotDisplays() {
   renderScores() {
   const scores = this.game.state.scores;
 
-  // Update individual score elements
-  const playerScoreEl = document.getElementById('player-score');
-  const bot1ScoreEl = document.getElementById('bot1-score');
-  const bot2ScoreEl = document.getElementById('bot2-score');
-  const bot1NameEl = document.getElementById('bot1-name');
-  const bot2NameEl = document.getElementById('bot2-name');
-
+  // Update player score display (left of hand)
+  const playerScoreEl = document.getElementById('player-score-display');
   if (playerScoreEl) playerScoreEl.textContent = `${scores.player} pts`;
-  if (bot1ScoreEl) bot1ScoreEl.textContent = `${scores.bot1} pts`;
-  if (bot2ScoreEl) bot2ScoreEl.textContent = `${scores.bot2} pts`;
 
-  // Update bot names from personality
-  if (bot1NameEl && window.messageController) {
-    bot1NameEl.textContent = window.messageController.getBotDisplayName(1);
-  }
-  if (bot2NameEl && window.messageController) {
-    bot2NameEl.textContent = window.messageController.getBotDisplayName(2);
-  }
+  // Bot scores are updated in renderBotDisplays()
 
   // Update target score display
   const targetScoreEl = document.getElementById('target-score');
@@ -421,33 +399,20 @@ renderBotDisplays() {
   }
 }
 
-  // 🔥 REPLACE renderDealerIndicator() FUNCTION in ui.js:
 renderDealerIndicator() {
   const state = this.game.getState();
   const deckCount = state.deck ? state.deck.length : 0;
   const currentDealer = state.currentDealer !== undefined ? state.currentDealer : 0;
-  
-  // Remove existing dealer classes from all stat blocks
-  const allIndicators = document.querySelectorAll('.sb-row');
-  allIndicators.forEach(el => {
-    el.classList.remove('dealer');
-    el.removeAttribute('data-deck');
-  });
 
-  // Add dealer class to appropriate element based on current dealer
-  let dealerElement = null;
-
-  if (currentDealer === 0) {
-    dealerElement = document.querySelector('.player-stat');
-  } else if (currentDealer === 1) {
-    dealerElement = document.querySelector('.bot1-indicator');
-  } else if (currentDealer === 2) {
-    dealerElement = document.querySelector('.bot2-indicator');
-  }
-  
-  if (dealerElement) {
-    dealerElement.classList.add('dealer');
-    dealerElement.setAttribute('data-deck', deckCount);
+  const dealerEl = document.getElementById('dealer-indicator');
+  if (dealerEl) {
+    let dealerName = 'You';
+    if (currentDealer === 1 || currentDealer === 2) {
+      dealerName = window.messageController
+        ? window.messageController.getBotDisplayName(currentDealer)
+        : `Bot ${currentDealer}`;
+    }
+    dealerEl.querySelector('span').textContent = `DEALER: ${dealerName} | ${deckCount} left`;
   }
 }
 

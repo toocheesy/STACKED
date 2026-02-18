@@ -893,6 +893,15 @@ function handleTouchStart(e, source, data) {
     y: e.touches[0].clientY
   };
 
+  // Add dragging class to kill transition/hover lag
+  if (touchDragData) {
+    const cardEl = e.target.closest('.card');
+    if (cardEl) {
+      cardEl.classList.add('dragging');
+      touchDragData.element = cardEl;
+    }
+  }
+
   // Create visual ghost card
   if (touchDragData) {
     const cardObj = touchDragData.type === 'combo' ? touchDragData.card.card : touchDragData.card;
@@ -913,6 +922,11 @@ function handleTouchEnd(e) {
   e.preventDefault();
   removeTouchGhost();
 
+  // Remove dragging class from source card
+  if (touchDragData && touchDragData.element) {
+    touchDragData.element.classList.remove('dragging');
+  }
+
   if (!touchDragData || !touchStartPosition) {
     return;
   }
@@ -931,6 +945,7 @@ function handleTouchEnd(e) {
 
   if (!elementBelow) {
     touchDragData = null;
+    touchStartPosition = null;
     return;
   }
 
@@ -947,7 +962,13 @@ function handleTouchEnd(e) {
   else if (elementBelow.closest('.board') || elementBelow.classList.contains('board')) {
     handleTouchDropOnBoard();
   }
-  
+  // Invalid drop — snap back by re-rendering
+  else {
+    if (window.ui && typeof window.ui.renderAll === 'function') {
+      window.ui.renderAll(game);
+    }
+  }
+
   // Clear touch data
   touchDragData = null;
   touchStartPosition = null;
@@ -1252,20 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     dismissBtn._wired = true;
   }
 
-  // Scoreboard panel toggle
-  const scoreboardTab = document.getElementById('scoreboard-tab');
-  const scoreboardPanel = document.getElementById('scoreboard-panel');
-  if (scoreboardTab && scoreboardPanel) {
-    scoreboardTab.addEventListener('click', (e) => {
-      e.stopPropagation();
-      scoreboardPanel.classList.toggle('open');
-    });
-    document.addEventListener('click', (e) => {
-      if (scoreboardPanel.classList.contains('open') && !scoreboardPanel.contains(e.target)) {
-        scoreboardPanel.classList.remove('open');
-      }
-    });
-  }
+
 
   // Settings gear — open/close overlay
   const settingsGearBtn = document.getElementById('settings-gear-btn');
