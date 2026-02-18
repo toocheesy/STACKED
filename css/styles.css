@@ -1295,11 +1295,6 @@ body {
   }
 }
 
-.card.dragging {
-  transition: none !important;
-  transform: translateZ(0) !important;
-}
-
 .card.selected {
   border-color: #4A7043;
   box-shadow: 0 0 15px rgba(74, 112, 67, 0.8);

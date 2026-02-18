@@ -893,15 +893,6 @@ function handleTouchStart(e, source, data) {
     y: e.touches[0].clientY
   };
 
-  // Add dragging class to kill transition/hover lag
-  if (touchDragData) {
-    const cardEl = e.target.closest('.card');
-    if (cardEl) {
-      cardEl.classList.add('dragging');
-      touchDragData.element = cardEl;
-    }
-  }
-
   // Create visual ghost card
   if (touchDragData) {
     const cardObj = touchDragData.type === 'combo' ? touchDragData.card.card : touchDragData.card;
@@ -921,11 +912,6 @@ function handleTouchEnd(e) {
   if (game.state.currentPlayer !== 0) { removeTouchGhost(); return; }
   e.preventDefault();
   removeTouchGhost();
-
-  // Remove dragging class from source card
-  if (touchDragData && touchDragData.element) {
-    touchDragData.element.classList.remove('dragging');
-  }
 
   if (!touchDragData || !touchStartPosition) {
     return;
