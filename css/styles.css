@@ -1297,7 +1297,7 @@ body {
 
 .card.dragging {
   transition: none !important;
-  transform: none !important;
+  transform: translateZ(0) !important;
 }
 
 .card.selected {

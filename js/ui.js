@@ -235,7 +235,7 @@ resetRenderFlags() {
         cardEl.addEventListener('dragend', window.handleDragEnd);
         cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, 'combo', { slot: slotName, comboIndex }), { passive: false });
         cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
-        cardEl.addEventListener('touchend', window.handleTouchEnd);
+        cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: false });
         areaEl.appendChild(cardEl);
       });
       areaEl.style.height = `${slotH + (cards.length - 1) * stackOffset}px`;
@@ -580,7 +580,7 @@ cleanupBotComboVisuals() {
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
     cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
     cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
-    cardEl.addEventListener('touchend', window.handleTouchEnd);
+    cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: false });
     return cardEl;
   }
 
@@ -593,7 +593,7 @@ cleanupBotComboVisuals() {
     cardEl.setAttribute('data-type', type);
     cardEl.addEventListener('dragover', (e) => e.preventDefault());
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
-    cardEl.addEventListener('touchend', (e) => window.handleTouchDrop(e, type, index));
+    cardEl.addEventListener('touchend', (e) => window.handleTouchDrop(e, type, index), { passive: false });
   }
 
   setupCardElement(cardEl, card, index, type) {
