@@ -608,7 +608,7 @@ cleanupBotComboVisuals() {
     cardEl.addEventListener('drop', (e) => window.handleDropOriginal(e, type, index));
     cardEl.addEventListener('touchstart', (e) => window.handleTouchStart(e, type, index), { passive: false });
     cardEl.addEventListener('touchmove', (e) => window.handleTouchMove && window.handleTouchMove(e), { passive: false });
-    cardEl.addEventListener('touchend', window.handleTouchEnd, { passive: false });
+    cardEl.addEventListener('touchend', window.handleTouchEnd);
   }
 }
 
