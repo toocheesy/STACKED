@@ -838,7 +838,7 @@ function createTouchGhost(card, x, y) {
   ghost.className = `card ${card.suit === 'Hearts' || card.suit === 'Diamonds' ? 'red' : ''}`;
   ghost.textContent = `${card.value}${suitSymbols[card.suit] || ''}`;
   ghost.style.cssText = `
-    position: fixed; z-index: 20000; pointer-events: none;
+    position: fixed; z-index: 20000; pointer-events: none; transition: none;
     opacity: 0.85; transform: scale(1.1) rotate(-3deg);
     box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     left: ${x - 22}px; top: ${y - 30}px;
