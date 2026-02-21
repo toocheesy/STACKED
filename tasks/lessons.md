@@ -20,6 +20,10 @@
 **What went wrong:** `/js/ai.js` was still in `ASSETS_TO_CACHE` after being consolidated into `helpers.js`. Caused `addAll` to fail silently, breaking the entire cache install.
 **Rule to prevent it:** When consolidating or deleting JS files, always check `sw.js` ASSETS_TO_CACHE and bump the cache version.
 
+## 2026-02-20 — Ghost card inherited transition: all from .card class
+**What went wrong:** Touch drag ghost element was created with `className = 'card ...'`, inheriting `transition: all 0.15s ease` from CSS. Every `moveTouchGhost()` call updated `left`/`top`, which the browser animated with 150ms delay instead of tracking instantly. Two earlier fix attempts (`.card.dragging` CSS class, passive listener flags) addressed the wrong element — the source card, not the ghost.
+**Rule to prevent it:** When debugging visual lag on a dragged element, check the ACTUAL element being moved first. Inline `transition: none` on dynamically created elements that inherit from styled classes. Don't shotgun-fix CSS classes and event listener flags before confirming which DOM node is lagging.
+
 ## 2026-02-12 — Google Drive + Git repos don't mix
 **What went wrong:** `.tmp.driveupload/` junk files appearing, potential lock file conflicts across machines.
 **Rule to prevent it:** Keep git repos on local drives, sync through GitHub. Never put a `.git` directory inside a Drive-synced folder.
