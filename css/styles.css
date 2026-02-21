@@ -630,6 +630,9 @@ body {
   font-size: 10px;
   color: var(--gold-warm);
   white-space: nowrap;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
