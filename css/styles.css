@@ -618,7 +618,7 @@ body {
 .last-capture-display {
   position: absolute;
   top: var(--topbar-height);
-  left: 50%;
+  left: calc((100% - var(--combo-width)) / 2);
   transform: translateX(-50%);
   z-index: 20;
   background: rgba(26, 15, 8, 0.85);
