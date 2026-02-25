@@ -16,7 +16,7 @@ const AdventureLevels = {
         {
           id: '1-1',
           name: 'First Match',
-          targetScore: 30,
+          targetScore: 100,
           bot1: 'calvin', bot2: 'calvin',
           restrictions: ['pairsOnly'],
           locked: false,
@@ -25,7 +25,7 @@ const AdventureLevels = {
         {
           id: '1-2',
           name: 'Pair Pro',
-          targetScore: 40,
+          targetScore: 125,
           bot1: 'calvin', bot2: 'calvin',
           restrictions: ['pairsOnly'],
           locked: false,
@@ -43,7 +43,7 @@ const AdventureLevels = {
         {
           id: '2-1',
           name: 'Adding Up',
-          targetScore: 40,
+          targetScore: 100,
           bot1: 'calvin', bot2: 'talia',
           restrictions: ['noSum2', 'noSum3'],
           locked: false,
@@ -52,7 +52,7 @@ const AdventureLevels = {
         {
           id: '2-2',
           name: 'Double Trouble',
-          targetScore: 50,
+          targetScore: 125,
           bot1: 'talia', bot2: 'talia',
           restrictions: ['noSum3'],
           locked: false,
@@ -61,7 +61,7 @@ const AdventureLevels = {
         {
           id: '2-3',
           name: 'Full Power',
-          targetScore: 60,
+          targetScore: 150,
           bot1: 'talia', bot2: 'calvin',
           restrictions: [],
           locked: false,
@@ -79,7 +79,7 @@ const AdventureLevels = {
         {
           id: '3-1',
           name: 'The Natural',
-          targetScore: 75,
+          targetScore: 150,
           bot1: 'calvin', bot2: 'nina',
           restrictions: [],
           locked: false,
@@ -88,7 +88,7 @@ const AdventureLevels = {
         {
           id: '3-2',
           name: 'Combo Breaker',
-          targetScore: 100,
+          targetScore: 175,
           bot1: 'nina', bot2: 'talia',
           restrictions: [],
           locked: false,
@@ -97,7 +97,7 @@ const AdventureLevels = {
         {
           id: '3-3',
           name: 'Canyon King',
-          targetScore: 150,
+          targetScore: 200,
           bot1: 'nina', bot2: 'nina',
           restrictions: [],
           locked: false,
@@ -115,7 +115,7 @@ const AdventureLevels = {
         {
           id: '4-1',
           name: 'The Gambler',
-          targetScore: 150,
+          targetScore: 200,
           bot1: 'nina', bot2: 'rex',
           restrictions: [],
           locked: false,
@@ -133,7 +133,7 @@ const AdventureLevels = {
         {
           id: '4-3',
           name: 'The Wall',
-          targetScore: 200,
+          targetScore: 225,
           bot1: 'mira', bot2: 'rex',
           restrictions: [],
           locked: false,
