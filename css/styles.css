@@ -418,6 +418,67 @@ body {
   box-shadow: 0 4px 16px rgba(212, 164, 74, 0.3);
 }
 
+/* Target Score Picker (inside rules modal) */
+.target-score-picker {
+  text-align: center;
+  margin: 14px auto 4px;
+  padding: 0 12px;
+}
+
+.target-score-label {
+  display: block;
+  color: #D4A44A;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 2px;
+}
+
+.target-score-value {
+  display: block;
+  color: #F5D98A;
+  font-family: 'Cinzel', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.target-score-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 80%;
+  max-width: 220px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #4A2B17, #6B3D1F);
+  outline: none;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.target-score-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #F5D98A, #D4A44A);
+  border: 2px solid #8B5A2B;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.target-score-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #F5D98A, #D4A44A);
+  border: 2px solid #8B5A2B;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
 /* ============================================================================
  * 4. MAIN GAME CONTAINER GRID
  * ============================================================================ */

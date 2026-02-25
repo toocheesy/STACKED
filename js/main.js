@@ -1171,14 +1171,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, { passive: false });
 
-  // Show quick rules overlay on first visit — pause game until dismissed
+  // Show quick rules overlay every Classic game start — lets player set target score
   // Skip in Adventure Mode — level intro modal handles instructions
   const isAdventure = localStorage.getItem('selectedMode') === 'adventure';
-  if (!isAdventure && !localStorage.getItem('hasPlayedBefore')) {
+  if (!isAdventure) {
     const overlay = document.getElementById('quick-rules-overlay');
     if (overlay) {
       overlay.style.display = 'flex';
       window.gameIsPaused = true;
+      // Reset slider to default when showing at game start
+      const picker = document.querySelector('.target-score-picker');
+      const slider = document.getElementById('target-score-slider');
+      const display = document.getElementById('target-score-display');
+      if (picker) picker.style.display = '';
+      if (slider) slider.value = 300;
+      if (display) display.textContent = '300';
     }
   }
 
@@ -1237,7 +1244,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Rules button — re-show quick rules overlay
+  // Rules button — re-show quick rules overlay (hide slider mid-game)
   const rulesBtn = document.getElementById('rules-btn');
   if (rulesBtn) {
     rulesBtn.addEventListener('click', () => {
@@ -1245,18 +1252,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (overlay) {
         overlay.style.display = 'flex';
         window.gameIsPaused = true;
+        const picker = document.querySelector('.target-score-picker');
+        if (picker) picker.style.display = 'none';
       }
     });
   }
 
-  // Wire up dismiss button for rules overlay (works for both first-visit and manual open)
+  // Wire up target score slider
+  const tsSlider = document.getElementById('target-score-slider');
+  const tsDisplay = document.getElementById('target-score-display');
+  if (tsSlider && tsDisplay) {
+    tsSlider.addEventListener('input', () => {
+      tsDisplay.textContent = tsSlider.value;
+    });
+  }
+
+  // Wire up dismiss button for rules overlay
   const dismissBtn = document.getElementById('dismiss-rules-btn');
   if (dismissBtn && !dismissBtn._wired) {
     dismissBtn.addEventListener('click', () => {
       const overlay = document.getElementById('quick-rules-overlay');
       if (overlay) overlay.style.display = 'none';
-      localStorage.setItem('hasPlayedBefore', 'true');
       window.gameIsPaused = false;
+      // Apply chosen target score (slider visible = game start, hidden = mid-game rules view)
+      const picker = document.querySelector('.target-score-picker');
+      if (picker && picker.style.display !== 'none') {
+        const chosenScore = parseInt(document.getElementById('target-score-slider')?.value) || 300;
+        game.state.settings.targetScore = chosenScore;
+        const targetEl = document.getElementById('target-score');
+        if (targetEl) targetEl.textContent = chosenScore + ' pts';
+      }
     });
     dismissBtn._wired = true;
   }

@@ -25,7 +25,7 @@
   </script>
 </head>
 <body>
-  <!-- Quick Rules Overlay (first visit) -->
+  <!-- Quick Rules Overlay (every Classic game start) -->
   <div id="quick-rules-overlay" class="quick-rules-overlay" style="display: none;">
     <div class="quick-rules-backdrop"></div>
     <div class="quick-rules-modal">
@@ -39,6 +39,12 @@
         <p>&#8226; Hit <strong>Submit</strong> to capture</p>
         <p><strong>POINTS:</strong> A=15 | K,Q,J,10=10 | 2-9=5 each</p>
         <p><strong>TIPS:</strong> Face cards only match, never sum. Tap HELP if stuck.</p>
+      </div>
+      <div class="target-score-picker">
+        <label class="target-score-label">Target Score</label>
+        <span class="target-score-value" id="target-score-display">300</span>
+        <input type="range" id="target-score-slider" class="target-score-slider"
+               min="300" max="1000" step="100" value="300">
       </div>
       <button id="dismiss-rules-btn" class="dismiss-rules-btn">Deal Me In!</button>
     </div>
