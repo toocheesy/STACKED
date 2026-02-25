@@ -1172,7 +1172,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { passive: false });
 
   // Show quick rules overlay on first visit — pause game until dismissed
-  if (!localStorage.getItem('hasPlayedBefore')) {
+  // Skip in Adventure Mode — level intro modal handles instructions
+  const isAdventure = localStorage.getItem('selectedMode') === 'adventure';
+  if (!isAdventure && !localStorage.getItem('hasPlayedBefore')) {
     const overlay = document.getElementById('quick-rules-overlay');
     if (overlay) {
       overlay.style.display = 'flex';
