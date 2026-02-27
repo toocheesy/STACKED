@@ -1173,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Show quick rules overlay every Classic game start — lets player set target score
   // Skip in Adventure Mode — level intro modal handles instructions
-  const isAdventure = localStorage.getItem('selectedMode') === 'adventure';
+  const isAdventure = modeSelector.currentMode === 'adventure';
   if (!isAdventure) {
     const overlay = document.getElementById('quick-rules-overlay');
     if (overlay) {
