@@ -25,3 +25,6 @@ dist-ssr
 
 # Google Drive temp files
 .tmp.driveupload/
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
