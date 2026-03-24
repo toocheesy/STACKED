@@ -1776,12 +1776,6 @@ body.session-landscape .orientation-overlay,
 body.session-landscape .rotate-overlay {
   display: none !important;
 }
-body.session-landscape .game-container {
-  display: block !important;
-}
-body.session-landscape .modal-overlay {
-  display: none; /* reset to default, let JS control */
-}
 
 /* =============================================
    SECTION: BOT CORNER DISPLAYS
