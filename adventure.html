@@ -6,6 +6,17 @@
 <title>STACKED! — Adventure Mode</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎴</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+  // Session landscape lock — suppress rotate overlays after initial rotation
+  (function() {
+    if (sessionStorage.getItem('stacked_rotated') === 'true') {
+      document.documentElement.classList.add('session-landscape');
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('session-landscape');
+      });
+    }
+  })();
+</script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -362,6 +373,10 @@
     .rotate-overlay { display: flex; }
     .adventure-page { display: none; }
   }
+
+  /* Session landscape lock */
+  body.session-landscape .rotate-overlay { display: none !important; }
+  body.session-landscape .adventure-page { display: block !important; }
 
   @media (max-height: 420px) {
     .adventure-page { padding: 12px 16px 24px; }

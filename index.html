@@ -211,10 +211,7 @@
     75% { transform: rotate(90deg); }
   }
 
-  @media screen and (orientation: portrait) and (max-width: 768px) {
-    .rotate-overlay { display: flex; }
-    .homepage { display: none !important; }
-  }
+  .rotate-overlay.active { display: flex; }
 
   /* ── Welcome modal ── */
   .welcome-overlay {
@@ -765,6 +762,54 @@
     .logo-title { font-size: 88px; }
   }
 
+  /* ── Settings row ── */
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+  }
+
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .toggle-track {
+    width: 36px;
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(74, 43, 23, 0.6);
+    border: 1px solid var(--border-subtle);
+    position: relative;
+    transition: background 0.2s;
+  }
+
+  .toggle-track.on {
+    background: var(--felt-mid);
+  }
+
+  .toggle-knob {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--parch-mid);
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    transition: transform 0.2s;
+  }
+
+  .toggle-track.on .toggle-knob {
+    transform: translateX(16px);
+  }
+
   /* ── Ultra-short ── */
   @media (max-height: 340px) {
     .logo-flavor { display: none; }
@@ -775,6 +820,46 @@
     .game-panel { padding: 10px 14px 8px; }
     .play-btn { padding: 8px 12px; font-size: 12px; }
     .panel-footer { padding-top: 6px; }
+  }
+
+  /* ── Portrait layout (mobile) — MUST be last to override base rules ── */
+  @media screen and (orientation: portrait) and (max-width: 768px) {
+    html, body {
+      position: static;
+      height: auto;
+      min-height: 100dvh;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .homepage {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      padding: 32px 20px 16px;
+      gap: 20px 0;
+      max-width: 100%;
+      height: auto;
+      min-height: auto;
+    }
+    .logo-section {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .game-panel {
+      grid-column: 1;
+      grid-row: 2;
+      max-width: 100%;
+    }
+    .footer-whisper {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .logo-title { font-size: clamp(36px, 12vw, 56px); }
+    .logo-tagline { font-size: 11px; letter-spacing: 4px; }
+    .logo-flavor { font-size: 13px; margin-top: 12px; }
+    .logo-ornament-top { margin-bottom: 8px; }
+    .logo-ornament-bottom { margin-top: 6px; margin-bottom: 6px; }
+    .ornament-line { width: 60px; }
+    .ornament-line-bottom { width: 40px; }
   }
   </style>
   <!-- Google Analytics -->
@@ -798,8 +883,8 @@
   <span class="s6">&#9827;</span>
 </div>
 
-<!-- Rotate overlay -->
-<div class="rotate-overlay">
+<!-- Rotate overlay (JS-controlled, shown after Play tap) -->
+<div class="rotate-overlay" id="rotate-overlay">
   <div class="ro-logo">STACKED!</div>
   <div class="ro-subtitle">STRATEGIC CARD COMBAT</div>
   <div class="ro-cards">
@@ -808,9 +893,9 @@
     <div class="ro-card">♣</div>
     <div class="ro-card">♦</div>
   </div>
-  <div class="ro-tagline">Outsmart 2 AI opponents using combo chains.</div>
+  <div class="ro-tagline">Almost there — one more thing.</div>
   <div class="ro-icon">📱</div>
-  <div class="ro-cta">Rotate your phone to play →</div>
+  <div class="ro-cta">Turn sideways to start</div>
   <div class="ro-waiting">Your opponents are waiting.</div>
 </div>
 
@@ -907,6 +992,15 @@
       </button>
     </div>
 
+    <div class="settings-row">
+      <div class="sound-toggle" id="sound-toggle">
+        <span>&#128266; Sound</span>
+        <div class="toggle-track" id="sound-track">
+          <div class="toggle-knob"></div>
+        </div>
+      </div>
+    </div>
+
     <div class="panel-footer">
       <span class="tournament-teaser">Tournament &mdash; coming soon</span>
       <a href="https://docs.google.com/forms/d/e/1FAIpQLSdT4Rfrf2UJ3lN6FGt48olNHX7qG4vBXfrTLwytS2v18dM_5w/viewform?usp=header"
@@ -923,28 +1017,76 @@
 </div>
 
 <script>
-  // AI pairings
+  // ── AI pairings ──
   const DIFFICULTY_PAIRINGS = {
     beginner:     { bot1: 'calvin', bot2: 'calvin' },
     intermediate: { bot1: 'calvin', bot2: 'nina' },
     legendary:    { bot1: 'nina',   bot2: 'rex' }
   };
 
-  // Play Classic — opens difficulty modal
+  // ── Orientation utilities ──
+  let pendingDestination = null;
+
+  function isMobilePortrait() {
+    return window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+  }
+
+  function hasRotatedThisSession() {
+    return sessionStorage.getItem('stacked_rotated') === 'true';
+  }
+
+  function showRotatePrompt(destination) {
+    pendingDestination = destination;
+    document.getElementById('rotate-overlay').classList.add('active');
+  }
+
+  function hideRotatePrompt() {
+    document.getElementById('rotate-overlay').classList.remove('active');
+    pendingDestination = null;
+  }
+
+  function launchGame(destination) {
+    if (!isMobilePortrait() || hasRotatedThisSession()) {
+      window.location.href = destination;
+      return;
+    }
+    showRotatePrompt(destination);
+  }
+
+  function onOrientationChange() {
+    const overlay = document.getElementById('rotate-overlay');
+    if (!overlay || !overlay.classList.contains('active')) return;
+
+    if (window.innerWidth > window.innerHeight) {
+      sessionStorage.setItem('stacked_rotated', 'true');
+      var destination = pendingDestination;
+      hideRotatePrompt();
+      if (destination) {
+        window.location.href = destination;
+      }
+    }
+  }
+
+  window.addEventListener('resize', onOrientationChange);
+  window.addEventListener('orientationchange', function() {
+    setTimeout(onOrientationChange, 150);
+  });
+
+  // ── Play Classic — opens difficulty modal ──
   function playClassic() {
     document.getElementById('difficulty-overlay').classList.add('active');
   }
 
-  // Difficulty card click — store pairings and navigate
+  // ── Difficulty card click — store pairings and launch ──
   function selectDifficulty(difficulty) {
     const pairing = DIFFICULTY_PAIRINGS[difficulty] || DIFFICULTY_PAIRINGS.beginner;
     localStorage.setItem('selectedMode', 'classic');
     localStorage.setItem('bot1Personality', pairing.bot1);
     localStorage.setItem('bot2Personality', pairing.bot2);
-    window.location.href = 'game.html';
+    launchGame('game.html');
   }
 
-  // Welcome modal
+  // ── Welcome modal ──
   function showWelcome() {
     document.getElementById('welcome-overlay').style.display = 'flex';
   }
@@ -954,7 +1096,22 @@
     localStorage.setItem('stacked_welcomed', 'true');
   }
 
-  // Init
+  // ── Sound toggle ──
+  function initSoundToggle() {
+    const toggle = document.getElementById('sound-toggle');
+    const track = document.getElementById('sound-track');
+    if (!toggle || !track) return;
+
+    const soundOn = localStorage.getItem('stacked_sound') !== 'off';
+    if (soundOn) track.classList.add('on');
+
+    toggle.addEventListener('click', () => {
+      track.classList.toggle('on');
+      localStorage.setItem('stacked_sound', track.classList.contains('on') ? 'on' : 'off');
+    });
+  }
+
+  // ── Init ──
   document.addEventListener('DOMContentLoaded', () => {
     if (!localStorage.getItem('stacked_welcomed')) {
       showWelcome();
@@ -963,7 +1120,7 @@
     // Wire up play buttons
     document.querySelector('.play-btn-classic').addEventListener('click', playClassic);
     document.querySelector('.play-btn-adventure').addEventListener('click', () => {
-      window.location.href = 'adventure.html';
+      launchGame('adventure.html');
     });
     document.querySelector('.help-btn').addEventListener('click', showWelcome);
 
@@ -978,6 +1135,9 @@
     document.getElementById('diff-cancel').addEventListener('click', () => {
       document.getElementById('difficulty-overlay').classList.remove('active');
     });
+
+    // Sound toggle
+    initSoundToggle();
   });
 </script>
 <script>
