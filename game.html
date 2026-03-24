@@ -23,6 +23,17 @@
     gtag('js', new Date());
     gtag('config', 'G-50VG5774NJ');
   </script>
+  <script>
+    // Session landscape lock — suppress rotate overlays after initial rotation
+    (function() {
+      if (sessionStorage.getItem('stacked_rotated') === 'true') {
+        document.documentElement.classList.add('session-landscape');
+        document.addEventListener('DOMContentLoaded', function() {
+          document.body.classList.add('session-landscape');
+        });
+      }
+    })();
+  </script>
 </head>
 <body>
   <!-- Quick Rules Overlay (every Classic game start) -->

@@ -423,6 +423,11 @@
   }
 }
 
+/* Session landscape lock */
+body.session-landscape .rotate-overlay {
+  display: none !important;
+}
+
 /* ===== Adventure Completion (in-game modal) ===== */
 .adv-placement {
   font-size: 1.3rem;
