@@ -318,16 +318,16 @@ body {
 .orientation-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.95);
+  background: #1A0F08;
   color: #D2A679;
   display: none;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  font-size: 1.2rem;
   text-align: center;
-  padding: 20px;
-  line-height: 1.4;
+  padding: 24px;
+  gap: 16px;
 }
 
 @media screen and (orientation: portrait) and (max-width: 768px) {
@@ -1771,10 +1771,90 @@ dialog::backdrop {
   }
 }
 
-/* Session landscape lock — once rotated, suppress all rotate/orientation overlays */
-body.session-landscape .orientation-overlay,
+/* Session landscape lock — suppresses homepage rotate wall for returning visitors only */
 body.session-landscape .rotate-overlay {
   display: none !important;
+}
+
+/* ── Shared rotate overlay content styles (ro-*) ── */
+.ro-logo {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 2.8rem;
+  color: var(--gold-warm);
+  letter-spacing: 6px;
+  text-shadow: 0 0 30px rgba(212, 165, 116, 0.4);
+}
+
+.ro-subtitle {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 5px;
+  color: var(--gold-mid);
+  margin-top: -10px;
+}
+
+.ro-cards {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0;
+}
+
+.ro-card {
+  width: 42px;
+  height: 58px;
+  border: 1.5px solid rgba(212, 165, 116, 0.5);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  color: var(--gold-mid);
+  animation: cardFloat 3s ease-in-out infinite;
+}
+
+.ro-card:nth-child(2) { animation-delay: 0.3s; color: #c0392b; }
+.ro-card:nth-child(3) { animation-delay: 0.6s; }
+.ro-card:nth-child(4) { animation-delay: 0.9s; color: #c0392b; }
+
+@keyframes cardFloat {
+  0%, 100% { opacity: 0.5; transform: translateY(0); }
+  50% { opacity: 1; transform: translateY(-4px); }
+}
+
+.ro-tagline {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 260px;
+  line-height: 1.6;
+}
+
+.ro-icon {
+  font-size: 2.6rem;
+  animation: tilt 1.8s ease-in-out infinite;
+}
+
+.ro-cta {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold-warm);
+  letter-spacing: 2px;
+}
+
+.ro-waiting {
+  font-size: 0.75rem;
+  color: rgba(212, 165, 116, 0.35);
+  letter-spacing: 1px;
+  font-style: italic;
+}
+
+@keyframes tilt {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(90deg); }
+  75% { transform: rotate(90deg); }
 }
 
 /* =============================================
